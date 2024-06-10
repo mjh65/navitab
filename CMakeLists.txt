@@ -1,11 +1,11 @@
-# Works with 3.14 and tested through 3.29
-cmake_minimum_required(VERSION 3.14...3.29)
+# Works with 3.23 and tested through 3.29
+cmake_minimum_required(VERSION 3.23...3.29)
 
 # Project name and a few useful settings. Other commands can pick up the results
 project(
   Navitab
   VERSION 0.1
-  DESCRIPTION "An Avitab-like plugin for flight simulation"
+  DESCRIPTION "An Avitab-like add-on for flight simulation"
   LANGUAGES CXX)
 
 # Only do these if this is the main project, and not if it is included through add_subdirectory
@@ -42,6 +42,7 @@ include(FetchContent)
 message(STATUS "Fetching fmtlib")
 FetchContent_Declare(
   fmtlib
+  SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/extern/fmtlib
   GIT_REPOSITORY https://github.com/fmtlib/fmt.git
   GIT_TAG 10.2.1)
 FetchContent_MakeAvailable(fmtlib)
@@ -51,6 +52,7 @@ FetchContent_MakeAvailable(fmtlib)
 message(STATUS "Fetching lvgl")
 FetchContent_Declare(
   lvgl
+  SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/extern/lvgl
   GIT_REPOSITORY https://github.com/lvgl/lvgl.git
   GIT_TAG v9.1.0)
 FetchContent_MakeAvailable(lvgl)

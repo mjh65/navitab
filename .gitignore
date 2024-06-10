@@ -35,7 +35,9 @@
 
 # Project specific ignores
 build*/
+/install/
 /scratch/
+/extern/
 
 # Ignore hidden files, apart from some project specifics
 /.*
@@ -43,6 +45,9 @@ build*/
 !/.gitignore
 !/.gitmodules
 !/.clang-format
+
+# CMake
+CMakeUserPresets.json
 
 # Jetbrains IDE
 .idea/

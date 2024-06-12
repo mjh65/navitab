@@ -42,20 +42,34 @@ include(FetchContent)
 message(STATUS "Fetching fmtlib")
 FetchContent_Declare(
   fmtlib
-  SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/extern/fmtlib
-  GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-  GIT_TAG 10.2.1)
+  URL "https://github.com/fmtlib/fmt/releases/download/10.2.1/fmt-10.2.1.zip"
+)
 FetchContent_MakeAvailable(fmtlib)
 # Adds fmt::fmt
 
-# Graphics library
+# Graphics library used by Avitab
 message(STATUS "Fetching lvgl")
 FetchContent_Declare(
   lvgl
-  SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/extern/lvgl
-  GIT_REPOSITORY https://github.com/lvgl/lvgl.git
-  GIT_TAG v9.1.0)
+  URL "https://github.com/lvgl/lvgl/archive/refs/tags/v9.1.0.zip"
+)
 FetchContent_MakeAvailable(lvgl)
+
+# Alternative graphics library that Folke mentioned
+message(STATUS "Fetching slint")
+FetchContent_Declare(
+  slint
+  URL "https://github.com/slint-ui/slint/archive/refs/tags/v1.6.0.zip"
+)
+FetchContent_MakeAvailable(slint)
+
+# Another graphics library - might be better for MSFS/remote drawing?
+message(STATUS "Fetching imgui")
+FetchContent_Declare(
+  imgui
+  URL "https://github.com/ocornut/imgui/archive/refs/tags/v1.90.8.zip"
+)
+FetchContent_MakeAvailable(imgui)
 
 # The compiled library code is here
 add_subdirectory(src)

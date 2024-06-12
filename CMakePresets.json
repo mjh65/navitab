@@ -2,26 +2,46 @@
     "version": 4,
     "configurePresets": [
         {
-            "name": "release",
-            "displayName": "Release build",
-            "description": "Configure for release build using makefiles and default compiler",
+            "name": "common",
+            "hidden": true,
             "generator": "Unix Makefiles",
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/${presetName}",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install"
+            }
+        },
+        {
+            "name": "release",
+            "inherits": "common",
+            "displayName": "Release build",
+            "description": "Configure for release build using makefiles and default compiler",
+            "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release"
             }
         },
         {
             "name": "debug",
+            "inherits": "common",
             "displayName": "Debug build",
             "description": "Configure for debug build using makefiles and default compiler",
-            "generator": "Unix Makefiles",
-            "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/${presetName}",
                 "CMAKE_BUILD_TYPE": "Debug"
             }
-        }
+        },
+        {
+            "name": "xcode-debug",
+            "inherits": "common",
+            "displayName": "Debug (Xcode)",
+            "description": "Configure for debug build using Xcode IDE",
+            "generator": "Xcode",
+            "cacheVariables": {
+              "CMAKE_BUILD_TYPE": "Debug"
+            },
+            "condition": {
+              "type": "equals",
+              "lhs": "${hostSystemName}",
+              "rhs": "Darwin"
+            }
+          }
     ]
 }

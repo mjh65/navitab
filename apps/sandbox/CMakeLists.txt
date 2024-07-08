@@ -1,4 +1,4 @@
-#   NaviTab - Navigation Tablet for VR, derived from Folke Will's AviTab
+#   Navitab - Navigation Tablet for VR, derived from Folke Will's AviTab
 #   Copyright (c) 2024 Michael Hasling
 #   Copyright (c) 2018-2024 Folke Will
 #
@@ -14,3 +14,15 @@
 #
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# This is used just to try out stuff!
+
+if(WIN32)
+    add_executable(sandbox WIN32 main.cpp appview.cpp)
+    target_link_libraries(sandbox PRIVATE Slint::Slint)
+    slint_target_sources(sandbox appwindow.slint)
+endif(WIN32)
+
+add_executable(sandbox sandbox.cpp)
+target_link_libraries(sandbox PRIVATE Slint::Slint)
+slint_target_sources(sandbox sandbox.slint)

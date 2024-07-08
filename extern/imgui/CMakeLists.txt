@@ -14,3 +14,12 @@
 #
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# Another graphics library - might be better for MSFS/remote drawing?
+
+message(STATUS "Fetching imgui")
+FetchContent_Declare(
+  imgui
+  URL "https://github.com/ocornut/imgui/archive/refs/tags/v1.90.8.zip"
+)
+FetchContent_MakeAvailable(imgui)

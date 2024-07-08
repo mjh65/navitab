@@ -42,6 +42,32 @@
               "lhs": "${hostSystemName}",
               "rhs": "Darwin"
             }
-          }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "all-release",
+            "displayName": "Release versions of all Navitab products",
+            "configurePreset": "release",
+            "configuration": "Release"
+        },
+        {
+            "name": "all-debug",
+            "displayName": "Debuggable versions of all Navitab products",
+            "configurePreset": "debug",
+            "configuration": "Debug"
+        },
+        {
+            "name": "desktop-xcode-debug",
+            "displayName": "Debuggable version of Navitab desktop apps and tools",
+            "configurePreset": "xcode-debug",
+            "configuration": "Debug",
+            "targets": ["navitab_desktop", "navitab_db_builder"],
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Darwin"
+            }
+        }
     ]
 }

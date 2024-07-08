@@ -14,3 +14,12 @@
 #
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# Graphics library used by Avitab
+
+message(STATUS "Fetching lvgl")
+FetchContent_Declare(
+  lvgl
+  URL "https://github.com/lvgl/lvgl/archive/refs/tags/v9.1.0.zip"
+)
+FetchContent_MakeAvailable(lvgl)

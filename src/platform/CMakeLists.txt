@@ -16,6 +16,10 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-add_subdirectory(lvglcpp)
-add_subdirectory(platform)
-add_subdirectory(charts)
+add_library(navitab_platform)
+
+if(WIN32)
+    target_sources(navitab_platform PRIVATE win32main.cpp)
+elseif(APPLE)
+elseif(UNIX)
+endif()

@@ -16,6 +16,10 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-add_subdirectory(lvglcpp)
-add_subdirectory(platform)
-add_subdirectory(charts)
+if (NOT "$ENV{CHARTFOX_CLIENTID}" STREQUAL "")
+    set(CHARTFOX_CLIENTID "$ENV{CHARTFOX_CLIENTID}" CACHE INTERNAL "Copied from environment variable")
+endif()
+
+add_library(navitab_charts)
+
+target_sources(navitab_charts PRIVATE charts.cpp)

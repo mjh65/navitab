@@ -16,23 +16,34 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# Graphics library used by Avitab
+message(STATUS "Fetching and configuring lvgl")
 
-message(STATUS "Fetching lvgl")
+# Navitab uses the LVGL graphics library for its UI
+
+# Due to some issues in CMake with VC toolchain the normal process of
+# adding the top-level CMakeLists.txt file is overridden to remove the
+# ASM language (which causes the issue hinted at earlier).
+
+if(MSVC)
+    set(NAVITAB_LVGL_TOP_LEVEL "bogus_directory_does_not_exist")
+else()
+    set(NAVITAB_LVGL_TOP_LEVEL "")
+endif()
 
 FetchContent_Declare(lvgl
     URL "https://github.com/lvgl/lvgl/archive/refs/tags/v9.1.0.zip"
-    SOURCE_SUBDIR bogus_directory_does_not_exist
+    SOURCE_SUBDIR "${NAVITAB_LVGL_TOP_LEVEL}"
 )
-FetchContent_MakeAvailable(lvgl)
 
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 set(LV_CONF_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lv_conf.h CACHE INTERNAL "")
-#set(LV_CONF_BUILD_DISABLE_THORVG_INTERNAL ON CACHE BOOL "")
 set(LV_CONF_BUILD_DISABLE_EXAMPLES ON CACHE BOOL "")
 set(LV_CONF_BUILD_DISABLE_DEMOS ON CACHE BOOL "")
-set(LVGL_ROOT_DIR "${lvgl_SOURCE_DIR}")
 
-project(lvgl LANGUAGES C CXX HOMEPAGE_URL https://github.com/lvgl/lvgl)
-include(${LVGL_ROOT_DIR}/env_support/cmake/custom.cmake)
+FetchContent_MakeAvailable(lvgl)
 
-#target_compile_definitions(lvgl PUBLIC LV_CONF_INCLUDE_SIMPLE)
+if(MSVC)
+    set(LVGL_ROOT_DIR "${lvgl_SOURCE_DIR}")
+    project(lvgl LANGUAGES C CXX HOMEPAGE_URL https://github.com/lvgl/lvgl)
+    include(${LVGL_ROOT_DIR}/env_support/cmake/custom.cmake)
+endif()

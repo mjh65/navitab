@@ -18,36 +18,17 @@
 
 # Desktop UI program - no target simulator, for interactive UI testing
 
-add_executable(navitab_desktop
+add_executable(navitab_desktop WIN32 MACOSX_BUNDLE
     ${CMAKE_CURRENT_LIST_DIR}/main.cpp
 )
 
 target_link_libraries(navitab_desktop
+    navitab_platform
     lvgl::lvgl
 )
 
 if(WIN32)
-    target_link_libraries(navitab_desktop
-        glfw3
-        opengl32
-        -Wl,--subsystem,windows
-    )
+    target_link_options(navitab_desktop PRIVATE -municode)
 elseif(APPLE)
-    find_package(PkgConfig REQUIRED)
-    pkg_search_module(GLFW REQUIRED glfw3)
-    include_directories(${GLFW_INCLUDE_DIRS})
-    target_link_directories(navitab_desktop PRIVATE ${GLFW_LIBRARY_DIRS})
-
-    add_definitions(-DGL_SILENCE_DEPRECATION)
-    target_link_libraries(navitab_desktop
-        ${GLFW_STATIC_LIBRARIES}
-        "-framework OpenGL"
-        curl
-    )
 elseif(UNIX)
-    target_link_libraries(navitab_desktop
-        GL
-        glfw
-        pthread
-    )
 endif()

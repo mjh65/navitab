@@ -20,7 +20,7 @@
 # Each one is in it's own subdirectory so that CMake cache variables can be
 # localised to the external project if required.
 
-#add_subdirectory(fmtlib)
-#add_subdirectory(lvgl)
-add_subdirectory(slint)
+add_subdirectory(fmtlib)
+add_subdirectory(lvgl)
+#add_subdirectory(slint)
 #add_subdirectory(imgui)

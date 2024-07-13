@@ -29,18 +29,33 @@
             }
         },
         {
+            "name": "vs-debug",
+            "inherits": "common",
+            "displayName": "Debug (Visual Studio 2022)",
+            "description": "Configure for debug build using Visual Studio IDE",
+            "generator": "Visual Studio 17 2022",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            },
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
             "name": "xcode-debug",
             "inherits": "common",
             "displayName": "Debug (Xcode)",
             "description": "Configure for debug build using Xcode IDE",
             "generator": "Xcode",
             "cacheVariables": {
-              "CMAKE_BUILD_TYPE": "Debug"
+                "CMAKE_BUILD_TYPE": "Debug"
             },
             "condition": {
-              "type": "equals",
-              "lhs": "${hostSystemName}",
-              "rhs": "Darwin"
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Darwin"
             }
         }
     ],
@@ -62,7 +77,7 @@
             "displayName": "Debuggable version of Navitab desktop apps and tools",
             "configurePreset": "xcode-debug",
             "configuration": "Debug",
-            "targets": ["navitab_desktop", "navitab_db_builder"],
+            "targets": [ "navitab_desktop", "navitab_db_builder" ],
             "condition": {
                 "type": "equals",
                 "lhs": "${hostSystemName}",

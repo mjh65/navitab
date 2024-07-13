@@ -1,5 +1,6 @@
-#   Navitab - Navigation Tablet for VR, derived from Folke Will's AviTab
+#   Navitab - Navigation Tablet for VR flight simulation
 #   Copyright (c) 2024 Michael Hasling
+#   Significantly derived from Avitab
 #   Copyright (c) 2018-2024 Folke Will
 #
 #   This program is free software: you can redistribute it and/or modify
@@ -15,18 +16,18 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# Desktop program
+# Desktop UI program - no target simulator, for interactive UI testing
 
 add_executable(navitab_desktop
     ${CMAKE_CURRENT_LIST_DIR}/main.cpp
 )
 
+target_link_libraries(navitab_desktop
+    lvgl::lvgl
+)
+
 if(WIN32)
     target_link_libraries(navitab_desktop
-        -static
-        -static-libgcc
-        -static-libstdc++
-        # other dependencies here
         glfw3
         opengl32
         -Wl,--subsystem,windows

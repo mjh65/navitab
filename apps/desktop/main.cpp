@@ -17,3 +17,11 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <lvgl.h>
+
+int main(int argc, char** argv)
+{
+    lv_init();
+
+    return 0;
+}

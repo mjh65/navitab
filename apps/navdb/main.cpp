@@ -1,8 +1,7 @@
 /*
- *  Navitab - Navigation tablet for VR flight simulation
- *  Copyright (C) 2024 Michael Hasling
- *  Significantly derived from Avitab
- *  Copyright (C) 2018-2024 Folke Will <folko@solhost.org>
+ *  Navitab - Navigation Tablet for VR, derived from Folke Will's AviTab
+ *  Copyright (c) 2024 Michael Hasling
+ *  Copyright (c) 2018-2024 Folke Will
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published by
@@ -18,9 +17,7 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#pragma once
-
-/*
- * This header file defines the interface to the platform, which will
- * probably be stuff like the filesystem etc.
-*/
+int main(int argc, char** argv)
+{
+    return 0;
+}

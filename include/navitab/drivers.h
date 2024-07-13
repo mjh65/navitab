@@ -1,6 +1,7 @@
 /*
- *  Navitab - Navigation tablet for flight simulation
+ *  Navitab - Navigation tablet for VR flight simulation
  *  Copyright (C) 2024 Michael Hasling
+ *  Significantly derived from Avitab
  *  Copyright (C) 2018-2024 Folke Will <folko@solhost.org>
  *
  *  This program is free software: you can redistribute it and/or modify

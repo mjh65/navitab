@@ -1,5 +1,6 @@
-#   Navitab - Navigation Tablet for VR, derived from Folke Will's AviTab
+#   Navitab - Navigation Tablet for VR flight simulation
 #   Copyright (c) 2024 Michael Hasling
+#   Significantly derived from Avitab
 #   Copyright (c) 2018-2024 Folke Will
 #
 #   This program is free software: you can redistribute it and/or modify
@@ -17,6 +18,7 @@
 
 # Works with 3.23 and tested through 3.29
 cmake_minimum_required(VERSION 3.23...3.29)
+message(${CMAKE_VERSION})
 
 # Project name and a few useful settings. Other commands can pick up the results
 project(Navitab
@@ -29,6 +31,7 @@ project(Navitab
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     # Optionally set things like CMAKE_CXX_STANDARD here
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+    set(BUILD_SHARED_LIBS OFF)
 
     # Let's ensure -std=c++xx instead of -std=g++xx
     set(CMAKE_CXX_EXTENSIONS OFF)

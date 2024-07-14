@@ -16,6 +16,9 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+include_directories("${NAVITAB_API_DIR}")
+
+add_subdirectory(core)
 add_subdirectory(lvglcpp)
 add_subdirectory(platform)
 add_subdirectory(charts)

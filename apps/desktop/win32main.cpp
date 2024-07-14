@@ -18,14 +18,22 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-// This file provides the WinMain function required for the WIN32 desktop
-// build of Navitab.
+// This file provides the wWinMain function required for the WIN32 desktop
+// build of Navitab. It does the required generic initialisation of the
+// Navitab components, and if all is successful starts the standard Win32
+// event loop and message processing. If there is a problem during startup
+// before 
 
-#include <windows.h>
+#include <Windows.h>
+#include <memory>
+#include "navitab/core.h"
 
-static LRESULT WindowProc(HWND h, UINT msg, WPARAM wp, LPARAM lp);
+// Forward declarations of local functions
+LRESULT CALLBACK WindowProc(HWND h, UINT msg, WPARAM wp, LPARAM lp);
 
-int CALLBACK WinMain(_In_ HINSTANCE hinst, _In_opt_ HINSTANCE hprev, _In_ LPSTR cmdline, _In_ int show)
+static LPCWSTR WINDOW_CLASS = TEXT("NavitabWindow");
+
+int WINAPI WinMain(_In_ HINSTANCE hinst, _In_opt_ HINSTANCE hprev, _In_ LPSTR cmdline, _In_ int show)
 {
     WNDCLASS c = { 0 };
     c.lpfnWndProc = WindowProc;
@@ -33,30 +41,32 @@ int CALLBACK WinMain(_In_ HINSTANCE hinst, _In_opt_ HINSTANCE hprev, _In_ LPSTR 
     c.hIcon = LoadIcon(0, IDI_APPLICATION);
     c.hCursor = LoadCursor(0, IDC_ARROW);
     c.hbrBackground = static_cast<HBRUSH>(GetStockObject(WHITE_BRUSH));
-    c.lpszClassName = "MainWindow";
+    c.lpszClassName = WINDOW_CLASS;
     RegisterClass(&c);
 
-    HWND h = CreateWindow("MainWindow", "Navitab", WS_OVERLAPPEDWINDOW,
+    auto nvt = std::make_unique<navitab::core::SubSystems>(navitab::core::Simulation::NONE, navitab::core::AppClass::DESKTOP);
+
+    try {
+        // try to initialise logging and preferences - raises exception if fails
+        nvt->early_init();
+    }
+    catch (...) {
+        // TODO - if an exception occurs then we should show any information we got in a
+        // dialog window
+    }
+
+    HWND h = CreateWindowEx(0, WINDOW_CLASS, TEXT("Navitab"), WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT, CW_USEDEFAULT, 800, 600, // position and size
         0, 0, hinst, 0);
+    if (h == NULL) return 0;
+
     ShowWindow(h, show);
 
     while (1)
     {
-        BOOL bRet;
-        MSG msg;
-        //while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) // non-blocking version, probably not required for desktop app
-        while (bRet = GetMessage(&msg, 0, 0, 0))
+        MSG msg = { };
+        while (GetMessage(&msg, NULL, 0, 0) > 0)
         {
-            if (bRet < 0)
-            {
-                // some error, we should give up now
-                return 0;
-            }
-            if (msg.message == WM_QUIT)
-            {
-                return (int)msg.wParam;
-            }
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
@@ -64,12 +74,18 @@ int CALLBACK WinMain(_In_ HINSTANCE hinst, _In_opt_ HINSTANCE hprev, _In_ LPSTR 
     return 0;
 }
 
-static LRESULT WindowProc(HWND h, UINT msg, WPARAM wp, LPARAM lp)
+
+
+
+LRESULT CALLBACK WindowProc(HWND h, UINT msg, WPARAM wp, LPARAM lp)
 {
     switch (msg)
     {
-    case WM_CREATE: {
-        HWND hbutton = CreateWindow("BUTTON", "Hey There",  /* class and title */
+#if 0
+    case WM_CREATE:
+
+        {
+        HWND hbutton = CreateWindowEx("BUTTON", "Hey There",  /* class and title */
             WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, /* style */
             0, 0, 100, 30,            /* position */
             h,                     /* parent */
@@ -77,7 +93,7 @@ static LRESULT WindowProc(HWND h, UINT msg, WPARAM wp, LPARAM lp)
             GetModuleHandle(0), 0   /* GetModuleHandle(0) gets the hinst */
         );
     }
-        break;
+                  break;
 
     case WM_COMMAND:
         switch (LOWORD(wp)) {
@@ -91,6 +107,10 @@ static LRESULT WindowProc(HWND h, UINT msg, WPARAM wp, LPARAM lp)
     case WM_CLOSE:
         PostQuitMessage(1);
         break;
+#endif
+    case WM_DESTROY:
+        PostQuitMessage(1);
+        return 0;
 
     default:
         return DefWindowProc(h, msg, wp, lp);

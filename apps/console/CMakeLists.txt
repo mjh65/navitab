@@ -16,9 +16,14 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-add_library(navitab_platform "${CMAKE_CURRENT_LIST_DIR}/platform.cpp")
+add_executable(navitab_console)
 
-if(WIN32)
-elseif(APPLE)
-elseif(UNIX)
-endif()
+target_sources(navitab_console PRIVATE
+    "${CMAKE_CURRENT_LIST_DIR}/main.cpp"
+)
+
+target_link_libraries(navitab_console
+    navitab_core
+    navitab_platform
+    lvgl::lvgl
+)

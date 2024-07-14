@@ -21,7 +21,7 @@
 if(WIN32 AND DEFINED ENV{MSFS_SDK})
 
 add_executable(navitab_igps
-    ${CMAKE_CURRENT_LIST_DIR}/main.cpp
+    "${CMAKE_CURRENT_LIST_DIR}/main.cpp"
 )
 
 target_link_libraries(navitab_igps

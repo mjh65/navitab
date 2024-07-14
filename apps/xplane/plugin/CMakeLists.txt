@@ -17,7 +17,7 @@
 
 # The Navitab plugin for 
 add_library(navitab_plugin SHARED
-    ${CMAKE_CURRENT_LIST_DIR}/plugin.cpp
+    "${CMAKE_CURRENT_LIST_DIR}/plugin.cpp"
 )
 
 if(WIN32)

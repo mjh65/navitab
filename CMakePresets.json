@@ -13,7 +13,7 @@
             "name": "release",
             "inherits": "common",
             "displayName": "Release build",
-            "description": "Configure for release build using makefiles and default compiler",
+            "description": "Configure for release build using default generator and default compiler",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release"
             }
@@ -22,31 +22,16 @@
             "name": "debug",
             "inherits": "common",
             "displayName": "Debug build",
-            "description": "Configure for debug build using makefiles and default compiler",
+            "description": "Configure for debug build using default generator and default compiler",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug"
             }
         },
         {
-            "name": "vs-debug",
+            "name": "xcode",
             "inherits": "common",
-            "displayName": "Debug (Visual Studio 2022)",
-            "description": "Configure for debug build using Visual Studio IDE",
-            "generator": "Visual Studio 17 2022",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug"
-            },
-            "condition": {
-                "type": "equals",
-                "lhs": "${hostSystemName}",
-                "rhs": "Windows"
-            }
-        },
-        {
-            "name": "xcode-debug",
-            "inherits": "common",
-            "displayName": "Debug (Xcode)",
-            "description": "Configure for debug build using Xcode IDE",
+            "displayName": "Xcode project creation",
+            "description": "Create project file for building with Xcode IDE ",
             "generator": "Xcode",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug"
@@ -60,28 +45,16 @@
     ],
     "buildPresets": [
         {
-            "name": "all-release",
+            "name": "release",
             "displayName": "Release versions of all Navitab products",
             "configurePreset": "release",
             "configuration": "Release"
         },
         {
-            "name": "all-debug",
+            "name": "debug",
             "displayName": "Debuggable versions of all Navitab products",
             "configurePreset": "debug",
             "configuration": "Debug"
-        },
-        {
-            "name": "desktop-xcode-debug",
-            "displayName": "Debuggable version of Navitab desktop apps and tools",
-            "configurePreset": "xcode-debug",
-            "configuration": "Debug",
-            "targets": [ "navitab_desktop", "navitab_db_builder" ],
-            "condition": {
-                "type": "equals",
-                "lhs": "${hostSystemName}",
-                "rhs": "Darwin"
-            }
         }
     ]
 }

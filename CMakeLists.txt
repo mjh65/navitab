@@ -58,10 +58,23 @@ endif()
 # FetchContent_MakeAvailable was added in CMake 3.14; simpler usage
 include(FetchContent)
 
-set(NAVITAB_SANDBOX_MODE OFF CACHE BOOL "Enables sandbox mode for testing APIs etc")
-
 # Imported 3rd-party libraries are here
 add_subdirectory(extern)
+
+# Navitab sandbox mode adds some temporary apps for build testing
+set(NAVITAB_SANDBOX_MODE OFF CACHE BOOL "Enables sandbox mode for testing APIs etc")
+
+# Host platform definitions
+if(WIN32)
+    add_compile_definitions(NAVITAB_WINDOWS)
+elseif(APPLE)
+    add_compile_definitions(NAVITAB_MACOSX)
+elseif(UNIX)
+    add_compile_definitions(NAVITAB_LINUX)
+endif()
+
+# Navitab library API is here
+set(NAVITAB_API_DIR "${CMAKE_CURRENT_LIST_DIR}/include")
 
 # Navitab common source code is here
 add_subdirectory(src)

@@ -15,11 +15,14 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+include_directories("${NAVITAB_API_DIR}")
+
 if(NAVITAB_SANDBOX_MODE)
 message(STATUS "Navitab in sandbox mode")
 add_subdirectory(sandbox)
 else()
 add_subdirectory(desktop)
+add_subdirectory(console)
 add_subdirectory(navdb)
 add_subdirectory(msfs)
 add_subdirectory(xplane)

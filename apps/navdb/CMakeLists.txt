@@ -19,7 +19,7 @@
 # Console program for building navigation database from various sources
 
 add_executable(navitab_builddb
-    ${CMAKE_CURRENT_LIST_DIR}/main.cpp
+    "${CMAKE_CURRENT_LIST_DIR}/main.cpp"
 )
 
 target_link_libraries(navitab_builddb

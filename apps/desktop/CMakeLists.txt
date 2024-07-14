@@ -35,3 +35,5 @@ if(WIN32)
 elseif(APPLE)
 elseif(UNIX)
 endif()
+
+install(TARGETS navitab_desktop DESTINATION navitab/tools)

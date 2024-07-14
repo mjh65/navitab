@@ -27,3 +27,5 @@ target_link_libraries(navitab_console
     navitab_platform
     lvgl::lvgl
 )
+
+install(TARGETS navitab_console DESTINATION navitab/tools)

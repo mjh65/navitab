@@ -18,13 +18,8 @@
 
 include_directories("${NAVITAB_API_DIR}")
 
-if(NAVITAB_SANDBOX_MODE)
-message(STATUS "Navitab in sandbox mode")
-add_subdirectory(sandbox)
-else()
 add_subdirectory(desktop)
 add_subdirectory(console)
 add_subdirectory(navdb)
 add_subdirectory(msfs)
 add_subdirectory(xplane)
-endif()

@@ -1,5 +1,6 @@
-#   Navitab - Navigation Tablet for VR, derived from Folke Will's AviTab
+#   Navitab - Navigation Tablet for VR flight simulation
 #   Copyright (c) 2024 Michael Hasling
+#   Significantly derived from Avitab
 #   Copyright (c) 2018-2024 Folke Will
 #
 #   This program is free software: you can redistribute it and/or modify
@@ -15,7 +16,8 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# The Navitab plugin for 
+# The Navitab plugin for the X-Plane simulator
+
 add_library(navitab_plugin SHARED
     "${CMAKE_CURRENT_LIST_DIR}/plugin.cpp"
 )
@@ -48,5 +50,5 @@ elseif(UNIX)
 endif()
 
 set_target_properties(navitab_plugin PROPERTIES PREFIX "")
-set_target_properties(navitab_plugin PROPERTIES OUTPUT_NAME "NaviTab")
+set_target_properties(navitab_plugin PROPERTIES OUTPUT_NAME "Navitab")
 set_target_properties(navitab_plugin PROPERTIES SUFFIX ".xpl")

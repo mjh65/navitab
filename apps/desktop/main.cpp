@@ -18,7 +18,29 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-int main(int argc, char** argv)
+// This file provides the wWinMain function required for the WIN32 desktop
+// build of Navitab. It does the required generic initialisation of the
+// Navitab components, and if all is successful starts the standard Win32
+// event loop and message processing. If there is a problem during startup
+// before 
+
+#include <memory>
+#include "navitab/core.h"
+
+int main(int argc, char **argv)
 {
+    auto nvt = std::make_unique<navitab::core::SubSystems>(navitab::core::Simulation::NONE, navitab::core::AppClass::DESKTOP);
+
+    try {
+        // try to initialise logging and preferences - raises exception if fails
+        nvt->early_init();
+    }
+    catch (...) {
+        // TODO - if an exception occurs then we should show report information we got
+        // to stderr
+    }
+
+
+
     return 0;
 }

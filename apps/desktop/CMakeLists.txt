@@ -33,6 +33,7 @@ if(WIN32)
         target_link_options(navitab_desktop PRIVATE /municode)
     endif()
 elseif(APPLE)
+    target_sources(navitab_desktop PRIVATE "${CMAKE_CURRENT_LIST_DIR}/main.cpp")
 elseif(UNIX)
 endif()
 

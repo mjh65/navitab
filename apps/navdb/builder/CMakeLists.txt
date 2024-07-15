@@ -1,5 +1,6 @@
-#   NaviTab - Navigation Tablet for VR, derived from Folke Will's AviTab
+#   Navitab - Navigation Tablet for VR flight simulation
 #   Copyright (c) 2024 Michael Hasling
+#   Significantly derived from Avitab
 #   Copyright (c) 2018-2024 Folke Will
 #
 #   This program is free software: you can redistribute it and/or modify

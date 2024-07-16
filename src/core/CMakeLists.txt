@@ -22,9 +22,11 @@ target_sources(navitab_core PRIVATE
     navitab.cpp
     logger.cpp
     logmanager.cpp
+    prefs.cpp
 )
 
 target_link_libraries(navitab_core PUBLIC
     fmt::fmt
     lvgl::lvgl
+    nlohmann_json::nlohmann_json
 )

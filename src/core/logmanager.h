@@ -22,8 +22,10 @@
 
 #include <memory>
 #include <ostream>
-#include <list>
+#include <fstream>
+#include <string>
 #include <vector>
+#include <filesystem>
 #include "navitab/logging.h"
 
 namespace navitab {
@@ -37,6 +39,11 @@ public:
     /// @brief Get a shared pointer to the log manager, created on first use.
     /// @return A shared pointer to the log manager
     static std::shared_ptr<LogManager> GetLogManager();
+
+    void SetConsole(bool q) { isConsole = q; }
+
+    /// @brief Set the path of the log file to write to
+    void SetLogFile(std::filesystem::path path);
 
     /// @brief Configure the log manager
     void Configure(/*json*/);
@@ -60,16 +67,23 @@ private:
     LogManager();
 
 private:
+    std::unique_ptr<std::ofstream> logFile;
+
+    // bit masks used to enable logging destinations
+    enum Dest { FILE = 0b100, STDOUT = 0b10, STDERR = 0b1 };
     struct Filter
     {
         std::string name;
         int id;
-        std::vector<std::list<std::ostream *>> logs;
+        std::vector<int> dests;
         void Configure(/*json*/);
-        Filter(const std::string n, int i);
+        Filter(const std::string n, int i, bool console);
     };
-
     std::vector<Filter> filters;
+
+    int srcFilePrefixLength;
+
+    bool isConsole;
 };
 
 

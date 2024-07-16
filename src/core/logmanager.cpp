@@ -19,7 +19,9 @@
  */
 
 #include "logmanager.h"
+#include "navitab/core.h"
 #include <fmt/core.h>
+#include <algorithm>
 #include <iostream>
 
 namespace navitab {
@@ -30,6 +32,33 @@ std::shared_ptr<LogManager> LogManager::GetLogManager()
     // The LogManager uses a singleton pattern, and is created on first use
     static std::shared_ptr<LogManager> me(new LogManager());
     return me;
+}
+
+LogManager::LogManager()
+:   srcFilePrefixLength(0),
+    isConsole(false)
+{
+    std::string filePP(__FILE__);
+    std::replace(filePP.begin(), filePP.end(), '\\', '/');
+    std::string fileRel("src/core/logmanager.cpp");
+    auto p = filePP.find(fileRel);
+    if (p != std::string::npos) {
+        srcFilePrefixLength = p;
+    }
+}
+
+LogManager::~LogManager()
+{
+}
+
+void LogManager::SetLogFile(std::filesystem::path path)
+{
+    // open the new log in append mode if there was one already open
+    std::ios_base::openmode mode = 0;
+    if (logFile) mode |= std::ios::app;
+    // attempt to open the new one
+    std::unique_ptr<std::ofstream> lf(new std::ofstream(path, mode));
+    if (lf->good()) std::swap(logFile, lf);
 }
 
 void LogManager::Configure()
@@ -45,23 +74,31 @@ int LogManager::GetFilterId(const char *name)
     for (auto& f: filters) {
         if (f.name == name) return f.id;
     }
-    Filter f(name, (int)filters.size());
+    Filter f(name, (int)filters.size(), isConsole);
     //f.Configure(); // TODO - once we have some filtering rules implemented
     filters.push_back(f);
     return f.id;
 }
 
-LogManager::Filter::Filter(const std::string n, int i)
+LogManager::Filter::Filter(const std::string n, int i, bool console)
 :   name(n), id(i)
 {
     // the logger severity codes are used to index the lists of log destinations
-    logs.resize(1 + Logger::Severity::D);
+    dests.resize(1 + Logger::Severity::D);
     // by default fatal, errors and warnings get sent to stderr,
     // status goes to stdout, info and detail are discarded
-    logs[Logger::Severity::F].push_back(&std::cerr);
-    logs[Logger::Severity::E].push_back(&std::cerr);
-    logs[Logger::Severity::S].push_back(&std::cout);
-    logs[Logger::Severity::W].push_back(&std::cerr);
+    dests[Logger::Severity::F] = Dest::FILE | Dest::STDERR;
+    dests[Logger::Severity::E] = Dest::FILE | Dest::STDERR;
+    if (console) {
+        dests[Logger::Severity::S] = Dest::FILE | Dest::STDOUT;
+        dests[Logger::Severity::W] = Dest::FILE | Dest::STDERR;
+    }
+    else {
+        dests[Logger::Severity::S] = Dest::FILE;
+        dests[Logger::Severity::W] = Dest::FILE;
+    }
+    dests[Logger::Severity::I] = 0;
+    dests[Logger::Severity::D] = 0;
 }
 
 void LogManager::Filter::Configure()
@@ -69,25 +106,19 @@ void LogManager::Filter::Configure()
     // TODO - (re)set up this filter based on the json configuration
 }
 
-LogManager::LogManager()
-{
-}
-
-LogManager::~LogManager()
-{
-}
-
 void LogManager::Log(int filterId, const char *file, const int line, Logger::Severity s, const std::string msg)
 {
     // verify the filter id
     if ((filterId < 0) || (filterId >= filters.size())) return;
     auto& f = filters[filterId];
-    auto& logs = f.logs[s];
+    int dests = f.dests[s];
     const char *sch = "FESWID";
-    auto logline = fmt::format("{},{},{},{},{}", f.name, sch[s], file, line, msg);
-    for (auto& l: logs) {
-        if (l) (*l) << logline << std::endl;
-    }
+    const char* src = file + srcFilePrefixLength;
+    auto logline = fmt::format("{},{},{},{},{}", f.name, sch[s], src, line, msg);
+    if (dests & Dest::STDERR) std::cerr << logline << std::endl;
+    if (dests & Dest::STDOUT) std::cout << logline << std::endl;
+    if (logFile && (dests & Dest::FILE)) (*logFile) << logline << std::endl;
+    if (s == Logger::Severity::F) throw navitab::core::LogFatal(msg);
 }
 
 

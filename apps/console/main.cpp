@@ -30,28 +30,29 @@
 
 int main(int arg, char** argv)
 {
-    auto nvt = std::make_unique<navitab::core::Navitab>(navitab::core::Simulation::NONE, navitab::core::AppClass::CONSOLE);
-
+    std::shared_ptr<navitab::core::Navitab> nvt;
     try {
         // try to initialise logging and preferences - raises exception if fails
-        nvt->early_init();
+        nvt = std::make_unique<navitab::core::Navitab>(navitab::core::Simulation::NONE, navitab::core::AppClass::CONSOLE);
+    }
+    catch (navitab::core::StartupError& e) {
+        // TODO - report anything we can to stderr and then exit
     }
     catch (...) {
-        // if an exception occurs then we extract what we can and dump it to stderr
-        // and then exit.
-
-
+        // TODO - handle other exceptions
     }
-
-    auto logger = std::make_unique<navitab::logging::Logger>("main");
-    auto LOG = (*logger);
-    STATUS(LOG, "Early init completed");
 
     // if we get this far then we should have logging enabled, so any further issues
     // can be reported through the logging interface.
+    auto logger = std::make_unique<navitab::logging::Logger>("main");
+    auto LOG = (*logger);
+
+    STATUS(LOG, "Early init completed");
+
     nvt->init();
 
     STATUS(LOG, "Full init completed");
 
+    // TODO - in console mode we need to run an event loop
 
 }

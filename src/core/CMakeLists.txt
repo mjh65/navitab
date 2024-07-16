@@ -18,4 +18,13 @@
 
 add_library(navitab_core)
 
-target_sources(navitab_core PRIVATE subsystems.cpp)
+target_sources(navitab_core PRIVATE
+    navitab.cpp
+    logger.cpp
+    logmanager.cpp
+)
+
+target_link_libraries(navitab_core PUBLIC
+    fmt::fmt
+    lvgl::lvgl
+)

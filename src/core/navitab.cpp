@@ -33,7 +33,7 @@ navitab::core::HostPlatform host = navitab::core::HostPlatform::WIN;
 #endif
 
 
-SubSystems::SubSystems(Simulation s, AppClass c)
+Navitab::Navitab(Simulation s, AppClass c)
 :   mHost(host),
     mSim(s),
     mAppClass(c)
@@ -41,12 +41,17 @@ SubSystems::SubSystems(Simulation s, AppClass c)
 
 }
 
-void SubSystems::early_init()
+Navitab::~Navitab()
 {
 
 }
 
-void SubSystems::full_init()
+void Navitab::early_init()
+{
+
+}
+
+void Navitab::init()
 {
 
 }

@@ -29,7 +29,7 @@
 
 int main(int argc, char **argv)
 {
-    auto nvt = std::make_unique<navitab::core::SubSystems>(navitab::core::Simulation::NONE, navitab::core::AppClass::DESKTOP);
+    auto nvt = std::make_unique<navitab::core::Navitab>(navitab::core::Simulation::NONE, navitab::core::AppClass::DESKTOP);
 
     try {
         // try to initialise logging and preferences - raises exception if fails

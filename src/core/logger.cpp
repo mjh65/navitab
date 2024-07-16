@@ -18,41 +18,23 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#pragma once
-
-// This header file defines a class that manages the startup and use of the
-// Navitab Navitab. Each of the executable/plugin's main() function should
-// instantiate one of these 
+#include "navitab/logging.h"
+#include "logmanager.h"
 
 namespace navitab {
-namespace core {
+namespace logging {
 
-enum HostPlatform { WIN, LNX, MAC };
-enum AppClass { PLUGIN, DESKTOP, CONSOLE };
-enum Simulation { NONE, MSFS, XPLANE };
-
-class Navitab
+Logger::Logger(const char *name)
+:   lmgr(LogManager::GetLogManager()),
+    fid(lmgr->GetFilterId(name))
 {
-public:
-    Navitab(Simulation s, AppClass c);
-    ~Navitab();
+}
 
-    // do enough initialisation to load preferences and setup logging
-    void early_init();
-
-    // do the remaining initialisation
-    void init();
-
-    // shutdown the subsystems in an orderly manner
-    void shutdown();
+void Logger::Log(const char *file, const int line, Severity s, const std::string msg)
+{
+    lmgr->Log(fid, file, line, s, msg);
+}
 
 
-private:
-    const HostPlatform  mHost;
-    const AppClass      mAppClass;
-    const Simulation    mSim;
-
-};
-
-} // namespace core
-} // namespace navitab
+} // namespace logging
+} // namesapce navitab

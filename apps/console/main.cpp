@@ -25,10 +25,12 @@
 
 #include <memory>
 #include "navitab/core.h"
+#include "navitab/logging.h"
+
 
 int main(int arg, char** argv)
 {
-    auto nvt = std::make_unique<navitab::core::SubSystems>(navitab::core::Simulation::NONE, navitab::core::AppClass::CONSOLE);
+    auto nvt = std::make_unique<navitab::core::Navitab>(navitab::core::Simulation::NONE, navitab::core::AppClass::CONSOLE);
 
     try {
         // try to initialise logging and preferences - raises exception if fails
@@ -41,10 +43,15 @@ int main(int arg, char** argv)
 
     }
 
+    auto logger = std::make_unique<navitab::logging::Logger>("main");
+    auto LOG = (*logger);
+    STATUS(LOG, "Early init completed");
+
     // if we get this far then we should have logging enabled, so any further issues
     // can be reported through the logging interface.
-    nvt->full_init();
+    nvt->init();
 
+    STATUS(LOG, "Full init completed");
 
 
 }

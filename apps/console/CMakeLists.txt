@@ -25,7 +25,6 @@ target_sources(navitab_console PRIVATE
 target_link_libraries(navitab_console
     navitab_core
     navitab_platform
-    lvgl::lvgl
 )
 
 install(TARGETS navitab_console DESTINATION navitab/tools)

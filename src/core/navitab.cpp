@@ -104,11 +104,22 @@ std::filesystem::path Navitab::FindDataFilesPath()
     if (e = std::getenv("APPDATA")) options.push_back(e);
     if (e = std::getenv("USERPROFILE")) options.push_back(e);
     if (e = std::getenv("TEMP")) options.push_back(e);
-    options.push_back("C:\\"); // desperate last option
+    options.push_back("C:\\"); // clutching at straws
 #elif defined(NAVITAB_LINUX)
 #error TBD
 #elif defined(NAVITAB_MACOSX)
-#error TBD
+    // on Mac the preferred location is ~/Library/Application Support/Navitab
+    const char *e;
+    if ((e = std::getenv("HOME")) != nullptr) {
+        std::filesystem::path home(e);
+        std::filesystem::path as(home);
+        as /= "Library";
+        as /= "Application Support";
+        options.push_back(as);
+        options.push_back(home);
+    }
+    if ((e = std::getenv("TMPDIR"))!= nullptr) options.push_back(e);
+    options.push_back("/tmp"); // clutching at straws
 #endif
 
     // first pass, directory must exist and be useable

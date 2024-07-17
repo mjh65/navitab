@@ -54,7 +54,7 @@ LogManager::~LogManager()
 void LogManager::SetLogFile(std::filesystem::path path)
 {
     // open the new log in append mode if there was one already open
-    std::ios_base::openmode mode = 0;
+    std::ios_base::openmode mode = {};
     if (logFile) mode |= std::ios::app;
     // attempt to open the new one
     std::unique_ptr<std::ofstream> lf(new std::ofstream(path, mode));

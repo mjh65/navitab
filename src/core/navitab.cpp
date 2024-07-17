@@ -30,11 +30,11 @@ namespace core {
 
 
 #if defined(NAVITAB_WINDOWS)
-static navitab::core::HostPlatform host = navitab::core::HostPlatform::WIN;
-#elif defined(NAVITAB_LIUNX)
-static navitab::core::HostPlatform host = navitab::core::HostPlatform::LNX;
+static HostPlatform host = HostPlatform::WIN;
+#elif defined(NAVITAB_LINUX)
+static HostPlatform host = HostPlatform::LNX;
 #elif defined(NAVITAB_MACOSX)
-static navitab::core::HostPlatform host = navitab::core::HostPlatform::MAC;
+static HostPlatform host = HostPlatform::MAC;
 #endif
 
 
@@ -106,15 +106,21 @@ std::filesystem::path Navitab::FindDataFilesPath()
     if (e = std::getenv("TEMP")) options.push_back(e);
     options.push_back("C:\\"); // clutching at straws
 #elif defined(NAVITAB_LINUX)
-#error TBD
+    // on Linux the preferred location is ~/.navitab - probably!
+    const char *e;
+    if ((e = std::getenv("HOME")) != nullptr) {
+        std::filesystem::path home(e);
+        std::filesystem::path d1(home); d1 /= ".navitab";
+        options.push_back(d1);
+        std::filesystem::path d2(home); d2 /= ".config"; d2 /= "navitab";
+        options.push_back(d2);
+    }
 #elif defined(NAVITAB_MACOSX)
     // on Mac the preferred location is ~/Library/Application Support/Navitab
     const char *e;
     if ((e = std::getenv("HOME")) != nullptr) {
         std::filesystem::path home(e);
-        std::filesystem::path as(home);
-        as /= "Library";
-        as /= "Application Support";
+        std::filesystem::path as(home); as /= "Library"; as /= "Application Support";
         options.push_back(as);
         options.push_back(home);
     }
@@ -127,7 +133,9 @@ std::filesystem::path Navitab::FindDataFilesPath()
     for (auto pass : { 1,2 }) {
         for (auto& p : options) {
             std::filesystem::path d(p);
+#if !defined(NAVITAB_LINUX)
             d /= "Navitab";
+#endif
             if (pass == 2) (void)std::filesystem::create_directory(d);
             if (std::filesystem::exists(d) || std::filesystem::is_directory(d)) {
                 // check we can create files

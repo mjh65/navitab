@@ -55,4 +55,5 @@ int main(int arg, char** argv)
 
     // TODO - in console mode we need to run an event loop
 
+    return 0;
 }

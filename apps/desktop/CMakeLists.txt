@@ -35,6 +35,7 @@ if(WIN32)
 elseif(APPLE)
     target_sources(navitab_desktop PRIVATE "${CMAKE_CURRENT_LIST_DIR}/main.cpp")
 elseif(UNIX)
+    target_sources(navitab_desktop PRIVATE "${CMAKE_CURRENT_LIST_DIR}/main.cpp")
 endif()
 
 install(TARGETS navitab_desktop DESTINATION navitab/tools)

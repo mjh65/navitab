@@ -18,29 +18,42 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-// This file provides the wWinMain function required for the WIN32 desktop
-// build of Navitab. It does the required generic initialisation of the
-// Navitab components, and if all is successful starts the standard Win32
-// event loop and message processing. If there is a problem during startup
-// before 
+// This file provides the main function for the desktop variant of Navitab.
+// It does the required generic initialisation of the Navitab components,
+// and if all is successful starts a GL window manager for the UI.
+// It's used on Linux and Mac.
 
 #include <memory>
 #include "navitab/core.h"
+#include "navitab/logging.h"
 
-int main(int argc, char **argv)
+
+int main(int arg, char** argv)
 {
-    auto nvt = std::make_unique<navitab::core::Navitab>(navitab::core::Simulation::NONE, navitab::core::AppClass::DESKTOP);
-
+    std::shared_ptr<navitab::core::Navitab> nvt;
     try {
         // try to initialise logging and preferences - raises exception if fails
-        nvt->early_init();
+        nvt = std::make_unique<navitab::core::Navitab>(navitab::core::Simulation::NONE, navitab::core::AppClass::CONSOLE);
+    }
+    catch (navitab::core::StartupError& e) {
+        // TODO - report anything we can to stderr and then exit
     }
     catch (...) {
-        // TODO - if an exception occurs then we should show report information we got
-        // to stderr
+        // TODO - handle other exceptions
     }
 
+    // if we get this far then we should have logging enabled, so any further issues
+    // can be reported through the logging interface.
+    auto logger = std::make_unique<navitab::logging::Logger>("main");
+    auto LOG = (*logger);
 
+    STATUS(LOG, "Early init completed");
+
+    nvt->init();
+
+    STATUS(LOG, "Full init completed");
+
+    // TODO - in desktop mode we will handover to GL to run the GUI
 
     return 0;
 }

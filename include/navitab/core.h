@@ -86,14 +86,14 @@ public:
     std::filesystem::path NavitabPath();
 
 protected:
-    void FindDataFilesPath();
+    std::filesystem::path FindDataFilesPath();
 
 private:
-    const HostPlatform      hostPlatform;
-    const AppClass          appClass;
-    const Simulation        simProduct;
+    const HostPlatform              hostPlatform;
+    const AppClass                  appClass;
+    const Simulation                simProduct;
 
-    std::filesystem::path   dataFilesPath;
+    std::filesystem::path           dataFilesPath;
 
     std::unique_ptr<Preferences>    prefs;
 };

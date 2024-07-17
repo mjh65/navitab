@@ -21,6 +21,7 @@
 #include "navitab/core.h"
 #include "navitab/prefs.h"
 #include "logmanager.h"
+#include <cstdio>
 #include <filesystem>
 #include <fmt/core.h>
 
@@ -40,13 +41,12 @@ static navitab::core::HostPlatform host = navitab::core::HostPlatform::MAC;
 Navitab::Navitab(Simulation s, AppClass c)
 :   hostPlatform(host),
     simProduct(s),
-    appClass(c)
+    appClass(c),
+    dataFilesPath(FindDataFilesPath())
 {
     // Early initialisation needs to do enough to get the preferences loaded
     // and the log file created. Everything else can wait! Any failures are
     // reported as thrown exceptions.
-
-    FindDataFilesPath();
 
     // create the log and preferences file names - they have the same format
     auto lfp = dataFilesPath;
@@ -87,35 +87,47 @@ void Navitab::init()
     // logging services have been started.
 }
 
-void Navitab::FindDataFilesPath()
+std::filesystem::path Navitab::FindDataFilesPath()
 {
     // The data files path is where the log file, preferences, downloads
-    // and cached files are stored. It is system dependent, but usually
-    // relative to the users home directory.
+    // and cached files are stored. The location is system dependent, and
+    // a number of options are tried in order until one is successful. The
+    // first pass looks for an existing directory. If none are found the
+    // next pass attempts to create the directory. If that doesn't work the
+    // game is abandoned.
 
+    std::vector<std::filesystem::path> options;
 #if defined(NAVITAB_WINDOWS)
     // try these environment variables in turn, use the first one that's defined
-    const char* e = 0;
-    if (!e) e = std::getenv("LOCALAPPDATA");
-    if (!e) e = std::getenv("APPDATA");
-    if (!e) e = std::getenv("USERPROFILE");
-    if (!e) e = std::getenv("TEMP");
-    if (!e) throw StartupError(fmt::format("Unable to determine path for Navitab data files, somewhere near line {} in {}", __LINE__, __FILE__));
-
-    std::filesystem::path candidate(e);
-    candidate /= "Navitab";
-
+    const char* e;
+    if (e = std::getenv("LOCALAPPDATA")) options.push_back(e);
+    if (e = std::getenv("APPDATA")) options.push_back(e);
+    if (e = std::getenv("USERPROFILE")) options.push_back(e);
+    if (e = std::getenv("TEMP")) options.push_back(e);
+    options.push_back("C:\\"); // desperate last option
 #elif defined(NAVITAB_LINUX)
 #error TBD
 #elif defined(NAVITAB_MACOSX)
 #error TBD
 #endif
 
-    (void)std::filesystem::create_directories(candidate);
-    if (!std::filesystem::exists(candidate) || !std::filesystem::is_directory(candidate)) {
-        throw StartupError(fmt::format("Unable to create directory for Navitab data files, somewhere near line {} in {}", __LINE__, __FILE__));
+    // first pass, directory must exist and be useable
+    // second pass, try to make the directory before testing
+    for (auto pass : { 1,2 }) {
+        for (auto& p : options) {
+            std::filesystem::path d(p);
+            d /= "Navitab";
+            if (pass == 2) (void)std::filesystem::create_directory(d);
+            if (std::filesystem::exists(d) || std::filesystem::is_directory(d)) {
+                // check we can create files
+                std::filesystem::path tmpf(d / "navitab.tmp");
+                bool failed = !std::ofstream(tmpf).put('x');
+                std::remove(tmpf.string().c_str());
+                if (!failed) return d;
+            }
+        }
     }
-    dataFilesPath = candidate;
+    throw StartupError(fmt::format("Unable to find or create directory for Navitab data files, before line {} in {}", __LINE__, __FILE__));
 }
 
 

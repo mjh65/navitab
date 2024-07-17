@@ -81,10 +81,31 @@ Navitab::~Navitab()
 {
 }
 
-void Navitab::init()
+void Navitab::start()
 {
     // Further initialisation is done here once the basic preference and
     // logging services have been started.
+    // This is called during X-Plane plugin start, and probably does relatively little
+    // Need to review SDK docs and Avitab.
+}
+
+void Navitab::enable()
+{
+    // This is called during X-Plane plugin enable, and probably does a bit more
+    // Need to review SDK docs and Avitab.
+}
+
+void Navitab::disable()
+{
+    // This is called during X-Plane plugin disable
+    // Need to review SDK docs and Avitab.
+}
+
+void Navitab::stop()
+{
+    // This is called during X-Plane plugin stop
+    // Avitab also calls curl_global_cleanup(), so we need to not forget that 
+    // Need to review SDK docs and Avitab.
 }
 
 std::filesystem::path Navitab::FindDataFilesPath()

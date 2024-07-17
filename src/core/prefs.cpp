@@ -88,13 +88,13 @@ void Preferences::load()
         fin >> filedata;
     }
     catch (const std::exception& e) {
-        WARN((*log), fmt::format("Prefs file {} could not be read, defaults will be used", prefsFile.string()));
+        zWARN((*log), fmt::format("Prefs file {} could not be read, defaults will be used", prefsFile.string()));
         return;
     }
     for (const auto& i : filedata.items()) {
         (*prefData)[i.key()] = i.value();
     }
-    STATUS((*log), fmt::format("Loaded preferences from {}", prefsFile.string()));
+    zSTATUS((*log), fmt::format("Loaded preferences from {}", prefsFile.string()));
 }
 
 void Preferences::upgrade()
@@ -108,9 +108,9 @@ void Preferences::save()
         fout << std::setw(4) << *prefData;
     }
     catch (const std::exception& e) {
-        WARN((*log), fmt::format("Prefs file {} could not be saved", prefsFile.string()));
+        zWARN((*log), fmt::format("Prefs file {} could not be saved", prefsFile.string()));
     }
-    STATUS((*log), fmt::format("Saved preferences to {}", prefsFile.string()));
+    zSTATUS((*log), fmt::format("Saved preferences to {}", prefsFile.string()));
 }
 
 

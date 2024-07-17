@@ -50,6 +50,7 @@ int main(int arg, char** argv)
     STATUS(LOG, "Early init completed");
 
     nvt->init();
+    nvt->enable();
 
     STATUS(LOG, "Full init completed");
 

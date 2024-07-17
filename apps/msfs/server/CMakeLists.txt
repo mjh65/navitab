@@ -18,15 +18,13 @@
 
 # Console server for MSFS InGame panel
 
-if(WIN32 AND DEFINED ENV{MSFS_SDK})
+add_executable(navitab_igps)
 
-add_executable(navitab_igps
-    "${CMAKE_CURRENT_LIST_DIR}/main.cpp"
+target_sources(navitab_igps PRIVATE
+    main.cpp
 )
 
 target_link_libraries(navitab_igps
 )
 
 install(TARGETS navitab_igps DESTINATION navitab/mjh65-ingamepanels-navitab/server)
-
-endif()

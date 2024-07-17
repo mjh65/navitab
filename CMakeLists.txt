@@ -48,7 +48,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 include(CTest)
 
 # Docs
-add_custom_target(navitab_docs SOURCES "${CMAKE_CURRENT_LIST_DIR}/README.md")
+add_custom_target(navitab_docs SOURCES README.md)
 find_package(Doxygen)
 if(Doxygen_FOUND)
     add_subdirectory(docs)
@@ -59,6 +59,14 @@ endif()
 # CMake-compatible external 3rd-party projects are handled here
 include(FetchContent)
 add_subdirectory(extern)
+
+# Check for simulator SDK's and set variables if defined
+if(DEFINED ENV{XPLANE_SDK})
+cmake_path(SET XPLANE_SDK NORMALIZE "$ENV{XPLANE_SDK}")
+endif()
+if(WIN32 AND DEFINED ENV{MSFS_SDK})
+cmake_path(SET MSFS_SDK NORMALIZE "$ENV{MSFS_SDK}")
+endif()
 
 # Host platform definitions
 if(WIN32)

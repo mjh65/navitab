@@ -15,3 +15,15 @@
 #
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# Console program for building navigation database from various sources
+
+add_executable(navitab_builddb)
+
+target_sources(navitab_builddb PRIVATE
+    main.cpp
+)
+
+target_link_libraries(navitab_builddb
+)
+

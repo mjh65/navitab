@@ -47,11 +47,12 @@ int main(int arg, char** argv)
     auto logger = std::make_unique<navitab::logging::Logger>("main");
     auto LOG = (*logger);
 
-    STATUS(LOG, "Early init completed");
+    zSTATUS(LOG, "Early init completed");
 
-    nvt->init();
+    nvt->start();
+    nvt->enable();
 
-    STATUS(LOG, "Full init completed");
+    zSTATUS(LOG, "Full init completed");
 
     // TODO - in console mode we need to run an event loop
 

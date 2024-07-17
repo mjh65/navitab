@@ -16,12 +16,22 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# Console program for building navigation database from various sources
+add_library(navitab_simxp)
 
-add_executable(navitab_builddb
-    "${CMAKE_CURRENT_LIST_DIR}/main.cpp"
+target_sources(navitab_simxp PRIVATE
+    datarefexport.cpp
+    datarefimport.cpp
 )
 
-target_link_libraries(navitab_builddb
+target_compile_definitions(navitab_simxp PUBLIC
+    XPLM400 XPLM303 XPLM301 XPLM300 XPLM210 XPLM200
 )
 
+target_include_directories(navitab_simxp PUBLIC
+    "${XPLANE_SDK}/CHeaders"
+)
+
+if(WIN32)
+elseif(APPLE)
+elseif(UNIX)
+endif()

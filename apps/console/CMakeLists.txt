@@ -19,7 +19,7 @@
 add_executable(navitab_console)
 
 target_sources(navitab_console PRIVATE
-    "${CMAKE_CURRENT_LIST_DIR}/main.cpp"
+    main.cpp
 )
 
 target_link_libraries(navitab_console

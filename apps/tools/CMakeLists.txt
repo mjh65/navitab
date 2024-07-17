@@ -16,14 +16,4 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-include_directories("${NAVITAB_API_DIR}")
-
-add_subdirectory(desktop)
-add_subdirectory(console)
-add_subdirectory(tools)
-if(MSFS_SDK)
-add_subdirectory(msfs)
-endif()
-if(XPLANE_SDK)
-add_subdirectory(xplane)
-endif()
+add_subdirectory(navdb)

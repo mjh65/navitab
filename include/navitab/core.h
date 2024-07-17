@@ -64,7 +64,10 @@ public:
     ~Navitab();
 
     // do the remaining initialisation
-    void init();
+    void start();    // TODO - called from XPluginStart - review this in SDK and Avitab
+    void enable();  // TODO - called from XPluginEnable - review this in SDK and Avitab
+    void disable(); // TODO - called from XPluginDisable - review this in SDK and Avitab
+    void stop();    // TODO - called from XPluginStop - review this in SDK and Avitab
 
     // shutdown the subsystems in an orderly manner
     void shutdown();

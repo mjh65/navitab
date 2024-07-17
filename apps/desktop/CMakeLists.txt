@@ -23,19 +23,18 @@ add_executable(navitab_desktop WIN32 MACOSX_BUNDLE)
 target_link_libraries(navitab_desktop
     navitab_core
     navitab_platform
-    lvgl::lvgl
 )
 
 if(WIN32)
-    target_sources(navitab_desktop PRIVATE "${CMAKE_CURRENT_LIST_DIR}/win32main.cpp")
+    target_sources(navitab_desktop PRIVATE win32main.cpp)
     target_compile_definitions(navitab_desktop PRIVATE UNICODE)
     if(MSVC)
         target_link_options(navitab_desktop PRIVATE /municode)
     endif()
 elseif(APPLE)
-    target_sources(navitab_desktop PRIVATE "${CMAKE_CURRENT_LIST_DIR}/main.cpp")
+    target_sources(navitab_desktop PRIVATE main.cpp)
 elseif(UNIX)
-    target_sources(navitab_desktop PRIVATE "${CMAKE_CURRENT_LIST_DIR}/main.cpp")
+    target_sources(navitab_desktop PRIVATE main.cpp)
 endif()
 
 install(TARGETS navitab_desktop DESTINATION navitab/tools)

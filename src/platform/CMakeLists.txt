@@ -16,7 +16,11 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-add_library(navitab_platform "${CMAKE_CURRENT_LIST_DIR}/platform.cpp")
+add_library(navitab_platform)
+
+target_sources(navitab_platform PRIVATE
+    platform.cpp
+)
 
 if(WIN32)
 elseif(APPLE)

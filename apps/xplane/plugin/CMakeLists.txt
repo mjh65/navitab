@@ -60,6 +60,7 @@ elseif(UNIX)
         navitab_simxp
         GL
     )
+    install(TARGETS navitab_plugin DESTINATION navitab/xplane/Navitab/lin_x64)
 endif()
 
 set_target_properties(navitab_plugin PROPERTIES PREFIX "")

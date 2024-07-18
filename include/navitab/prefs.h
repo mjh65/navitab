@@ -47,6 +47,7 @@ private:
     std::unique_ptr<navitab::logging::Logger> log;
     std::filesystem::path prefsFile;
     std::shared_ptr<nlohmann::json> prefData;
+    bool saveAtExit;
 
 };
 

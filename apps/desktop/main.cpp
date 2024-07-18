@@ -47,14 +47,17 @@ int main(int arg, char** argv)
     auto logger = std::make_unique<navitab::logging::Logger>("main");
     auto LOG = (*logger);
 
-    zSTATUS(LOG, "Early init completed");
-
+    zSTATUS(LOG, "Early init completed, starting and enabling");
     nvt->start();
     nvt->enable();
 
-    zSTATUS(LOG, "Full init completed");
+    zSTATUS(LOG, "Starting event loop");
 
     // TODO - in desktop mode we will handover to GL to run the GUI
+
+    zSTATUS(LOG, "Event loop finished, disabling and stopping");
+    nvt->disable();
+    nvt->stop();
 
     return 0;
 }

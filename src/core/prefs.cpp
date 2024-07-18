@@ -22,6 +22,7 @@
 #include <nlohmann/json.hpp>
 #include <fmt/core.h>
 #include <fstream>
+#include <sstream>
 
 
 using json = nlohmann::json;
@@ -32,7 +33,8 @@ namespace core {
 static const int PREFS_VERSION = 1;
 
 Preferences::Preferences(std::filesystem::path pf)
-:   prefsFile(pf)
+:   prefsFile(pf),
+    saveAtExit(true)
 {
     log = std::make_unique<navitab::logging::Logger>("prefs");
     prefData = std::make_shared<json>();
@@ -43,52 +45,66 @@ Preferences::Preferences(std::filesystem::path pf)
 
 Preferences::~Preferences()
 {
-    save();
+    if (saveAtExit) save();
 }
 
 void Preferences::init()
 {
-    // full init not required, just defaults that aren't zero/false/empty
-#if 0 // TODO - change this to inline string data and stream it into the json (like the load() fn)
-{
-    "version": 1,
-    "general" : {
-        "show_fps": true
-    },
-    "logging" : {
-        "filters": [
-            {
-                "pattern": "*",
-                "FATAL" : "F+2",
-                "ERROR" : "F+2",
-                "STATUS" : "F+1",
-                "WARN" : "F+1",
-                "INFO" : "F",
-                "DETAIL" : "F"
-            }
-        ]
-    }
-}
-#endif
-    *prefData = {
-        { "general",
-            {
-                { "prefs_version", PREFS_VERSION },
-                { "show_fps", true }
-            }
+    // these are the default preferences, ie anything that's not null, false, or zero.
+    // anything in the real preferences file will override entries in here, and
+    // further entries may be added via the UI or code later.
+    const char* jsonDefault = R"({
+        "version": 1,
+        "general" : {
+            "show_fps": true
+        },
+        "logging" : {
+            "filters": [
+                {
+                    "pattern": "*",
+                    "FATAL" : "F+2",
+                    "ERROR" : "F+2",
+                    "STATUS" : "F+1",
+                    "WARN" : "F+1",
+                    "INFO" : "F",
+                    "DETAIL" : "F"
+                }
+            ]
         }
-    };
+    })";
+
+    std::istringstream iss(jsonDefault);
+    json defaultData;
+    iss >> defaultData;
+
+    for (const auto& i : defaultData.items()) {
+        (*prefData)[i.key()] = i.value();
+    }
 }
 
 void Preferences::load()
 {
+    bool fileHasContent = false;
     json filedata;
     try {
+        char x;
         std::ifstream fin(prefsFile);
+        if (fin >> x) {
+            fileHasContent = true;
+            fin.clear();
+            fin.seekg(0, std::ios_base::beg);
+        }
         fin >> filedata;
     }
     catch (const std::exception& e) {
-        zWARN((*log), fmt::format("Prefs file {} could not be read, defaults will be used", prefsFile.string()));
+        if (fileHasContent) {
+            zWARN((*log), fmt::format("Parsing error in preferences file {}", prefsFile.string()));
+            zWARN((*log), fmt::format("Default preferences will be used, and any updates will not be saved."));
+            saveAtExit = false;
+        } else {
+            zWARN((*log), fmt::format("Non-existent or empty preferences file {}", prefsFile.string()));
+            zWARN((*log), fmt::format("Default preferences will be used and saved on exit."));
+        }
         return;
     }
     for (const auto& i : filedata.items()) {

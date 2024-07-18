@@ -59,6 +59,7 @@ Navitab::Navitab(Simulation s, AppClass c)
     switch (simProduct) {
     case MSFS: lfp += "_m"; break;
     case XPLANE: lfp += "_x"; break;
+    case NONE: break;
     }
     auto pfp = lfp;
     lfp += "_log.txt";

@@ -37,22 +37,26 @@ if(WIN32)
     install(TARGETS navitab_plugin RUNTIME DESTINATION navitab/xplane/Navitab/win_x64)
 elseif(APPLE)
     target_compile_definitions(navitab_plugin PRIVATE APL=1)
-    target_link_options(navitab_plugin
-        #"-F${PROJECT_SOURCE_DIR}/build-third/lib/ -framework XPLM"
-        "-framework OpenGL"
-        # other dependencies here
+    target_link_options(navitab_plugin PRIVATE
+        "-F${XPLANE_SDK}/Libraries/Mac"
+        -framework XPLM
+        #-framework OpenGL
     )
     target_link_libraries(navitab_plugin
+        navitab_core
+        navitab_platform
         navitab_simxp
-        opengl32
     )
+    install(TARGETS navitab_plugin DESTINATION navitab/xplane/Navitab/mac_x64)
 elseif(UNIX)
     target_compile_definitions(navitab_plugin PRIVATE LIN=1)
-    target_link_options(navitab_plugin
+    target_link_options(navitab_plugin PRIVATE
         -static-libgcc
         -static-libstdc++
     )
     target_link_libraries(navitab_plugin
+        navitab_core
+        navitab_platform
         navitab_simxp
         GL
     )

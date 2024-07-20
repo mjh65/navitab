@@ -67,22 +67,24 @@ Navitab::Navitab(Simulation s, AppClass c)
 
     // initialise the log file
     auto lm = navitab::logging::LogManager::GetLogManager();
-    lm->SetConsole(appClass == CONSOLE);
+    lm->UseConsole(appClass == CONSOLE);
     lm->SetLogFile(lfp);
 
     // load the preferences
-    prefs = std::make_unique< Preferences>(pfp);
+    prefs = std::make_shared< Preferences>(pfp);
 
-    // TODO - get the logging preferences from the json and use it
-    // to configure the logging filters
-
+    // set the logging preferences (using the json directly)
+    lm->Configure(prefs->Get("/logging"));
 }
 
 Navitab::~Navitab()
 {
+    // in case these were not called properly by the app
+    Disable();
+    Stop();
 }
 
-void Navitab::start()
+void Navitab::Start()
 {
     // Further initialisation is done here once the basic preference and
     // logging services have been started.
@@ -90,19 +92,19 @@ void Navitab::start()
     // Need to review SDK docs and Avitab.
 }
 
-void Navitab::enable()
+void Navitab::Enable()
 {
     // This is called during X-Plane plugin enable, and probably does a bit more
     // Need to review SDK docs and Avitab.
 }
 
-void Navitab::disable()
+void Navitab::Disable()
 {
     // This is called during X-Plane plugin disable
     // Need to review SDK docs and Avitab.
 }
 
-void Navitab::stop()
+void Navitab::Stop()
 {
     // This is called during X-Plane plugin stop
     // Avitab also calls curl_global_cleanup(), so we need to not forget that 

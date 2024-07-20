@@ -26,6 +26,7 @@
 #include <string>
 #include <vector>
 #include <filesystem>
+#include <nlohmann/json_fwd.hpp>
 #include "navitab/logging.h"
 
 namespace navitab {
@@ -40,13 +41,13 @@ public:
     /// @return A shared pointer to the log manager
     static std::shared_ptr<LogManager> GetLogManager();
 
-    void SetConsole(bool q) { isConsole = q; }
+    void UseConsole(bool q) { isConsole = q; }
 
     /// @brief Set the path of the log file to write to
     void SetLogFile(std::filesystem::path path);
 
     /// @brief Configure the log manager
-    void Configure(/*json*/);
+    void Configure(const nlohmann::json& prefs);
 
     /// @brief Get the identifier of the named filter for use in message logging
     /// @param name The name of the filter

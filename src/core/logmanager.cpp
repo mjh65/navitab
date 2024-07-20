@@ -61,10 +61,12 @@ void LogManager::SetLogFile(std::filesystem::path path)
     if (lf->good()) std::swap(logFile, lf);
 }
 
-void LogManager::Configure()
+void LogManager::Configure(const nlohmann::json& prefs)
 {
     // update the current filters based on the json object provided,
     // and store the filters to apply to any new loggers
+    
+    
 }
 
 int LogManager::GetFilterId(const char *name)

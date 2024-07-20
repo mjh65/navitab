@@ -51,7 +51,7 @@ PLUGIN_API int XPluginStart(char* outName, char* outSignature, char* outDescript
     auto LOG = (*logger);
     try {
         zSTATUS(LOG,"XPluginStart: early init completed");
-        nvt->start();
+        nvt->Start();
         zSTATUS(LOG,"XPluginStart: later init completed");
     }
     catch (const std::exception& e) {
@@ -72,7 +72,7 @@ PLUGIN_API int XPluginEnable(void)
 {
     auto LOG = (*logger);
     try {
-        nvt->enable();
+        nvt->Enable();
         zSTATUS(LOG,"XPluginEnable: enable completed");
     }
     catch (const std::exception& e) {
@@ -93,7 +93,7 @@ PLUGIN_API void XPluginDisable(void)
 {
     auto LOG = (*logger);
     try {
-        nvt->disable();
+        nvt->Disable();
         zSTATUS(LOG,"XPluginDisable: disable completed");
     }
     catch (const std::exception& e) {
@@ -106,7 +106,7 @@ PLUGIN_API void XPluginStop(void)
     auto LOG = (*logger);
     zSTATUS(LOG,"Navitab told to stop");
     try {
-        nvt->stop();
+        nvt->Stop();
         nvt.reset();    // run destructors
     }
     catch (const std::exception& e) {

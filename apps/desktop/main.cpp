@@ -48,16 +48,16 @@ int main(int arg, char** argv)
     auto LOG = (*logger);
 
     zSTATUS(LOG, "Early init completed, starting and enabling");
-    nvt->start();
-    nvt->enable();
+    nvt->Start();
+    nvt->Enable();
 
     zSTATUS(LOG, "Starting event loop");
 
     // TODO - in desktop mode we will handover to GL to run the GUI
 
     zSTATUS(LOG, "Event loop finished, disabling and stopping");
-    nvt->disable();
-    nvt->stop();
+    nvt->Disable();
+    nvt->Stop();
 
     return 0;
 }

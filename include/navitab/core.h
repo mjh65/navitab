@@ -51,10 +51,11 @@ struct LogFatal : public Exception
     LogFatal(std::string e) : Exception(e) {}
 };
 
+// The classes in here should be mostly interfaces!!!
 
-class Preferences;
+class Preferences; // TODO cretae an interface class
 
-class Navitab
+class Navitab // TODO change to interface class System
 {
 public:
     // Constructing the Navitab object also does enough initialisation to
@@ -63,15 +64,15 @@ public:
     Navitab(Simulation s, AppClass c);
     ~Navitab();
 
-    // do the remaining initialisation
-    void start();    // TODO - called from XPluginStart - review this in SDK and Avitab
-    void enable();  // TODO - called from XPluginEnable - review this in SDK and Avitab
-    void disable(); // TODO - called from XPluginDisable - review this in SDK and Avitab
-    void stop();    // TODO - called from XPluginStop - review this in SDK and Avitab
+    // Startup and shutdown control - fine-grained enough to support all app classes.
+    void Start();    // TODO - called from XPluginStart - review this in SDK and Avitab
+    void Enable();  // TODO - called from XPluginEnable - review this in SDK and Avitab
+    void Disable(); // TODO - called from XPluginDisable - review this in SDK and Avitab
+    void Stop();    // TODO - called from XPluginStop - review this in SDK and Avitab
 
-    // shutdown the subsystems in an orderly manner
-    void shutdown();
-
+    // access to preferences
+    std::shared_ptr<Preferences> PrefsManager();
+    
     // location of the preferences and log files, as well as any temporary file
     // and cached downloads
     std::filesystem::path DataFilesPath();
@@ -98,7 +99,7 @@ private:
 
     std::filesystem::path           dataFilesPath;
 
-    std::unique_ptr<Preferences>    prefs;
+    std::shared_ptr<Preferences>    prefs;
 };
 
 } // namespace core

@@ -48,6 +48,19 @@ Preferences::~Preferences()
     if (saveAtExit) save();
 }
 
+const nlohmann::json& Preferences::Get(const std::string key)
+{
+    json::json_pointer k(key);
+    auto& v = (*prefData)[k];
+    return v;
+}
+
+void Preferences::Put(const std::string key, nlohmann::json& value)
+{
+    json::json_pointer k(key);
+    (*prefData)[k] = value;
+}
+
 void Preferences::init()
 {
     // these are the default preferences, ie anything that's not null, false, or zero.
@@ -73,13 +86,7 @@ void Preferences::init()
         }
     })";
 
-    std::istringstream iss(jsonDefault);
-    json defaultData;
-    iss >> defaultData;
-
-    for (const auto& i : defaultData.items()) {
-        (*prefData)[i.key()] = i.value();
-    }
+    *prefData = json::parse(jsonDefault);
 }
 
 void Preferences::load()
@@ -94,7 +101,7 @@ void Preferences::load()
             fin.clear();
             fin.seekg(0, std::ios_base::beg);
         }
-        fin >> filedata;
+        filedata = json::parse(fin);
     }
     catch (const std::exception& e) {
         if (fileHasContent) {
@@ -120,8 +127,20 @@ void Preferences::upgrade()
 void Preferences::save()
 {
     try {
+        // flatten the preferences json and iterate through it to remove
+        // any null values that might have crept in.
+        auto flatPrefs = (*prefData).flatten();
+        auto i = flatPrefs.begin();
+        while (i != flatPrefs.end()) {
+            if (i.value().is_null()) {
+                i = flatPrefs.erase(i);
+            } else {
+                ++i;
+            }
+        }
+        // then rebuild the original structure and save it
         std::ofstream fout(prefsFile);
-        fout << std::setw(4) << *prefData;
+        fout << std::setw(4) << flatPrefs.unflatten();
     }
     catch (const std::exception& e) {
         zWARN((*log), fmt::format("Prefs file {} could not be saved", prefsFile.string()));

@@ -37,6 +37,9 @@ public:
     Preferences(std::filesystem::path prefsFile);
     ~Preferences();
 
+    const nlohmann::json& Get(const std::string key);
+    void Put(const std::string key, nlohmann::json& value);
+
 private:
     void init();
     void load();

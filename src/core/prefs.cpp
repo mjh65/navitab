@@ -18,7 +18,7 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "navitab/prefs.h"
+#include "prefs.h"
 #include <nlohmann/json.hpp>
 #include <fmt/core.h>
 #include <fstream>
@@ -32,36 +32,36 @@ namespace core {
 
 static const int PREFS_VERSION = 1;
 
-Preferences::Preferences(std::filesystem::path pf)
+Prefs::Prefs(std::filesystem::path pf)
 :   prefsFile(pf),
     saveAtExit(true)
 {
-    log = std::make_unique<navitab::logging::Logger>("prefs");
+    LOG = std::make_unique<navitab::logging::Logger>("prefs");
     prefData = std::make_shared<json>();
     init();
     load();
     upgrade();
 }
 
-Preferences::~Preferences()
+Prefs::~Prefs()
 {
     if (saveAtExit) save();
 }
 
-const nlohmann::json& Preferences::Get(const std::string key)
+const nlohmann::json& Prefs::Get(const std::string key)
 {
     json::json_pointer k(key);
     auto& v = (*prefData)[k];
     return v;
 }
 
-void Preferences::Put(const std::string key, nlohmann::json& value)
+void Prefs::Put(const std::string key, nlohmann::json& value)
 {
     json::json_pointer k(key);
     (*prefData)[k] = value;
 }
 
-void Preferences::init()
+void Prefs::init()
 {
     // these are the default preferences, ie anything that's not null, false, or zero.
     // anything in the real preferences file will override entries in here, and
@@ -89,7 +89,7 @@ void Preferences::init()
     *prefData = json::parse(jsonDefault);
 }
 
-void Preferences::load()
+void Prefs::load()
 {
     bool fileHasContent = false;
     json filedata;
@@ -105,26 +105,26 @@ void Preferences::load()
     }
     catch (const std::exception& e) {
         if (fileHasContent) {
-            zWARN((*log), fmt::format("Parsing error in preferences file {}", prefsFile.string()));
-            zWARN((*log), fmt::format("Default preferences will be used, and any updates will not be saved."));
+            zWARN(LOG, fmt::format("Parsing error in preferences file {}", prefsFile.string()));
+            zWARN(LOG, fmt::format("Default preferences will be used, and any updates will not be saved."));
             saveAtExit = false;
         } else {
-            zWARN((*log), fmt::format("Non-existent or empty preferences file {}", prefsFile.string()));
-            zWARN((*log), fmt::format("Default preferences will be used and saved on exit."));
+            zWARN(LOG, fmt::format("Non-existent or empty preferences file {}", prefsFile.string()));
+            zWARN(LOG, fmt::format("Default preferences will be used and saved on exit."));
         }
         return;
     }
     for (const auto& i : filedata.items()) {
         (*prefData)[i.key()] = i.value();
     }
-    zSTATUS((*log), fmt::format("Loaded preferences from {}", prefsFile.string()));
+    zSTATUS(LOG, fmt::format("Loaded preferences from {}", prefsFile.string()));
 }
 
-void Preferences::upgrade()
+void Prefs::upgrade()
 {
 }
 
-void Preferences::save()
+void Prefs::save()
 {
     try {
         // flatten the preferences json and iterate through it to remove
@@ -143,9 +143,9 @@ void Preferences::save()
         fout << std::setw(4) << flatPrefs.unflatten();
     }
     catch (const std::exception& e) {
-        zWARN((*log), fmt::format("Prefs file {} could not be saved", prefsFile.string()));
+        zWARN(LOG, fmt::format("Prefs file {} could not be saved", prefsFile.string()));
     }
-    zSTATUS((*log), fmt::format("Saved preferences to {}", prefsFile.string()));
+    zSTATUS(LOG, fmt::format("Saved preferences to {}", prefsFile.string()));
 }
 
 

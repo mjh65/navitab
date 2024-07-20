@@ -120,7 +120,7 @@ void LogManager::Log(int filterId, const char *file, const int line, Logger::Sev
     if (dests & Dest::STDERR) std::cerr << logline << std::endl;
     if (dests & Dest::STDOUT) std::cout << logline << std::endl;
     if (logFile && (dests & Dest::FILE)) (*logFile) << logline << std::endl;
-    if (s == Logger::Severity::F) throw navitab::core::LogFatal(msg);
+    if (s == Logger::Severity::F) throw navitab::LogFatal(msg);
 }
 
 

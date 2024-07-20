@@ -27,7 +27,7 @@
 #include <vector>
 #include <filesystem>
 #include <nlohmann/json_fwd.hpp>
-#include "navitab/logging.h"
+#include "navitab/logger.h"
 
 namespace navitab {
 namespace logging {

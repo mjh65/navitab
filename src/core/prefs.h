@@ -20,7 +20,8 @@
 
 #pragma once
 
-#include "navitab/logging.h"
+#include "navitab/core.h"
+#include "navitab/logger.h"
 #include <nlohmann/json_fwd.hpp>
 #include <filesystem>
 
@@ -31,14 +32,14 @@
 namespace navitab {
 namespace core {
 
-class Preferences
+class Prefs : public Preferences
 {
 public:
-    Preferences(std::filesystem::path prefsFile);
-    ~Preferences();
+    Prefs(std::filesystem::path prefsFile);
+    ~Prefs();
 
-    const nlohmann::json& Get(const std::string key);
-    void Put(const std::string key, nlohmann::json& value);
+    const nlohmann::json& Get(const std::string key) override;
+    void Put(const std::string key, nlohmann::json& value) override;
 
 private:
     void init();
@@ -47,7 +48,7 @@ private:
     void save();
 
 private:
-    std::unique_ptr<navitab::logging::Logger> log;
+    std::unique_ptr<navitab::logging::Logger> LOG;
     std::filesystem::path prefsFile;
     std::shared_ptr<nlohmann::json> prefData;
     bool saveAtExit;

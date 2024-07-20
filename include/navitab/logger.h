@@ -72,9 +72,9 @@ private:
 
 // Logging in the Navitab subsystems should normally be done using these macros.
 // This will simplify the file and line number reporting.
-#define zFATAL(P,M)  (P.Log(__FILE__,__LINE__,navitab::logging::Logger::Severity::F,M))
-#define zERROR(P,M)  (P.Log(__FILE__,__LINE__,navitab::logging::Logger::Severity::E,M))
-#define zSTATUS(P,M) (P.Log(__FILE__,__LINE__,navitab::logging::Logger::Severity::S,M))
-#define zWARN(P,M)   (P.Log(__FILE__,__LINE__,navitab::logging::Logger::Severity::W,M))
-#define zINFO(P,M)   (P.Log(__FILE__,__LINE__,navitab::logging::Logger::Severity::I,M))
-#define zDETAIL(P,M) (P.Log(__FILE__,__LINE__,navitab::logging::Logger::Severity::D,M))
+#define zFATAL(P,M)  (P->Log(__FILE__,__LINE__,navitab::logging::Logger::Severity::F,M))
+#define zERROR(P,M)  (P->Log(__FILE__,__LINE__,navitab::logging::Logger::Severity::E,M))
+#define zSTATUS(P,M) (P->Log(__FILE__,__LINE__,navitab::logging::Logger::Severity::S,M))
+#define zWARN(P,M)   (P->Log(__FILE__,__LINE__,navitab::logging::Logger::Severity::W,M))
+#define zINFO(P,M)   (P->Log(__FILE__,__LINE__,navitab::logging::Logger::Severity::I,M))
+#define zDETAIL(P,M) (P->Log(__FILE__,__LINE__,navitab::logging::Logger::Severity::D,M))

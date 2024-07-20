@@ -18,7 +18,7 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "navitab/logging.h"
+#include "navitab/logger.h"
 #include "logmanager.h"
 
 namespace navitab {

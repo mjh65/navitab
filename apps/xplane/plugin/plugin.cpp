@@ -22,14 +22,14 @@
 #include <XPLM/XPLMDefs.h>
 #include <XPLM/XPLMPlugin.h>
 #include "navitab/core.h"
-#include "navitab/logging.h"
+#include "navitab/logger.h"
 #include <fmt/core.h>
 
 // these are variables representing global state that will be referenced by all
 // of the X-Plane plugin entry points.
 
-std::unique_ptr<navitab::core::Navitab> nvt;
-std::unique_ptr<navitab::logging::Logger> logger;
+std::unique_ptr<navitab::System> nvt;
+std::unique_ptr<navitab::logging::Logger> LOG;
 
 PLUGIN_API int XPluginStart(char* outName, char* outSignature, char* outDescription)
 {
@@ -40,15 +40,14 @@ PLUGIN_API int XPluginStart(char* outName, char* outSignature, char* outDescript
         XPLMEnableFeature("XPLM_USE_NATIVE_PATHS", 1);
         strncpy(outDescription, "A panel for maps, charts and documents when flying in VR", 255);
         // try to initialise logging and preferences - raises exception if fails
-        nvt = std::make_unique<navitab::core::Navitab>(navitab::core::Simulation::XPLANE, navitab::core::AppClass::PLUGIN);
-        logger = std::make_unique<navitab::logging::Logger>("plugin");
+        nvt = navitab::System::GetSystem(navitab::Simulation::XPLANE, navitab::AppClass::PLUGIN);
+        LOG = std::make_unique<navitab::logging::Logger>("plugin");
     }
     catch (const std::exception& e) {
         strncpy(outDescription, e.what(), 255);
         return 0;
     }
 
-    auto LOG = (*logger);
     try {
         zSTATUS(LOG,"XPluginStart: early init completed");
         nvt->Start();
@@ -70,7 +69,6 @@ PLUGIN_API int XPluginStart(char* outName, char* outSignature, char* outDescript
 
 PLUGIN_API int XPluginEnable(void)
 {
-    auto LOG = (*logger);
     try {
         nvt->Enable();
         zSTATUS(LOG,"XPluginEnable: enable completed");
@@ -91,7 +89,6 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID src, int msg, void* inParam)
 
 PLUGIN_API void XPluginDisable(void)
 {
-    auto LOG = (*logger);
     try {
         nvt->Disable();
         zSTATUS(LOG,"XPluginDisable: disable completed");
@@ -103,7 +100,6 @@ PLUGIN_API void XPluginDisable(void)
 
 PLUGIN_API void XPluginStop(void)
 {
-    auto LOG = (*logger);
     zSTATUS(LOG,"Navitab told to stop");
     try {
         nvt->Stop();

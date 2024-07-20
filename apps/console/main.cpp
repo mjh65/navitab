@@ -25,17 +25,17 @@
 
 #include <memory>
 #include "navitab/core.h"
-#include "navitab/logging.h"
+#include "navitab/logger.h"
 
 
 int main(int arg, char** argv)
 {
-    std::shared_ptr<navitab::core::Navitab> nvt;
+    std::shared_ptr<navitab::System> nvt;
     try {
         // try to initialise logging and preferences - raises exception if fails
-        nvt = std::make_unique<navitab::core::Navitab>(navitab::core::Simulation::NONE, navitab::core::AppClass::CONSOLE);
+        nvt = navitab::System::GetSystem(navitab::Simulation::NONE, navitab::AppClass::CONSOLE);
     }
-    catch (navitab::core::StartupError& e) {
+    catch (navitab::StartupError& e) {
         // TODO - report anything we can to stderr and then exit
     }
     catch (...) {
@@ -44,8 +44,7 @@ int main(int arg, char** argv)
 
     // if we get this far then we should have logging enabled, so any further issues
     // can be reported through the logging interface.
-    auto logger = std::make_unique<navitab::logging::Logger>("main");
-    auto LOG = (*logger);
+    auto LOG = std::make_unique<navitab::logging::Logger>("main");
 
     zSTATUS(LOG, "Early init completed, starting and enabling");
     nvt->Start();

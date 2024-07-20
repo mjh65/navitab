@@ -18,14 +18,23 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "navitab/core.h"
-#include "navitab/prefs.h"
+#include "navitab.h"
 #include "logmanager.h"
+#include "prefs.h"
 #include <cstdio>
 #include <filesystem>
 #include <fmt/core.h>
 
 namespace navitab {
+
+std::unique_ptr<System> System::GetSystem(Simulation s, AppClass c)
+{
+    static bool done = false;
+    if (done) return nullptr;
+    done = true;
+    return std::make_unique<core::Navitab>(s,c);
+}
+
 namespace core {
 
 
@@ -71,7 +80,7 @@ Navitab::Navitab(Simulation s, AppClass c)
     lm->SetLogFile(lfp);
 
     // load the preferences
-    prefs = std::make_shared< Preferences>(pfp);
+    prefs = std::make_shared< Prefs>(pfp);
 
     // set the logging preferences (using the json directly)
     lm->Configure(prefs->Get("/logging"));
@@ -110,6 +119,43 @@ void Navitab::Stop()
     // Avitab also calls curl_global_cleanup(), so we need to not forget that 
     // Need to review SDK docs and Avitab.
 }
+
+std::shared_ptr<Preferences> Navitab::PrefsManager()
+{
+    return prefs;
+}
+
+// location of the preferences and log files, as well as any temporary file
+// and cached downloads
+std::filesystem::path Navitab::DataFilesPath()
+{
+    return dataFilesPath;
+}
+
+// browsing start for the user's resources, eg charts, docs
+std::filesystem::path Navitab::UserResourcesPath()
+{
+    return std::filesystem::path(); // TODO
+}
+
+// browsing start for any aircraft documents
+std::filesystem::path Navitab::AircraftResourcesPath()
+{
+    return std::filesystem::path(); // TODO
+}
+
+// browsing start for flight plans / routes
+std::filesystem::path Navitab::FlightPlansPath()
+{
+    return std::filesystem::path(); // TODO
+}
+
+// directory containing the current Navitab executable
+std::filesystem::path Navitab::NavitabPath()
+{
+    return std::filesystem::path(); // TODO
+}
+
 
 std::filesystem::path Navitab::FindDataFilesPath()
 {
@@ -172,6 +218,7 @@ std::filesystem::path Navitab::FindDataFilesPath()
     }
     throw StartupError(fmt::format("Unable to find or create directory for Navitab data files, before line {} in {}", __LINE__, __FILE__));
 }
+
 
 
 } // namespace core

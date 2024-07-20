@@ -22,13 +22,12 @@
 
 #include <exception>
 #include <filesystem>
+#include <nlohmann/json_fwd.hpp>
 
-// This header file defines a class that manages the startup and use of the
-// Navitab subsystems. Each of the executable/plugin's main() function should
-// instantiate exactly one of these, and destroy it on closure.
+// This header file defines abstract interfaces to the main components of
+// Navitab, and a single factory function to make the central core object.
 
 namespace navitab {
-namespace core {
 
 
 enum HostPlatform { WIN, LNX, MAC };
@@ -53,54 +52,52 @@ struct LogFatal : public Exception
 
 // The classes in here should be mostly interfaces!!!
 
-class Preferences; // TODO cretae an interface class
+// The Preferences class is a relatively small wrapper that can be used
+// by Navitab components to fetch (and update) preference data that is
+// stored between runs.
 
-class Navitab // TODO change to interface class System
+class Preferences
 {
 public:
-    // Constructing the Navitab object also does enough initialisation to
-    // get the logging working. Any errors during this phase are likely to
-    // be unrecoverable and will cause a StartupError exception to be thrown.
-    Navitab(Simulation s, AppClass c);
-    ~Navitab();
+    virtual const nlohmann::json& Get(const std::string key) = 0;
+    virtual void Put(const std::string key, nlohmann::json& value) = 0;
+};
+
+// The executable/plugin's main() function should call the factory to create
+// exactly one instance of the Navitab core, and then destroy it on closure.
+
+class System
+{
+public:
+    static std::unique_ptr<System> GetSystem(Simulation s, AppClass c);
+
+    virtual ~System() = default;
 
     // Startup and shutdown control - fine-grained enough to support all app classes.
-    void Start();    // TODO - called from XPluginStart - review this in SDK and Avitab
-    void Enable();  // TODO - called from XPluginEnable - review this in SDK and Avitab
-    void Disable(); // TODO - called from XPluginDisable - review this in SDK and Avitab
-    void Stop();    // TODO - called from XPluginStop - review this in SDK and Avitab
+    virtual void Start() = 0;
+    virtual void Enable() = 0;
+    virtual void Disable() = 0;
+    virtual void Stop() = 0;
 
     // access to preferences
-    std::shared_ptr<Preferences> PrefsManager();
+    virtual std::shared_ptr<Preferences> PrefsManager() = 0;
     
     // location of the preferences and log files, as well as any temporary file
     // and cached downloads
-    std::filesystem::path DataFilesPath();
+    virtual std::filesystem::path DataFilesPath() = 0;
 
     // browsing start for the user's resources, eg charts, docs
-    std::filesystem::path UserResourcesPath();
+    virtual std::filesystem::path UserResourcesPath() = 0;
 
     // browsing start for any aircraft documents
-    std::filesystem::path AircraftResourcesPath();
+    virtual std::filesystem::path AircraftResourcesPath() = 0;
 
     // browsing start for flight plans / routes
-    std::filesystem::path FlightPlansPath();
+    virtual std::filesystem::path FlightPlansPath() = 0;
 
     // directory containing the current Navitab executable
-    std::filesystem::path NavitabPath();
+    virtual std::filesystem::path NavitabPath() = 0;
 
-protected:
-    std::filesystem::path FindDataFilesPath();
-
-private:
-    const HostPlatform              hostPlatform;
-    const AppClass                  appClass;
-    const Simulation                simProduct;
-
-    std::filesystem::path           dataFilesPath;
-
-    std::shared_ptr<Preferences>    prefs;
 };
 
-} // namespace core
 } // namespace navitab

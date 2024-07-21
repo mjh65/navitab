@@ -43,12 +43,12 @@ int WINAPI WinMain(_In_ HINSTANCE hinst, _In_opt_ HINSTANCE hprev, _In_ LPSTR cm
     c.lpszClassName = WINDOW_CLASS;
     RegisterClass(&c);
 
-    std::shared_ptr<navitab::core::Navitab> nvt;
+    std::unique_ptr<navitab::System> nvt;
     try {
         // try to initialise logging and preferences - raises exception if fails
-        nvt = std::make_unique<navitab::core::Navitab>(navitab::core::Simulation::NONE, navitab::core::AppClass::DESKTOP);
+        nvt = navitab::System::GetSystem(navitab::Simulation::NONE, navitab::AppClass::DESKTOP);
     }
-    catch (navitab::core::StartupError& e) {
+    catch (navitab::StartupError& e) {
         // TODO - if an exception occurs then we should show any information we got in a
         // dialog window
     }

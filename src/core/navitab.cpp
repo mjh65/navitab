@@ -80,10 +80,10 @@ Navitab::Navitab(Simulation s, AppClass c)
     lm->SetLogFile(lfp);
 
     // load the preferences
-    prefs = std::make_shared< Prefs>(pfp);
+    prefs = std::make_shared<Prefs>(pfp);
 
     // set the logging preferences (using the json directly)
-    lm->Configure(prefs->Get("logging"));
+    lm->Configure(prefs->Get("/logging"));
 }
 
 Navitab::~Navitab()

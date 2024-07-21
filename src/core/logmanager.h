@@ -33,6 +33,11 @@ namespace navitab {
 namespace logging {
 
 // LogManager is a singleton class which does all of the logging work.
+// Classes that use the logging system interface to the LogManager by
+// creating a Logger object and using a simple macro-based API to
+// insert log statements into the source code. The Logger object interacts
+// with the singleton LogManager which handles log messages, filtering, and
+// routing.
 
 class LogManager
 {
@@ -41,25 +46,29 @@ public:
     /// @return A shared pointer to the log manager
     static std::shared_ptr<LogManager> GetLogManager();
 
+    /// @brief Indicate whether the Navitab system has a console.
+    /// @param q True if a console is available for message output.
     void UseConsole(bool q) { isConsole = q; }
 
-    /// @brief Set the path of the log file to write to
+    /// @brief Set the path of the log file to be written.
+    /// @param path The filesystem path for the log file.
     void SetLogFile(std::filesystem::path path);
 
-    /// @brief Configure the log manager
+    /// @brief Configure the log manager.
+    /// @param prefs The json object for logging from the preferences file.
     void Configure(const nlohmann::json& prefs);
 
     /// @brief Get the identifier of the named filter for use in message logging
     /// @param name The name of the filter
-    /// @return 
+    /// @return Filter identifier to be used in subsequent Log() method calls.
     int GetFilterId(const char *name);
 
-    /// @brief Log some text reporting the state of play
-    /// @param filterId Identifies the filter to be applied
-    /// @param file The source file for the code generating the message
-    /// @param line The line number in the source file where the message is logged
-    /// @param s The severity of the message
-    /// @param msg The message string to be logged
+    /// @brief Log some text reporting the state of play.
+    /// @param filterId Identifies the filter to be applied.
+    /// @param file The source file for the code generating the message.
+    /// @param line The line number in the source file where the message is logged.
+    /// @param s The severity of the message.
+    /// @param msg The message string to be logged.
     void Log(int filterId, const char *file, const int line, Logger::Severity s, const std::string msg);
 
     ~LogManager();
@@ -71,7 +80,7 @@ private:
     std::unique_ptr<std::ofstream> logFile;
 
     // bit masks used to enable logging destinations
-    enum Dest { FILE = 0b100, STDOUT = 0b10, STDERR = 0b1 };
+    enum Dest { FILE = 0b100, STDERR = 0b10, STDOUT = 0b1 };
     struct Filter
     {
         std::string name;

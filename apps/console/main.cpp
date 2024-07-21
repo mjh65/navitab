@@ -46,15 +46,15 @@ int main(int arg, char** argv)
     // can be reported through the logging interface.
     auto LOG = std::make_unique<navitab::logging::Logger>("main");
 
-    zSTATUS(LOG, "Early init completed, starting and enabling");
+    LOGS("Early init completed, starting and enabling");
     nvt->Start();
     nvt->Enable();
 
-    zSTATUS(LOG, "Starting event loop");
+    LOGS("Starting event loop");
 
     // TODO - in console mode we need to run an event loop
 
-    zSTATUS(LOG, "Event loop finished, disabling and stopping");
+    LOGS("Event loop finished, disabling and stopping");
     nvt->Disable();
     nvt->Stop();
 

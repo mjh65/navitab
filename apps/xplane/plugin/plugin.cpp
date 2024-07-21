@@ -49,18 +49,18 @@ PLUGIN_API int XPluginStart(char* outName, char* outSignature, char* outDescript
     }
 
     try {
-        zSTATUS(LOG,"XPluginStart: early init completed");
+        LOGS("XPluginStart: early init completed");
         nvt->Start();
-        zSTATUS(LOG,"XPluginStart: later init completed");
+        LOGS("XPluginStart: later init completed");
     }
     catch (const std::exception& e) {
         try {
             //environment.reset();
         }
         catch (...) {
-            zERROR(LOG,"Environment exception while destroying");
+            LOGE("Environment exception while destroying");
         }
-        zERROR(LOG,fmt::format("Exception in XPluginStart: {}", e.what()));
+        LOGE(fmt::format("Exception in XPluginStart: {}", e.what()));
         strncpy(outDescription, e.what(), 255);
         return 0;
     }
@@ -71,10 +71,10 @@ PLUGIN_API int XPluginEnable(void)
 {
     try {
         nvt->Enable();
-        zSTATUS(LOG,"XPluginEnable: enable completed");
+        LOGS("XPluginEnable: enable completed");
     }
     catch (const std::exception& e) {
-        zERROR(LOG, fmt::format("Exception in XPluginEnable: {}", e.what()));
+        LOGE(fmt::format("Exception in XPluginEnable: {}", e.what()));
         return 0;
     }
     return 1;
@@ -91,25 +91,25 @@ PLUGIN_API void XPluginDisable(void)
 {
     try {
         nvt->Disable();
-        zSTATUS(LOG,"XPluginDisable: disable completed");
+        LOGS("XPluginDisable: disable completed");
     }
     catch (const std::exception& e) {
-        zERROR(LOG, fmt::format("Exception in XPluginDisable: {}", e.what()));
+        LOGE(fmt::format("Exception in XPluginDisable: {}", e.what()));
     }
 }
 
 PLUGIN_API void XPluginStop(void)
 {
-    zSTATUS(LOG,"Navitab told to stop");
+    LOGS("Navitab told to stop");
     try {
         nvt->Stop();
         nvt.reset();    // run destructors
     }
     catch (const std::exception& e) {
-        zERROR(LOG, fmt::format("Exception in XPluginStop: {}", e.what()));
+        LOGE(fmt::format("Exception in XPluginStop: {}", e.what()));
     }
 
-    zSTATUS(LOG,"Navitab has now stopped");
+    LOGS("Navitab has now stopped");
 }
 
 #if defined(NAVITAB_WINDOWS)

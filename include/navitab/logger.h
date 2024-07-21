@@ -23,9 +23,20 @@
 #include <memory>
 #include <ostream>
 
-// This header file defines the interface to the Navitab logging subsystem.
-// Most of it is hidden behind preprocessor macros in order to get the source
-// file and line numbers, so the macro names might lead to some issues!
+// Logging in the Navitab subsystems uses the LOGx macros which simplify the logging
+// interface (in particular file and line number reporting is automated).
+// However, the macros expand to code that requires a symbol 'LOG' whch is used to
+// to access Log(std::string).
+// Normally 'LOG' will be a pointer to a Logger object which has been instantiated
+// (using std::make_unique) for the class, or the function.
+
+#define LOGF(M) (LOG->Log(__FILE__,__LINE__,navitab::logging::Logger::Severity::F,M))
+#define LOGE(M) (LOG->Log(__FILE__,__LINE__,navitab::logging::Logger::Severity::E,M))
+#define LOGS(M) (LOG->Log(__FILE__,__LINE__,navitab::logging::Logger::Severity::S,M))
+#define LOGW(M) (LOG->Log(__FILE__,__LINE__,navitab::logging::Logger::Severity::W,M))
+#define LOGI(M) (LOG->Log(__FILE__,__LINE__,navitab::logging::Logger::Severity::I,M))
+#define LOGD(M) (LOG->Log(__FILE__,__LINE__,navitab::logging::Logger::Severity::D,M))
+
 
 namespace navitab {
 namespace logging {
@@ -33,48 +44,41 @@ namespace logging {
 class LogManager;
 
 // The class Logger provides the logging services used by the Navitab
-// subsystems. Typically the macros at the end of this header are used
+// subsystems. Normally the macros at the start of this header are used
 // to generate logging messages, however an instance of the Logger class
-// is required as a parameter 
+// named LOG is required to be in scope where the macro is used.
 
 // Create a Logger instance in each place where logging is required.
 // The name of the Logger object will be used to figure out what level
-// of filtering should be applied. The default filtering is to ignore
-// info and detail messages. Filters can be set in the json preferences
-// file to enable more detailed logging for areas of interest, based on
-// a hierarchical naming system for the Logger objects.
+// of filtering should be applied to messages reported through this logger.
+// The default filtering will ignore info and detail messages. Additional
+// filters can be set in the json preferences file to enable more detailed
+// or sparser logging for specific subsystems, based on the names provided
+// or the Logger objects when they are instantiated.
 
 class Logger
 {
 public:
     enum Severity { F, E, S, W, I, D };
 
-    /// @brief Contruct a Logger to record operational details of the program
-    /// @param name The filter name for this logger, used for finer grained filtering 
+    /// @brief Contruct a Logger to record operational details of the program.
+    /// @param name The name for this logger, used for finer grained filtering.
     Logger(const char *name);
 
-    /// @brief Log some text reporting the state of play
-    /// @param file The source file for the code generating the message
-    /// @param line The line number in the source file where the message is logged
-    /// @param s The severity of the message
-    /// @param msg The message string to be logged
+    /// @brief Log some text reporting the state of play. Not intended for direct call, use the macros.
+    /// @param file The source file for the code generating the message.
+    /// @param line The line number in the source file where the message is logged.
+    /// @param s The severity of the message.
+    /// @param msg The message string to be logged.
     void Log(const char *file, const int line, Severity s, const std::string msg);
 
 private:
-    /// @brief The LogManager that does all the work
+    /// @brief The LogManager that does all the actual filtering and logging.
     std::shared_ptr<LogManager> const lmgr;
-    /// @brief Filter identifier provided by the LogManager
+
+    /// @brief Filter identifier provided by the LogManager.
     int fid;
 };
 
 } // namespace logging
 } // namesapce navitab
-
-// Logging in the Navitab subsystems should normally be done using these macros.
-// This will simplify the file and line number reporting.
-#define zFATAL(P,M)  (P->Log(__FILE__,__LINE__,navitab::logging::Logger::Severity::F,M))
-#define zERROR(P,M)  (P->Log(__FILE__,__LINE__,navitab::logging::Logger::Severity::E,M))
-#define zSTATUS(P,M) (P->Log(__FILE__,__LINE__,navitab::logging::Logger::Severity::S,M))
-#define zWARN(P,M)   (P->Log(__FILE__,__LINE__,navitab::logging::Logger::Severity::W,M))
-#define zINFO(P,M)   (P->Log(__FILE__,__LINE__,navitab::logging::Logger::Severity::I,M))
-#define zDETAIL(P,M) (P->Log(__FILE__,__LINE__,navitab::logging::Logger::Severity::D,M))

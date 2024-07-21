@@ -105,19 +105,19 @@ void Prefs::load()
     }
     catch (const std::exception& e) {
         if (fileHasContent) {
-            zWARN(LOG, fmt::format("Parsing error in preferences file {}", prefsFile.string()));
-            zWARN(LOG, fmt::format("Default preferences will be used, and any updates will not be saved."));
+            LOGW(fmt::format("Parsing error in preferences file {}", prefsFile.string()));
+            LOGW(fmt::format("Default preferences will be used, and any updates will not be saved."));
             saveAtExit = false;
         } else {
-            zWARN(LOG, fmt::format("Non-existent or empty preferences file {}", prefsFile.string()));
-            zWARN(LOG, fmt::format("Default preferences will be used and saved on exit."));
+            LOGW(fmt::format("Non-existent or empty preferences file {}", prefsFile.string()));
+            LOGW(fmt::format("Default preferences will be used and saved on exit."));
         }
         return;
     }
     for (const auto& i : filedata.items()) {
         (*prefData)[i.key()] = i.value();
     }
-    zSTATUS(LOG, fmt::format("Loaded preferences from {}", prefsFile.string()));
+    LOGS(fmt::format("Loaded preferences from {}", prefsFile.string()));
 }
 
 void Prefs::upgrade()
@@ -143,9 +143,9 @@ void Prefs::save()
         fout << std::setw(4) << flatPrefs.unflatten();
     }
     catch (const std::exception& e) {
-        zWARN(LOG, fmt::format("Prefs file {} could not be saved", prefsFile.string()));
+        LOGW(fmt::format("Prefs file {} could not be saved", prefsFile.string()));
     }
-    zSTATUS(LOG, fmt::format("Saved preferences to {}", prefsFile.string()));
+    LOGS(fmt::format("Saved preferences to {}", prefsFile.string()));
 }
 
 

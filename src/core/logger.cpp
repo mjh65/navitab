@@ -24,15 +24,16 @@
 namespace navitab {
 namespace logging {
 
-Logger::Logger(const char *name)
+Logger::Logger(const char *n)
 :   lmgr(LogManager::GetLogManager()),
-    fid(lmgr->GetFilterId(name))
+    name(n),
+    fid(LogManager::UnknownFilterId)
 {
 }
 
 void Logger::Log(const char *file, const int line, Severity s, const std::string msg)
 {
-    lmgr->Log(fid, file, line, s, msg);
+    fid = lmgr->Log(fid, name, file, line, s, msg);
 }
 
 

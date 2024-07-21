@@ -76,6 +76,9 @@ private:
     /// @brief The LogManager that does all the actual filtering and logging.
     std::shared_ptr<LogManager> const lmgr;
 
+    /// @brief Name given to this logging object
+    const char* const name;
+
     /// @brief Filter identifier provided by the LogManager.
     int fid;
 };

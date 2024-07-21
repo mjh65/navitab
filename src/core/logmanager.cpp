@@ -21,8 +21,10 @@
 #include "logmanager.h"
 #include "navitab/core.h"
 #include <fmt/core.h>
+#include <nlohmann/json.hpp>
 #include <algorithm>
 #include <iostream>
+#include <map>
 
 namespace navitab {
 namespace logging {
@@ -35,9 +37,12 @@ std::shared_ptr<LogManager> LogManager::GetLogManager()
 }
 
 LogManager::LogManager()
-:   srcFilePrefixLength(0),
+:   isConfigured(false),
+    srcFilePrefixLength(0),
     isConsole(false)
 {
+    // work out how much of the __FILE__ macro should be removed
+    // from the log to leave only the relevant relative path
     std::string filePP(__FILE__);
     std::replace(filePP.begin(), filePP.end(), '\\', '/');
     std::string fileRel("src/core/logmanager.cpp");
@@ -63,27 +68,104 @@ void LogManager::SetLogFile(std::filesystem::path path)
 
 void LogManager::Configure(const nlohmann::json& prefs)
 {
-    // update the current filters based on the json object provided,
-    // and store the filters to apply to any new loggers
-    
-    
-}
+    // configure the filters using the json object provided
 
-int LogManager::GetFilterId(const char *name)
-{
-    // there probably won't be all that many filters, so initially just
-    // a linear search
-    for (auto& f: filters) {
-        if (f.name == name) return f.id;
+    // iterate through the json object and extract the filter configurations
+    // into a map, keyed by the pattern
+    // do most of this in a try/catch block in case of incorrectly structured json data
+    std::map<std::string, std::vector<std::string>> jsfilters;
+    try {
+        const nlohmann::json& fa(prefs.at("/filters"_json_pointer)); // fa is the array of configurators
+        for (auto& fci : fa.items()) {
+            try {
+                auto fc = fci.value(); // fc is a filter configuration
+                nlohmann::json pattern(fc.at("/pattern"_json_pointer));   // pattern is a required key
+                std::vector<std::string> dests;
+                for (auto s : { "/FATAL", "/ERROR", "/STATUS", "/WARN", "/INFO", "/DETAIL" }) {
+                    nlohmann::json::json_pointer k(s);
+                    dests.push_back(fc.contains(k) ? fc.at(k) : "");    // severity keys are optional
+                }
+                jsfilters[pattern] = dests;
+            }
+            catch (...) {}
+        }
     }
-    Filter f(name, (int)filters.size(), isConsole);
-    //f.Configure(); // TODO - once we have some filtering rules implemented
-    filters.push_back(f);
-    return f.id;
+    catch (...) {}
+
+    // the json data has been extracted into a map
+    // separate out the default pattern "*" first
+    Filter fDef((int)filters.size(), "*", isConsole);
+    auto dfi = jsfilters.find("*");
+    if (dfi != jsfilters.end()) {
+        for (int s = 0; s <= Logger::Severity::D; ++s) {
+            fDef.Configure(s, (*dfi).second[s]);
+        }
+        jsfilters.erase(dfi);
+    }
+    filters.push_back(fDef);
+
+    // now create a new Filter for each additional configuration supplied
+    for (auto fi : jsfilters) {
+        Filter f((int)filters.size(), fi.first, isConsole);
+        f.dests = fDef.dests; // filter severity destinations start as copy of default
+        for (int s = 0; s <= Logger::Severity::D; ++s) {
+            f.Configure(s, fi.second[s]);
+        }
+        filters.push_back(f);
+    }
+
+    // mark configuration as complete so that future logging gets handled immediately
+    isConfigured = true;
+
+    // now process any messages that were reported before
+    // configuration had been completed
+    for (auto& cm : cache) {
+        (void)Log(UnknownFilterId, cm.name, cm.file, cm.line, cm.severity, cm.message);
+    }
+    cache.clear();
 }
 
-LogManager::Filter::Filter(const std::string n, int i, bool console)
-:   name(n), id(i)
+int LogManager::Log(int filterId, const char* name, const char* file, const int line, Logger::Severity s, const std::string msg)
+{
+    // If the log manager is not yet configured then this message is
+    // added to the cache and will be processed later.
+    if (!isConfigured) {
+        Cache cm(name, file, line, s, msg);
+        cache.push_back(cm);
+        return UnknownFilterId;
+    }
+
+    // If the filter ID is < 0 then we need to find the filter whose
+    // pattern is the longest one that matches the logger's name
+    if (filterId < 0) {
+        std::pair<int, int> candidate({ 0,0 });
+        for (auto& f : filters) {
+            if (std::string(name).find(f.pattern) == 0) {
+                // this filter's pattern matches. use it if it is longer than the current option
+                if (f.pattern.size() > candidate.second) {
+                    candidate = { f.id, (int)f.pattern.size() };
+                }
+            }
+        }
+        filterId = candidate.first;
+    }
+
+    // Now format the arguments into a line for the log, and then send it to the configured destinations
+    auto& f = filters[filterId];
+    int dests = f.dests[s];
+    if (!dests) return filterId;    // short-circuit if this message is being discarded
+    const char* sch = "FESWID";
+    const char* src = file + srcFilePrefixLength;
+    auto logline = fmt::format("{},{},{},{},{}", name, sch[s], src, line, msg);
+    if (dests & Dest::STDERR) std::cerr << logline << std::endl;
+    if (dests & Dest::STDOUT) std::cout << logline << std::endl;
+    if (logFile && (dests & Dest::FILE)) (*logFile) << logline << std::endl;
+    if (s == Logger::Severity::F) throw navitab::LogFatal(msg);
+    return filterId;
+}
+
+LogManager::Filter::Filter(int i, const std::string p, bool console)
+:   id(i), pattern(p)
 {
     // the logger severity codes are used to index the lists of log destinations
     dests.resize(1 + Logger::Severity::D);
@@ -103,26 +185,24 @@ LogManager::Filter::Filter(const std::string n, int i, bool console)
     dests[Logger::Severity::D] = 0;
 }
 
-void LogManager::Filter::Configure()
+void LogManager::Filter::Configure(int severity, std::string config)
 {
-    // TODO - (re)set up this filter based on the json configuration
+    if (config.empty()) return; // empty strings have no effect, default remains
+    dests[severity] = 0;
+    if (config.find('N') != std::string::npos) return;
+    if (config.find('F') != std::string::npos) dests[severity] |= Dest::FILE;
+    if (config.find('1') != std::string::npos) dests[severity] |= Dest::STDOUT;
+    if (config.find('2') != std::string::npos) dests[severity] |= Dest::STDERR;
 }
 
-void LogManager::Log(int filterId, const char *file, const int line, Logger::Severity s, const std::string msg)
+LogManager::Cache::Cache(const char* n, const char* f, const int l, Logger::Severity s, const std::string m)
+:   name(n),
+    file(f),
+    line(l),
+    severity(s),
+    message(m)
 {
-    // verify the filter id
-    if ((filterId < 0) || (filterId >= filters.size())) return;
-    auto& f = filters[filterId];
-    int dests = f.dests[s];
-    const char *sch = "FESWID";
-    const char* src = file + srcFilePrefixLength;
-    auto logline = fmt::format("{},{},{},{},{}", f.name, sch[s], src, line, msg);
-    if (dests & Dest::STDERR) std::cerr << logline << std::endl;
-    if (dests & Dest::STDOUT) std::cout << logline << std::endl;
-    if (logFile && (dests & Dest::FILE)) (*logFile) << logline << std::endl;
-    if (s == Logger::Severity::F) throw navitab::LogFatal(msg);
 }
-
 
 
 } // namespace logging

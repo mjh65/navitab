@@ -75,12 +75,12 @@ void Prefs::init()
             "filters": [
                 {
                     "pattern": "*",
-                    "FATAL" : "F+2",
-                    "ERROR" : "F+2",
-                    "STATUS" : "F+1",
-                    "WARN" : "F+1",
-                    "INFO" : "F",
-                    "DETAIL" : "F"
+                    "FATAL" : "F&2",
+                    "ERROR" : "F&2",
+                    "STATUS" : "F&1",
+                    "WARN" : "F&1",
+                    "INFO" : "N",
+                    "DETAIL" : "N"
                 }
             ]
         }
@@ -114,6 +114,7 @@ void Prefs::load()
         }
         return;
     }
+    // TODO - use flatten and unflatten to improve the overriding granularity
     for (const auto& i : filedata.items()) {
         (*prefData)[i.key()] = i.value();
     }

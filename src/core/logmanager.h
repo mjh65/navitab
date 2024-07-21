@@ -25,6 +25,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <list>
 #include <filesystem>
 #include <nlohmann/json_fwd.hpp>
 #include "navitab/logger.h"
@@ -58,42 +59,60 @@ public:
     /// @param prefs The json object for logging from the preferences file.
     void Configure(const nlohmann::json& prefs);
 
-    /// @brief Get the identifier of the named filter for use in message logging
-    /// @param name The name of the filter
-    /// @return Filter identifier to be used in subsequent Log() method calls.
-    int GetFilterId(const char *name);
-
     /// @brief Log some text reporting the state of play.
-    /// @param filterId Identifies the filter to be applied.
+    /// @param filterId Identifies the filter to be applied, may be modified for next use.
+    /// @param name Name of the logger
     /// @param file The source file for the code generating the message.
     /// @param line The line number in the source file where the message is logged.
     /// @param s The severity of the message.
     /// @param msg The message string to be logged.
-    void Log(int filterId, const char *file, const int line, Logger::Severity s, const std::string msg);
+    /// @return Filter identifier to be used in subsequent Log() method calls.
+    int Log(int filterId, const char *name, const char *file, const int line, Logger::Severity s, const std::string msg);
 
+    enum { UnknownFilterId = -1 };
     ~LogManager();
 
 private:
     LogManager();
 
 private:
+    // has the log been configured, messages are cached until this happens
+    bool isConfigured;
+
+    // the log file
     std::unique_ptr<std::ofstream> logFile;
+
+    // number of bytes to be removed from the __FILE__ macros before logging
+    int srcFilePrefixLength;
+
+    // are the normal stdio streams worth using?
+    bool isConsole;
 
     // bit masks used to enable logging destinations
     enum Dest { FILE = 0b100, STDERR = 0b10, STDOUT = 0b1 };
+
+    // filter definitions and collection
     struct Filter
     {
-        std::string name;
-        int id;
-        std::vector<int> dests;
-        void Configure(/*json*/);
-        Filter(const std::string n, int i, bool console);
+        int const id;               // is also the index in the filters vector
+        std::string const pattern;  // the pattern string from the configuration
+        std::vector<int> dests;     // each entry refers to a severity category
+        Filter(int id, const std::string pattern, bool console);
+        void Configure(int severity, std::string config);
     };
     std::vector<Filter> filters;
 
-    int srcFilePrefixLength;
-
-    bool isConsole;
+    // message cache definition and list
+    struct Cache
+    {
+        const char* name;
+        const char* file;
+        const int line;
+        Logger::Severity severity;
+        const std::string message;
+        Cache(const char* name, const char* file, const int line, Logger::Severity s, const std::string msg);
+    };
+    std::list<Cache> cache;
 };
 
 

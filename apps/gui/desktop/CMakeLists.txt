@@ -22,7 +22,6 @@ add_executable(navitab_desktop WIN32 MACOSX_BUNDLE)
 
 target_link_libraries(navitab_desktop
     navitab_core
-    navitab_platform
 )
 
 if(WIN32)

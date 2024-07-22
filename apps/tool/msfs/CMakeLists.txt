@@ -25,6 +25,7 @@ target_sources(navitab_igps PRIVATE
 )
 
 target_link_libraries(navitab_igps
+    navitab_core
 )
 
 install(TARGETS navitab_igps DESTINATION navitab/mjh65-ingamepanels-navitab/server)

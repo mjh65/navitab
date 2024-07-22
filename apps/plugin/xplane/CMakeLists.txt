@@ -29,7 +29,6 @@ if(WIN32)
     target_link_options(xplane_plugin PRIVATE)
     target_link_libraries(xplane_plugin
         navitab_core
-        navitab_platform
         navitab_simxp
         "${XPLANE_SDK}/Libraries/Win/XPLM_64.lib"
         opengl32
@@ -44,7 +43,6 @@ elseif(APPLE)
     )
     target_link_libraries(xplane_plugin
         navitab_core
-        navitab_platform
         navitab_simxp
     )
     install(TARGETS xplane_plugin DESTINATION navitab/xplane/Navitab/mac_x64)
@@ -56,7 +54,6 @@ elseif(UNIX)
     )
     target_link_libraries(xplane_plugin
         navitab_core
-        navitab_platform
         navitab_simxp
         GL
     )

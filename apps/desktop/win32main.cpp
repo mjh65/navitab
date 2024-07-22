@@ -46,7 +46,7 @@ int WINAPI WinMain(_In_ HINSTANCE hinst, _In_opt_ HINSTANCE hprev, _In_ LPSTR cm
     std::unique_ptr<navitab::System> nvt;
     try {
         // try to initialise logging and preferences - raises exception if fails
-        nvt = navitab::System::GetSystem(navitab::Simulation::NONE, navitab::AppClass::DESKTOP);
+        nvt = navitab::System::GetSystem(navitab::SimEngine::STUB, navitab::AppClass::DESKTOP);
     }
     catch (navitab::StartupError& e) {
         // TODO - if an exception occurs then we should show any information we got in a

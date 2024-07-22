@@ -40,7 +40,7 @@ PLUGIN_API int XPluginStart(char* outName, char* outSignature, char* outDescript
         XPLMEnableFeature("XPLM_USE_NATIVE_PATHS", 1);
         strncpy(outDescription, "A panel for maps, charts and documents when flying in VR", 255);
         // try to initialise logging and preferences - raises exception if fails
-        nvt = navitab::System::GetSystem(navitab::Simulation::XPLANE, navitab::AppClass::PLUGIN);
+        nvt = navitab::System::GetSystem(navitab::SimEngine::XPLANE, navitab::AppClass::PLUGIN);
         LOG = std::make_unique<navitab::logging::Logger>("plugin");
     }
     catch (const std::exception& e) {

@@ -27,7 +27,7 @@
 
 namespace navitab {
 
-std::unique_ptr<System> System::GetSystem(Simulation s, AppClass c)
+std::unique_ptr<System> System::GetSystem(SimEngine s, AppClass c)
 {
     static bool done = false;
     if (done) return nullptr;
@@ -47,11 +47,13 @@ static HostPlatform host = HostPlatform::MAC;
 #endif
 
 
-Navitab::Navitab(Simulation s, AppClass c)
+Navitab::Navitab(SimEngine s, AppClass c)
 :   hostPlatform(host),
     simProduct(s),
     appClass(c),
-    dataFilesPath(FindDataFilesPath())
+    dataFilesPath(FindDataFilesPath()),
+    started(false),
+    enabled(false)
 {
     // Early initialisation needs to do enough to get the preferences loaded
     // and the log file created. Everything else can wait! Any failures are
@@ -68,7 +70,7 @@ Navitab::Navitab(Simulation s, AppClass c)
     switch (simProduct) {
     case MSFS: lfp += "_m"; break;
     case XPLANE: lfp += "_x"; break;
-    case NONE: break;
+    case STUB: break;
     }
     auto pfp = lfp;
     lfp += "_log.txt";
@@ -99,18 +101,29 @@ void Navitab::Start()
     // logging services have been started.
     // This is called during X-Plane plugin start, and probably does relatively little
     // Need to review SDK docs and Avitab.
+
+    if (!started) {
+        simEnv = Simulator::GetSimulator(*(static_cast<SimulatorCallbacks*>(this)), simProduct);
+        started = true;
+    }
 }
 
 void Navitab::Enable()
 {
     // This is called during X-Plane plugin enable, and probably does a bit more
     // Need to review SDK docs and Avitab.
+    if (!enabled) {
+        enabled = true;
+    }
 }
 
 void Navitab::Disable()
 {
     // This is called during X-Plane plugin disable
     // Need to review SDK docs and Avitab.
+    if (enabled) {
+        enabled = false;
+    }
 }
 
 void Navitab::Stop()
@@ -118,6 +131,15 @@ void Navitab::Stop()
     // This is called during X-Plane plugin stop
     // Avitab also calls curl_global_cleanup(), so we need to not forget that 
     // Need to review SDK docs and Avitab.
+    if (started) {
+        simEnv.reset();
+        started = false;
+    }
+}
+
+std::shared_ptr<Simulator> Navitab::SimEnvironment()
+{
+    return simEnv;
 }
 
 std::shared_ptr<Preferences> Navitab::PrefsManager()

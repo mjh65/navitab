@@ -20,9 +20,37 @@
 
 #pragma once
 
+#include <memory>
+#include "navitab/core.h"
+
 /*
  * This header file defines the interface to the simulator, which will
  * include access to position data, aircraft type, METAR, etc, and specific
  * filesystem locations where different types of document are expected to
  * be stored.
 */
+
+namespace navitab {
+
+// The SimulatorCallbacks interface defines services that the simulator
+// requires from the Navitab core. Calls to these services will generally
+// be from the simulator's thread and should do minimal work.
+
+struct SimulatorCallbacks {
+
+};
+
+
+// The Simulator interface defines the services that the Simulator
+// provides to the Navitab core. Calls to these services will generally
+// be from a different thread than the main one controlling the simulator.
+
+struct Simulator {
+    static std::shared_ptr<Simulator> GetSimulator(SimulatorCallbacks &cb, SimEngine s);
+
+
+};
+
+
+
+} // navitab

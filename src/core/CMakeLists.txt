@@ -23,6 +23,7 @@ target_sources(navitab_core PRIVATE
     logger.cpp
     logmanager.cpp
     prefs.cpp
+    sim.cpp
 )
 
 target_link_libraries(navitab_core PUBLIC

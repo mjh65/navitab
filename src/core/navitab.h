@@ -21,21 +21,23 @@
 #pragma once
 
 #include "navitab/core.h"
+#include "navitab/simulator.h"
 
 // This header file defines a class that manages the startup and use of the
 // Navitab subsystems. Each of the executable/plugin's main() function should
-// instantiate exactly one of these, and destroy it on closure.
+// instantiate exactly one of these, and destroy it on closure. The class
+// also implements the interface to the simulator.
 
 namespace navitab {
 namespace core {
 
-class Navitab : public System
+class Navitab : public System, public SimulatorCallbacks
 {
 public:
     // Constructing the Navitab object also does enough initialisation to
     // get the logging working. Any errors during this phase are likely to
     // be unrecoverable and will cause a StartupError exception to be thrown.
-    Navitab(Simulation s, AppClass c);
+    Navitab(SimEngine s, AppClass c);
     virtual ~Navitab();
 
     // Startup and shutdown control - fine-grained enough to support all app classes.
@@ -47,6 +49,9 @@ public:
     // access to preferences
     std::shared_ptr<Preferences> PrefsManager() override;
     
+    // access to simulator
+    std::shared_ptr<Simulator> SimEnvironment() override;
+
     // location of the preferences and log files, as well as any temporary file
     // and cached downloads
     std::filesystem::path DataFilesPath() override;
@@ -69,10 +74,14 @@ protected:
 private:
     const HostPlatform              hostPlatform;
     const AppClass                  appClass;
-    const Simulation                simProduct;
+    const SimEngine                 simProduct;
 
     std::filesystem::path           dataFilesPath;
 
+    bool                            started;
+    bool                            enabled;
+
+    std::shared_ptr<Simulator>      simEnv;
     std::shared_ptr<Preferences>    prefs;
 };
 

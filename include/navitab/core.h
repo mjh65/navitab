@@ -32,7 +32,7 @@ namespace navitab {
 
 enum HostPlatform { WIN, LNX, MAC };
 enum AppClass { PLUGIN, DESKTOP, CONSOLE };
-enum Simulation { NONE, MSFS, XPLANE };
+enum SimEngine { STUB, MSFS, XPLANE };
 
 
 struct Exception : public std::exception
@@ -50,15 +50,16 @@ struct LogFatal : public Exception
     LogFatal(std::string e) : Exception(e) {}
 };
 
-// The classes in here should be mostly interfaces!!!
+// The classes/structs in here should be mostly abstract interfaces!!!
+
+struct Simulator;
 
 // The Preferences class is a relatively small wrapper that can be used
 // by Navitab components to fetch (and update) preference data that is
 // stored between runs.
 
-class Preferences
+struct Preferences
 {
-public:
     virtual const nlohmann::json& Get(const std::string key) = 0;
     virtual void Put(const std::string key, nlohmann::json& value) = 0;
 };
@@ -66,10 +67,9 @@ public:
 // The executable/plugin's main() function should call the factory to create
 // exactly one instance of the Navitab core, and then destroy it on closure.
 
-class System
+struct System
 {
-public:
-    static std::unique_ptr<System> GetSystem(Simulation s, AppClass c);
+    static std::unique_ptr<System> GetSystem(SimEngine s, AppClass c);
 
     virtual ~System() = default;
 
@@ -81,6 +81,9 @@ public:
 
     // access to preferences
     virtual std::shared_ptr<Preferences> PrefsManager() = 0;
+
+    // access to simulator
+    virtual std::shared_ptr<Simulator> SimEnvironment() = 0;
     
     // location of the preferences and log files, as well as any temporary file
     // and cached downloads

@@ -16,5 +16,9 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-add_subdirectory(panel)
-add_subdirectory(server)
+add_subdirectory(navdb)
+add_subdirectory(simstub)
+if(MSFS_SDK)
+    message(STATUS "Adding Flight Simulator panel-server to build")
+    add_subdirectory(msfs)
+endif()

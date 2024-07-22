@@ -18,51 +18,51 @@
 
 # The Navitab plugin for the X-Plane simulator
 
-add_library(navitab_plugin SHARED)
+add_library(xplane_plugin SHARED)
 
-target_sources(navitab_plugin PRIVATE
+target_sources(xplane_plugin PRIVATE
     plugin.cpp
 )
 
 if(WIN32)
-    target_compile_definitions(navitab_plugin PRIVATE IBM=1)
-    target_link_options(navitab_plugin PRIVATE)
-    target_link_libraries(navitab_plugin
+    target_compile_definitions(xplane_plugin PRIVATE IBM=1)
+    target_link_options(xplane_plugin PRIVATE)
+    target_link_libraries(xplane_plugin
         navitab_core
         navitab_platform
         navitab_simxp
         "${XPLANE_SDK}/Libraries/Win/XPLM_64.lib"
         opengl32
     )
-    install(TARGETS navitab_plugin RUNTIME DESTINATION navitab/xplane/Navitab/win_x64)
+    install(TARGETS xplane_plugin RUNTIME DESTINATION navitab/xplane/Navitab/win_x64)
 elseif(APPLE)
-    target_compile_definitions(navitab_plugin PRIVATE APL=1)
-    target_link_options(navitab_plugin PRIVATE
+    target_compile_definitions(xplane_plugin PRIVATE APL=1)
+    target_link_options(xplane_plugin PRIVATE
         "-F${XPLANE_SDK}/Libraries/Mac"
         -framework XPLM
         #-framework OpenGL
     )
-    target_link_libraries(navitab_plugin
+    target_link_libraries(xplane_plugin
         navitab_core
         navitab_platform
         navitab_simxp
     )
-    install(TARGETS navitab_plugin DESTINATION navitab/xplane/Navitab/mac_x64)
+    install(TARGETS xplane_plugin DESTINATION navitab/xplane/Navitab/mac_x64)
 elseif(UNIX)
-    target_compile_definitions(navitab_plugin PRIVATE LIN=1)
-    target_link_options(navitab_plugin PRIVATE
+    target_compile_definitions(xplane_plugin PRIVATE LIN=1)
+    target_link_options(xplane_plugin PRIVATE
         -static-libgcc
         -static-libstdc++
     )
-    target_link_libraries(navitab_plugin
+    target_link_libraries(xplane_plugin
         navitab_core
         navitab_platform
         navitab_simxp
         GL
     )
-    install(TARGETS navitab_plugin DESTINATION navitab/xplane/Navitab/lin_x64)
+    install(TARGETS xplane_plugin DESTINATION navitab/xplane/Navitab/lin_x64)
 endif()
 
-set_target_properties(navitab_plugin PROPERTIES PREFIX "")
-set_target_properties(navitab_plugin PROPERTIES OUTPUT_NAME "Navitab")
-set_target_properties(navitab_plugin PROPERTIES SUFFIX ".xpl")
+set_target_properties(xplane_plugin PROPERTIES PREFIX "")
+set_target_properties(xplane_plugin PROPERTIES OUTPUT_NAME "Navitab")
+set_target_properties(xplane_plugin PROPERTIES SUFFIX ".xpl")

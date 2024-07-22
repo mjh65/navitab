@@ -18,14 +18,9 @@
 
 include_directories("${NAVITAB_API_DIR}")
 
-add_subdirectory(desktop)
-add_subdirectory(console)
-add_subdirectory(tools)
-if(MSFS_SDK)
-    message(STATUS "Adding MSFS products to build")
-    add_subdirectory(msfs)
-endif()
-if(XPLANE_SDK)
-    message(STATUS "Adding X-Plane products to build")
-    add_subdirectory(xplane)
-endif()
+add_subdirectory(plugin)
+add_subdirectory(gui)
+add_subdirectory(tool)
+
+
+#add_subdirectory(console)

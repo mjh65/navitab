@@ -16,10 +16,11 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-include_directories("${NAVITAB_API_DIR}")
-
-add_subdirectory(core)
-add_subdirectory(lvglcpp)
-add_subdirectory(platform)
-add_subdirectory(charts)
-add_subdirectory(sim)
+if(XPLANE_SDK)
+    message(STATUS "Adding X-Plane plugin to build")
+    add_subdirectory(xplane)
+endif()
+if(MSFS_SDK)
+    message(STATUS "Adding Flight Simulator panel to build")
+    add_subdirectory(msfs)
+endif()

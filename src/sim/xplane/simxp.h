@@ -21,6 +21,12 @@
 #pragma once
 
 #include "navitab/simulator.h"
+#include "navitab/logger.h"
+#include <XPLM/XPLMUtilities.h>
+#include <XPLM/XPLMProcessing.h>
+#include <XPLM/XPLMMenus.h>
+#include <functional>
+#include <vector>
 
 namespace navitab {
 namespace sim {
@@ -35,9 +41,37 @@ public:
     void Disable() override;
 
 private:
-    SimulatorCallbacks const & core;
-    
+    XPLMFlightLoopID CreateFlightLoop();
 
+private:
+    // called from XPlane on each flight loop
+    float onFlightLoop(float elapsedSinceLastCall, float elapseSinceLastLoop, int count);
+
+    // menu entry callbacks
+    void toggleWindow();
+    void resetWindowPosition();
+
+private:
+    // access to Navitab core
+    SimulatorCallbacks * const core;
+
+    std::unique_ptr<navitab::logging::Logger> LOG;
+
+    // versions, identifiers and paths from XPlane
+    int xplaneVersion;
+    int xplmVersion;
+    XPLMHostApplicationID hostId;
+    XPLMPluginID ourId;
+    std::filesystem::path xplaneRootPath;
+    std::filesystem::path pluginRootPath;
+
+    // the flight loop ID, called on each frame
+    XPLMFlightLoopID flightLoopId;
+    int subMenuIdx;
+    XPLMMenuID subMenu;
+
+    using MenuCallback = std::function<void()>;
+    std::vector<MenuCallback> menuCallbacks;
 };
 
 

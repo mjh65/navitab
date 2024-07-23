@@ -68,6 +68,9 @@ public:
     // directory containing the current Navitab executable
     std::filesystem::path NavitabPath() override;
 
+    // called from simulator on simulator's thread
+    void onFlightLoop() override;
+
 protected:
     std::filesystem::path FindDataFilesPath();
 

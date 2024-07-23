@@ -37,6 +37,8 @@ namespace navitab {
 // be from the simulator's thread and should do minimal work.
 
 struct SimulatorCallbacks {
+    // called from the simulator thread on each flight loop. minimize work.
+    virtual void onFlightLoop() = 0;
 
 };
 

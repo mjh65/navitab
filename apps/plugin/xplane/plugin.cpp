@@ -19,11 +19,11 @@
 
 #include <memory>
 #include <exception>
+#include <fmt/core.h>
 #include <XPLM/XPLMDefs.h>
 #include <XPLM/XPLMPlugin.h>
 #include "navitab/core.h"
 #include "navitab/logger.h"
-#include <fmt/core.h>
 
 // these are variables representing global state that will be referenced by all
 // of the X-Plane plugin entry points.

@@ -21,7 +21,8 @@
 # the Navitab core system are referenced using relative paths from the
 # including file.
 
-include_directories("${NAVITAB_API_DIR}")
+#include_directories("${NAVITAB_API_DIR}")
+configure_file(config.h.in "${PROJECT_BINARY_DIR}/navitab/config.h")
 
 # The Navitab sources are built into one core library for all executables,
 # and simulator-specific libraries for X-Plane, Flight Simulator and the
@@ -30,12 +31,29 @@ include_directories("${NAVITAB_API_DIR}")
 # simulator-specific library.
 
 add_library(navitab_core)
+target_include_directories(navitab_core PRIVATE
+    "${NAVITAB_API_DIR}"
+    "${PROJECT_BINARY_DIR}"
+)
+
 add_library(navitab_sim_mock)
+target_include_directories(navitab_sim_mock PRIVATE
+    "${NAVITAB_API_DIR}"
+    "${PROJECT_BINARY_DIR}"
+)
 if(XPLANE_SDK)
-add_library(navitab_sim_xp)
+    add_library(navitab_sim_xp)
+    target_include_directories(navitab_sim_xp PRIVATE
+        "${NAVITAB_API_DIR}"
+        "${PROJECT_BINARY_DIR}"
+    )
 endif()
 if(MSFS_SDK)
-add_library(navitab_sim_msfs)
+    add_library(navitab_sim_msfs)
+    target_include_directories(navitab_sim_msfs PRIVATE
+        "${NAVITAB_API_DIR}"
+        "${PROJECT_BINARY_DIR}"
+    )
 endif()
 
 add_subdirectory(core)

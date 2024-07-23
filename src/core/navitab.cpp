@@ -101,11 +101,12 @@ void Navitab::Start()
     // logging services have been started.
     // This is called during X-Plane plugin start, and probably does relatively little
     // Need to review SDK docs and Avitab.
+    if (started) return;
 
-    if (!started) {
-        simEnv = Simulator::GetSimulator(*(static_cast<SimulatorCallbacks*>(this)));
-        started = true;
-    }
+    // curl_global_init(CURL_GLOBAL_ALL); activate this later
+
+    simEnv = Simulator::GetSimulator(*(static_cast<SimulatorCallbacks*>(this)));
+    started = true;
 }
 
 void Navitab::Enable()
@@ -178,6 +179,10 @@ std::filesystem::path Navitab::FlightPlansPath()
 std::filesystem::path Navitab::NavitabPath()
 {
     return std::filesystem::path(); // TODO
+}
+
+void Navitab::onFlightLoop()
+{
 }
 
 

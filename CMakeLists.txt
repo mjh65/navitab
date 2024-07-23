@@ -26,7 +26,7 @@ set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build architectures for
 
 # Project name and a few useful settings. Other commands can pick up the results
 project(Navitab
-    VERSION 0.1
+    VERSION 0.1.0
     DESCRIPTION "An Avitab-like add-on for flight simulation"
     LANGUAGES CXX
 )

@@ -16,10 +16,30 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+# Any [abstract] interfaces that are used by the different executables
+# are found in NAVITAB_API_DIR. All other headers that are internal to
+# the Navitab core system are referenced using relative paths from the
+# including file.
+
 include_directories("${NAVITAB_API_DIR}")
 
+# The Navitab sources are built into one core library for all executables,
+# and simulator-specific libraries for X-Plane, Flight Simulator and the
+# mock simulator (for development and test).
+# Each executable will link the core library, and the relevant
+# simulator-specific library.
+
+add_library(navitab_core)
+add_library(navitab_sim_mock)
+if(XPLANE_SDK)
+add_library(navitab_sim_xp)
+endif()
+if(MSFS_SDK)
+add_library(navitab_sim_msfs)
+endif()
+
 add_subdirectory(core)
-add_subdirectory(lvglcpp)
 add_subdirectory(platform)
+add_subdirectory(lvglcpp)
 add_subdirectory(charts)
 add_subdirectory(sim)

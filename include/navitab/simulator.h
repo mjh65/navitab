@@ -46,8 +46,14 @@ struct SimulatorCallbacks {
 // be from a different thread than the main one controlling the simulator.
 
 struct Simulator {
-    static std::shared_ptr<Simulator> GetSimulator(SimulatorCallbacks &cb, SimEngine s);
+    // Factory function to create a simulator liaison object. There will be
+    // one of these in each of the simulator-specific libraries.
+    static std::shared_ptr<Simulator> GetSimulator(SimulatorCallbacks &cb);
 
+    virtual ~Simulator() = default;
+
+    virtual void Enable() = 0;
+    virtual void Disable() = 0;
 
 };
 

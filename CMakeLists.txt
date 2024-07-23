@@ -67,10 +67,12 @@ add_subdirectory(extern)
 # Check for simulator SDK's and set variables if defined
 if(WIN32 AND DEFINED ENV{MSFS_SDK})
     cmake_path(SET MSFS_SDK NORMALIZE "$ENV{MSFS_SDK}")
+    add_compile_definitions(NAVITAB_MSFS)
     message(STATUS "Detected Microsoft Flight Simulator SDK @ ${MSFS_SDK}")
 endif()
 if(DEFINED ENV{XPLANE_SDK})
     cmake_path(SET XPLANE_SDK NORMALIZE "$ENV{XPLANE_SDK}")
+    add_compile_definitions(NAVITAB_XPLANE)
     message(STATUS "Detected X-Plane_SDK @ ${XPLANE_SDK}")
 endif()
 

@@ -16,14 +16,8 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-add_executable(navitab_console)
-
-target_sources(navitab_console PRIVATE
-    main.cpp
+target_sources(navitab_sim_mock PRIVATE
+    simmock.cpp
 )
 
-target_link_libraries(navitab_console
-    navitab_core
-)
-
-install(TARGETS navitab_console DESTINATION navitab/tools)
+target_link_libraries(navitab_sim_mock PRIVATE navitab_core)

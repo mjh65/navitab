@@ -17,7 +17,7 @@
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 add_subdirectory(navdb)
-add_subdirectory(simstub)
+add_subdirectory(mock)
 if(MSFS_SDK)
     message(STATUS "Adding Flight Simulator panel-server to build")
     add_subdirectory(msfs)

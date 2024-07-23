@@ -70,7 +70,7 @@ Navitab::Navitab(SimEngine s, AppClass c)
     switch (simProduct) {
     case MSFS: lfp += "_m"; break;
     case XPLANE: lfp += "_x"; break;
-    case STUB: break;
+    case MOCK: break;
     }
     auto pfp = lfp;
     lfp += "_log.txt";
@@ -103,7 +103,7 @@ void Navitab::Start()
     // Need to review SDK docs and Avitab.
 
     if (!started) {
-        simEnv = Simulator::GetSimulator(*(static_cast<SimulatorCallbacks*>(this)), simProduct);
+        simEnv = Simulator::GetSimulator(*(static_cast<SimulatorCallbacks*>(this)));
         started = true;
     }
 }
@@ -113,6 +113,7 @@ void Navitab::Enable()
     // This is called during X-Plane plugin enable, and probably does a bit more
     // Need to review SDK docs and Avitab.
     if (!enabled) {
+        simEnv->Enable();
         enabled = true;
     }
 }
@@ -122,6 +123,7 @@ void Navitab::Disable()
     // This is called during X-Plane plugin disable
     // Need to review SDK docs and Avitab.
     if (enabled) {
+        simEnv->Disable();
         enabled = false;
     }
 }

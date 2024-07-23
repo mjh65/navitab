@@ -16,21 +16,22 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-add_library(navitab_simxp)
-
-target_sources(navitab_simxp PRIVATE
+target_sources(navitab_sim_xp PRIVATE
+    simxp.cpp
     datarefexport.cpp
     datarefimport.cpp
 )
 
-target_compile_definitions(navitab_simxp PUBLIC
+target_compile_definitions(navitab_sim_xp PUBLIC
     XPLM400 XPLM303 XPLM301 XPLM300 XPLM210 XPLM200
     APL=$<BOOL:${APPLE}> IBM=$<BOOL:${WIN32}> LIN=$<AND:$<BOOL:${UNIX}>,$<NOT:$<BOOL:${APPLE}>>>
 )
 
-target_include_directories(navitab_simxp PUBLIC
+target_include_directories(navitab_sim_xp PUBLIC
     "${XPLANE_SDK}/CHeaders"
 )
+
+target_link_libraries(navitab_sim_xp PRIVATE navitab_core)
 
 if(WIN32)
 elseif(APPLE)

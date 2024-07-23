@@ -18,15 +18,28 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#pragma once
+
 #include "navitab/simulator.h"
-#include <memory>
 
 namespace navitab {
+namespace sim {
 
-std::shared_ptr<Simulator> navitab::Simulator::GetSimulator(SimulatorCallbacks &cb, SimEngine s)
+class SimXPlane : public Simulator
 {
-    // TODO - create a simulator-specific object for the specified sim engine
-    return nullptr;
-}
+public:
+    SimXPlane(SimulatorCallbacks &cb);
+    ~SimXPlane();
+    
+    void Enable() override;
+    void Disable() override;
 
+private:
+    SimulatorCallbacks const & core;
+    
+
+};
+
+
+} // namespace sim
 } // namespace navitab

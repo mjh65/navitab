@@ -32,7 +32,7 @@ namespace navitab {
 
 enum HostPlatform { WIN, LNX, MAC };
 enum AppClass { PLUGIN, DESKTOP, CONSOLE };
-enum SimEngine { STUB, MSFS, XPLANE };
+enum SimEngine { MOCK, MSFS, XPLANE };
 
 
 struct Exception : public std::exception

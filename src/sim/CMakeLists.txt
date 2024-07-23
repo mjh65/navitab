@@ -18,10 +18,10 @@
 
 include_directories("${NAVITAB_API_DIR}")
 
-add_subdirectory(stub)
-if(MSFS_SDK)
-add_subdirectory(msfs)
-endif()
 if(XPLANE_SDK)
 add_subdirectory(xplane)
 endif()
+if(MSFS_SDK)
+add_subdirectory(msfs)
+endif()
+add_subdirectory(mock)

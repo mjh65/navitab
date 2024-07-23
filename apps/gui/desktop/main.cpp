@@ -33,7 +33,7 @@ int main(int arg, char** argv)
     std::unique_ptr<navitab::System> nvt;
     try {
         // try to initialise logging and preferences - raises exception if fails
-        nvt = navitab::System::GetSystem(navitab::SimEngine::STUB, navitab::AppClass::CONSOLE);
+        nvt = navitab::System::GetSystem(navitab::SimEngine::MOCK, navitab::AppClass::CONSOLE);
     }
     catch (navitab::StartupError& e) {
         // TODO - report anything we can to stderr and then exit

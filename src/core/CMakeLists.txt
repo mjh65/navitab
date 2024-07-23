@@ -16,14 +16,11 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-add_library(navitab_core)
-
 target_sources(navitab_core PRIVATE
     navitab.cpp
     logger.cpp
     logmanager.cpp
     prefs.cpp
-    sim.cpp
 )
 
 target_link_libraries(navitab_core PUBLIC

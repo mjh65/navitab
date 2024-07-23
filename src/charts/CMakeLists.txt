@@ -20,6 +20,4 @@ if (NOT "$ENV{CHARTFOX_CLIENTID}" STREQUAL "")
     set(CHARTFOX_CLIENTID "$ENV{CHARTFOX_CLIENTID}" CACHE INTERNAL "Copied from environment variable")
 endif()
 
-add_library(navitab_charts)
-
-target_sources(navitab_charts PRIVATE charts.cpp)
+target_sources(navitab_core PRIVATE charts.cpp)

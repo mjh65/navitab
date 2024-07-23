@@ -16,9 +16,7 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-add_library(navitab_platform)
-
-target_sources(navitab_platform PRIVATE
+target_sources(navitab_core PRIVATE
     platform.cpp
 )
 

@@ -28,12 +28,12 @@
 
 namespace navitab {
 
-std::unique_ptr<System> System::GetSystem(SimEngine s, AppClass c)
+std::shared_ptr<System> System::GetSystem(SimEngine s, AppClass c)
 {
     static bool done = false;
     if (done) return nullptr;
     done = true;
-    return std::make_unique<core::Navitab>(s,c);
+    return std::make_shared<core::Navitab>(s,c);
 }
 
 namespace core {
@@ -52,6 +52,7 @@ Navitab::Navitab(SimEngine s, AppClass c)
 :   hostPlatform(host),
     simProduct(s),
     appClass(c),
+    LOG(std::make_unique<navitab::logging::Logger>("navitab")),
     dataFilesPath(FindDataFilesPath()),
     started(false),
     enabled(false)
@@ -100,6 +101,7 @@ Navitab::~Navitab()
     // in case these were not called properly by the app
     Disable();
     Stop();
+    LOGS("~Navitab() done");
 }
 
 void Navitab::Start()
@@ -113,7 +115,7 @@ void Navitab::Start()
     // curl_global_init(CURL_GLOBAL_ALL); activate this later
 
     // TODO - callbacks param (#1) to become a shared_ptr - use shared_from_this
-    simEnv = Simulator::GetSimulator(*(static_cast<SimulatorCallbacks*>(this)), PrefsManager());
+    simEnv = Simulator::GetSimulator(shared_from_this(), PrefsManager());
     started = true;
 }
 

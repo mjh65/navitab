@@ -34,10 +34,10 @@ static const int PREFS_VERSION = 1;
 
 Prefs::Prefs(std::filesystem::path pf)
 :   prefsFile(pf),
+    prefData(std::make_shared<json>()),
+    LOG(std::make_unique<navitab::logging::Logger>("prefs")),
     saveAtExit(true)
 {
-    LOG = std::make_unique<navitab::logging::Logger>("prefs");
-    prefData = std::make_shared<json>();
     init();
     load();
     upgrade();
@@ -46,6 +46,7 @@ Prefs::Prefs(std::filesystem::path pf)
 Prefs::~Prefs()
 {
     if (saveAtExit) save();
+    LOGS("~Prefs() done");
 }
 
 const nlohmann::json& Prefs::Get(const std::string key)

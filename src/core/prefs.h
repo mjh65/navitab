@@ -49,9 +49,9 @@ private:
     void save();
 
 private:
-    std::unique_ptr<navitab::logging::Logger> LOG;
     std::filesystem::path prefsFile;
     std::shared_ptr<nlohmann::json> prefData;
+    std::unique_ptr<navitab::logging::Logger> LOG;
     bool saveAtExit;
     std::mutex stateMutex;
 

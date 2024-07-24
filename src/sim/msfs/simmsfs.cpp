@@ -22,15 +22,15 @@
 
 namespace navitab {
 
-std::shared_ptr<Simulator> navitab::Simulator::GetSimulator(SimulatorCallbacks &cb, std::shared_ptr<Preferences> prefs)
+std::shared_ptr<Simulator> navitab::Simulator::GetSimulator(std::shared_ptr <SimulatorCallbacks> core, std::shared_ptr<Preferences> prefs)
 {
-    return std::make_shared<sim::SimMsfs>(cb);
+    return std::make_shared<sim::SimMsfs>(core);
 }
 
 namespace sim {
 
-SimMsfs::SimMsfs(SimulatorCallbacks &cb)
-:   core(cb)
+SimMsfs::SimMsfs(std::shared_ptr<SimulatorCallbacks> c)
+:   core(c)
 {
 }
 

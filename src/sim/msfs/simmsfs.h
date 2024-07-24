@@ -28,14 +28,14 @@ namespace sim {
 class SimMsfs : public Simulator
 {
 public:
-    SimMsfs(SimulatorCallbacks &cb);
+    SimMsfs(std::shared_ptr<SimulatorCallbacks> core);
     ~SimMsfs();
     
     void Enable() override;
     void Disable() override;
 
 private:
-    SimulatorCallbacks const & core;
+    std::shared_ptr<SimulatorCallbacks> core;
     
 
 };

@@ -30,16 +30,16 @@
 
 namespace navitab {
 
-std::shared_ptr<Simulator> navitab::Simulator::GetSimulator(SimulatorCallbacks &cb, std::shared_ptr<Preferences> prefs)
+std::shared_ptr<Simulator> navitab::Simulator::GetSimulator(std::shared_ptr <SimulatorCallbacks> core, std::shared_ptr<Preferences> prefs)
 {
-    return std::make_shared<sim::SimXPlane>(cb, prefs);
+    return std::make_shared<sim::SimXPlane>(core, prefs);
 }
 
 namespace sim {
 
-SimXPlane::SimXPlane(SimulatorCallbacks &cb, std::shared_ptr<Preferences> prf)
-:   core(&cb),
-    prefs(prf),
+SimXPlane::SimXPlane(std::shared_ptr <SimulatorCallbacks> c, std::shared_ptr<Preferences> p)
+:   core(c),
+    prefs(p),
     LOG(std::make_unique<navitab::logging::Logger>("simxp")),
     flightLoopId(nullptr),
     subMenuIdx(-1),
@@ -67,8 +67,8 @@ SimXPlane::SimXPlane(SimulatorCallbacks &cb, std::shared_ptr<Preferences> prf)
     ourId = XPLMGetMyID();
     XPLMGetPluginInfo(ourId, nullptr, buffer, nullptr, nullptr);
     char* filePart = XPLMExtractFileAndPath(buffer);
-    std::filesystem::path p = std::string(buffer, 0, filePart - buffer) + "/../";
-    pluginRootPath = p.lexically_normal();
+    std::filesystem::path rp = std::string(buffer, 0, filePart - buffer);
+    pluginRootPath = rp.parent_path().lexically_normal();
     LOGI(fmt::format("Navitab plugin path: {}", pluginRootPath.string()));
 
     // create and schedule the flight loop
@@ -204,12 +204,11 @@ void SimXPlane::onPlaneLoaded()
 SimXPlane::~SimXPlane()
 {
     // destruction is done in response to the XPluginStop() entry point
-    LOGS("~SimXPlane() called");
-
     if (flightLoopId) {
         XPLMDestroyFlightLoop(flightLoopId);
         flightLoopId = nullptr;
     }
+    LOGS("~SimXPlane() done");
 }
 
 XPLMFlightLoopID SimXPlane::CreateFlightLoop()

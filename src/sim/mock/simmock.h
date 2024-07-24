@@ -28,14 +28,14 @@ namespace sim {
 class SimMock : public Simulator
 {
 public:
-    SimMock(SimulatorCallbacks &cb);
+    SimMock(std::shared_ptr<SimulatorCallbacks> core);
     ~SimMock();
     
     void Enable() override;
     void Disable() override;
 
 private:
-    SimulatorCallbacks const & core;
+    std::shared_ptr<SimulatorCallbacks> core;
 };
 
 

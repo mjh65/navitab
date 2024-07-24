@@ -20,8 +20,10 @@
 
 #pragma once
 
+#include <memory>
 #include "navitab/core.h"
 #include "navitab/simulator.h"
+#include "navitab/logger.h"
 
 // This header file defines a class that manages the startup and use of the
 // Navitab subsystems. Each of the executable/plugin's main() function should
@@ -31,7 +33,7 @@
 namespace navitab {
 namespace core {
 
-class Navitab : public System, public SimulatorCallbacks
+class Navitab : public std::enable_shared_from_this<Navitab>, public System, public SimulatorCallbacks
 {
 public:
     // Constructing the Navitab object also does enough initialisation to
@@ -78,6 +80,9 @@ private:
     const HostPlatform              hostPlatform;
     const AppClass                  appClass;
     const SimEngine                 simProduct;
+
+    // logging
+    std::unique_ptr<navitab::logging::Logger> LOG;
 
     std::filesystem::path           dataFilesPath;
 

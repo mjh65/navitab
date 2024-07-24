@@ -34,7 +34,7 @@ namespace sim {
 class SimXPlane : public XPlaneSimulator
 {
 public:
-    SimXPlane(SimulatorCallbacks &cb, std::shared_ptr<Preferences> prefs);
+    SimXPlane(std::shared_ptr<SimulatorCallbacks> core, std::shared_ptr<Preferences> prefs);
     ~SimXPlane();
     
     void Enable() override;
@@ -56,7 +56,7 @@ private:
 
 private:
     // access to Navitab core
-    SimulatorCallbacks * const core;
+    std::shared_ptr<SimulatorCallbacks> core;
     std::shared_ptr<Preferences> prefs;
 
     // logging

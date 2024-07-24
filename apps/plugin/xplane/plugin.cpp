@@ -30,7 +30,7 @@
 // these are variables representing global state that will be referenced by all
 // of the X-Plane plugin entry points.
 
-std::unique_ptr<navitab::System> nvt;
+std::shared_ptr<navitab::System> nvt;
 std::shared_ptr<navitab::XPlaneSimulator> sim;
 std::unique_ptr<navitab::logging::Logger> LOG;
 

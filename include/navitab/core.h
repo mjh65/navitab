@@ -69,7 +69,7 @@ struct Preferences
 
 struct System
 {
-    static std::unique_ptr<System> GetSystem(SimEngine s, AppClass c);
+    static std::shared_ptr<System> GetSystem(SimEngine s, AppClass c);
 
     virtual ~System() = default;
 

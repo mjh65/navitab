@@ -30,7 +30,7 @@
 
 int main(int arg, char** argv)
 {
-    std::unique_ptr<navitab::System> nvt;
+    std::shared_ptr<navitab::System> nvt;
     try {
         // try to initialise logging and preferences - raises exception if fails
         nvt = navitab::System::GetSystem(navitab::SimEngine::MOCK, navitab::AppClass::CONSOLE);

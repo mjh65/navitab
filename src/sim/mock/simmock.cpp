@@ -22,15 +22,15 @@
 
 namespace navitab {
 
-std::shared_ptr<Simulator> navitab::Simulator::GetSimulator(SimulatorCallbacks &cb, std::shared_ptr<Preferences> prefs)
+std::shared_ptr<Simulator> navitab::Simulator::GetSimulator(std::shared_ptr <SimulatorCallbacks> core, std::shared_ptr<Preferences> prefs)
 {
-    return std::make_shared<sim::SimMock>(cb);
+    return std::make_shared<sim::SimMock>(core);
 }
 
 namespace sim {
 
-SimMock::SimMock(SimulatorCallbacks &cb)
-:   core(cb)
+SimMock::SimMock(std::shared_ptr<SimulatorCallbacks> c)
+:   core(c)
 {
 }
 

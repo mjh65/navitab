@@ -19,12 +19,15 @@
  */
 
 #include "logmanager.h"
-#include "navitab/core.h"
-#include <fmt/core.h>
-#include <nlohmann/json.hpp>
+#include <cassert>
+#include <chrono>
 #include <algorithm>
 #include <iostream>
 #include <map>
+#include <fmt/core.h>
+#include <fmt/chrono.h>
+#include <nlohmann/json.hpp>
+#include "navitab/core.h"
 
 namespace navitab {
 namespace logging {
@@ -39,7 +42,7 @@ std::shared_ptr<LogManager> LogManager::GetLogManager()
 LogManager::LogManager()
 :   isConfigured(false),
     srcFilePrefixLength(0),
-    isConsole(false)
+    hasStdio(false)
 {
     // work out how much of the __FILE__ macro should be removed
     // from the log to leave only the relevant relative path
@@ -54,25 +57,41 @@ LogManager::LogManager()
 
 LogManager::~LogManager()
 {
+    auto now = std::chrono::round<std::chrono::seconds>(std::chrono::system_clock::now());
+    std::string msg(fmt::format("Navitab logging ended at {:%Y-%m-%d %H:%M:%S}", now));
+    if (logFile) {
+        (*logFile) << msg << std::endl;
+    } else {
+        std::cout << msg << std::endl;
+    }
 }
 
-void LogManager::SetLogFile(std::filesystem::path path)
+void LogManager::Configure(bool useStdio, std::filesystem::path path, bool append, const nlohmann::json& prefs)
 {
-    // open the new log in append mode if there was one already open
+    assert(!isConfigured);
+
+    hasStdio = useStdio;
+
+    // Open the log file, in append mode if indicated
     std::ios_base::openmode mode = {};
-    if (logFile) mode |= std::ios::app;
-    // attempt to open the new one
+    if (append) mode |= std::ios::app;
     std::unique_ptr<std::ofstream> lf(new std::ofstream(path, mode));
-    if (lf->good()) std::swap(logFile, lf);
-}
+    if (lf->good()) {
+        std::swap(logFile, lf);
+    }
 
-void LogManager::Configure(const nlohmann::json& prefs)
-{
-    // configure the filters using the json object provided
+    // Opening message
+    auto now = std::chrono::round<std::chrono::seconds>(std::chrono::system_clock::now());
+    std::string msg(fmt::format("Navitab logging started at {:%Y-%m-%d %H:%M:%S}", now));
+    if (logFile) {
+        (*logFile) << msg << std::endl;
+    } else {
+        std::cout << msg << std::endl;
+    }
 
-    // iterate through the json object and extract the filter configurations
-    // into a map, keyed by the pattern
-    // do most of this in a try/catch block in case of incorrectly structured json data
+    // Configure the filters using the json object provided
+    // Iterate through the json object and extract the filter configurations into a map, keyed by the pattern
+    // Do most of this in a try/catch block in case of incorrectly structured json data
     std::map<std::string, std::vector<std::string>> jsfilters;
     try {
         const nlohmann::json& fa(prefs.at("/filters"_json_pointer)); // fa is the array of configurators
@@ -94,7 +113,7 @@ void LogManager::Configure(const nlohmann::json& prefs)
 
     // the json data has been extracted into a map
     // separate out the default pattern "*" first
-    Filter fDef((int)filters.size(), "*", isConsole);
+    Filter fDef((int)filters.size(), "*", hasStdio);
     auto dfi = jsfilters.find("*");
     if (dfi != jsfilters.end()) {
         for (int s = 0; s <= Logger::Severity::D; ++s) {
@@ -106,7 +125,7 @@ void LogManager::Configure(const nlohmann::json& prefs)
 
     // now create a new Filter for each additional configuration supplied
     for (auto fi : jsfilters) {
-        Filter f((int)filters.size(), fi.first, isConsole);
+        Filter f((int)filters.size(), fi.first, hasStdio);
         f.dests = fDef.dests; // filter severity destinations start as copy of default
         for (int s = 0; s <= Logger::Severity::D; ++s) {
             f.Configure(s, fi.second[s]);
@@ -154,9 +173,11 @@ int LogManager::Log(int filterId, const char* name, const char* file, const int 
     auto& f = filters[filterId];
     int dests = f.dests[s];
     if (!dests) return filterId;    // short-circuit if this message is being discarded
+
+    auto now = std::chrono::round<std::chrono::seconds>(std::chrono::system_clock::now());
     const char* sch = "FESWID";
     const char* src = file + srcFilePrefixLength;
-    auto logline = fmt::format("{},{},{},{},{}", name, sch[s], src, line, msg);
+    auto logline = fmt::format("{:%H:%M:%S}|{}|{:<12}|{:<32}|{:>3}|{}", now, sch[s], name, src, line, msg);
     if (dests & Dest::STDERR) std::cerr << logline << std::endl;
     if (dests & Dest::STDOUT) std::cout << logline << std::endl;
     if (logFile && (dests & Dest::FILE)) (*logFile) << logline << std::endl;

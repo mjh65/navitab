@@ -34,7 +34,7 @@ namespace sim {
 class SimXPlane : public XPlaneSimulator
 {
 public:
-    SimXPlane(SimulatorCallbacks &cb);
+    SimXPlane(SimulatorCallbacks &cb, std::shared_ptr<Preferences> prefs);
     ~SimXPlane();
     
     void Enable() override;
@@ -57,7 +57,9 @@ private:
 private:
     // access to Navitab core
     SimulatorCallbacks * const core;
+    std::shared_ptr<Preferences> prefs;
 
+    // logging
     std::unique_ptr<navitab::logging::Logger> LOG;
 
     // versions, identifiers and paths from XPlane
@@ -67,12 +69,15 @@ private:
     XPLMPluginID ourId;
     std::filesystem::path xplaneRootPath;
     std::filesystem::path pluginRootPath;
+    std::filesystem::path aircraftDir;
+    std::string aircraftName;
 
     // the flight loop ID, called on each frame
     XPLMFlightLoopID flightLoopId;
+
+    // menu identifiers and callbacks
     int subMenuIdx;
     XPLMMenuID subMenu;
-
     using MenuCallback = std::function<void()>;
     std::vector<MenuCallback> menuCallbacks;
 };

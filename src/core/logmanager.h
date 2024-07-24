@@ -47,17 +47,11 @@ public:
     /// @return A shared pointer to the log manager
     static std::shared_ptr<LogManager> GetLogManager();
 
-    /// @brief Indicate whether the Navitab system has a console.
-    /// @param q True if a console is available for message output.
-    void UseConsole(bool q) { isConsole = q; }
-
-    /// @brief Set the path of the log file to be written.
-    /// @param path The filesystem path for the log file.
-    void SetLogFile(std::filesystem::path path);
-
     /// @brief Configure the log manager.
+    /// @param useStdio True if a console is available for log message output.
+    /// @param logFile The filesystem path for the log file.
     /// @param prefs The json object for logging from the preferences file.
-    void Configure(const nlohmann::json& prefs);
+    void Configure(bool useStdio, std::filesystem::path logFile, bool append, const nlohmann::json& prefs);
 
     /// @brief Log some text reporting the state of play.
     /// @param filterId Identifies the filter to be applied, may be modified for next use.
@@ -79,14 +73,14 @@ private:
     // has the log been configured, messages are cached until this happens
     bool isConfigured;
 
+    // are the normal stdio streams available for use?
+    bool hasStdio;
+
     // the log file
     std::unique_ptr<std::ofstream> logFile;
 
     // number of bytes to be removed from the __FILE__ macros before logging
     int srcFilePrefixLength;
-
-    // are the normal stdio streams worth using?
-    bool isConsole;
 
     // bit masks used to enable logging destinations
     enum Dest { FILE = 0b100, STDERR = 0b10, STDOUT = 0b1 };

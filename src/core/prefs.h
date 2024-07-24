@@ -24,6 +24,7 @@
 #include "navitab/logger.h"
 #include <nlohmann/json_fwd.hpp>
 #include <filesystem>
+#include <mutex>
 
 // This header file defines a class that manages the Navitab preferences.
 // The preferences are stored in a json formatted file which is loaded at
@@ -52,6 +53,7 @@ private:
     std::filesystem::path prefsFile;
     std::shared_ptr<nlohmann::json> prefData;
     bool saveAtExit;
+    std::mutex stateMutex;
 
 };
 

@@ -52,7 +52,8 @@ struct Simulator {
 
     // Factory function to create a simulator liaison object. There will be
     // one of these in each of the simulator-specific libraries.
-    static std::shared_ptr<Simulator> GetSimulator(SimulatorCallbacks &cb);
+    // TODO - use a shared_ptr for the callbacks
+    static std::shared_ptr<Simulator> GetSimulator(SimulatorCallbacks &cb, std::shared_ptr<Preferences> prefs);
 
     virtual void Enable() = 0;
     virtual void Disable() = 0;

@@ -23,6 +23,7 @@
 #include "prefs.h"
 #include <cstdio>
 #include <filesystem>
+#include <nlohmann/json.hpp>
 #include <fmt/core.h>
 
 namespace navitab {
@@ -76,16 +77,22 @@ Navitab::Navitab(SimEngine s, AppClass c)
     lfp += "_log.txt";
     pfp += "_prefs.json";
 
-    // initialise the log file
-    auto lm = navitab::logging::LogManager::GetLogManager();
-    lm->UseConsole(appClass == CONSOLE);
-    lm->SetLogFile(lfp);
-
     // load the preferences
     prefs = std::make_shared<Prefs>(pfp);
 
-    // set the logging preferences (using the json directly)
-    lm->Configure(prefs->Get("/logging"));
+    // configure the logging manager
+    bool reloaded = false;
+    auto gp = prefs->Get("/general");
+    try {
+        reloaded = gp.at("/reloading"_json_pointer);
+        // remove it to avoid persisting on next run (unless overridden!)
+        gp.erase("reloading");
+        prefs->Put("/general", gp);
+    }
+    catch (...) {}
+
+    auto lm = navitab::logging::LogManager::GetLogManager();
+    lm->Configure(appClass == CONSOLE, lfp, reloaded, prefs->Get("/logging"));
 }
 
 Navitab::~Navitab()
@@ -105,7 +112,8 @@ void Navitab::Start()
 
     // curl_global_init(CURL_GLOBAL_ALL); activate this later
 
-    simEnv = Simulator::GetSimulator(*(static_cast<SimulatorCallbacks*>(this)));
+    // TODO - callbacks param (#1) to become a shared_ptr - use shared_from_this
+    simEnv = Simulator::GetSimulator(*(static_cast<SimulatorCallbacks*>(this)), PrefsManager());
     started = true;
 }
 

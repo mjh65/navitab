@@ -50,6 +50,7 @@ Prefs::~Prefs()
 
 const nlohmann::json& Prefs::Get(const std::string key)
 {
+    std::lock_guard<std::mutex> lock(stateMutex);
     json::json_pointer k(key);
     auto& v = (*prefData)[k];
     return v;
@@ -57,6 +58,7 @@ const nlohmann::json& Prefs::Get(const std::string key)
 
 void Prefs::Put(const std::string key, nlohmann::json& value)
 {
+    std::lock_guard<std::mutex> lock(stateMutex);
     json::json_pointer k(key);
     (*prefData)[k] = value;
 }

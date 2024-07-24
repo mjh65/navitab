@@ -99,6 +99,7 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID src, int msg, void* inParam)
     assert(LOG);
     switch (msg) {
     case XPLM_MSG_PLANE_LOADED:
+        // 0 is our plane. we don't care about the others!
         if (intParam == 0) sim->onPlaneLoaded();
         break;
     case XPLM_MSG_ENTERED_VR:

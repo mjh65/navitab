@@ -25,35 +25,37 @@
 #include <XPLM/XPLMWeather.h>
 #include <XPLM/XPLMProcessing.h>
 #include <fmt/core.h>
+#include <nlohmann/json.hpp>
 #include "navitab/config.h"
 
 namespace navitab {
 
-std::shared_ptr<Simulator> navitab::Simulator::GetSimulator(SimulatorCallbacks &cb)
+std::shared_ptr<Simulator> navitab::Simulator::GetSimulator(SimulatorCallbacks &cb, std::shared_ptr<Preferences> prefs)
 {
-    return std::make_shared<sim::SimXPlane>(cb);
+    return std::make_shared<sim::SimXPlane>(cb, prefs);
 }
 
 namespace sim {
 
-SimXPlane::SimXPlane(SimulatorCallbacks &cb)
+SimXPlane::SimXPlane(SimulatorCallbacks &cb, std::shared_ptr<Preferences> prf)
 :   core(&cb),
+    prefs(prf),
     LOG(std::make_unique<navitab::logging::Logger>("simxp")),
     flightLoopId(nullptr),
     subMenuIdx(-1),
     subMenu(nullptr)
 {
-    LOGS("SimXPlane() called");
+    LOGS("Constructing SimXPlane()");
 
     // construction is done in response to the XPluginStart() entry point
     XPLMEnableFeature("XPLM_USE_NATIVE_PATHS", 1); // 
     XPLMDebugString("NaviTab version " NAVITAB_VERSION_STR "\n");
 
-    flightLoopId = CreateFlightLoop();
-
+    // get versions and host ID
     XPLMGetVersions(&xplaneVersion, &xplmVersion, &hostId);
     LOGI(fmt::format("XPLMGetVersion({},{},{})", xplaneVersion, xplmVersion, hostId));
 
+    // get path to XPlane root directory
     std::vector<char> scratch;
     scratch.resize(1024);
     char* buffer = &scratch[0];
@@ -61,12 +63,17 @@ SimXPlane::SimXPlane(SimulatorCallbacks &cb)
     xplaneRootPath = buffer;
     LOGI(fmt::format("XPlane system path: {}", xplaneRootPath.string()));
 
+    // get path to this plugin's root directory
     ourId = XPLMGetMyID();
     XPLMGetPluginInfo(ourId, nullptr, buffer, nullptr, nullptr);
     char* filePart = XPLMExtractFileAndPath(buffer);
     std::filesystem::path p = std::string(buffer, 0, filePart - buffer) + "/../";
     pluginRootPath = p.lexically_normal();
     LOGI(fmt::format("Navitab plugin path: {}", pluginRootPath.string()));
+
+    // create and schedule the flight loop
+    flightLoopId = CreateFlightLoop();
+    XPLMScheduleFlightLoop(flightLoopId, -1, true);
 
 #if 0 // TODO, revive later
     if (xplmVersion >= 400) {
@@ -111,8 +118,6 @@ SimXPlane::SimXPlane(SimulatorCallbacks &cb)
     mapVerticalRangeRef = std::make_unique<DataRefExport<float>>("avitab/map/vertical_range", this,
         [](void* self) { return (reinterpret_cast<XPlaneEnvironment*>(self))->getMapVerticalRange(); });
 #endif
-
-    XPLMScheduleFlightLoop(flightLoopId, -1, true);
 }
 
 void SimXPlane::Enable()
@@ -150,9 +155,13 @@ void SimXPlane::Enable()
     menuCallbacks.push_back([this] { resetWindowPosition(); });
     XPLMAppendMenuItem(subMenu, "Reset position", reinterpret_cast<void*>(idx), 0);
 
+    // TODO - we probably want to add this menu item only in debug builds??
     idx = menuCallbacks.size();
     menuCallbacks.push_back([this] { reloadAllPlugins(); });
     XPLMAppendMenuItem(subMenu, "Reload all plugins", reinterpret_cast<void*>(idx), 0);
+
+    // find out what plane is being flown
+    onPlaneLoaded();
 
     // TODO - this is where the window creation should be done
     // see AviTab::startApp()
@@ -183,11 +192,13 @@ void SimXPlane::onPlaneLoaded()
 {
     std::vector<char> scratch;
     scratch.resize(1024);
-    char* file = &scratch[0];
-    char* path = &scratch[512];
-    XPLMGetNthAircraftModel(0, file, path);
-    // TODO, use filesystem path - aircraftPath = platform::getDirNameFromPath(path) + "/";
-    LOGS(fmt::format("Airplane loaded {}, {}", file, path));
+    char* p = &scratch[0];
+    char* f = &scratch[512];
+    XPLMGetNthAircraftModel(0, f, p);
+    std::filesystem::path acf(p);
+    aircraftDir = acf.parent_path().lexically_normal();
+    aircraftName = acf.stem().string();
+    LOGS(fmt::format("Airplane loaded: {} in {}", aircraftName, aircraftDir.string()));
 }
 
 SimXPlane::~SimXPlane()
@@ -269,6 +280,12 @@ void SimXPlane::resetWindowPosition()
 
 void SimXPlane::reloadAllPlugins()
 {
+    // set the preference /general/reloading to indicate that the log file should be continued
+    auto gp = prefs->Get("/general");
+    gp["reloading"] = true;
+    prefs->Put("/general", gp);
+
+    // now ask XPlane to reload (all!) the plugins
     XPLMReloadPlugins();
 }
 

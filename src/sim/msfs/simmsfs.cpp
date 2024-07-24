@@ -22,7 +22,7 @@
 
 namespace navitab {
 
-std::shared_ptr<Simulator> navitab::Simulator::GetSimulator(SimulatorCallbacks &cb)
+std::shared_ptr<Simulator> navitab::Simulator::GetSimulator(SimulatorCallbacks &cb, std::shared_ptr<Preferences> prefs)
 {
     return std::make_shared<sim::SimMsfs>(cb);
 }

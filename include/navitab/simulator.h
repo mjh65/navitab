@@ -37,7 +37,8 @@ namespace navitab {
 // be from the simulator's thread and should do minimal work.
 
 struct SimulatorCallbacks {
-    // called from the simulator thread on each flight loop. minimize work.
+
+    // called from the simulator thread on each flight loop.
     virtual void onFlightLoop() = 0;
 
 };
@@ -48,15 +49,29 @@ struct SimulatorCallbacks {
 // be from a different thread than the main one controlling the simulator.
 
 struct Simulator {
+
     // Factory function to create a simulator liaison object. There will be
     // one of these in each of the simulator-specific libraries.
     static std::shared_ptr<Simulator> GetSimulator(SimulatorCallbacks &cb);
 
-    virtual ~Simulator() = default;
-
     virtual void Enable() = 0;
     virtual void Disable() = 0;
 
+    virtual ~Simulator() = default;
+};
+
+// XPlaneSimulator extends simulator to allow the XPlane plugin to interact
+// directly without passing XPlane-specific interactions through the Navitab
+// core.
+
+struct XPlaneSimulator : public Simulator {
+    // Switching to/from VR mode
+    virtual void onVRmodeChange(bool entering) = 0;
+
+    // Changing to a new aircraft
+    virtual void onPlaneLoaded() = 0;
+
+    virtual ~XPlaneSimulator() = default;
 };
 
 

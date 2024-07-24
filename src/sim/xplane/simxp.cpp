@@ -150,6 +150,10 @@ void SimXPlane::Enable()
     menuCallbacks.push_back([this] { resetWindowPosition(); });
     XPLMAppendMenuItem(subMenu, "Reset position", reinterpret_cast<void*>(idx), 0);
 
+    idx = menuCallbacks.size();
+    menuCallbacks.push_back([this] { reloadAllPlugins(); });
+    XPLMAppendMenuItem(subMenu, "Reload all plugins", reinterpret_cast<void*>(idx), 0);
+
     // TODO - this is where the window creation should be done
     // see AviTab::startApp()
 }
@@ -168,6 +172,22 @@ void SimXPlane::Disable()
         XPLMRemoveMenuItem(XPLMFindPluginsMenu(), subMenuIdx);
         subMenuIdx = -1;
     }
+}
+
+void SimXPlane::onVRmodeChange(bool entering)
+{
+    LOGS(fmt::format("VR mode change notified: {}", entering ? "entering" : "leaving"));
+}
+
+void SimXPlane::onPlaneLoaded()
+{
+    std::vector<char> scratch;
+    scratch.resize(1024);
+    char* file = &scratch[0];
+    char* path = &scratch[512];
+    XPLMGetNthAircraftModel(0, file, path);
+    // TODO, use filesystem path - aircraftPath = platform::getDirNameFromPath(path) + "/";
+    LOGS(fmt::format("Airplane loaded {}, {}", file, path));
 }
 
 SimXPlane::~SimXPlane()
@@ -245,6 +265,11 @@ void SimXPlane::toggleWindow()
 void SimXPlane::resetWindowPosition()
 {
     LOGS("Reset window position menu callback");
+}
+
+void SimXPlane::reloadAllPlugins()
+{
+    XPLMReloadPlugins();
 }
 
 

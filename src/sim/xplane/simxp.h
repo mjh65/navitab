@@ -31,7 +31,7 @@
 namespace navitab {
 namespace sim {
 
-class SimXPlane : public Simulator
+class SimXPlane : public XPlaneSimulator
 {
 public:
     SimXPlane(SimulatorCallbacks &cb);
@@ -39,6 +39,8 @@ public:
     
     void Enable() override;
     void Disable() override;
+    void onVRmodeChange(bool entering) override;
+    void onPlaneLoaded() override;
 
 private:
     XPLMFlightLoopID CreateFlightLoop();
@@ -50,6 +52,7 @@ private:
     // menu entry callbacks
     void toggleWindow();
     void resetWindowPosition();
+    void reloadAllPlugins();
 
 private:
     // access to Navitab core

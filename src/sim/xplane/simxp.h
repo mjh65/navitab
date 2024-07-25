@@ -20,13 +20,14 @@
 
 #pragma once
 
-#include "navitab/simulator.h"
-#include "navitab/logger.h"
+#include <functional>
+#include <vector>
 #include <XPLM/XPLMUtilities.h>
 #include <XPLM/XPLMProcessing.h>
 #include <XPLM/XPLMMenus.h>
-#include <functional>
-#include <vector>
+#include "xplanewindow.h"
+#include "navitab/simulator.h"
+#include "navitab/logger.h"
 
 namespace navitab {
 namespace sim {
@@ -80,6 +81,9 @@ private:
     XPLMMenuID subMenu;
     using MenuCallback = std::function<void()>;
     std::vector<MenuCallback> menuCallbacks;
+
+    // window manager
+    std::unique_ptr<XPlaneWindow> window;
 };
 
 

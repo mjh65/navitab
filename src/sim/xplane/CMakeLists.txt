@@ -18,7 +18,7 @@
 
 target_sources(navitab_sim_xp PRIVATE
     simxp.cpp
-    xplanewindow.cpp
+    xpdesktopwin.cpp
     datarefexport.cpp
     datarefimport.cpp
 )

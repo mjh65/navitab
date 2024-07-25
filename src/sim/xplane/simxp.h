@@ -25,7 +25,7 @@
 #include <XPLM/XPLMUtilities.h>
 #include <XPLM/XPLMProcessing.h>
 #include <XPLM/XPLMMenus.h>
-#include "xplanewindow.h"
+#include "xpdesktopwin.h"
 #include "navitab/simulator.h"
 #include "navitab/logger.h"
 
@@ -82,8 +82,8 @@ private:
     using MenuCallback = std::function<void()>;
     std::vector<MenuCallback> menuCallbacks;
 
-    // window manager
-    std::unique_ptr<XPlaneWindow> window;
+    // window managers
+    std::unique_ptr<XPDesktopWindow> desktopWindow;
 };
 
 

@@ -27,18 +27,18 @@
 namespace navitab {
 namespace sim {
 
-// XPlaneWindow manages Navitab's window in XPlane.
+// XPDesktopWindow manages Navitab's window in XPlane.
 
-class XPlaneWindow
+class XPDesktopWindow
 {
 public:
-    XPlaneWindow(std::shared_ptr<Preferences> prefs);
-    ~XPlaneWindow();
+    XPDesktopWindow(std::shared_ptr<Preferences> prefs);
+    ~XPDesktopWindow();
 
     void toggle();
     void recentre();
+    void showHide(bool show);
     void onFlightLoop();
-    void onVRmodeChange(bool entering);
 
 private:
     void create();
@@ -54,12 +54,11 @@ private:
 
 private:
     std::shared_ptr<Preferences> prefs;
-    // logging
     std::unique_ptr<navitab::logging::Logger> LOG;
     XPLMWindowID winHandle;
-    int visibilityWatchdog;
-    int pollStatusWatchdog;
-    bool VRmode;
+    bool winVisible;
+    int winClosedWatchdog;
+    int winResizePollTimer;
 
     struct WindowPos {
         int left;
@@ -71,7 +70,6 @@ private:
         WindowPos(std::pair<int, int>);
     };
     WindowPos desktopPosition;
-    WindowPos vrPosition;
 
 };
 

@@ -20,7 +20,7 @@
 
 // this file inspired by XPlaneGUIDriver in Avitab.
 
-#include "xplanewindow.h"
+#include "xpdesktopwin.h"
 #include <fmt/core.h>
 #include <nlohmann/json.hpp>
 #include "navitab/config.h"
@@ -37,43 +37,34 @@ enum {
     WIN_MAX_HEIGHT = 800
 };
 
-XPlaneWindow::XPlaneWindow(std::shared_ptr<Preferences> p)
+XPDesktopWindow::XPDesktopWindow(std::shared_ptr<Preferences> p)
 :   prefs(p),
     LOG(std::make_unique<navitab::logging::Logger>("xpwin")),
     winHandle(nullptr),
-    visibilityWatchdog(0),
-    pollStatusWatchdog(0),
-    desktopPosition(),
-    vrPosition()
+    winClosedWatchdog(0),
+    winVisible(true),
+    winResizePollTimer(0),
+    desktopPosition()
 {
-    // get the preferences relating to the window so that it can be opened in the
-    // same location as it was on the last run. separate entries for desktop and VR.
-    int visible = false;
+    // get the preferences relating to the desktop window so that it can be
+    // opened in the same location as it was on the last run.
+    bool openNow = false;
     auto& xwdp = prefs->Get("/xplane/window/desktop");
     try {
         desktopPosition.left = xwdp.at("/left"_json_pointer);
         desktopPosition.top = xwdp.at("/top"_json_pointer);
         desktopPosition.right = xwdp.at("/right"_json_pointer);
         desktopPosition.bottom = xwdp.at("/bottom"_json_pointer);
-        visible = xwdp.at("/visible"_json_pointer);
+        openNow = xwdp.at("/open_on_load"_json_pointer);
     }
     catch (...) {}
     auto& dp = desktopPosition;
     LOGD(fmt::format("desktop window (construction) ({},{}) -> ({},{})", dp.left, dp.top, dp.right, dp.bottom));
 
-    auto& xwvp = prefs->Get("/xplane/window/vr");
-    try {
-        vrPosition.left = xwvp.at("/left"_json_pointer);
-        vrPosition.top = xwvp.at("/top"_json_pointer);
-        vrPosition.right = xwvp.at("/right"_json_pointer);
-        vrPosition.bottom = xwvp.at("/bottom"_json_pointer);
-    }
-    catch (...) {}
-
-    if (visible) create();
+    if (openNow) create();
 }
 
-XPlaneWindow::~XPlaneWindow()
+XPDesktopWindow::~XPDesktopWindow()
 {
     auto& dp = desktopPosition;
     LOGD(fmt::format("saving desktop window position ({},{}) -> ({},{})", dp.left, dp.top, dp.right, dp.bottom));
@@ -88,45 +79,47 @@ XPlaneWindow::~XPlaneWindow()
     destroy();
 }
 
-void XPlaneWindow::toggle()
+void XPDesktopWindow::toggle()
 {
-    if (winHandle) {
-        destroy();
-    } else {
+    if (!winHandle) {
         create();
+    } else {
+        destroy();
     }
 }
 
-void XPlaneWindow::recentre()
+void XPDesktopWindow::recentre()
 {
     int sleft, stop, sright, sbottom;
     auto centre = screenBounds(sleft, stop, sright, sbottom);
     desktopPosition = WindowPos(centre);
     auto& dp = desktopPosition;
-    if (winHandle) {
-        XPLMSetWindowGeometry(winHandle, dp.left, dp.top, dp.right, dp.bottom);
-    } else {
+    if (!winHandle) {
         create();
+    } else {
+        XPLMSetWindowGeometry(winHandle, dp.left, dp.top, dp.right, dp.bottom);
     }
 }
 
-void XPlaneWindow::onFlightLoop()
+void XPDesktopWindow::showHide(bool show)
 {
-    if (!winHandle) return;
-    if (++visibilityWatchdog > 10) {
-        LOGI("Draw callback watchdog has fired, window has been closed");
-        destroy();
+    winVisible = show;
+    if (winHandle) XPLMSetWindowIsVisible(winHandle, winVisible);
+}
+
+void XPDesktopWindow::onFlightLoop()
+{
+    if (winHandle && winVisible) {
+        // if the window exists and is supposed to be visible then check the
+        // watchdog. if it reaches 10 then the window was closed (we don't get a callback for that)
+        if (++winClosedWatchdog > 10) {
+            LOGI("Draw callback watchdog has fired, window has been closed");
+            destroy();
+        }
     }
 }
 
-void XPlaneWindow::onVRmodeChange(bool entering)
-{
-    // TODO - assumption is that we will close & destroy the current window,
-    // and then create a replacement in the other place. maybe there will be
-    // some need to defer this for a few frames?
-}
-
-void XPlaneWindow::create()
+void XPDesktopWindow::create()
 {
     if (winHandle) return;
 
@@ -157,31 +150,31 @@ void XPlaneWindow::create()
     cwp.layer = xplm_WindowLayerFloatingWindows;
     cwp.decorateAsFloatingWindow = xplm_WindowDecorationRoundRectangle;
     cwp.drawWindowFunc = [](XPLMWindowID id, void* ref) {
-        reinterpret_cast<XPlaneWindow*>(ref)->onDraw();
+        reinterpret_cast<XPDesktopWindow*>(ref)->onDraw();
     };
     cwp.handleMouseClickFunc = [](XPLMWindowID id, int x, int y, XPLMMouseStatus status, void* ref) -> int {
-        return reinterpret_cast<XPlaneWindow*>(ref)->onLeftClick(x, y, status);
+        return reinterpret_cast<XPDesktopWindow*>(ref)->onLeftClick(x, y, status);
     };
     cwp.handleRightClickFunc = [](XPLMWindowID id, int x, int y, XPLMMouseStatus status, void* ref) -> int {
-        return reinterpret_cast<XPlaneWindow*>(ref)->onRightClick(x, y, status);
+        return reinterpret_cast<XPDesktopWindow*>(ref)->onRightClick(x, y, status);
     };
     cwp.handleKeyFunc = [](XPLMWindowID id, char key, XPLMKeyFlags flags, char vKey, void* ref, int losingFocus) {
-        reinterpret_cast<XPlaneWindow*>(ref)->onKey(key, flags, vKey, losingFocus);
+        reinterpret_cast<XPDesktopWindow*>(ref)->onKey(key, flags, vKey, losingFocus);
     };
     cwp.handleCursorFunc = [](XPLMWindowID id, int x, int y, void* ref) -> XPLMCursorStatus {
-        return reinterpret_cast<XPlaneWindow*>(ref)->getCursor(x, y);
+        return reinterpret_cast<XPDesktopWindow*>(ref)->getCursor(x, y);
     };
     cwp.handleMouseWheelFunc = [](XPLMWindowID id, int x, int y, int wheel, int clicks, void* ref) -> int {
-        return reinterpret_cast<XPlaneWindow*>(ref)->onMouseWheel(x, y, wheel, clicks);
+        return reinterpret_cast<XPDesktopWindow*>(ref)->onMouseWheel(x, y, wheel, clicks);
     };
     winHandle = XPLMCreateWindowEx(&cwp);
     LOGD(fmt::format("XPLMCreateWindowEx() -> {}", winHandle));
     XPLMSetWindowTitle(winHandle, NAVITAB_NAME " " NAVITAB_VERSION_STR);
     XPLMSetWindowResizingLimits(winHandle, WIN_MIN_WIDTH, WIN_MIN_HEIGHT, WIN_MAX_WIDTH, WIN_MAX_HEIGHT);
-    visibilityWatchdog = 0;
+    winClosedWatchdog = 0;
 }
 
-void XPlaneWindow::destroy()
+void XPDesktopWindow::destroy()
 {
     if (!winHandle) return;
     LOGD(fmt::format("XPLMDestroyWindow({})", winHandle));
@@ -189,26 +182,29 @@ void XPlaneWindow::destroy()
     winHandle = nullptr;
 }
 
-std::pair<int, int> XPlaneWindow::screenBounds(int& l, int& t, int& r, int& b)
+std::pair<int, int> XPDesktopWindow::screenBounds(int& l, int& t, int& r, int& b)
 {
     XPLMGetScreenBoundsGlobal(&l, &t, &r, &b);
     LOGD(fmt::format("Screen bounds (LTRB): {},{} -> {},{}", l, t, r, b));
     return { (l + r) / 2, (t + b) / 2 };
 }
 
-void XPlaneWindow::onDraw()
+void XPDesktopWindow::onDraw()
 {
     // TODO - adapt this for VR window
     if (!winHandle) return;
-    visibilityWatchdog = 0;
-    ++pollStatusWatchdog;
-    if (pollStatusWatchdog == 10) {
+    // if we get a draw request then the window must be visible, so cancel the watchdog
+    winClosedWatchdog = 0;
+    // check the window position and size every 30 frames. don't need to do this
+    // every frame, so keep the overheads down
+    if (++winResizePollTimer > 30) {
+        winResizePollTimer = 0;
         int l, r, t, b;
         XPLMGetWindowGeometry(winHandle, &l, &t, &r, &b);
         auto& dp = desktopPosition;
-        // right,bottom pos will change on move or resize so test these first
-        if ((dp.right != r) || (dp.bottom != b) || (dp.left != l) || (dp.top != t)) {
-            // window moved or resized
+        // right and/or bottom position will change on move and on resize so only need to test these
+        if ((dp.right != r) || (dp.bottom != b)) {
+            // window has been moved or resized
             int dw = (r - l) - (dp.right - dp.left);
             int dh = (t - b) - (dp.top - dp.bottom);
             if (dw || dh) {
@@ -218,41 +214,36 @@ void XPlaneWindow::onDraw()
             }
             desktopPosition = WindowPos(l, t, r, b);
         }
-    } else if (pollStatusWatchdog == 30) {
-        // TODO - we might want to watch for VR mode changes here, although hopefully
-        // the plugin messages will be reliable so we don't need to.
-    } else if (pollStatusWatchdog > 40) {
-        pollStatusWatchdog = 0;
     }
 }
 
-int XPlaneWindow::onLeftClick(int x, int y, XPLMMouseStatus status)
+int XPDesktopWindow::onLeftClick(int x, int y, XPLMMouseStatus status)
 {
     // x,y in screen, not window coordinates
     LOGD(fmt::format("onLeftClick({},{},{})", x, y, status));
     return 1;
 }
 
-int XPlaneWindow::onRightClick(int x, int y, XPLMMouseStatus status)
+int XPDesktopWindow::onRightClick(int x, int y, XPLMMouseStatus status)
 {
     // x,y in screen, not window coordinates
     LOGD(fmt::format("onRightClick({},{},{})", x, y, status));
     return 1;
 }
 
-int XPlaneWindow::onMouseWheel(int x, int y, int wheel, int clicks)
+int XPDesktopWindow::onMouseWheel(int x, int y, int wheel, int clicks)
 {
     // x,y in screen, not window coordinates
     LOGD(fmt::format("onMouseWheel({},{},{},{})", x, y, wheel, clicks));
     return 1;
 }
 
-void XPlaneWindow::onKey(char key, XPLMKeyFlags flags, char vKey, int losingFocus)
+void XPDesktopWindow::onKey(char key, XPLMKeyFlags flags, char vKey, int losingFocus)
 {
     LOGD(fmt::format("onKey({},{},{},{})", (int)key, flags, (int)vKey, losingFocus));
 }
 
-XPlaneWindow::WindowPos::WindowPos(std::pair<int, int> centre)
+XPDesktopWindow::WindowPos::WindowPos(std::pair<int, int> centre)
 {
     left = centre.first - (WIN_STD_WIDTH / 2);
     top = centre.second + (WIN_STD_HEIGHT / 2);

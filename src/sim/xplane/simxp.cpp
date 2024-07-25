@@ -166,7 +166,7 @@ void SimXPlane::Enable()
     // TODO - this is where the window creation should be done
     // see AviTab::startApp()
 
-    window = std::make_unique<XPlaneWindow>(prefs);
+    desktopWindow = std::make_unique<XPDesktopWindow>(prefs);
 }
 
 void SimXPlane::Disable()
@@ -176,7 +176,7 @@ void SimXPlane::Disable()
 
     // TODO - save the window position for next time, and destroy the window
     // see AviTab::stopApp()
-    window.reset();
+    desktopWindow.reset();
 
     if (subMenu) {
         XPLMDestroyMenu(subMenu);
@@ -190,7 +190,7 @@ void SimXPlane::onVRmodeChange(bool entering)
 {
     // TODO - test this callback when XP is launched from SteamVR home in VR mode
     LOGS(fmt::format("VR mode change notified: {}", entering ? "entering" : "leaving"));
-    if (window) window->onVRmodeChange(entering);
+    if (desktopWindow) desktopWindow->showHide(!entering);
 }
 
 void SimXPlane::onPlaneLoaded()
@@ -267,7 +267,7 @@ float SimXPlane::onFlightLoop(float elapsedSinceLastCall, float elapseSinceLastL
 
     runEnvironmentCallbacks();
 #endif
-    if (window) window->onFlightLoop();
+    if (desktopWindow) desktopWindow->onFlightLoop();
     core->onFlightLoop();
 
     return -1;
@@ -276,13 +276,13 @@ float SimXPlane::onFlightLoop(float elapsedSinceLastCall, float elapseSinceLastL
 void SimXPlane::toggleWindow()
 {
     LOGS("Toggle window menu callback");
-    if (window) window->toggle();
+    if (desktopWindow) desktopWindow->toggle();
 }
 
 void SimXPlane::resetWindowPosition()
 {
     LOGS("Reset window position menu callback");
-    if (window) window->recentre();
+    if (desktopWindow) desktopWindow->recentre();
 }
 
 // Reloading the plugins is a convenience during development. This menu

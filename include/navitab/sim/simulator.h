@@ -21,7 +21,6 @@
 #pragma once
 
 #include <memory>
-#include "navitab/core.h"
 
 /*
  * This header file defines the interface to the simulator, which will
@@ -32,11 +31,16 @@
 
 namespace navitab {
 
-// The SimulatorCallbacks interface defines services that the simulator
+class Preferences;
+
+namespace sim {
+
+// The SimulatorEvents interface defines services that the simulator
 // requires from the Navitab core. Calls to these services will generally
 // be from the simulator's thread and should do minimal work.
 
-struct SimulatorCallbacks {
+struct SimulatorEvents
+{
 
     // called from the simulator thread on each flight loop.
     virtual void onFlightLoop() = 0;
@@ -44,37 +48,25 @@ struct SimulatorCallbacks {
 };
 
 
-// The Simulator interface defines the services that the Simulator
-// provides to the Navitab core. Calls to these services will generally
-// be from a different thread than the main one controlling the simulator.
+// The Simulator interface defines the services that the Simulator offers to 
+// the application or Navitab core.
 
-struct Simulator {
+struct Simulator
+{
+    // Factory
+    static std::shared_ptr<Simulator> New(std::shared_ptr<Preferences> p);
 
-    // Factory function to create a simulator liaison object. There will be
-    // one of these in each of the simulator-specific libraries.
-    // TODO - use a shared_ptr for the callbacks
-    static std::shared_ptr<Simulator> GetSimulator(std::shared_ptr <SimulatorCallbacks> core, std::shared_ptr<Preferences> prefs);
+    // APIs called from the application/plugin
+    // Start, enable, disable and stop events.
+    virtual void Connect(std::shared_ptr<navitab::sim::SimulatorEvents> core) = 0;
+    virtual void Disconnect() = 0;
 
-    virtual void Enable() = 0;
-    virtual void Disable() = 0;
+    // Things that Navitab might want to query from the simulation
+    virtual int FrameRate() = 0;
 
     virtual ~Simulator() = default;
+
 };
 
-// XPlaneSimulator extends simulator to allow the XPlane plugin to interact
-// directly without passing XPlane-specific interactions through the Navitab
-// core.
-
-struct XPlaneSimulator : public Simulator {
-    // Switching to/from VR mode
-    virtual void onVRmodeChange(bool entering) = 0;
-
-    // Changing to a new aircraft
-    virtual void onPlaneLoaded() = 0;
-
-    virtual ~XPlaneSimulator() = default;
-};
-
-
-
-} // navitab
+} // namespace sim
+} // namespace navitab

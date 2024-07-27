@@ -28,12 +28,18 @@
 // Navitab, and a single factory function to make the central core object.
 
 namespace navitab {
-
+    namespace sim {
+        struct Simulator;
+        struct SimulatorEvents;
+    }
+    namespace win {
+        struct Window;
+        struct WindowEvents;
+    }
 
 enum HostPlatform { WIN, LNX, MAC };
 enum AppClass { PLUGIN, DESKTOP, CONSOLE };
 enum SimEngine { MOCK, MSFS, XPLANE };
-
 
 struct Exception : public std::exception
 {
@@ -50,10 +56,6 @@ struct LogFatal : public Exception
     LogFatal(std::string e) : Exception(e) {}
 };
 
-// The classes/structs in here should be mostly abstract interfaces!!!
-
-struct Simulator;
-
 // The Preferences class is a relatively small wrapper that can be used
 // by Navitab components to fetch (and update) preference data that is
 // stored between runs.
@@ -64,14 +66,22 @@ struct Preferences
     virtual void Put(const std::string key, nlohmann::json& value) = 0;
 };
 
-// The executable/plugin's main() function should call the factory to create
-// exactly one instance of the Navitab core, and then destroy it on closure.
+// The System class is the central management and interface object for the Navitab
+// system.
 
 struct System
 {
+    // The executable / plugin's main() function should call the factory to create
+    // exactly one instance of the Navitab core, and then destroy it on closure.
     static std::shared_ptr<System> GetSystem(SimEngine s, AppClass c);
 
-    virtual ~System() = default;
+    // Set the simulator that Navitab will work with. Returns the interface that the simulator
+    // should use to talk to Navitab.
+    virtual std::shared_ptr<sim::SimulatorEvents> SetSimulator(std::shared_ptr<sim::Simulator>) = 0;
+
+    // Set the window that Navitab will work with. Returns the interface that the window
+    // should use to talk to Navitab.
+    virtual std::shared_ptr<win::WindowEvents> SetWindow(std::shared_ptr<win::Window>) = 0;
 
     // Startup and shutdown control - fine-grained enough to support all app classes.
     virtual void Start() = 0;
@@ -82,9 +92,6 @@ struct System
     // access to preferences
     virtual std::shared_ptr<Preferences> PrefsManager() = 0;
 
-    // access to simulator
-    virtual std::shared_ptr<Simulator> SimEnvironment() = 0;
-    
     // location of the preferences and log files, as well as any temporary file
     // and cached downloads
     virtual std::filesystem::path DataFilesPath() = 0;
@@ -100,6 +107,8 @@ struct System
 
     // directory containing the current Navitab executable
     virtual std::filesystem::path NavitabPath() = 0;
+
+    virtual ~System() = default;
 
 };
 

@@ -28,8 +28,8 @@ if(WIN32)
     target_compile_definitions(xplane_plugin PRIVATE IBM=1)
     target_link_options(xplane_plugin PRIVATE)
     target_link_libraries(xplane_plugin
-        navitab_core
         navitab_sim_xp
+        navitab_core
         "${XPLANE_SDK}/Libraries/Win/XPLM_64.lib"
         opengl32
     )

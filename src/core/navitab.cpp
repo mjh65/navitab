@@ -104,6 +104,16 @@ Navitab::~Navitab()
     LOGS("~Navitab() done");
 }
 
+std::shared_ptr<sim::SimulatorEvents> Navitab::SetSimulator(std::shared_ptr<sim::Simulator>)
+{
+    return shared_from_this();
+}
+
+std::shared_ptr<win::WindowEvents> Navitab::SetWindow(std::shared_ptr<win::Window>)
+{
+    return shared_from_this();
+}
+
 void Navitab::Start()
 {
     // Further initialisation is done here once the basic preference and
@@ -115,7 +125,7 @@ void Navitab::Start()
     // curl_global_init(CURL_GLOBAL_ALL); activate this later
 
     // TODO - callbacks param (#1) to become a shared_ptr - use shared_from_this
-    simEnv = Simulator::GetSimulator(shared_from_this(), PrefsManager());
+    //simEnv = Simulator::GetSimulator(shared_from_this(), PrefsManager());
     started = true;
 }
 
@@ -124,7 +134,7 @@ void Navitab::Enable()
     // This is called during X-Plane plugin enable, and probably does a bit more
     // Need to review SDK docs and Avitab.
     if (!enabled) {
-        simEnv->Enable();
+        //simEnv->Enable();
         enabled = true;
     }
 }
@@ -134,7 +144,7 @@ void Navitab::Disable()
     // This is called during X-Plane plugin disable
     // Need to review SDK docs and Avitab.
     if (enabled) {
-        simEnv->Disable();
+        //simEnv->Disable();
         enabled = false;
     }
 }
@@ -145,15 +155,15 @@ void Navitab::Stop()
     // Avitab also calls curl_global_cleanup(), so we need to not forget that 
     // Need to review SDK docs and Avitab.
     if (started) {
-        simEnv.reset();
+        //simEnv.reset();
         started = false;
     }
 }
 
-std::shared_ptr<Simulator> Navitab::SimEnvironment()
-{
-    return simEnv;
-}
+//std::shared_ptr<Simulator> Navitab::SimEnvironment()
+//{
+//    return simEnv;
+//}
 
 std::shared_ptr<Preferences> Navitab::PrefsManager()
 {
@@ -195,6 +205,27 @@ void Navitab::onFlightLoop()
 {
 }
 
+void Navitab::onWindowResize(int width, int height)
+{
+}
+
+void Navitab::onMouseEvent(int x, int y, bool l, bool r)
+{
+}
+
+void Navitab::onWheelEvent(int x, int y, int xdir, int ydir)
+{
+}
+
+void Navitab::onKeyEvent(char code)
+{
+}
+
+
+bool Navitab::getUpdateRegion()
+{
+    return false;
+}
 
 std::filesystem::path Navitab::FindDataFilesPath()
 {

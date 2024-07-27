@@ -17,7 +17,7 @@
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 target_sources(navitab_sim_xp PRIVATE
-    simxp.cpp
+    xpsimenvoy.cpp
     xpdesktopwin.cpp
     datarefexport.cpp
     datarefimport.cpp

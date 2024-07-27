@@ -22,8 +22,9 @@
 
 #include <memory>
 #include "navitab/core.h"
-#include "navitab/simulator.h"
 #include "navitab/logger.h"
+#include "navitab/sim/simulator.h"
+#include "navitab/win/window.h"
 
 // This header file defines a class that manages the startup and use of the
 // Navitab subsystems. Each of the executable/plugin's main() function should
@@ -33,7 +34,7 @@
 namespace navitab {
 namespace core {
 
-class Navitab : public std::enable_shared_from_this<Navitab>, public System, public SimulatorCallbacks
+class Navitab : public std::enable_shared_from_this<Navitab>, public System, public sim::SimulatorEvents, public win::WindowEvents
 {
 public:
     // Constructing the Navitab object also does enough initialisation to
@@ -41,6 +42,12 @@ public:
     // be unrecoverable and will cause a StartupError exception to be thrown.
     Navitab(SimEngine s, AppClass c);
     virtual ~Navitab();
+
+    // System base class overrides
+    
+    // hook up with simulator and window
+    std::shared_ptr<sim::SimulatorEvents> SetSimulator(std::shared_ptr<sim::Simulator>) override;
+    std::shared_ptr<win::WindowEvents> SetWindow(std::shared_ptr<win::Window>) override;
 
     // Startup and shutdown control - fine-grained enough to support all app classes.
     void Start() override;    // TODO - called from XPluginStart - review this in SDK and Avitab
@@ -51,9 +58,6 @@ public:
     // access to preferences
     std::shared_ptr<Preferences> PrefsManager() override;
     
-    // access to simulator
-    std::shared_ptr<Simulator> SimEnvironment() override;
-
     // location of the preferences and log files, as well as any temporary file
     // and cached downloads
     std::filesystem::path DataFilesPath() override;
@@ -70,8 +74,29 @@ public:
     // directory containing the current Navitab executable
     std::filesystem::path NavitabPath() override;
 
+    // SimulatorEvents
+    
     // called from simulator on simulator's thread
     void onFlightLoop() override;
+
+    // WindowEvents
+    
+    // called when the window is resized.
+    void onWindowResize(int width, int height) override;
+
+    // called when mouse events occur
+    void onMouseEvent(int x, int y, bool l, bool r) override;
+
+    // called when scroll wheel events occur
+    void onWheelEvent(int x, int y, int xdir, int ydir) override;
+
+    // called when key events occur
+    void onKeyEvent(char code) override;
+
+    // TODO the frame buffer interface needs some thought, just have a placeholder for now
+    // called to check for redraw
+    // TODO - define parameters
+    bool getUpdateRegion() override;
 
 protected:
     std::filesystem::path FindDataFilesPath();
@@ -89,7 +114,7 @@ private:
     bool                            started;
     bool                            enabled;
 
-    std::shared_ptr<Simulator>      simEnv;
+    std::shared_ptr<sim::Simulator> simEnv;
     std::shared_ptr<Preferences>    prefs;
 };
 

@@ -17,7 +17,7 @@
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 target_sources(navitab_sim_mock PRIVATE
-    simmock.cpp
+    mocksim.cpp
 )
 
 target_link_libraries(navitab_sim_mock PRIVATE navitab_core)

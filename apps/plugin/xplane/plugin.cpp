@@ -24,14 +24,14 @@
 #include <XPLM/XPLMDefs.h>
 #include <XPLM/XPLMPlugin.h>
 #include "navitab/core.h"
-#include "navitab/simulator.h"
+#include "navitab/sim/xpsimulator.h"
 #include "navitab/logger.h"
 
 // these are variables representing global state that will be referenced by all
 // of the X-Plane plugin entry points.
 
 std::shared_ptr<navitab::System> nvt;
-std::shared_ptr<navitab::XPlaneSimulator> sim;
+std::shared_ptr<navitab::sim::XPlaneSimulator> sim;
 std::unique_ptr<navitab::logging::Logger> LOG;
 
 PLUGIN_API int XPluginStart(char* outName, char* outSignature, char* outDescription)
@@ -43,8 +43,9 @@ PLUGIN_API int XPluginStart(char* outName, char* outSignature, char* outDescript
         XPLMEnableFeature("XPLM_USE_NATIVE_PATHS", 1);
         strncpy(outDescription, "A panel for maps, charts and documents when flying in VR", 255);
         // try to initialise logging and preferences - raises exception if fails
-        nvt = navitab::System::GetSystem(navitab::SimEngine::XPLANE, navitab::AppClass::PLUGIN);
         LOG = std::make_unique<navitab::logging::Logger>("plugin");
+        // construct the Navitab core, this will do enough to get the preferences
+        nvt = navitab::System::GetSystem(navitab::SimEngine::XPLANE, navitab::AppClass::PLUGIN);
     }
     catch (const std::exception& e) {
         strncpy(outDescription, e.what(), 255);
@@ -55,9 +56,12 @@ PLUGIN_API int XPluginStart(char* outName, char* outSignature, char* outDescript
     assert(LOG);
     try {
         LOGS("XPluginStart: early init completed");
+        // start Naivtab, and construct the XPlane simulation liaison
         nvt->Start();
-        sim = std::dynamic_pointer_cast<navitab::XPlaneSimulator>(nvt->SimEnvironment());
-        LOGS("XPluginStart: later init completed");
+        sim = navitab::sim::XPlaneSimulator::NewXPS(nvt->PrefsManager());
+        sim->Connect(nvt->SetSimulator(sim));
+        sim->Start();
+        LOGS("XPluginStart: remaining init completed");
     }
     catch (const std::exception& e) {
         try {
@@ -80,6 +84,8 @@ PLUGIN_API int XPluginEnable(void)
     assert(nvt);
     assert(LOG);
     try {
+        // at enable, hook up the XPlane liaison with the Navitab core
+        sim->Enable();
         nvt->Enable();
         LOGS("XPluginEnable: enable completed");
     }
@@ -117,6 +123,7 @@ PLUGIN_API void XPluginDisable(void)
     assert(nvt);
     assert(LOG);
     try {
+        sim->Disable();
         nvt->Disable();
         LOGS("XPluginDisable: disable completed");
     }
@@ -132,7 +139,9 @@ PLUGIN_API void XPluginStop(void)
     assert(LOG);
     LOGS("Navitab told to stop");
     try {
-        sim.reset();    // give up our claim, will not destroy yet
+        sim->Stop();
+        sim->Disconnect();
+        sim.reset();
         nvt->Stop();
         nvt.reset();    // Navitab core will now shutdown gracefully
     }

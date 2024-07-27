@@ -17,7 +17,7 @@
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 target_sources(navitab_sim_msfs PRIVATE
-    simmsfs.cpp
+    msfssim.cpp
 )
 
 target_link_libraries(navitab_sim_msfs PRIVATE navitab_core)

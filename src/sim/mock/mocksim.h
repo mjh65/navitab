@@ -18,33 +18,29 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "simmock.h"
+#pragma once
+
+#include "navitab/sim/simulator.h"
 
 namespace navitab {
+namespace mocksim {
 
-std::shared_ptr<Simulator> navitab::Simulator::GetSimulator(std::shared_ptr <SimulatorCallbacks> core, std::shared_ptr<Preferences> prefs)
+class MockSimulator : public navitab::sim::Simulator
 {
-    return std::make_shared<sim::SimMock>(core);
-}
+public:
+    MockSimulator(std::shared_ptr<Preferences> p);
+    ~MockSimulator();
 
-namespace sim {
+    void Connect(std::shared_ptr<navitab::sim::SimulatorEvents> core) override;
+    void Disconnect() override;
 
-SimMock::SimMock(std::shared_ptr<SimulatorCallbacks> c)
-:   core(c)
-{
-}
+    int FrameRate() override;
 
-SimMock::~SimMock()
-{
-}
+private:
+    std::shared_ptr<Preferences> prefs;
+    std::shared_ptr<navitab::sim::SimulatorEvents> core;
+};
 
-void SimMock::Enable()
-{
-}
 
-void SimMock::Disable()
-{
-}
-
-} // namespace sim
+} // namespace mocksim
 } // namespace navitab

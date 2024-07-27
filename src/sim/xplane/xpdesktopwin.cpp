@@ -24,9 +24,10 @@
 #include <fmt/core.h>
 #include <nlohmann/json.hpp>
 #include "navitab/config.h"
+#include "navitab/core.h"
 
 namespace navitab {
-namespace sim {
+namespace xplane {
 
 enum {
     WIN_MIN_WIDTH = 400,
@@ -251,5 +252,5 @@ XPDesktopWindow::WindowPos::WindowPos(std::pair<int, int> centre)
     bottom = top - WIN_STD_HEIGHT;
 }
 
-} // namespace sim
+} // namespace xplane
 } // namespace navitab

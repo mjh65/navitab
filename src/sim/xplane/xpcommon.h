@@ -1,8 +1,8 @@
 /*
- *  Navitab - Navigation Tablet for VR flight simulation
- *  Copyright (c) 2024 Michael Hasling
+ *  Navitab - Navigation tablet for VR flight simulation
+ *  Copyright (C) 2024 Michael Hasling
  *  Significantly derived from Avitab
- *  Copyright (c) 2018-2024 Folke Will
+ *  Copyright (C) 2018-2024 Folke Will <folko@solhost.org>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published by
@@ -21,25 +21,29 @@
 #pragma once
 
 #include "navitab/simulator.h"
+#include "navitab/window.h"
+#include "navitab/logger.h"
 
 namespace navitab {
-namespace sim {
+namespace xplane {
 
-class SimMsfs : public Simulator
-{
-public:
-    SimMsfs(std::shared_ptr<SimulatorCallbacks> core);
-    ~SimMsfs();
-    
-    void Enable() override;
-    void Disable() override;
+ // XPlaneSimulator extends simulator to allow the XPlane plugin to interact
+ // directly without passing XPlane-specific interactions through the Navitab
+ // core.
 
-private:
-    std::shared_ptr<SimulatorCallbacks> core;
-    
+struct XPlaneSimulator : public Simulator {
+
+    // Switching to/from VR mode
+    virtual void onEnteringVR() = 0;
+    virtual void onLeavingVR() = 0;
+
+    // Changing to a new aircraft
+    virtual void onPlaneLoaded() = 0;
+
+    virtual ~XPlaneSimulator() = default;
 
 };
 
 
-} // namespace sim
+} // namespace xplane
 } // namespace navitab

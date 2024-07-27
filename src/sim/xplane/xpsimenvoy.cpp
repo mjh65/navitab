@@ -18,7 +18,8 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "simxp.h"
+#include "xpsimenvoy.h"
+#include <cassert>
 #include <XPLM/XPLMPlugin.h>
 #include <XPLM/XPLMPlanes.h>
 #include <XPLM/XPLMScenery.h>
@@ -27,27 +28,42 @@
 #include <fmt/core.h>
 #include <nlohmann/json.hpp>
 #include "navitab/config.h"
+#include "navitab/core.h"
 
-namespace navitab {
-
-std::shared_ptr<Simulator> navitab::Simulator::GetSimulator(std::shared_ptr <SimulatorCallbacks> core, std::shared_ptr<Preferences> prefs)
+std::shared_ptr<navitab::sim::XPlaneSimulator> navitab::sim::XPlaneSimulator::NewXPS(std::shared_ptr<navitab::Preferences> prefs)
 {
-    return std::make_shared<sim::SimXPlane>(core, prefs);
+    return std::make_shared<navitab::xplane::XPlaneSimulatorEnvoy>(prefs);
 }
 
-namespace sim {
+namespace navitab {
+namespace xplane {
 
-SimXPlane::SimXPlane(std::shared_ptr <SimulatorCallbacks> c, std::shared_ptr<Preferences> p)
-:   core(c),
-    prefs(p),
+XPlaneSimulatorEnvoy::XPlaneSimulatorEnvoy(std::shared_ptr<Preferences> p)
+:   prefs(p),
     LOG(std::make_unique<navitab::logging::Logger>("simxp")),
     flightLoopId(nullptr),
     subMenuIdx(-1),
     subMenu(nullptr)
 {
-    LOGS("Constructing SimXPlane()");
+    LOGI("Constructing XPlaneSimulatorEnvoy()");
+}
 
-    // construction is done in response to the XPluginStart() entry point
+void XPlaneSimulatorEnvoy::Connect(std::shared_ptr<navitab::sim::SimulatorEvents> cb)
+{
+    LOGI("Connect() called");
+    core = cb;
+}
+
+void XPlaneSimulatorEnvoy::Disconnect()
+{
+    LOGI("Disonnect() called");
+    core.reset();
+}
+
+void XPlaneSimulatorEnvoy::Start()
+{
+    LOGI("Start() called");
+    assert(core);
     XPLMEnableFeature("XPLM_USE_NATIVE_PATHS", 1); // 
     XPLMDebugString("NaviTab version " NAVITAB_VERSION_STR "\n");
 
@@ -120,10 +136,11 @@ SimXPlane::SimXPlane(std::shared_ptr <SimulatorCallbacks> c, std::shared_ptr<Pre
 #endif
 }
 
-void SimXPlane::Enable()
+void XPlaneSimulatorEnvoy::Enable()
 {
-    // this is done in response to the XPluginEnable() entry point
-    LOGS("Enable() called");
+    // this is done in response to the XPluginStart() entry point
+    LOGI("Enable() called");
+    assert(core);
 
     // In Avitab quite a lot of this stuff seems to be in the Avitab class,
     // although it feels like it should be simulator specific, so in Navitab
@@ -136,7 +153,7 @@ void SimXPlane::Enable()
     }
 
     subMenu = XPLMCreateMenu(NAVITAB_NAME, pluginMenu, subMenuIdx, [](void* ref, void* cb) {
-        SimXPlane* us = reinterpret_cast<SimXPlane*>(ref);
+        XPlaneSimulatorEnvoy* us = reinterpret_cast<XPlaneSimulatorEnvoy*>(ref);
         auto menuId = reinterpret_cast<intptr_t>(cb);
         MenuCallback callback = us->menuCallbacks[menuId];
         if (callback) callback();
@@ -169,10 +186,10 @@ void SimXPlane::Enable()
     desktopWindow = std::make_unique<XPDesktopWindow>(prefs);
 }
 
-void SimXPlane::Disable()
+void XPlaneSimulatorEnvoy::Disable()
 {
     // this is done in response to the XPluginDisable() entry point
-    LOGS("Disable() called");
+    LOGI("Disable() called");
 
     // TODO - save the window position for next time, and destroy the window
     // see AviTab::stopApp()
@@ -186,14 +203,25 @@ void SimXPlane::Disable()
     }
 }
 
-void SimXPlane::onVRmodeChange(bool entering)
+void XPlaneSimulatorEnvoy::Stop()
+{
+    LOGI("Stop() called");
+}
+
+int XPlaneSimulatorEnvoy::FrameRate()
+{
+    // TODO needs an implementation
+    return 1;
+}
+
+void XPlaneSimulatorEnvoy::onVRmodeChange(bool entering)
 {
     // TODO - test this callback when XP is launched from SteamVR home in VR mode
-    LOGS(fmt::format("VR mode change notified: {}", entering ? "entering" : "leaving"));
+    LOGI(fmt::format("VR mode change notified: {}", entering ? "entering" : "leaving"));
     if (desktopWindow) desktopWindow->showHide(!entering);
 }
 
-void SimXPlane::onPlaneLoaded()
+void XPlaneSimulatorEnvoy::onPlaneLoaded()
 {
     std::vector<char> scratch;
     scratch.resize(1024);
@@ -203,20 +231,20 @@ void SimXPlane::onPlaneLoaded()
     std::filesystem::path acf(p);
     aircraftDir = acf.parent_path().lexically_normal();
     aircraftName = acf.stem().string();
-    LOGS(fmt::format("Airplane loaded: {} in {}", aircraftName, aircraftDir.string()));
+    LOGI(fmt::format("Airplane loaded: {} in {}", aircraftName, aircraftDir.string()));
 }
 
-SimXPlane::~SimXPlane()
+XPlaneSimulatorEnvoy::~XPlaneSimulatorEnvoy()
 {
     // destruction is done in response to the XPluginStop() entry point
     if (flightLoopId) {
         XPLMDestroyFlightLoop(flightLoopId);
         flightLoopId = nullptr;
     }
-    LOGS("~SimXPlane() done");
+    LOGI("XPlaneSimulatorEnvoy() has now been destroyed");
 }
 
-XPLMFlightLoopID SimXPlane::CreateFlightLoop()
+XPLMFlightLoopID XPlaneSimulatorEnvoy::CreateFlightLoop()
 {
     XPLMCreateFlightLoop_t loop;
     loop.structSize = sizeof(XPLMCreateFlightLoop_t);
@@ -226,7 +254,7 @@ XPLMFlightLoopID SimXPlane::CreateFlightLoop()
         if (!ref) {
             return 0;
         }
-        auto* me = reinterpret_cast<SimXPlane*>(ref);
+        auto* me = reinterpret_cast<XPlaneSimulatorEnvoy*>(ref);
         return me->onFlightLoop(f1, f2, c);
     };
 
@@ -237,7 +265,7 @@ XPLMFlightLoopID SimXPlane::CreateFlightLoop()
     return id;
 }
 
-float SimXPlane::onFlightLoop(float elapsedSinceLastCall, float elapseSinceLastLoop, int count)
+float XPlaneSimulatorEnvoy::onFlightLoop(float elapsedSinceLastCall, float elapseSinceLastLoop, int count)
 {
 #if 0 // TODO, revive later
     std::vector<Location> activeAircraftLocations;
@@ -273,21 +301,21 @@ float SimXPlane::onFlightLoop(float elapsedSinceLastCall, float elapseSinceLastL
     return -1;
 }
 
-void SimXPlane::toggleWindow()
+void XPlaneSimulatorEnvoy::toggleWindow()
 {
-    LOGS("Toggle window menu callback");
+    LOGI("Toggle window menu callback");
     if (desktopWindow) desktopWindow->toggle();
 }
 
-void SimXPlane::resetWindowPosition()
+void XPlaneSimulatorEnvoy::resetWindowPosition()
 {
-    LOGS("Reset window position menu callback");
+    LOGI("Reset window position menu callback");
     if (desktopWindow) desktopWindow->recentre();
 }
 
 // Reloading the plugins is a convenience during development. This menu
 // option will eventually be excluded from release builds. (TODO)
-void SimXPlane::reloadAllPlugins()
+void XPlaneSimulatorEnvoy::reloadAllPlugins()
 {
     // set the preference /general/reloading to indicate that the log file should be continued
     auto gp = prefs->Get("/general");
@@ -297,7 +325,6 @@ void SimXPlane::reloadAllPlugins()
     // now ask XPlane to reload (all!) the plugins
     XPLMReloadPlugins();
 }
-
 
 
 } // namespace sim

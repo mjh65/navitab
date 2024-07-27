@@ -21,24 +21,23 @@
 #pragma once
 
 #include <XPLM/XPLMDisplay.h>
-#include "navitab/sim/simulator.h"
-#include "navitab/logger.h"
+#include "xpcommon.h"
 
 namespace navitab {
 namespace xplane {
 
-// XPDesktopWindow manages Navitab's window in XPlane.
+// XPVRWindow manages Navitab's window in XPlane.
 
-class XPDesktopWindow
+class XPVRWindow
 {
 public:
-    XPDesktopWindow(std::shared_ptr<Preferences> prefs);
-    ~XPDesktopWindow();
+    XPVRWindow(std::shared_ptr<Preferences> prefs);
+    ~XPVRWindow();
 
     void toggle();
     void recentre();
-    void showHide(bool show);
     void onFlightLoop();
+    void onVRmodeChange(bool entering);
 
 private:
     void create();
@@ -54,11 +53,12 @@ private:
 
 private:
     std::shared_ptr<Preferences> prefs;
+    // logging
     std::unique_ptr<navitab::logging::Logger> LOG;
     XPLMWindowID winHandle;
-    bool winVisible;
-    int winClosedWatchdog;
-    int winResizePollTimer;
+    int visibilityWatchdog;
+    int pollStatusWatchdog;
+    bool VRmode;
 
     struct WindowPos {
         int left;
@@ -70,6 +70,7 @@ private:
         WindowPos(std::pair<int, int>);
     };
     WindowPos desktopPosition;
+    WindowPos vrPosition;
 
 };
 

@@ -20,28 +20,40 @@
 
 #pragma once
 
+#include "navitab/sim/xpsimulator.h"
 #include <functional>
 #include <vector>
+#include <filesystem>
 #include <XPLM/XPLMUtilities.h>
 #include <XPLM/XPLMProcessing.h>
 #include <XPLM/XPLMMenus.h>
 #include "xpdesktopwin.h"
-#include "navitab/simulator.h"
 #include "navitab/logger.h"
 
 namespace navitab {
-namespace sim {
+namespace xplane {
 
-class SimXPlane : public XPlaneSimulator
+class XPlaneSimulatorEnvoy : public navitab::sim::XPlaneSimulator
 {
 public:
-    SimXPlane(std::shared_ptr<SimulatorCallbacks> core, std::shared_ptr<Preferences> prefs);
-    ~SimXPlane();
+    XPlaneSimulatorEnvoy(std::shared_ptr<Preferences> p);
+    ~XPlaneSimulatorEnvoy();
     
+    // Connect/disconnect the XPlane liaison from Navitab. Called when XPlane starts and stops the plugin
+    void Connect(std::shared_ptr<navitab::sim::SimulatorEvents> core) override;
+    void Disconnect() override;
+
+    // The main plugin state machine events
+    void Start() override;
     void Enable() override;
     void Disable() override;
+    void Stop() override;
+
+    int FrameRate() override;
+
     void onVRmodeChange(bool entering) override;
     void onPlaneLoaded() override;
+
 
 private:
     XPLMFlightLoopID CreateFlightLoop();
@@ -57,7 +69,7 @@ private:
 
 private:
     // access to Navitab core
-    std::shared_ptr<SimulatorCallbacks> core;
+    std::shared_ptr<navitab::sim::SimulatorEvents> core;
     std::shared_ptr<Preferences> prefs;
 
     // logging
@@ -84,8 +96,9 @@ private:
 
     // window managers
     std::unique_ptr<XPDesktopWindow> desktopWindow;
+
 };
 
 
-} // namespace sim
+} // namespace xplane
 } // namespace navitab

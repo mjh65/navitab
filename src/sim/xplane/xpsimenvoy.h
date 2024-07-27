@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "navitab/sim/xpsimulator.h"
+#include "navitab/xpsimulator.h"
 #include <functional>
 #include <vector>
 #include <filesystem>
@@ -31,16 +31,15 @@
 #include "navitab/logger.h"
 
 namespace navitab {
-namespace xplane {
 
-class XPlaneSimulatorEnvoy : public navitab::sim::XPlaneSimulator
+class XPlaneSimulatorEnvoy : public navitab::XPlaneSimulator
 {
 public:
     XPlaneSimulatorEnvoy(std::shared_ptr<Preferences> p);
     ~XPlaneSimulatorEnvoy();
     
     // Connect/disconnect the XPlane liaison from Navitab. Called when XPlane starts and stops the plugin
-    void Connect(std::shared_ptr<navitab::sim::SimulatorEvents> core) override;
+    void Connect(std::shared_ptr<navitab::SimulatorEvents> core) override;
     void Disconnect() override;
 
     // The main plugin state machine events
@@ -69,11 +68,11 @@ private:
 
 private:
     // access to Navitab core
-    std::shared_ptr<navitab::sim::SimulatorEvents> core;
+    std::shared_ptr<navitab::SimulatorEvents> core;
     std::shared_ptr<Preferences> prefs;
 
     // logging
-    std::unique_ptr<navitab::logging::Logger> LOG;
+    std::unique_ptr<logging::Logger> LOG;
 
     // versions, identifiers and paths from XPlane
     int xplaneVersion;
@@ -99,6 +98,4 @@ private:
 
 };
 
-
-} // namespace xplane
 } // namespace navitab

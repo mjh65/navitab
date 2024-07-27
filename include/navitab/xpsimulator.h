@@ -31,7 +31,6 @@
  */
 
 namespace navitab {
-namespace sim {
 
 // XPlaneSimulator extends simulator with XP-specific behaviours that allow the
 // XPlane plugin to interact directly without routing through the Navitab core.
@@ -56,6 +55,4 @@ struct XPlaneSimulator : public Simulator
     virtual ~XPlaneSimulator() = default;
 };
 
-
-} // namespace sim
 } // namespace navitab

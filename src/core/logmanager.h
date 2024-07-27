@@ -30,7 +30,6 @@
 #include <nlohmann/json_fwd.hpp>
 #include "navitab/logger.h"
 
-namespace navitab {
 namespace logging {
 
 // LogManager is a singleton class which does all of the logging work.
@@ -111,4 +110,3 @@ private:
 
 
 } // namespace logging
-} // namesapce navitab

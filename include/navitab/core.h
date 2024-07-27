@@ -28,14 +28,12 @@
 // Navitab, and a single factory function to make the central core object.
 
 namespace navitab {
-    namespace sim {
-        struct Simulator;
-        struct SimulatorEvents;
-    }
-    namespace win {
-        struct Window;
-        struct WindowEvents;
-    }
+
+struct Simulator;
+struct SimulatorEvents;
+
+struct Window;
+struct WindowEvents;
 
 enum HostPlatform { WIN, LNX, MAC };
 enum AppClass { PLUGIN, DESKTOP, CONSOLE };
@@ -77,11 +75,11 @@ struct System
 
     // Set the simulator that Navitab will work with. Returns the interface that the simulator
     // should use to talk to Navitab.
-    virtual std::shared_ptr<sim::SimulatorEvents> SetSimulator(std::shared_ptr<sim::Simulator>) = 0;
+    virtual std::shared_ptr<SimulatorEvents> SetSimulator(std::shared_ptr<Simulator>) = 0;
 
     // Set the window that Navitab will work with. Returns the interface that the window
     // should use to talk to Navitab.
-    virtual std::shared_ptr<win::WindowEvents> SetWindow(std::shared_ptr<win::Window>) = 0;
+    virtual std::shared_ptr<WindowEvents> SetWindow(std::shared_ptr<Window>) = 0;
 
     // Startup and shutdown control - fine-grained enough to support all app classes.
     virtual void Start() = 0;

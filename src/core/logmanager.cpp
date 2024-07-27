@@ -29,7 +29,6 @@
 #include <nlohmann/json.hpp>
 #include "navitab/core.h"
 
-namespace navitab {
 namespace logging {
 
 std::shared_ptr<LogManager> LogManager::GetLogManager()
@@ -227,4 +226,3 @@ LogManager::Cache::Cache(const char* n, const char* f, const int l, Logger::Seve
 
 
 } // namespace logging
-} // namesapce navitab

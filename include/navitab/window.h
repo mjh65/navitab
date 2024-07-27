@@ -32,8 +32,6 @@ namespace navitab {
 
 class Preferences;
 
-namespace win {
-
 // The WindowEvents interface is how the UI window implementation provides
 // events to and gets UI updates from the Navitab core.
 
@@ -75,5 +73,4 @@ struct Window
     virtual ~Window() = default;
 };
 
-} // namespace win
 } // namespace navitab

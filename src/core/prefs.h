@@ -31,7 +31,6 @@
 // startup and kept in memory as an nlohmann/json container object.
 
 namespace navitab {
-namespace core {
 
 class Prefs : public Preferences
 {
@@ -51,11 +50,10 @@ private:
 private:
     std::filesystem::path prefsFile;
     std::shared_ptr<nlohmann::json> prefData;
-    std::unique_ptr<navitab::logging::Logger> LOG;
+    std::unique_ptr<logging::Logger> LOG;
     bool saveAtExit;
     std::mutex stateMutex;
 
 };
 
-} // namespace core
 } // namespace navitab

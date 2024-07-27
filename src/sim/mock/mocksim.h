@@ -20,27 +20,24 @@
 
 #pragma once
 
-#include "navitab/sim/simulator.h"
+#include "navitab/simulator.h"
 
 namespace navitab {
-namespace mocksim {
 
-class MockSimulator : public navitab::sim::Simulator
+class MockSimulator : public navitab::Simulator
 {
 public:
     MockSimulator(std::shared_ptr<Preferences> p);
     ~MockSimulator();
 
-    void Connect(std::shared_ptr<navitab::sim::SimulatorEvents> core) override;
+    void Connect(std::shared_ptr<navitab::SimulatorEvents> core) override;
     void Disconnect() override;
 
     int FrameRate() override;
 
 private:
     std::shared_ptr<Preferences> prefs;
-    std::shared_ptr<navitab::sim::SimulatorEvents> core;
+    std::shared_ptr<navitab::SimulatorEvents> core;
 };
 
-
-} // namespace mocksim
 } // namespace navitab

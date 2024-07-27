@@ -33,10 +33,8 @@ std::shared_ptr<System> System::GetSystem(SimEngine s, AppClass c)
     static bool done = false;
     if (done) return nullptr;
     done = true;
-    return std::make_shared<core::Navitab>(s,c);
+    return std::make_shared<Navitab>(s,c);
 }
-
-namespace core {
 
 
 #if defined(NAVITAB_WINDOWS)
@@ -52,7 +50,7 @@ Navitab::Navitab(SimEngine s, AppClass c)
 :   hostPlatform(host),
     simProduct(s),
     appClass(c),
-    LOG(std::make_unique<navitab::logging::Logger>("navitab")),
+    LOG(std::make_unique<logging::Logger>("navitab")),
     dataFilesPath(FindDataFilesPath()),
     started(false),
     enabled(false)
@@ -92,7 +90,7 @@ Navitab::Navitab(SimEngine s, AppClass c)
     }
     catch (...) {}
 
-    auto lm = navitab::logging::LogManager::GetLogManager();
+    auto lm = logging::LogManager::GetLogManager();
     lm->Configure(appClass == CONSOLE, lfp, reloaded, prefs->Get("/logging"));
 }
 
@@ -104,12 +102,12 @@ Navitab::~Navitab()
     LOGS("~Navitab() done");
 }
 
-std::shared_ptr<sim::SimulatorEvents> Navitab::SetSimulator(std::shared_ptr<sim::Simulator>)
+std::shared_ptr<SimulatorEvents> Navitab::SetSimulator(std::shared_ptr<Simulator>)
 {
     return shared_from_this();
 }
 
-std::shared_ptr<win::WindowEvents> Navitab::SetWindow(std::shared_ptr<win::Window>)
+std::shared_ptr<WindowEvents> Navitab::SetWindow(std::shared_ptr<Window>)
 {
     return shared_from_this();
 }
@@ -289,7 +287,4 @@ std::filesystem::path Navitab::FindDataFilesPath()
     throw StartupError(fmt::format("Unable to find or create directory for Navitab data files, before line {} in {}", __LINE__, __FILE__));
 }
 
-
-
-} // namespace core
 } // namespace navitab

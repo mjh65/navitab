@@ -44,7 +44,7 @@ int main(int arg, char** argv)
 
     // if we get this far then we should have logging enabled, so any further issues
     // can be reported through the logging interface.
-    auto LOG = std::make_unique<navitab::logging::Logger>("main");
+    auto LOG = std::make_unique<logging::Logger>("main");
 
     LOGS("Early init completed, starting and enabling");
     nvt->Start();

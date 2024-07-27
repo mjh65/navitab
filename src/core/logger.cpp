@@ -21,7 +21,6 @@
 #include "navitab/logger.h"
 #include "logmanager.h"
 
-namespace navitab {
 namespace logging {
 
 Logger::Logger(const char *n)
@@ -38,4 +37,3 @@ void Logger::Log(const char *file, const int line, Severity s, const std::string
 
 
 } // namespace logging
-} // namesapce navitab

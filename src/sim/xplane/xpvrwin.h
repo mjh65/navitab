@@ -24,7 +24,6 @@
 #include "xpcommon.h"
 
 namespace navitab {
-namespace xplane {
 
 // XPVRWindow manages Navitab's window in XPlane.
 
@@ -54,7 +53,7 @@ private:
 private:
     std::shared_ptr<Preferences> prefs;
     // logging
-    std::unique_ptr<navitab::logging::Logger> LOG;
+    std::unique_ptr<logging::Logger> LOG;
     XPLMWindowID winHandle;
     int visibilityWatchdog;
     int pollStatusWatchdog;
@@ -74,5 +73,4 @@ private:
 
 };
 
-} // namespace xplane
 } // namespace navitab

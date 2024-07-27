@@ -27,7 +27,6 @@
 #include "navitab/core.h"
 
 namespace navitab {
-namespace xplane {
 
 enum {
     WIN_MIN_WIDTH = 400,
@@ -40,7 +39,7 @@ enum {
 
 XPDesktopWindow::XPDesktopWindow(std::shared_ptr<Preferences> p)
 :   prefs(p),
-    LOG(std::make_unique<navitab::logging::Logger>("xpwin")),
+    LOG(std::make_unique<logging::Logger>("xpwin")),
     winHandle(nullptr),
     winClosedWatchdog(0),
     winVisible(true),
@@ -252,5 +251,4 @@ XPDesktopWindow::WindowPos::WindowPos(std::pair<int, int> centre)
     bottom = top - WIN_STD_HEIGHT;
 }
 
-} // namespace xplane
 } // namespace navitab

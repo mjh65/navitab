@@ -21,11 +21,10 @@
 #pragma once
 
 #include <XPLM/XPLMDisplay.h>
-#include "navitab/sim/simulator.h"
+#include "navitab/simulator.h"
 #include "navitab/logger.h"
 
 namespace navitab {
-namespace xplane {
 
 // XPDesktopWindow manages Navitab's window in XPlane.
 
@@ -54,7 +53,7 @@ private:
 
 private:
     std::shared_ptr<Preferences> prefs;
-    std::unique_ptr<navitab::logging::Logger> LOG;
+    std::unique_ptr<logging::Logger> LOG;
     XPLMWindowID winHandle;
     bool winVisible;
     int winClosedWatchdog;
@@ -73,5 +72,4 @@ private:
 
 };
 
-} // namespace xplane
 } // namespace navitab

@@ -24,15 +24,15 @@
 #include <XPLM/XPLMDefs.h>
 #include <XPLM/XPLMPlugin.h>
 #include "navitab/core.h"
-#include "navitab/sim/xpsimulator.h"
+#include "navitab/xpsimulator.h"
 #include "navitab/logger.h"
 
 // these are variables representing global state that will be referenced by all
 // of the X-Plane plugin entry points.
 
+std::unique_ptr<logging::Logger> LOG;
 std::shared_ptr<navitab::System> nvt;
-std::shared_ptr<navitab::sim::XPlaneSimulator> sim;
-std::unique_ptr<navitab::logging::Logger> LOG;
+std::shared_ptr<navitab::XPlaneSimulator> sim;
 
 PLUGIN_API int XPluginStart(char* outName, char* outSignature, char* outDescription)
 {
@@ -43,7 +43,7 @@ PLUGIN_API int XPluginStart(char* outName, char* outSignature, char* outDescript
         XPLMEnableFeature("XPLM_USE_NATIVE_PATHS", 1);
         strncpy(outDescription, "A panel for maps, charts and documents when flying in VR", 255);
         // try to initialise logging and preferences - raises exception if fails
-        LOG = std::make_unique<navitab::logging::Logger>("plugin");
+        LOG = std::make_unique<logging::Logger>("plugin");
         // construct the Navitab core, this will do enough to get the preferences
         nvt = navitab::System::GetSystem(navitab::SimEngine::XPLANE, navitab::AppClass::PLUGIN);
     }
@@ -58,7 +58,7 @@ PLUGIN_API int XPluginStart(char* outName, char* outSignature, char* outDescript
         LOGS("XPluginStart: early init completed");
         // start Naivtab, and construct the XPlane simulation liaison
         nvt->Start();
-        sim = navitab::sim::XPlaneSimulator::NewXPS(nvt->PrefsManager());
+        sim = navitab::XPlaneSimulator::NewXPS(nvt->PrefsManager());
         sim->Connect(nvt->SetSimulator(sim));
         sim->Start();
         LOGS("XPluginStart: remaining init completed");

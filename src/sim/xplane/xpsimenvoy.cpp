@@ -30,17 +30,16 @@
 #include "navitab/config.h"
 #include "navitab/core.h"
 
-std::shared_ptr<navitab::sim::XPlaneSimulator> navitab::sim::XPlaneSimulator::NewXPS(std::shared_ptr<navitab::Preferences> prefs)
+std::shared_ptr<navitab::XPlaneSimulator> navitab::XPlaneSimulator::NewXPS(std::shared_ptr<navitab::Preferences> prefs)
 {
-    return std::make_shared<navitab::xplane::XPlaneSimulatorEnvoy>(prefs);
+    return std::make_shared<navitab::XPlaneSimulatorEnvoy>(prefs);
 }
 
 namespace navitab {
-namespace xplane {
 
 XPlaneSimulatorEnvoy::XPlaneSimulatorEnvoy(std::shared_ptr<Preferences> p)
 :   prefs(p),
-    LOG(std::make_unique<navitab::logging::Logger>("simxp")),
+    LOG(std::make_unique<logging::Logger>("simxp")),
     flightLoopId(nullptr),
     subMenuIdx(-1),
     subMenu(nullptr)
@@ -48,7 +47,7 @@ XPlaneSimulatorEnvoy::XPlaneSimulatorEnvoy(std::shared_ptr<Preferences> p)
     LOGI("Constructing XPlaneSimulatorEnvoy()");
 }
 
-void XPlaneSimulatorEnvoy::Connect(std::shared_ptr<navitab::sim::SimulatorEvents> cb)
+void XPlaneSimulatorEnvoy::Connect(std::shared_ptr<navitab::SimulatorEvents> cb)
 {
     LOGI("Connect() called");
     core = cb;
@@ -326,6 +325,4 @@ void XPlaneSimulatorEnvoy::reloadAllPlugins()
     XPLMReloadPlugins();
 }
 
-
-} // namespace sim
 } // namespace navitab

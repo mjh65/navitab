@@ -33,8 +33,6 @@ namespace navitab {
 
 class Preferences;
 
-namespace sim {
-
 // The SimulatorEvents interface defines services that the simulator
 // requires from the Navitab core. Calls to these services will generally
 // be from the simulator's thread and should do minimal work.
@@ -58,7 +56,7 @@ struct Simulator
 
     // APIs called from the application/plugin
     // Start, enable, disable and stop events.
-    virtual void Connect(std::shared_ptr<navitab::sim::SimulatorEvents> core) = 0;
+    virtual void Connect(std::shared_ptr<navitab::SimulatorEvents> core) = 0;
     virtual void Disconnect() = 0;
 
     // Things that Navitab might want to query from the simulation
@@ -68,5 +66,4 @@ struct Simulator
 
 };
 
-} // namespace sim
 } // namespace navitab

@@ -25,7 +25,6 @@
 #include "navitab/logger.h"
 
 namespace navitab {
-namespace xplane {
 
  // XPlaneSimulator extends simulator to allow the XPlane plugin to interact
  // directly without passing XPlane-specific interactions through the Navitab
@@ -44,6 +43,4 @@ struct XPlaneSimulator : public Simulator {
 
 };
 
-
-} // namespace xplane
 } // namespace navitab

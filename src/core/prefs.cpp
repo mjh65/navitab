@@ -28,14 +28,13 @@
 using json = nlohmann::json;
 
 namespace navitab {
-namespace core {
 
 static const int PREFS_VERSION = 1;
 
 Prefs::Prefs(std::filesystem::path pf)
 :   prefsFile(pf),
     prefData(std::make_shared<json>()),
-    LOG(std::make_unique<navitab::logging::Logger>("prefs")),
+    LOG(std::make_unique<logging::Logger>("prefs")),
     saveAtExit(true)
 {
     init();
@@ -152,6 +151,4 @@ void Prefs::save()
     LOGS(fmt::format("Saved preferences to {}", prefsFile.string()));
 }
 
-
-} // namespace core
 } // namespace navitab

@@ -30,15 +30,14 @@
 // Normally 'LOG' will be a pointer to a Logger object which has been instantiated
 // (using std::make_unique) for the class, or the function.
 
-#define LOGF(M) (LOG->Log(__FILE__,__LINE__,navitab::logging::Logger::Severity::F,M))
-#define LOGE(M) (LOG->Log(__FILE__,__LINE__,navitab::logging::Logger::Severity::E,M))
-#define LOGS(M) (LOG->Log(__FILE__,__LINE__,navitab::logging::Logger::Severity::S,M))
-#define LOGW(M) (LOG->Log(__FILE__,__LINE__,navitab::logging::Logger::Severity::W,M))
-#define LOGI(M) (LOG->Log(__FILE__,__LINE__,navitab::logging::Logger::Severity::I,M))
-#define LOGD(M) (LOG->Log(__FILE__,__LINE__,navitab::logging::Logger::Severity::D,M))
+#define LOGF(M) (LOG->Log(__FILE__,__LINE__,logging::Logger::Severity::F,M))
+#define LOGE(M) (LOG->Log(__FILE__,__LINE__,logging::Logger::Severity::E,M))
+#define LOGS(M) (LOG->Log(__FILE__,__LINE__,logging::Logger::Severity::S,M))
+#define LOGW(M) (LOG->Log(__FILE__,__LINE__,logging::Logger::Severity::W,M))
+#define LOGI(M) (LOG->Log(__FILE__,__LINE__,logging::Logger::Severity::I,M))
+#define LOGD(M) (LOG->Log(__FILE__,__LINE__,logging::Logger::Severity::D,M))
 
 
-namespace navitab {
 namespace logging {
 
 class LogManager;
@@ -84,4 +83,3 @@ private:
 };
 
 } // namespace logging
-} // namesapce navitab

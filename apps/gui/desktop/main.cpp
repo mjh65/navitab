@@ -25,6 +25,7 @@
 
 #include <memory>
 #include "navitab/core.h"
+#include "navitab/simulator.h"
 #include "navitab/logger.h"
 
 
@@ -35,7 +36,7 @@ int main(int arg, char** argv)
     std::shared_ptr<navitab::Simulator> sim;
     try {
         // try to initialise logging and preferences - raises exception if fails
-        LOG = std::make_unique<logging::Logger>("desktop");
+        LOG = std::make_unique<logging::Logger>("main");
         nvt = navitab::System::GetSystem(navitab::SimEngine::MOCK, navitab::AppClass::DESKTOP);
     }
     catch (navitab::StartupError& e) {
@@ -47,16 +48,11 @@ int main(int arg, char** argv)
 
     // if we get this far then we should have logging enabled, so any further issues
     // can be reported through the logging interface.
-    auto LOG = std::make_unique<logging::Logger>("main");
-
     LOGS("Early init completed, starting and enabling");
     nvt->Start();
     sim = navitab::Simulator::Factory();
     sim->SetPrefs(nvt->PrefsManager());
     sim->Connect(nvt->SetSimulator(sim));
-    sim->Start();
-
-    sim->Enable();
     nvt->Enable();
 
     LOGS("Starting event loop");
@@ -64,10 +60,7 @@ int main(int arg, char** argv)
     // TODO - in desktop mode we will handover to GL to run the GUI
 
     LOGS("Event loop finished, disabling and stopping");
-    sim->Disable();
     nvt->Disable();
-
-    sim->Stop();
     sim->Disconnect();
     sim.reset();
     nvt->Stop();

@@ -24,20 +24,21 @@
 
 namespace navitab {
 
-class MockSimulator : public navitab::Simulator
+class MockSimulator : public Simulator
 {
 public:
-    MockSimulator(std::shared_ptr<Preferences> p);
+    MockSimulator();
     ~MockSimulator();
 
-    void Connect(std::shared_ptr<navitab::SimulatorEvents> core) override;
+    void SetPrefs(std::shared_ptr<Preferences> prefs) override;
+    void Connect(std::shared_ptr<SimulatorEvents> core) override;
     void Disconnect() override;
 
     int FrameRate() override;
 
 private:
     std::shared_ptr<Preferences> prefs;
-    std::shared_ptr<navitab::SimulatorEvents> core;
+    std::shared_ptr<SimulatorEvents> core;
 };
 
 } // namespace navitab

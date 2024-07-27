@@ -56,9 +56,10 @@ PLUGIN_API int XPluginStart(char* outName, char* outSignature, char* outDescript
     assert(LOG);
     try {
         LOGS("XPluginStart: early init completed");
-        // start Naivtab, and construct the XPlane simulation liaison
+        // start Navitab, and construct the XPlane simulation liaison
         nvt->Start();
-        sim = navitab::XPlaneSimulator::NewXPS(nvt->PrefsManager());
+        sim = navitab::XPlaneSimulator::Factory();
+        sim->SetPrefs(nvt->PrefsManager());
         sim->Connect(nvt->SetSimulator(sim));
         sim->Start();
         LOGS("XPluginStart: remaining init completed");

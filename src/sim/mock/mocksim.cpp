@@ -20,15 +20,14 @@
 
 #include "mocksim.h"
 
-std::shared_ptr<navitab::Simulator> navitab::Simulator::New(std::shared_ptr<navitab::Preferences> prefs)
+std::shared_ptr<navitab::Simulator> navitab::Simulator::Factory()
 {
-    return std::make_shared<navitab::MockSimulator>(prefs);
+    return std::make_shared<navitab::MockSimulator>();
 }
 
 namespace navitab {
 
-MockSimulator::MockSimulator(std::shared_ptr<Preferences> p)
-:   prefs(p)
+MockSimulator::MockSimulator()
 {
 }
 
@@ -36,7 +35,12 @@ MockSimulator::~MockSimulator()
 {
 }
 
-void MockSimulator::Connect(std::shared_ptr<navitab::SimulatorEvents> c)
+void MockSimulator::SetPrefs(std::shared_ptr<Preferences> p)
+{
+    prefs = p;
+}
+
+void MockSimulator::Connect(std::shared_ptr<SimulatorEvents> c)
 {
     core = c;
 }

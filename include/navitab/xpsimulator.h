@@ -38,7 +38,7 @@ namespace navitab {
 struct XPlaneSimulator : public Simulator
 {
     // Factory
-    static std::shared_ptr<XPlaneSimulator> NewXPS(std::shared_ptr<Preferences> p);
+    static std::shared_ptr<XPlaneSimulator> Factory();
 
     // Start, enable, disable and stop events corresponding to the plugin APIs
     virtual void Start() = 0;

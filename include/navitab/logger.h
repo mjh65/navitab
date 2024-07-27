@@ -23,6 +23,10 @@
 #include <memory>
 #include <ostream>
 
+#if defined(LOG) || defined(LOGF) || defined(LOGE) || defined(LOGS) || defined(LOGW) || defined(LOGI) || defined(LOGD)
+#error "Hmmm, Navitab's logging macros could cause problems!"
+#endif
+
 // Logging in the Navitab subsystems uses the LOGx macros which simplify the logging
 // interface (in particular file and line number reporting is automated).
 // However, the macros expand to code that requires a symbol 'LOG' whch is used to

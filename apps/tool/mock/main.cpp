@@ -25,14 +25,18 @@
 
 #include <memory>
 #include "navitab/core.h"
+#include "navitab/simulator.h"
 #include "navitab/logger.h"
 
 
 int main(int arg, char** argv)
 {
+    std::unique_ptr<logging::Logger> LOG;
     std::shared_ptr<navitab::System> nvt;
+    std::shared_ptr<navitab::Simulator> sim;
     try {
         // try to initialise logging and preferences - raises exception if fails
+        LOG = std::make_unique<logging::Logger>("main");
         nvt = navitab::System::GetSystem(navitab::SimEngine::MOCK, navitab::AppClass::CONSOLE);
     }
     catch (navitab::StartupError& e) {
@@ -44,10 +48,11 @@ int main(int arg, char** argv)
 
     // if we get this far then we should have logging enabled, so any further issues
     // can be reported through the logging interface.
-    auto LOG = std::make_unique<logging::Logger>("main");
-
     LOGS("Early init completed, starting and enabling");
     nvt->Start();
+    sim = navitab::Simulator::Factory();
+    sim->SetPrefs(nvt->PrefsManager());
+    sim->Connect(nvt->SetSimulator(sim));
     nvt->Enable();
 
     LOGS("Starting event loop");
@@ -56,7 +61,10 @@ int main(int arg, char** argv)
 
     LOGS("Event loop finished, disabling and stopping");
     nvt->Disable();
+    sim->Disconnect();
+    sim.reset();
     nvt->Stop();
+    nvt.reset();    // Navitab core will now shutdown gracefully
 
     return 0;
 }

@@ -52,11 +52,11 @@ struct SimulatorEvents
 struct Simulator
 {
     // Factory
-    static std::shared_ptr<Simulator> New(std::shared_ptr<Preferences> p);
+    static std::shared_ptr<Simulator> Factory();
 
     // APIs called from the application/plugin
-    // Start, enable, disable and stop events.
-    virtual void Connect(std::shared_ptr<navitab::SimulatorEvents> core) = 0;
+    virtual void SetPrefs(std::shared_ptr<Preferences> prefs) = 0;
+    virtual void Connect(std::shared_ptr<SimulatorEvents> core) = 0;
     virtual void Disconnect() = 0;
 
     // Things that Navitab might want to query from the simulation

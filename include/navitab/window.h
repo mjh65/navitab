@@ -66,7 +66,7 @@ struct Window
     // Factory function to create a GUI window object. There will be
     // one of these in each of the simulator-specific libraries.
     // TODO - use a shared_ptr for the callbacks
-    static std::shared_ptr<Window> New(std::shared_ptr<Preferences> prefs);
+    static std::shared_ptr<Window> Factory();
 
     virtual void Disconnect() = 0;
 

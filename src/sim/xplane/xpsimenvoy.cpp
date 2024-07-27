@@ -30,16 +30,15 @@
 #include "navitab/config.h"
 #include "navitab/core.h"
 
-std::shared_ptr<navitab::XPlaneSimulator> navitab::XPlaneSimulator::NewXPS(std::shared_ptr<navitab::Preferences> prefs)
+std::shared_ptr<navitab::XPlaneSimulator> navitab::XPlaneSimulator::Factory()
 {
-    return std::make_shared<navitab::XPlaneSimulatorEnvoy>(prefs);
+    return std::make_shared<navitab::XPlaneSimulatorEnvoy>();
 }
 
 namespace navitab {
 
-XPlaneSimulatorEnvoy::XPlaneSimulatorEnvoy(std::shared_ptr<Preferences> p)
-:   prefs(p),
-    LOG(std::make_unique<logging::Logger>("simxp")),
+XPlaneSimulatorEnvoy::XPlaneSimulatorEnvoy()
+:   LOG(std::make_unique<logging::Logger>("simxp")),
     flightLoopId(nullptr),
     subMenuIdx(-1),
     subMenu(nullptr)
@@ -47,7 +46,7 @@ XPlaneSimulatorEnvoy::XPlaneSimulatorEnvoy(std::shared_ptr<Preferences> p)
     LOGI("Constructing XPlaneSimulatorEnvoy()");
 }
 
-void XPlaneSimulatorEnvoy::Connect(std::shared_ptr<navitab::SimulatorEvents> cb)
+void XPlaneSimulatorEnvoy::Connect(std::shared_ptr<SimulatorEvents> cb)
 {
     LOGI("Connect() called");
     core = cb;
@@ -148,7 +147,7 @@ void XPlaneSimulatorEnvoy::Enable()
     XPLMMenuID pluginMenu = XPLMFindPluginsMenu();
     subMenuIdx = XPLMAppendMenuItem(pluginMenu, NAVITAB_NAME, nullptr, 0);
     if (subMenuIdx < 0) {
-        throw navitab::StartupError("Couldn't create our menu item");
+        throw StartupError("Couldn't create our menu item");
     }
 
     subMenu = XPLMCreateMenu(NAVITAB_NAME, pluginMenu, subMenuIdx, [](void* ref, void* cb) {
@@ -160,7 +159,7 @@ void XPlaneSimulatorEnvoy::Enable()
 
     if (!subMenu) {
         XPLMRemoveMenuItem(pluginMenu, subMenuIdx);
-        throw navitab::StartupError("Couldn't create our menu");
+        throw StartupError("Couldn't create our menu");
     }
 
     intptr_t idx = menuCallbacks.size();
@@ -243,6 +242,11 @@ XPlaneSimulatorEnvoy::~XPlaneSimulatorEnvoy()
     LOGI("XPlaneSimulatorEnvoy() has now been destroyed");
 }
 
+void XPlaneSimulatorEnvoy::SetPrefs(std::shared_ptr<Preferences> p)
+{
+    prefs = p;
+}
+
 XPLMFlightLoopID XPlaneSimulatorEnvoy::CreateFlightLoop()
 {
     XPLMCreateFlightLoop_t loop;
@@ -259,7 +263,7 @@ XPLMFlightLoopID XPlaneSimulatorEnvoy::CreateFlightLoop()
 
     XPLMFlightLoopID id = XPLMCreateFlightLoop(&loop);
     if (!id) {
-        throw navitab::StartupError("Couldn't create flight loop");
+        throw StartupError("Couldn't create flight loop");
     }
     return id;
 }

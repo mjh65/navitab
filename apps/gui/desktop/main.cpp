@@ -30,10 +30,13 @@
 
 int main(int arg, char** argv)
 {
+    std::unique_ptr<logging::Logger> LOG;
     std::shared_ptr<navitab::System> nvt;
+    std::shared_ptr<navitab::Simulator> sim;
     try {
         // try to initialise logging and preferences - raises exception if fails
-        nvt = navitab::System::GetSystem(navitab::SimEngine::MOCK, navitab::AppClass::CONSOLE);
+        LOG = std::make_unique<logging::Logger>("desktop");
+        nvt = navitab::System::GetSystem(navitab::SimEngine::MOCK, navitab::AppClass::DESKTOP);
     }
     catch (navitab::StartupError& e) {
         // TODO - report anything we can to stderr and then exit
@@ -48,6 +51,12 @@ int main(int arg, char** argv)
 
     LOGS("Early init completed, starting and enabling");
     nvt->Start();
+    sim = navitab::Simulator::Factory();
+    sim->SetPrefs(nvt->PrefsManager());
+    sim->Connect(nvt->SetSimulator(sim));
+    sim->Start();
+
+    sim->Enable();
     nvt->Enable();
 
     LOGS("Starting event loop");
@@ -55,8 +64,14 @@ int main(int arg, char** argv)
     // TODO - in desktop mode we will handover to GL to run the GUI
 
     LOGS("Event loop finished, disabling and stopping");
+    sim->Disable();
     nvt->Disable();
+
+    sim->Stop();
+    sim->Disconnect();
+    sim.reset();
     nvt->Stop();
+    nvt.reset();    // Navitab core will now shutdown gracefully
 
     return 0;
 }

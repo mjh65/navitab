@@ -27,6 +27,8 @@
 #include <Windows.h>
 #include <memory>
 #include "navitab/core.h"
+#include "navitab/simulator.h"
+#include "navitab/logger.h"
 
 // Forward declarations of local functions and shared data
 LRESULT CALLBACK WindowProc(HWND h, UINT msg, WPARAM wp, LPARAM lp);
@@ -43,9 +45,12 @@ int WINAPI WinMain(_In_ HINSTANCE hinst, _In_opt_ HINSTANCE hprev, _In_ LPSTR cm
     c.lpszClassName = WINDOW_CLASS;
     RegisterClass(&c);
 
+    std::unique_ptr<logging::Logger> LOG;
     std::shared_ptr<navitab::System> nvt;
+    std::shared_ptr<navitab::Simulator> sim;
     try {
         // try to initialise logging and preferences - raises exception if fails
+        LOG = std::make_unique<logging::Logger>("desktop");
         nvt = navitab::System::GetSystem(navitab::SimEngine::MOCK, navitab::AppClass::DESKTOP);
     }
     catch (navitab::StartupError& e) {
@@ -56,6 +61,13 @@ int WINAPI WinMain(_In_ HINSTANCE hinst, _In_opt_ HINSTANCE hprev, _In_ LPSTR cm
         // TODO - handle other exceptions
     }
 
+    LOGS("Early init completed, starting and enabling");
+    nvt->Start();
+    sim = navitab::Simulator::Factory();
+    sim->SetPrefs(nvt->PrefsManager());
+    sim->Connect(nvt->SetSimulator(sim));
+    nvt->Enable();
+
     HWND h = CreateWindowEx(0, WINDOW_CLASS, TEXT("Navitab"), WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT, CW_USEDEFAULT, 800, 600, // position and size
         0, 0, hinst, 0);
@@ -63,12 +75,21 @@ int WINAPI WinMain(_In_ HINSTANCE hinst, _In_opt_ HINSTANCE hprev, _In_ LPSTR cm
 
     ShowWindow(h, show);
 
+    LOGS("Starting event loop");
+
     MSG msg = { };
     while (GetMessage(&msg, NULL, 0, 0))
     {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
+
+    LOGS("Event loop finished, disabling and stopping");
+    nvt->Disable();
+    sim->Disconnect();
+    sim.reset();
+    nvt->Stop();
+    nvt.reset();    // Navitab core will now shutdown gracefully
 
     return 0;
 }

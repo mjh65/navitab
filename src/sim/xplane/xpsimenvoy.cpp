@@ -19,6 +19,8 @@
  */
 
 #include "xpsimenvoy.h"
+#include "xpdesktopwin.h"
+#include "xpvrwin.h"
 #include <cassert>
 #include <XPLM/XPLMPlugin.h>
 #include <XPLM/XPLMPlanes.h>
@@ -42,7 +44,8 @@ XPlaneSimulatorEnvoy::XPlaneSimulatorEnvoy()
     xplaneVersion(0), xplmVersion(0), hostId(0), ourId(0),
     flightLoopId(nullptr),
     subMenuIdx(-1),
-    subMenu(nullptr)
+    subMenu(nullptr),
+    isInVRmode(false)
 {
     LOGI("Constructing XPlaneSimulatorEnvoy()");
 }
@@ -189,8 +192,6 @@ void XPlaneSimulatorEnvoy::Enable()
     onPlaneLoaded();
 
     // create the window
-    win = std::make_unique<XPDesktopWindow>();
-    win->Create(prefs, coreWinCallbacks);
     bool showNow = false;
     auto& xwdp = prefs->Get("/xplane/window");
     try {
@@ -198,6 +199,12 @@ void XPlaneSimulatorEnvoy::Enable()
     }
     catch (...) {}
     LOGD(fmt::format("Read open_at_start preference as {}", showNow));
+    if (isInVRmode) {
+        win = std::make_unique<XPVRWindow>();
+    } else {
+        win = std::make_unique<XPDesktopWindow>();
+    }
+    win->Create(prefs, coreWinCallbacks);
     if (showNow) win->Show();
 }
 
@@ -232,7 +239,19 @@ void XPlaneSimulatorEnvoy::onVRmodeChange(bool entering)
 {
     // TODO - test this callback when XP is launched from SteamVR home in VR mode
     LOGI(fmt::format("VR mode change notified: {}", entering ? "entering" : "leaving"));
-    UNIMPLEMENTED("VR mode change");
+    isInVRmode = entering;
+
+    auto active = win->isActive();
+    win->Destroy();
+
+    if (isInVRmode) {
+        win = std::make_unique<XPVRWindow>();
+    }
+    else {
+        win = std::make_unique<XPDesktopWindow>();
+    }
+    win->Create(prefs, coreWinCallbacks);
+    if (active) win->Show();
 }
 
 void XPlaneSimulatorEnvoy::onPlaneLoaded()

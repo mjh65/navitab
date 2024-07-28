@@ -21,6 +21,7 @@
 // this file inspired by XPlaneGUIDriver in Avitab.
 
 #include "xpdesktopwin.h"
+#include <cassert>
 #include <fmt/core.h>
 #include <nlohmann/json.hpp>
 #include "navitab/config.h"
@@ -28,20 +29,8 @@
 
 namespace navitab {
 
-enum {
-    WIN_MIN_WIDTH = 400,
-    WIN_STD_WIDTH = 600,
-    WIN_MAX_WIDTH = 1600,
-    WIN_MIN_HEIGHT = 200,
-    WIN_STD_HEIGHT = 300,
-    WIN_MAX_HEIGHT = 800
-};
-
 XPDesktopWindow::XPDesktopWindow()
-:   LOG(std::make_unique<logging::Logger>("xpdeskwin")),
-    winHandle(nullptr),
-    winClosedWatchdog(0),
-    winVisible(false),
+:   XPlaneWindow("xpdeskwin"),
     winPoppedOut(false),
     winResizePollTimer(0),
     desktopPosition()
@@ -83,7 +72,7 @@ void XPDesktopWindow::Create(std::shared_ptr<Preferences> prefs, std::shared_ptr
         dp = WindowPos(centre);
     }
 
-    // Create an XPlane window
+    // Create an XPlane desktop (floating) window
     XPLMCreateWindow_t cwp;
     cwp.structSize = sizeof(cwp);
     cwp.left = dp.left;
@@ -117,7 +106,6 @@ void XPDesktopWindow::Create(std::shared_ptr<Preferences> prefs, std::shared_ptr
     XPLMSetWindowTitle(winHandle, NAVITAB_NAME " " NAVITAB_VERSION_STR);
     XPLMSetWindowResizingLimits(winHandle, WIN_MIN_WIDTH, WIN_MIN_HEIGHT, WIN_MAX_WIDTH, WIN_MAX_HEIGHT);
     XPLMSetWindowIsVisible(winHandle, winVisible);
-    winClosedWatchdog = 0;
 }
 
 void XPDesktopWindow::Destroy()
@@ -141,7 +129,7 @@ void XPDesktopWindow::Destroy()
     Disconnect();
 }
 
-void XPDesktopWindow::Show()
+void XPDesktopWindow::Show() // TODO - common to desktp/VR ??
 {
     assert(winHandle);
     winVisible = true;
@@ -158,25 +146,6 @@ void XPDesktopWindow::Recentre()
     XPLMSetWindowGeometry(winHandle, dp.left, dp.top, dp.right, dp.bottom);
     XPLMSetWindowPositioningMode(winHandle, xplm_WindowPositionFree, -1);
     Show();
-}
-
-void XPDesktopWindow::onFlightLoop()
-{
-    assert(winHandle);
-
-    // XPLMGetWindowIsVisible() returns true even if the user closed the window.
-    // So, if the window is supposed to be visible then check the watchdog counter.
-    // It gets reset on every call to onDraw. If it reaches 10 then the window is not
-    // being drawn, so it must have been closed!
-    if (winVisible && (++winClosedWatchdog > 10)) {
-        LOGD("Draw callback watchdog has fired, window has been closed");
-        winVisible = false;
-    }
-}
-
-bool XPDesktopWindow::isActive()
-{
-    return winVisible;
 }
 
 int XPDesktopWindow::FrameRate()
@@ -205,7 +174,11 @@ void XPDesktopWindow::onDraw()
         winResizePollTimer = 0;
         winPoppedOut = XPLMWindowIsPoppedOut(winHandle);
         int l, r, t, b;
-        XPLMGetWindowGeometry(winHandle, &l, &t, &r, &b);
+        if (winPoppedOut) {
+            XPLMGetWindowGeometryOS(winHandle, &l, &t, &r, &b);
+        } else {
+            XPLMGetWindowGeometry(winHandle, &l, &t, &r, &b);
+        }
         auto& dp = desktopPosition;
         if ((dp.left != l) || (dp.top != t) || (dp.right != r) || (dp.bottom != b)) {
             // window has been moved or resized

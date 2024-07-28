@@ -28,7 +28,7 @@
 #include <XPLM/XPLMUtilities.h>
 #include <XPLM/XPLMProcessing.h>
 #include <XPLM/XPLMMenus.h>
-#include "xpdesktopwin.h"
+#include "xpwin.h"
 #include "navitab/logger.h"
 
 namespace navitab {
@@ -97,6 +97,7 @@ private:
 
     // window manager
     std::unique_ptr<XPlaneWindow> win;
+    bool isInVRmode;
 
 };
 

@@ -21,12 +21,10 @@
 #pragma once
 
 #include "xpwin.h"
-#include <XPLM/XPLMDisplay.h>
-#include "navitab/logger.h"
 
 namespace navitab {
 
-// XPDesktopWindow manages Navitab's window in XPlane.
+// XPDesktopWindow manages Navitab's desktop (or popped out) window in XPlane.
 
 class XPDesktopWindow : public XPlaneWindow
 {
@@ -42,9 +40,6 @@ public:
     void Destroy() override;
     void Show() override;
     void Recentre() override;
-    void onFlightLoop() override;
-    bool isActive() override;
-
 
 private:
     std::pair<int, int> screenBounds(int& l, int& t, int& r, int& b);
@@ -57,23 +52,9 @@ private:
     XPLMCursorStatus getCursor(int x, int y) { return xplm_CursorDefault; }
 
 private:
-    std::unique_ptr<logging::Logger> LOG;
-    XPLMWindowID winHandle;
-    bool winVisible;
-    bool winPoppedOut;
-    int winClosedWatchdog;
-    int winResizePollTimer;
-
-    struct WindowPos {
-        int left;
-        int top;
-        int right;
-        int bottom;
-        WindowPos(int l, int t, int r, int b) : left(l), top(t), right(r), bottom(b) {}
-        WindowPos() : left(0), top(0), right(0), bottom(0) {}
-        WindowPos(std::pair<int, int>);
-    };
     WindowPos desktopPosition;
+    bool winPoppedOut;
+    int winResizePollTimer;
 
 };
 

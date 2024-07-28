@@ -22,7 +22,6 @@
 
 #include "xpwin.h"
 #include <XPLM/XPLMDisplay.h>
-#include "navitab/logger.h"
 
 namespace navitab {
 
@@ -31,19 +30,19 @@ namespace navitab {
 class XPVRWindow : public XPlaneWindow
 {
 public:
-    XPVRWindow(std::shared_ptr<Preferences> prefs);
+    XPVRWindow();
     ~XPVRWindow();
 
-    void toggle();
-    void recentre();
-    void onFlightLoop();
-    void onVRmodeChange(bool entering);
+    // Implementation of navitab::Window
+    int FrameRate() override;
+
+    // Implementation of navitab::XPlaneWindow
+    void Create(std::shared_ptr<Preferences> prefs, std::shared_ptr<WindowEvents> core) override;
+    void Destroy() override;
+    void Show() override;
+    void Recentre() override;
 
 private:
-    void create();
-    void destroy();
-    std::pair<int, int> screenBounds(int& l, int& t, int& r, int& b);
-
     void onDraw();
     int onLeftClick(int x, int y, XPLMMouseStatus status);
     int onRightClick(int x, int y, XPLMMouseStatus status);
@@ -52,25 +51,6 @@ private:
     XPLMCursorStatus getCursor(int x, int y) { return xplm_CursorDefault; }
 
 private:
-    std::shared_ptr<Preferences> prefs;
-    // logging
-    std::unique_ptr<logging::Logger> LOG;
-    XPLMWindowID winHandle;
-    int visibilityWatchdog;
-    int pollStatusWatchdog;
-    bool VRmode;
-
-    struct WindowPos {
-        int left;
-        int top;
-        int right;
-        int bottom;
-        WindowPos(int l, int t, int r, int b) : left(l), top(t), right(r), bottom(b) {}
-        WindowPos() : left(0), top(0), right(0), bottom(0) {}
-        WindowPos(std::pair<int, int>);
-    };
-    WindowPos desktopPosition;
-    WindowPos vrPosition;
 
 };
 

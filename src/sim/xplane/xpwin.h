@@ -21,6 +21,8 @@
 #pragma once
 
 #include "navitab/window.h"
+#include <XPLM/XPLMDisplay.h>
+#include "navitab/logger.h"
 
 namespace navitab {
 
@@ -31,7 +33,7 @@ namespace navitab {
 class XPlaneWindow : public Window
 {
 public:
-    XPlaneWindow();
+    XPlaneWindow(const char *logId);
     ~XPlaneWindow();
 
     virtual void Create(std::shared_ptr<Preferences> prefs, std::shared_ptr<WindowEvents> core) = 0;
@@ -39,9 +41,10 @@ public:
 
     virtual void Show() = 0;
     virtual void Recentre() = 0;
-    virtual void onFlightLoop() = 0;
 
-    virtual bool isActive() = 0;
+    // common behaviour
+    void onFlightLoop();
+    bool isActive();
 
 protected:
     // these get called internally from the Create/Destroy functions.
@@ -50,8 +53,34 @@ protected:
     void Disconnect() override;
 
 protected:
+    struct WindowPos {
+        int left;
+        int top;
+        int right;
+        int bottom;
+        WindowPos(int l, int t, int r, int b) : left(l), top(t), right(r), bottom(b) {}
+        WindowPos() : left(0), top(0), right(0), bottom(0) {}
+        WindowPos(std::pair<int, int>);
+    };
+
+protected:
     std::shared_ptr<Preferences> prefs;
     std::shared_ptr<WindowEvents> core;
+
+    std::unique_ptr<logging::Logger> LOG;
+    XPLMWindowID winHandle;
+    bool winVisible;
+    int winClosedWatchdog;
+
+protected:
+    enum {
+        WIN_MIN_WIDTH = 400,
+        WIN_STD_WIDTH = 600,
+        WIN_MAX_WIDTH = 1600,
+        WIN_MIN_HEIGHT = 200,
+        WIN_STD_HEIGHT = 300,
+        WIN_MAX_HEIGHT = 800
+    };
 
 };
 

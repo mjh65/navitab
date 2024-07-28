@@ -34,8 +34,6 @@ public:
     void Connect(std::shared_ptr<SimulatorEvents> core) override;
     void Disconnect() override;
 
-    int FrameRate() override;
-
 private:
     std::shared_ptr<Preferences> prefs;
     std::shared_ptr<SimulatorEvents> core;

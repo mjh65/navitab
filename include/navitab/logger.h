@@ -23,7 +23,7 @@
 #include <memory>
 #include <ostream>
 
-#if defined(LOG) || defined(LOGF) || defined(LOGE) || defined(LOGS) || defined(LOGW) || defined(LOGI) || defined(LOGD)
+#if defined(LOG) || defined(LOGF) || defined(LOGE) || defined(LOGS) || defined(LOGW) || defined(LOGI) || defined(LOGD) || defined(UNIMPLEMENTED)
 #error "Hmmm, Navitab's logging macros could cause problems!"
 #endif
 
@@ -41,6 +41,7 @@
 #define LOGI(M) (LOG->Log(__FILE__,__LINE__,logging::Logger::Severity::I,M))
 #define LOGD(M) (LOG->Log(__FILE__,__LINE__,logging::Logger::Severity::D,M))
 
+#define UNIMPLEMENTED(M) LOGE("UNIMPLEMENTED CODE: " M)
 
 namespace logging {
 

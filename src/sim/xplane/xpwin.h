@@ -20,27 +20,40 @@
 
 #pragma once
 
-#include "navitab/simulator.h"
 #include "navitab/window.h"
-#include "navitab/logger.h"
 
 namespace navitab {
 
- // XPlaneSimulator extends simulator to allow the XPlane plugin to interact
- // directly without passing XPlane-specific interactions through the Navitab
- // core.
+// XPlaneWindow extends Navitab Window to provide a common base class for
+// XP desktop and VR windows. This allows the XP plugin to swap between these
+// when the simulation enters and leaves VR mode.
 
-struct XPlaneSimulator : public Simulator {
+class XPlaneWindow : public Window
+{
+public:
+    XPlaneWindow();
+    ~XPlaneWindow();
 
-    // Switching to/from VR mode
-    virtual void onEnteringVR() = 0;
-    virtual void onLeavingVR() = 0;
+    virtual void Create(std::shared_ptr<Preferences> prefs, std::shared_ptr<WindowEvents> core) = 0;
+    virtual void Destroy() = 0;
 
-    // Changing to a new aircraft
-    virtual void onPlaneLoaded() = 0;
+    virtual void Show() = 0;
+    virtual void Recentre() = 0;
+    virtual void onFlightLoop() = 0;
 
-    virtual ~XPlaneSimulator() = default;
+    virtual bool isActive() = 0;
+
+protected:
+    // these get called internally from the Create/Destroy functions.
+    void SetPrefs(std::shared_ptr<Preferences> prefs) override;
+    void Connect(std::shared_ptr<WindowEvents> core) override;
+    void Disconnect() override;
+
+protected:
+    std::shared_ptr<Preferences> prefs;
+    std::shared_ptr<WindowEvents> core;
 
 };
+
 
 } // namespace navitab

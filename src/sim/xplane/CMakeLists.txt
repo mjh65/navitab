@@ -18,7 +18,9 @@
 
 target_sources(navitab_sim_xp PRIVATE
     xpsimenvoy.cpp
+    xpwin.cpp
     xpdesktopwin.cpp
+    xpvrwin.cpp
     datarefexport.cpp
     datarefimport.cpp
 )

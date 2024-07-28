@@ -20,10 +20,11 @@
 
 #pragma once
 
-#include "navitab/xpsimulator.h"
+#include "navitab/xpplugin.h"
 #include <functional>
 #include <vector>
 #include <filesystem>
+#include <cassert>
 #include <XPLM/XPLMUtilities.h>
 #include <XPLM/XPLMProcessing.h>
 #include <XPLM/XPLMMenus.h>
@@ -40,7 +41,8 @@ public:
 
     // Connect/disconnect the XPlane liaison from Navitab. Called when XPlane starts and stops the plugin
     void SetPrefs(std::shared_ptr<Preferences> prefs) override;
-    void Connect(std::shared_ptr<SimulatorEvents> core) override;
+    void Connect(std::shared_ptr<SimulatorEvents> scb, std::shared_ptr<WindowEvents> wcb) override;
+    void Connect(std::shared_ptr<SimulatorEvents>) override { assert(0); }
     void Disconnect() override;
 
     // The main plugin state machine events
@@ -48,8 +50,6 @@ public:
     void Enable() override;
     void Disable() override;
     void Stop() override;
-
-    int FrameRate() override;
 
     void onVRmodeChange(bool entering) override;
     void onPlaneLoaded() override;
@@ -63,13 +63,14 @@ private:
     float onFlightLoop(float elapsedSinceLastCall, float elapseSinceLastLoop, int count);
 
     // menu entry callbacks
-    void toggleWindow();
-    void resetWindowPosition();
+    void showWindow();
+    void recentreWindow();
     void reloadAllPlugins();
 
 private:
     // access to Navitab core
-    std::shared_ptr<SimulatorEvents> core;
+    std::shared_ptr<SimulatorEvents> coreSimCallbacks;
+    std::shared_ptr<WindowEvents> coreWinCallbacks;
     std::shared_ptr<Preferences> prefs;
 
     // logging
@@ -94,8 +95,8 @@ private:
     using MenuCallback = std::function<void()>;
     std::vector<MenuCallback> menuCallbacks;
 
-    // window managers
-    std::unique_ptr<XPDesktopWindow> desktopWindow;
+    // window manager
+    std::unique_ptr<XPlaneWindow> win;
 
 };
 

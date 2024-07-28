@@ -24,7 +24,7 @@
 #include <XPLM/XPLMDefs.h>
 #include <XPLM/XPLMPlugin.h>
 #include "navitab/core.h"
-#include "navitab/xpsimulator.h"
+#include "navitab/xpplugin.h"
 #include "navitab/logger.h"
 
 // these are variables representing global state that will be referenced by all
@@ -33,6 +33,7 @@
 std::unique_ptr<logging::Logger> LOG;
 std::shared_ptr<navitab::System> nvt;
 std::shared_ptr<navitab::XPlaneSimulator> sim;
+// there is no separate management of the XPlane window here, it's handled by the sim envoy.
 
 PLUGIN_API int XPluginStart(char* outName, char* outSignature, char* outDescription)
 {
@@ -60,7 +61,9 @@ PLUGIN_API int XPluginStart(char* outName, char* outSignature, char* outDescript
         nvt->Start();
         sim = navitab::XPlaneSimulator::Factory();
         sim->SetPrefs(nvt->PrefsManager());
-        sim->Connect(nvt->SetSimulator(sim));
+        auto si = nvt->GetSimulatorInterface();
+        si->SetSimulator(sim);
+        sim->Connect(si, nvt->GetWindowInterface());
         sim->Start();
         LOGS("XPluginStart: remaining init completed");
     }

@@ -1,8 +1,8 @@
 /*
- *  Navitab - Navigation Tablet for VR flight simulation
- *  Copyright (c) 2024 Michael Hasling
+ *  Navitab - Navigation tablet for VR flight simulation
+ *  Copyright (C) 2024 Michael Hasling
  *  Significantly derived from Avitab
- *  Copyright (c) 2018-2024 Folke Will
+ *  Copyright (C) 2018-2024 Folke Will <folko@solhost.org>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published by
@@ -18,35 +18,8 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "mocksim.h"
-
-std::shared_ptr<navitab::Simulator> navitab::Simulator::Factory()
-{
-    return std::make_shared<navitab::MockSimulator>();
-}
+#include "xpvrwin.h"
 
 namespace navitab {
 
-MockSimulator::MockSimulator()
-{
 }
-
-MockSimulator::~MockSimulator()
-{
-}
-
-void MockSimulator::SetPrefs(std::shared_ptr<Preferences> p)
-{
-    prefs = p;
-}
-
-void MockSimulator::Connect(std::shared_ptr<SimulatorEvents> c)
-{
-    core = c;
-}
-
-void MockSimulator::Disconnect()
-{
-}
-
-} // namespace navitab

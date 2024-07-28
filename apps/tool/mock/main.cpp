@@ -26,6 +26,7 @@
 #include <memory>
 #include "navitab/core.h"
 #include "navitab/simulator.h"
+#include "navitab/window.h"
 #include "navitab/logger.h"
 
 
@@ -34,6 +35,7 @@ int main(int arg, char** argv)
     std::unique_ptr<logging::Logger> LOG;
     std::shared_ptr<navitab::System> nvt;
     std::shared_ptr<navitab::Simulator> sim;
+    std::shared_ptr<navitab::Window> win;
     try {
         // try to initialise logging and preferences - raises exception if fails
         LOG = std::make_unique<logging::Logger>("main");
@@ -50,9 +52,13 @@ int main(int arg, char** argv)
     // can be reported through the logging interface.
     LOGS("Early init completed, starting and enabling");
     nvt->Start();
+    auto p = nvt->PrefsManager();
     sim = navitab::Simulator::Factory();
-    sim->SetPrefs(nvt->PrefsManager());
-    sim->Connect(nvt->SetSimulator(sim));
+    sim->SetPrefs(p);
+    sim->Connect(nvt->GetSimulatorInterface());
+    //win = navitab::Window::Factory(); // TODO - need something here before we can move along
+    win->SetPrefs(p);
+    win->Connect(nvt->GetWindowInterface());
     nvt->Enable();
 
     LOGS("Starting event loop");
@@ -60,11 +66,14 @@ int main(int arg, char** argv)
     // TODO - in console mode we need to run an event loop
 
     LOGS("Event loop finished, disabling and stopping");
+
     nvt->Disable();
+    win->Disconnect();
+    win.reset();
     sim->Disconnect();
     sim.reset();
     nvt->Stop();
-    nvt.reset();    // Navitab core will now shutdown gracefully
+    nvt.reset();
 
     return 0;
 }

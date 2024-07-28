@@ -37,103 +37,48 @@ enum {
     WIN_MAX_HEIGHT = 800
 };
 
-XPDesktopWindow::XPDesktopWindow(std::shared_ptr<Preferences> p)
-:   prefs(p),
-    LOG(std::make_unique<logging::Logger>("xpwin")),
+XPDesktopWindow::XPDesktopWindow()
+:   LOG(std::make_unique<logging::Logger>("xpdeskwin")),
     winHandle(nullptr),
     winClosedWatchdog(0),
-    winVisible(true),
+    winVisible(false),
+    winPoppedOut(false),
     winResizePollTimer(0),
     desktopPosition()
 {
-    // get the preferences relating to the desktop window so that it can be
-    // opened in the same location as it was on the last run.
-    bool openNow = false;
+}
+
+XPDesktopWindow::~XPDesktopWindow()
+{
+    assert(!winHandle);
+}
+
+void XPDesktopWindow::Create(std::shared_ptr<Preferences> prefs, std::shared_ptr<WindowEvents> core)
+{
+    SetPrefs(prefs);
+    Connect(core);
+
     auto& xwdp = prefs->Get("/xplane/window/desktop");
     try {
         desktopPosition.left = xwdp.at("/left"_json_pointer);
         desktopPosition.top = xwdp.at("/top"_json_pointer);
         desktopPosition.right = xwdp.at("/right"_json_pointer);
         desktopPosition.bottom = xwdp.at("/bottom"_json_pointer);
-        openNow = xwdp.at("/open_on_load"_json_pointer);
     }
     catch (...) {}
-    auto& dp = desktopPosition;
+    auto& dp = desktopPosition; // an alias to reduce line lengths!
     LOGD(fmt::format("desktop window (construction) ({},{}) -> ({},{})", dp.left, dp.top, dp.right, dp.bottom));
 
-    if (openNow) create();
-}
-
-XPDesktopWindow::~XPDesktopWindow()
-{
-    auto& dp = desktopPosition;
-    LOGD(fmt::format("saving desktop window position ({},{}) -> ({},{})", dp.left, dp.top, dp.right, dp.bottom));
-    auto xwdp = prefs->Get("/xplane/window/desktop");
-    xwdp["left"] = desktopPosition.left;
-    xwdp["top"] = desktopPosition.top;
-    xwdp["right"] = desktopPosition.right;
-    xwdp["bottom"] = desktopPosition.bottom;
-    xwdp["visible"] = (winHandle != nullptr);
-    prefs->Put("/xplane/window/desktop", xwdp);
-
-    destroy();
-}
-
-void XPDesktopWindow::toggle()
-{
-    if (!winHandle) {
-        create();
-    } else {
-        destroy();
-    }
-}
-
-void XPDesktopWindow::recentre()
-{
-    int sleft, stop, sright, sbottom;
-    auto centre = screenBounds(sleft, stop, sright, sbottom);
-    desktopPosition = WindowPos(centre);
-    auto& dp = desktopPosition;
-    if (!winHandle) {
-        create();
-    } else {
-        XPLMSetWindowGeometry(winHandle, dp.left, dp.top, dp.right, dp.bottom);
-    }
-}
-
-void XPDesktopWindow::showHide(bool show)
-{
-    winVisible = show;
-    if (winHandle) XPLMSetWindowIsVisible(winHandle, winVisible);
-}
-
-void XPDesktopWindow::onFlightLoop()
-{
-    if (winHandle && winVisible) {
-        // if the window exists and is supposed to be visible then check the
-        // watchdog. if it reaches 10 then the window was closed (we don't get a callback for that)
-        if (++winClosedWatchdog > 10) {
-            LOGI("Draw callback watchdog has fired, window has been closed");
-            destroy();
-        }
-    }
-}
-
-void XPDesktopWindow::create()
-{
-    if (winHandle) return;
-
-    // TODO - add VR support later
+    assert(!winHandle);
 
     int sleft, stop, sright, sbottom;
     auto centre = screenBounds(sleft, stop, sright, sbottom);
 
     // sanity check that the desktop window position will fit into the screen bounds?
-    auto &dp = desktopPosition; // just aliasing really
     int w = dp.right - dp.left;
     int h = dp.top - dp.bottom;
     if ((w < WIN_MIN_WIDTH) || (w > WIN_MAX_WIDTH) || (h < WIN_MIN_HEIGHT) || (h > WIN_MAX_HEIGHT)
-            || (dp.left < sleft) || (dp.right >= sright) || (dp.bottom < sbottom) || (dp.top >= stop)) {
+                || (dp.left < sleft) || (dp.right >= sright) || (dp.bottom < sbottom) || (dp.top >= stop)) {
         LOGD("recentering non-conformant window");
         dp = WindowPos(centre);
     }
@@ -171,16 +116,75 @@ void XPDesktopWindow::create()
     LOGD(fmt::format("XPLMCreateWindowEx() -> {}", winHandle));
     XPLMSetWindowTitle(winHandle, NAVITAB_NAME " " NAVITAB_VERSION_STR);
     XPLMSetWindowResizingLimits(winHandle, WIN_MIN_WIDTH, WIN_MIN_HEIGHT, WIN_MAX_WIDTH, WIN_MAX_HEIGHT);
+    XPLMSetWindowIsVisible(winHandle, winVisible);
     winClosedWatchdog = 0;
 }
 
-void XPDesktopWindow::destroy()
+void XPDesktopWindow::Destroy()
 {
-    if (!winHandle) return;
+    assert(winHandle);
+
+    auto& dp = desktopPosition;
+    LOGD(fmt::format("saving desktop window position ({},{}) -> ({},{})", dp.left, dp.top, dp.right, dp.bottom));
+    auto xwdp = prefs->Get("/xplane/window/desktop");
+    xwdp["left"] = desktopPosition.left;
+    xwdp["top"] = desktopPosition.top;
+    xwdp["right"] = desktopPosition.right;
+    xwdp["bottom"] = desktopPosition.bottom;
+    xwdp["visible"] = (winHandle != nullptr);
+    prefs->Put("/xplane/window/desktop", xwdp);
+
     LOGD(fmt::format("XPLMDestroyWindow({})", winHandle));
     XPLMDestroyWindow(winHandle);
     winHandle = nullptr;
+
+    Disconnect();
 }
+
+void XPDesktopWindow::Show()
+{
+    assert(winHandle);
+    winVisible = true;
+    XPLMSetWindowIsVisible(winHandle, true);
+}
+
+void XPDesktopWindow::Recentre()
+{
+    assert(winHandle);
+    int sleft, stop, sright, sbottom;
+    auto centre = screenBounds(sleft, stop, sright, sbottom);
+    desktopPosition = WindowPos(centre);
+    auto& dp = desktopPosition;
+    XPLMSetWindowGeometry(winHandle, dp.left, dp.top, dp.right, dp.bottom);
+    XPLMSetWindowPositioningMode(winHandle, xplm_WindowPositionFree, -1);
+    Show();
+}
+
+void XPDesktopWindow::onFlightLoop()
+{
+    assert(winHandle);
+
+    // XPLMGetWindowIsVisible() returns true even if the user closed the window.
+    // So, if the window is supposed to be visible then check the watchdog counter.
+    // It gets reset on every call to onDraw. If it reaches 10 then the window is not
+    // being drawn, so it must have been closed!
+    if (winVisible && (++winClosedWatchdog > 10)) {
+        LOGD("Draw callback watchdog has fired, window has been closed");
+        winVisible = false;
+    }
+}
+
+bool XPDesktopWindow::isActive()
+{
+    return winVisible;
+}
+
+int XPDesktopWindow::FrameRate()
+{
+    // TODO - implement calculation - may be in common base class
+    return 1;
+}
+
 
 std::pair<int, int> XPDesktopWindow::screenBounds(int& l, int& t, int& r, int& b)
 {
@@ -191,30 +195,33 @@ std::pair<int, int> XPDesktopWindow::screenBounds(int& l, int& t, int& r, int& b
 
 void XPDesktopWindow::onDraw()
 {
-    // TODO - adapt this for VR window
-    if (!winHandle) return;
+    assert(winHandle);
+
     // if we get a draw request then the window must be visible, so cancel the watchdog
     winClosedWatchdog = 0;
-    // check the window position and size every 30 frames. don't need to do this
-    // every frame, so keep the overheads down
+
+    // check the window position and size. don't need to do this every frame, to keep the overheads down
     if (++winResizePollTimer > 30) {
         winResizePollTimer = 0;
+        winPoppedOut = XPLMWindowIsPoppedOut(winHandle);
         int l, r, t, b;
         XPLMGetWindowGeometry(winHandle, &l, &t, &r, &b);
         auto& dp = desktopPosition;
-        // right and/or bottom position will change on move and on resize so only need to test these
-        if ((dp.right != r) || (dp.bottom != b)) {
+        if ((dp.left != l) || (dp.top != t) || (dp.right != r) || (dp.bottom != b)) {
             // window has been moved or resized
             int dw = (r - l) - (dp.right - dp.left);
             int dh = (t - b) - (dp.top - dp.bottom);
             if (dw || dh) {
                 LOGD(fmt::format("resized -> {} x {}", r - l, t - b));
+                core->onWindowResize(r - l, t - b);
             } else {
-                LOGD(fmt::format("moved -> {},{}", l, t));
+                LOGD(fmt::format("moved -> top-left {},{}", l, t));
             }
             desktopPosition = WindowPos(l, t, r, b);
         }
     }
+
+    // TODO - still need to do the drawing stuff!
 }
 
 int XPDesktopWindow::onLeftClick(int x, int y, XPLMMouseStatus status)

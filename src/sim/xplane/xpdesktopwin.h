@@ -20,28 +20,33 @@
 
 #pragma once
 
+#include "xpwin.h"
 #include <XPLM/XPLMDisplay.h>
-#include "navitab/simulator.h"
 #include "navitab/logger.h"
 
 namespace navitab {
 
 // XPDesktopWindow manages Navitab's window in XPlane.
 
-class XPDesktopWindow
+class XPDesktopWindow : public XPlaneWindow
 {
 public:
-    XPDesktopWindow(std::shared_ptr<Preferences> prefs);
+    XPDesktopWindow();
     ~XPDesktopWindow();
 
-    void toggle();
-    void recentre();
-    void showHide(bool show);
-    void onFlightLoop();
+    // Implementation of navitab::Window
+    int FrameRate() override;
+
+    // Implementation of navitab::XPlaneWindow
+    void Create(std::shared_ptr<Preferences> prefs, std::shared_ptr<WindowEvents> core) override;
+    void Destroy() override;
+    void Show() override;
+    void Recentre() override;
+    void onFlightLoop() override;
+    bool isActive() override;
+
 
 private:
-    void create();
-    void destroy();
     std::pair<int, int> screenBounds(int& l, int& t, int& r, int& b);
 
     void onDraw();
@@ -52,10 +57,10 @@ private:
     XPLMCursorStatus getCursor(int x, int y) { return xplm_CursorDefault; }
 
 private:
-    std::shared_ptr<Preferences> prefs;
     std::unique_ptr<logging::Logger> LOG;
     XPLMWindowID winHandle;
     bool winVisible;
+    bool winPoppedOut;
     int winClosedWatchdog;
     int winResizePollTimer;
 

@@ -102,14 +102,24 @@ Navitab::~Navitab()
     LOGS("~Navitab() done");
 }
 
-std::shared_ptr<SimulatorEvents> Navitab::SetSimulator(std::shared_ptr<Simulator>)
+std::shared_ptr<SimulatorEvents> Navitab::GetSimulatorInterface()
 {
     return shared_from_this();
 }
 
-std::shared_ptr<WindowEvents> Navitab::SetWindow(std::shared_ptr<Window>)
+std::shared_ptr<WindowEvents> Navitab::GetWindowInterface()
 {
     return shared_from_this();
+}
+
+void Navitab::SetSimulator(std::shared_ptr<Simulator>)
+{
+    UNIMPLEMENTED("set member for simulator calls");
+}
+
+void Navitab::SetWindow(std::shared_ptr<Window>)
+{
+    UNIMPLEMENTED("set member for window calls");
 }
 
 void Navitab::Start()
@@ -158,11 +168,6 @@ void Navitab::Stop()
     }
 }
 
-//std::shared_ptr<Simulator> Navitab::SimEnvironment()
-//{
-//    return simEnv;
-//}
-
 std::shared_ptr<Preferences> Navitab::PrefsManager()
 {
     return prefs;
@@ -178,25 +183,29 @@ std::filesystem::path Navitab::DataFilesPath()
 // browsing start for the user's resources, eg charts, docs
 std::filesystem::path Navitab::UserResourcesPath()
 {
-    return std::filesystem::path(); // TODO
+    UNIMPLEMENTED("");
+    return std::filesystem::path();
 }
 
 // browsing start for any aircraft documents
 std::filesystem::path Navitab::AircraftResourcesPath()
 {
-    return std::filesystem::path(); // TODO
+    UNIMPLEMENTED("");
+    return std::filesystem::path();
 }
 
 // browsing start for flight plans / routes
 std::filesystem::path Navitab::FlightPlansPath()
 {
-    return std::filesystem::path(); // TODO
+    UNIMPLEMENTED("");
+    return std::filesystem::path();
 }
 
 // directory containing the current Navitab executable
 std::filesystem::path Navitab::NavitabPath()
 {
-    return std::filesystem::path(); // TODO
+    UNIMPLEMENTED("");
+    return std::filesystem::path();
 }
 
 void Navitab::onFlightLoop()
@@ -205,23 +214,32 @@ void Navitab::onFlightLoop()
 
 void Navitab::onWindowResize(int width, int height)
 {
+    UNIMPLEMENTED("");
+    // need to be quick, don't hold up the simulator
 }
 
 void Navitab::onMouseEvent(int x, int y, bool l, bool r)
 {
+    UNIMPLEMENTED("");
+    // need to be quick, don't hold up the simulator
 }
 
 void Navitab::onWheelEvent(int x, int y, int xdir, int ydir)
 {
+    UNIMPLEMENTED("");
+    // need to be quick, don't hold up the simulator
 }
 
 void Navitab::onKeyEvent(char code)
 {
+    UNIMPLEMENTED("");
+    // need to be quick, don't hold up the simulator
 }
-
 
 bool Navitab::getUpdateRegion()
 {
+    UNIMPLEMENTED("");
+    // need to be quick, don't hold up the simulator
     return false;
 }
 

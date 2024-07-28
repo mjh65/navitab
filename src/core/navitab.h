@@ -45,8 +45,8 @@ public:
     // System base class overrides
     
     // hook up with simulator and window
-    std::shared_ptr<SimulatorEvents> SetSimulator(std::shared_ptr<Simulator>) override;
-    std::shared_ptr<WindowEvents> SetWindow(std::shared_ptr<Window>) override;
+    std::shared_ptr<SimulatorEvents> GetSimulatorInterface() override;
+    std::shared_ptr<WindowEvents> GetWindowInterface() override;
 
     // Startup and shutdown control - fine-grained enough to support all app classes.
     void Start() override;    // TODO - called from XPluginStart - review this in SDK and Avitab
@@ -73,23 +73,17 @@ public:
     // directory containing the current Navitab executable
     std::filesystem::path NavitabPath() override;
 
-    // SimulatorEvents
+    // SimulatorEvents implementation
     
-    // called from simulator on simulator's thread
+    void SetSimulator(std::shared_ptr<Simulator>) override;
     void onFlightLoop() override;
 
-    // WindowEvents
+    // WindowEvents implementation
     
-    // called when the window is resized.
+    void SetWindow(std::shared_ptr<Window>) override;
     void onWindowResize(int width, int height) override;
-
-    // called when mouse events occur
     void onMouseEvent(int x, int y, bool l, bool r) override;
-
-    // called when scroll wheel events occur
     void onWheelEvent(int x, int y, int xdir, int ydir) override;
-
-    // called when key events occur
     void onKeyEvent(char code) override;
 
     // TODO the frame buffer interface needs some thought, just have a placeholder for now

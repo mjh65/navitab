@@ -28,6 +28,7 @@
 #include <memory>
 #include "navitab/core.h"
 #include "navitab/simulator.h"
+#include "navitab/window.h"
 #include "navitab/logger.h"
 
 // Forward declarations of local functions and shared data
@@ -48,6 +49,7 @@ int WINAPI WinMain(_In_ HINSTANCE hinst, _In_opt_ HINSTANCE hprev, _In_ LPSTR cm
     std::unique_ptr<logging::Logger> LOG;
     std::shared_ptr<navitab::System> nvt;
     std::shared_ptr<navitab::Simulator> sim;
+    std::shared_ptr<navitab::Window> win;
     try {
         // try to initialise logging and preferences - raises exception if fails
         LOG = std::make_unique<logging::Logger>("desktop");
@@ -62,10 +64,15 @@ int WINAPI WinMain(_In_ HINSTANCE hinst, _In_opt_ HINSTANCE hprev, _In_ LPSTR cm
     }
 
     LOGS("Early init completed, starting and enabling");
+
     nvt->Start();
+    auto p = nvt->PrefsManager();
     sim = navitab::Simulator::Factory();
-    sim->SetPrefs(nvt->PrefsManager());
-    sim->Connect(nvt->SetSimulator(sim));
+    sim->SetPrefs(p);
+    sim->Connect(nvt->GetSimulatorInterface());
+    win = navitab::Window::Factory();
+    win->SetPrefs(p);
+    win->Connect(nvt->GetWindowInterface());
     nvt->Enable();
 
     HWND h = CreateWindowEx(0, WINDOW_CLASS, TEXT("Navitab"), WS_OVERLAPPEDWINDOW,

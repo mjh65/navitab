@@ -21,6 +21,7 @@
 #pragma once
 
 #include "simulator.h"
+#include "window.h"
 #include <memory>
 
  /*
@@ -39,6 +40,9 @@ struct XPlaneSimulator : public Simulator
 {
     // Factory
     static std::shared_ptr<XPlaneSimulator> Factory();
+
+    // APIs called from the application/plugin
+    virtual void Connect(std::shared_ptr<SimulatorEvents> sc, std::shared_ptr<WindowEvents> wc) = 0;
 
     // Start, enable, disable and stop events corresponding to the plugin APIs
     virtual void Start() = 0;

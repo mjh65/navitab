@@ -39,6 +39,7 @@ namespace navitab {
 
 XPlaneSimulatorEnvoy::XPlaneSimulatorEnvoy()
 :   LOG(std::make_unique<logging::Logger>("simxp")),
+    xplaneVersion(0), xplmVersion(0), hostId(0), ourId(0),
     flightLoopId(nullptr),
     subMenuIdx(-1),
     subMenu(nullptr)
@@ -46,22 +47,30 @@ XPlaneSimulatorEnvoy::XPlaneSimulatorEnvoy()
     LOGI("Constructing XPlaneSimulatorEnvoy()");
 }
 
-void XPlaneSimulatorEnvoy::Connect(std::shared_ptr<SimulatorEvents> cb)
+void XPlaneSimulatorEnvoy::SetPrefs(std::shared_ptr<Preferences> p)
+{
+    prefs = p;
+}
+
+void XPlaneSimulatorEnvoy::Connect(std::shared_ptr<SimulatorEvents> scb, std::shared_ptr<WindowEvents> wcb)
 {
     LOGI("Connect() called");
-    core = cb;
+    coreSimCallbacks = scb;
+    coreWinCallbacks = wcb;
 }
 
 void XPlaneSimulatorEnvoy::Disconnect()
 {
     LOGI("Disonnect() called");
-    core.reset();
+    coreSimCallbacks.reset();
+    coreWinCallbacks.reset();
 }
 
 void XPlaneSimulatorEnvoy::Start()
 {
     LOGI("Start() called");
-    assert(core);
+    assert(coreSimCallbacks);
+    assert(coreWinCallbacks);
     XPLMEnableFeature("XPLM_USE_NATIVE_PATHS", 1); // 
     XPLMDebugString("NaviTab version " NAVITAB_VERSION_STR "\n");
 
@@ -138,7 +147,8 @@ void XPlaneSimulatorEnvoy::Enable()
 {
     // this is done in response to the XPluginStart() entry point
     LOGI("Enable() called");
-    assert(core);
+    assert(coreSimCallbacks);
+    assert(coreWinCallbacks);
 
     // In Avitab quite a lot of this stuff seems to be in the Avitab class,
     // although it feels like it should be simulator specific, so in Navitab
@@ -163,12 +173,12 @@ void XPlaneSimulatorEnvoy::Enable()
     }
 
     intptr_t idx = menuCallbacks.size();
-    menuCallbacks.push_back([this] { toggleWindow(); });
-    XPLMAppendMenuItem(subMenu, "Toggle window", reinterpret_cast<void*>(idx), 0);
+    menuCallbacks.push_back([this] { showWindow(); });
+    XPLMAppendMenuItem(subMenu, "Show window", reinterpret_cast<void*>(idx), 0);
 
     idx = menuCallbacks.size();
-    menuCallbacks.push_back([this] { resetWindowPosition(); });
-    XPLMAppendMenuItem(subMenu, "Reset position", reinterpret_cast<void*>(idx), 0);
+    menuCallbacks.push_back([this] { recentreWindow(); });
+    XPLMAppendMenuItem(subMenu, "Recentre window", reinterpret_cast<void*>(idx), 0);
 
     // TODO - we probably want to add this menu item only in debug builds??
     idx = menuCallbacks.size();
@@ -178,10 +188,17 @@ void XPlaneSimulatorEnvoy::Enable()
     // find out what plane is being flown
     onPlaneLoaded();
 
-    // TODO - this is where the window creation should be done
-    // see AviTab::startApp()
-
-    desktopWindow = std::make_unique<XPDesktopWindow>(prefs);
+    // create the window
+    win = std::make_unique<XPDesktopWindow>();
+    win->Create(prefs, coreWinCallbacks);
+    bool showNow = false;
+    auto& xwdp = prefs->Get("/xplane/window");
+    try {
+        showNow = xwdp.at("/open_at_start"_json_pointer);
+    }
+    catch (...) {}
+    LOGD(fmt::format("Read open_at_start preference as {}", showNow));
+    if (showNow) win->Show();
 }
 
 void XPlaneSimulatorEnvoy::Disable()
@@ -189,9 +206,14 @@ void XPlaneSimulatorEnvoy::Disable()
     // this is done in response to the XPluginDisable() entry point
     LOGI("Disable() called");
 
-    // TODO - save the window position for next time, and destroy the window
-    // see AviTab::stopApp()
-    desktopWindow.reset();
+    // save the window state for next time
+    auto xwdp = prefs->Get("/xplane/window");
+    xwdp["open_at_start"] = win->isActive();
+    prefs->Put("/xplane/window", xwdp);
+    LOGD(fmt::format("Wrote open_at_start preference to {}", win->isActive()));
+
+    win->Destroy();
+    win.reset();
 
     if (subMenu) {
         XPLMDestroyMenu(subMenu);
@@ -206,17 +228,11 @@ void XPlaneSimulatorEnvoy::Stop()
     LOGI("Stop() called");
 }
 
-int XPlaneSimulatorEnvoy::FrameRate()
-{
-    // TODO needs an implementation
-    return 1;
-}
-
 void XPlaneSimulatorEnvoy::onVRmodeChange(bool entering)
 {
     // TODO - test this callback when XP is launched from SteamVR home in VR mode
     LOGI(fmt::format("VR mode change notified: {}", entering ? "entering" : "leaving"));
-    if (desktopWindow) desktopWindow->showHide(!entering);
+    UNIMPLEMENTED("VR mode change");
 }
 
 void XPlaneSimulatorEnvoy::onPlaneLoaded()
@@ -239,12 +255,7 @@ XPlaneSimulatorEnvoy::~XPlaneSimulatorEnvoy()
         XPLMDestroyFlightLoop(flightLoopId);
         flightLoopId = nullptr;
     }
-    LOGI("XPlaneSimulatorEnvoy() has now been destroyed");
-}
-
-void XPlaneSimulatorEnvoy::SetPrefs(std::shared_ptr<Preferences> p)
-{
-    prefs = p;
+    LOGD("XPlaneSimulatorEnvoy() has now been destroyed");
 }
 
 XPLMFlightLoopID XPlaneSimulatorEnvoy::CreateFlightLoop()
@@ -298,22 +309,22 @@ float XPlaneSimulatorEnvoy::onFlightLoop(float elapsedSinceLastCall, float elaps
 
     runEnvironmentCallbacks();
 #endif
-    if (desktopWindow) desktopWindow->onFlightLoop();
-    core->onFlightLoop();
+    if (win) win->onFlightLoop();
+    coreSimCallbacks->onFlightLoop();
 
     return -1;
 }
 
-void XPlaneSimulatorEnvoy::toggleWindow()
+void XPlaneSimulatorEnvoy::showWindow()
 {
-    LOGI("Toggle window menu callback");
-    if (desktopWindow) desktopWindow->toggle();
+    LOGD("Show window menu callback");
+    if (win) win->Show();
 }
 
-void XPlaneSimulatorEnvoy::resetWindowPosition()
+void XPlaneSimulatorEnvoy::recentreWindow()
 {
-    LOGI("Reset window position menu callback");
-    if (desktopWindow) desktopWindow->recentre();
+    LOGD("Recentre window menu callback");
+    if (win) win->Recentre();
 }
 
 // Reloading the plugins is a convenience during development. This menu

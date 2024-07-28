@@ -20,14 +20,15 @@
 
 #pragma once
 
+#include "xpwin.h"
 #include <XPLM/XPLMDisplay.h>
-#include "xpcommon.h"
+#include "navitab/logger.h"
 
 namespace navitab {
 
 // XPVRWindow manages Navitab's window in XPlane.
 
-class XPVRWindow
+class XPVRWindow : public XPlaneWindow
 {
 public:
     XPVRWindow(std::shared_ptr<Preferences> prefs);

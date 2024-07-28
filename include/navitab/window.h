@@ -31,23 +31,29 @@
 namespace navitab {
 
 class Preferences;
+struct Window;
 
 // The WindowEvents interface is how the UI window implementation provides
 // events to and gets UI updates from the Navitab core.
 
 struct WindowEvents
 {
+    // Set the window that Navitab will work with. May be called several times
+    // if the client window changes, eg switching to/from VR.
+    virtual void SetWindow(std::shared_ptr<Window>) = 0;
 
-    // called when the window is resized.
+    // UI-triggered events notified to the Navitab core for further handling
+
+    // Called at start, and then whenever the window is resized.
     virtual void onWindowResize(int width, int height) = 0;
 
-    // called when mouse events occur
+    // Called when a mouse event occurs. Includes movement while a button is down
     virtual void onMouseEvent(int x, int y, bool l, bool r) = 0;
 
-    // called when scroll wheel events occur
+    // Called when scroll wheel events occur.
     virtual void onWheelEvent(int x, int y, int xdir, int ydir) = 0;
 
-    // called when key events occur
+    // Called when key events occur.
     virtual void onKeyEvent(char code) = 0;
 
     // TODO the frame buffer interface needs some thought, just have a placeholder for now
@@ -65,10 +71,16 @@ struct Window
 
     // Factory function to create a GUI window object. There will be
     // one of these in each of the simulator-specific libraries.
-    // TODO - use a shared_ptr for the callbacks
     static std::shared_ptr<Window> Factory();
 
+    // APIs called from the application/plugin
+    virtual void SetPrefs(std::shared_ptr<Preferences> prefs) = 0;
+    virtual void Connect(std::shared_ptr<WindowEvents> core) = 0;
     virtual void Disconnect() = 0;
+
+    // Access to the window from Navitab core
+    // ...
+    virtual int FrameRate() = 0;
 
     virtual ~Window() = default;
 };

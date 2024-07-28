@@ -32,6 +32,7 @@
 namespace navitab {
 
 class Preferences;
+struct Simulator;
 
 // The SimulatorEvents interface defines services that the simulator
 // requires from the Navitab core. Calls to these services will generally
@@ -39,6 +40,9 @@ class Preferences;
 
 struct SimulatorEvents
 {
+    // Set the simulator that Navitab will work with. Only expected to be
+    // called once.
+    virtual void SetSimulator(std::shared_ptr<Simulator>) = 0;
 
     // called from the simulator thread on each flight loop.
     virtual void onFlightLoop() = 0;
@@ -59,8 +63,8 @@ struct Simulator
     virtual void Connect(std::shared_ptr<SimulatorEvents> core) = 0;
     virtual void Disconnect() = 0;
 
-    // Things that Navitab might want to query from the simulation
-    virtual int FrameRate() = 0;
+    // Access to the simulator from Navitab core
+    // ...
 
     virtual ~Simulator() = default;
 

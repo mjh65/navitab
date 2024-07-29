@@ -16,14 +16,10 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# These are the external projects
-# Most of them use CMake's FetchContent feature rather than git's submodule
-# Each one is in it's own subdirectory so that CMake cache variables can be
-# localised to the external project if required.
+# Formatting library, adds fmt::fmt to C++ namespace
 
-add_subdirectory(fmtlib)
-add_subdirectory(lvgl)
-add_subdirectory(json)
-add_subdirectory(lunasvg)
-#add_subdirectory(slint)
-#add_subdirectory(imgui)
+message(STATUS "Fetching lunasvg")
+FetchContent_Declare(lunasvg
+    URL "https://github.com/sammycage/lunasvg/archive/refs/tags/v2.4.0.zip"
+)
+FetchContent_MakeAvailable(lunasvg)

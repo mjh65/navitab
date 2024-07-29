@@ -16,27 +16,9 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# Desktop UI program using mock simulator, for interactive UI testing
+# Any [abstract] interfaces that are used by the different executables
+# are found in NAVITAB_API_DIR. All other headers that are internal to
+# the Navitab core system are referenced using relative paths from the
+# including file.
 
-#add_executable(navitab_desktop WIN32 MACOSX_BUNDLE)
-add_executable(navitab_desktop)
-
-target_link_libraries(navitab_desktop
-    navitab_core
-    navitab_sim_mock
-    navitab_win_glfw
-)
-
-target_sources(navitab_desktop PRIVATE main.cpp)
-
-if(WIN32)
-#    target_sources(navitab_desktop PRIVATE win32main.cpp)
-#    target_compile_definitions(navitab_desktop PRIVATE UNICODE)
-#    if(MSVC)
-#        target_link_options(navitab_desktop PRIVATE /municode)
-#    endif()
-elseif(APPLE)
-elseif(UNIX)
-endif()
-
-install(TARGETS navitab_desktop DESTINATION navitab/tools)
+add_subdirectory(glfw)

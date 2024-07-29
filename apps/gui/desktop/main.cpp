@@ -56,7 +56,7 @@ int main(int arg, char** argv)
     sim = navitab::Simulator::Factory();
     sim->SetPrefs(p);
     sim->Connect(nvt->GetSimulatorInterface());
-    //win = navitab::Window::Factory(); // TODO - need something here before we can move along
+    win = navitab::Window::Factory();
     win->SetPrefs(p);
     win->Connect(nvt->GetWindowInterface());
     nvt->Enable();

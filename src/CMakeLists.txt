@@ -21,34 +21,46 @@
 # the Navitab core system are referenced using relative paths from the
 # including file.
 
-#include_directories("${NAVITAB_API_DIR}")
 configure_file(config.h.in "${PROJECT_BINARY_DIR}/navitab/config.h")
 
 # The Navitab sources are built into one core library for all executables,
-# and simulator-specific libraries for X-Plane, Flight Simulator and the
-# mock simulator (for development and test).
-# Each executable will link the core library, and the relevant
-# simulator-specific library.
+# simulator-specific libraries for X-Plane, Flight Simulator and the mock
+# simulator (for development and test), and UI-window libraries.
+# Each executable will link the core library, and whichever simulation
+# and UI-window libraries are prescribed.
 
+# All of the core Navitab classes are put in here
 add_library(navitab_core)
 target_include_directories(navitab_core PRIVATE
     "${NAVITAB_API_DIR}"
     "${PROJECT_BINARY_DIR}"
 )
 
+# The mock simulator generates random or scripted events for the Navitab core.
 add_library(navitab_sim_mock)
 target_include_directories(navitab_sim_mock PRIVATE
     "${NAVITAB_API_DIR}"
     "${PROJECT_BINARY_DIR}"
 )
+
+# The glfw window library provides a desktop GUI window interface to the Navitab core.
+add_library(navitab_win_glfw)
+target_include_directories(navitab_win_glfw PRIVATE
+    "${NAVITAB_API_DIR}"
+    "${PROJECT_BINARY_DIR}"
+)
+
 if(XPLANE_SDK)
+    # The XPlane library provides interfacing to XPlane for both simulator and window interfaces.
     add_library(navitab_sim_xp)
     target_include_directories(navitab_sim_xp PRIVATE
         "${NAVITAB_API_DIR}"
         "${PROJECT_BINARY_DIR}"
     )
 endif()
+
 if(MSFS_SDK)
+    # The MSFS library provides interfacing to MSFS for both simulator and window interfaces.
     add_library(navitab_sim_msfs)
     target_include_directories(navitab_sim_msfs PRIVATE
         "${NAVITAB_API_DIR}"
@@ -61,3 +73,5 @@ add_subdirectory(platform)
 add_subdirectory(lvglcpp)
 add_subdirectory(charts)
 add_subdirectory(sim)
+add_subdirectory(win)
+

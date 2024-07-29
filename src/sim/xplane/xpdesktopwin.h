@@ -55,6 +55,9 @@ private:
     bool winPoppedOut;
     int winResizePollTimer;
 
+    bool leftButtonPressed;
+    bool rightButtonPressed;
+
 };
 
 } // namespace navitab

@@ -55,6 +55,7 @@ protected:
     void ProdWatchdog();
     bool UpdateWinGeometry(); // returns true if the size changed
     bool isVisible() const { return winVisible; }
+    void ScreenToWindow(int& x, int& y);
 
 protected:
     std::shared_ptr<Preferences> prefs;
@@ -66,7 +67,7 @@ protected:
 
 private:
     int winDrawWatchdog;
-    int wgl, wgt, wgr, wgb; // window geometry, last observed
+    int wgl, wgt, wgr, wgb; // most recently observed window geometry
     bool winVisible;
 
 protected:

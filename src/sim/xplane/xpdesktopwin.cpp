@@ -34,7 +34,8 @@ XPDesktopWindow::XPDesktopWindow()
 :   XPlaneWindow("xpdeskwin"),
     winPoppedOut(false),
     winResizePollTimer(0),
-    winLeft(10), winTop(WIN_STD_HEIGHT + 10)
+    winLeft(10), winTop(WIN_STD_HEIGHT + 10),
+    leftButtonPressed(false), rightButtonPressed(false)
 {
 }
 
@@ -186,12 +187,13 @@ int XPDesktopWindow::onLeftClick(int x, int y, XPLMMouseStatus status)
             XPLMBringWindowToFront(winHandle);
         }
     }
+    leftButtonPressed = (status == xplm_MouseDown) || (status == xplm_MouseDrag);
 
-    // x,y in screen, not window coordinates
-    // use the general XPLMGetWindowGeometry() API, it works for both floating and popped out windows
-    int l, r, t, b;
-    XPLMGetWindowGeometry(winHandle, &l, &t, &r, &b);
-    LOGD(fmt::format("onLeftClick({},{},{}) in win lt/rb {},{} -> {},{}", x, y, status, l, t, r, b));
+    // x,y in screen, not window coordinates, we need to convert them,
+    // and also into our GUI normal form: 0,0 at top-left.
+    ScreenToWindow(x, y);
+    LOGD(fmt::format("Mouse event at {},{} (local coordinates)", x, y));
+    core->onMouseEvent(x, y, leftButtonPressed, rightButtonPressed);
     return 1;
 }
 
@@ -204,9 +206,12 @@ int XPDesktopWindow::onRightClick(int x, int y, XPLMMouseStatus status)
             XPLMBringWindowToFront(winHandle);
         }
     }
+    rightButtonPressed = (status == xplm_MouseDown) || (status == xplm_MouseDrag);
 
-    // x,y in screen, not window coordinates
-    LOGD(fmt::format("onRightClick({},{},{})", x, y, status));
+    // x,y in screen, not window coordinates, we need to convert them,
+    // and also into our GUI normal form: 0,0 at top-left.
+    ScreenToWindow(x, y);
+    core->onMouseEvent(x, y, leftButtonPressed, rightButtonPressed);
     return 1;
 }
 

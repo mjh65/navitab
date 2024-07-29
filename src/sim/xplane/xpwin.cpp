@@ -124,6 +124,12 @@ bool XPlaneWindow::UpdateWinGeometry()
     return false;
 }
 
+void XPlaneWindow::ScreenToWindow(int& x, int& y)
+{
+    x = x - wgl;
+    y = winHeight - (y - wgb);
+}
+
 bool XPlaneWindow::isActive()
 {
     return winVisible;

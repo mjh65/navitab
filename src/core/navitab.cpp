@@ -220,7 +220,7 @@ void Navitab::onWindowResize(int width, int height)
 
 void Navitab::onMouseEvent(int x, int y, bool l, bool r)
 {
-    UNIMPLEMENTED("");
+    UNIMPLEMENTED("mouse event");
     // need to be quick, don't hold up the simulator
 }
 

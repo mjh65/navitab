@@ -21,6 +21,7 @@
 // this file inspired by XPlaneGUIDriver in Avitab.
 
 #include "xpdesktopwin.h"
+#include <algorithm>
 #include <cassert>
 #include <fmt/core.h>
 #include <nlohmann/json.hpp>
@@ -33,7 +34,7 @@ XPDesktopWindow::XPDesktopWindow()
 :   XPlaneWindow("xpdeskwin"),
     winPoppedOut(false),
     winResizePollTimer(0),
-    desktopPosition()
+    winLeft(10), winTop(WIN_STD_HEIGHT + 10)
 {
 }
 
@@ -49,36 +50,33 @@ void XPDesktopWindow::Create(std::shared_ptr<Preferences> prefs, std::shared_ptr
 
     auto& xwdp = prefs->Get("/xplane/window/desktop");
     try {
-        desktopPosition.left = xwdp.at("/left"_json_pointer);
-        desktopPosition.top = xwdp.at("/top"_json_pointer);
-        desktopPosition.right = xwdp.at("/right"_json_pointer);
-        desktopPosition.bottom = xwdp.at("/bottom"_json_pointer);
+        winLeft = xwdp.at("/left"_json_pointer);
+        winTop = xwdp.at("/top"_json_pointer);
     }
     catch (...) {}
-    auto& dp = desktopPosition; // an alias to reduce line lengths!
-    LOGD(fmt::format("desktop window (construction) ({},{}) -> ({},{})", dp.left, dp.top, dp.right, dp.bottom));
+    LOGD(fmt::format("desktop window (construction) ({}x{}) at ({},{})", winWidth, winHeight, winLeft, winTop));
 
     assert(!winHandle);
 
-    int sleft, stop, sright, sbottom;
-    auto centre = screenBounds(sleft, stop, sright, sbottom);
+    int sLeft, sTop, sRight, sBottom;
+    auto centre = screenCentre(sLeft, sTop, sRight, sBottom);
 
-    // sanity check that the desktop window position will fit into the screen bounds?
-    int w = dp.right - dp.left;
-    int h = dp.top - dp.bottom;
-    if ((w < WIN_MIN_WIDTH) || (w > WIN_MAX_WIDTH) || (h < WIN_MIN_HEIGHT) || (h > WIN_MAX_HEIGHT)
-                || (dp.left < sleft) || (dp.right >= sright) || (dp.bottom < sbottom) || (dp.top >= stop)) {
-        LOGD("recentering non-conformant window");
-        dp = WindowPos(centre);
-    }
+    // sanity check that the desktop window position will have some part of the
+    // window title bar visible (and therefore grabbable!)
+    winTop = std::min(winTop, sTop - 70);
+    winTop = std::max(winTop, sBottom + 20);
+    winLeft = std::min(winLeft, sRight - 40);
+    auto wr = winLeft + winWidth;
+    wr = std::max(wr, sLeft + 40);
+    winLeft = wr - winWidth;
 
     // Create an XPlane desktop (floating) window
     XPLMCreateWindow_t cwp;
     cwp.structSize = sizeof(cwp);
-    cwp.left = dp.left;
-    cwp.top = dp.top;
-    cwp.right = dp.right;
-    cwp.bottom = dp.bottom;
+    cwp.left = winLeft;
+    cwp.top = winTop;
+    cwp.right = winLeft + winWidth;
+    cwp.bottom = winTop - winHeight;
     cwp.visible = true;
     cwp.refcon = reinterpret_cast<void*>(this);
     cwp.layer = xplm_WindowLayerFloatingWindows;
@@ -105,21 +103,17 @@ void XPDesktopWindow::Create(std::shared_ptr<Preferences> prefs, std::shared_ptr
     LOGD(fmt::format("XPLMCreateWindowEx() -> {}", winHandle));
     XPLMSetWindowTitle(winHandle, NAVITAB_NAME " " NAVITAB_VERSION_STR);
     XPLMSetWindowResizingLimits(winHandle, WIN_MIN_WIDTH, WIN_MIN_HEIGHT, WIN_MAX_WIDTH, WIN_MAX_HEIGHT);
-    XPLMSetWindowIsVisible(winHandle, winVisible);
+    XPLMSetWindowIsVisible(winHandle, isVisible());
 }
 
 void XPDesktopWindow::Destroy()
 {
     assert(winHandle);
 
-    auto& dp = desktopPosition;
-    LOGD(fmt::format("saving desktop window position ({},{}) -> ({},{})", dp.left, dp.top, dp.right, dp.bottom));
+    LOGD(fmt::format("saving desktop window position ({},{})", winLeft, winTop));
     auto xwdp = prefs->Get("/xplane/window/desktop");
-    xwdp["left"] = desktopPosition.left;
-    xwdp["top"] = desktopPosition.top;
-    xwdp["right"] = desktopPosition.right;
-    xwdp["bottom"] = desktopPosition.bottom;
-    xwdp["visible"] = (winHandle != nullptr);
+    xwdp["left"] = winLeft;
+    xwdp["top"] = winTop;
     prefs->Put("/xplane/window/desktop", xwdp);
 
     LOGD(fmt::format("XPLMDestroyWindow({})", winHandle));
@@ -133,10 +127,11 @@ void XPDesktopWindow::Recentre()
 {
     assert(winHandle);
     int sleft, stop, sright, sbottom;
-    auto centre = screenBounds(sleft, stop, sright, sbottom);
-    desktopPosition = WindowPos(centre);
-    auto& dp = desktopPosition;
-    XPLMSetWindowGeometry(winHandle, dp.left, dp.top, dp.right, dp.bottom);
+    auto centre = screenCentre(sleft, stop, sright, sbottom);
+    winLeft = centre.first - (WIN_STD_WIDTH / 2);
+    winTop = centre.second + (WIN_STD_HEIGHT / 2);
+    winWidth = WIN_STD_WIDTH; winHeight = WIN_STD_HEIGHT;
+    XPLMSetWindowGeometry(winHandle, winLeft, winTop, winLeft + winWidth, winTop - winHeight);
     XPLMSetWindowPositioningMode(winHandle, xplm_WindowPositionFree, -1);
     Show();
 }
@@ -148,7 +143,7 @@ int XPDesktopWindow::FrameRate()
 }
 
 
-std::pair<int, int> XPDesktopWindow::screenBounds(int& l, int& t, int& r, int& b)
+std::pair<int, int> XPDesktopWindow::screenCentre(int& l, int& t, int& r, int& b)
 {
     XPLMGetScreenBoundsGlobal(&l, &t, &r, &b);
     LOGD(fmt::format("Screen bounds (LTRB): {},{} -> {},{}", l, t, r, b));
@@ -160,7 +155,7 @@ void XPDesktopWindow::onDraw()
     assert(winHandle);
 
     // if we get a draw request then the window must be visible, so cancel the watchdog
-    winClosedWatchdog = 0;
+    prodWatchdog();
 
     // check the window position and size. don't need to do this every frame, to keep the overheads down
     if (++winResizePollTimer > 30) {
@@ -172,18 +167,16 @@ void XPDesktopWindow::onDraw()
         } else {
             XPLMGetWindowGeometry(winHandle, &l, &t, &r, &b);
         }
-        auto& dp = desktopPosition;
-        if ((dp.left != l) || (dp.top != t) || (dp.right != r) || (dp.bottom != b)) {
-            // window has been moved or resized
-            int dw = (r - l) - (dp.right - dp.left);
-            int dh = (t - b) - (dp.top - dp.bottom);
-            if (dw || dh) {
-                LOGD(fmt::format("resized -> {} x {}", r - l, t - b));
-                core->onWindowResize(r - l, t - b);
-            } else {
-                LOGD(fmt::format("moved -> top-left {},{}", l, t));
-            }
-            desktopPosition = WindowPos(l, t, r, b);
+        int w = r - l;
+        int h = t - b;
+        if ((w != winWidth) || (h != winHeight)) {
+            winWidth = w; winHeight = h;
+            LOGD(fmt::format("resized -> width-height {}x{}", winWidth, winHeight));
+            core->onWindowResize(winWidth, winHeight);
+        }
+        if ((l != winLeft) || (t != winTop)) {
+            winLeft = l; winTop = t;
+            LOGD(fmt::format("moved -> left-top {},{}", l, t));
         }
     }
 

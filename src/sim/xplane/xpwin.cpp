@@ -20,6 +20,9 @@
 
 #include "xpwin.h"
 #include <cassert>
+#include <fmt/core.h>
+#include <nlohmann/json.hpp>
+#include "navitab/core.h"
 
 namespace navitab {
 
@@ -27,7 +30,9 @@ XPlaneWindow::XPlaneWindow(const char* logId)
 :   LOG(std::make_unique<logging::Logger>(logId)),
     winHandle(nullptr),
     winVisible(false),
-    winClosedWatchdog(0)
+    winDrawWatchdog(0),
+    winWidth(WIN_STD_WIDTH),
+    winHeight(WIN_STD_HEIGHT)
 {
 }
 
@@ -39,6 +44,7 @@ void XPlaneWindow::Show()
 {
     assert(winHandle);
     winVisible = true;
+    winDrawWatchdog = 0;
     XPLMSetWindowIsVisible(winHandle, true);
 }
 
@@ -49,9 +55,9 @@ void XPlaneWindow::onFlightLoop()
     // XPLMGetWindowIsVisible() returns true even if the user closed the window.
     // So, if the window is supposed to be visible then check the watchdog counter.
     // It gets reset on every call to onDraw. If it reaches 10 then the window is not
-    // being drawn, so it must have been closed!
-    if (winVisible && (++winClosedWatchdog > 10)) {
-        LOGD("Draw callback watchdog has fired, window has been closed");
+    // being drawn. It might have been closed, or moved off-screen. Either way ...
+    if (winVisible && (++winDrawWatchdog > 10)) {
+        LOGD("Draw callback watchdog has fired, window is not visible");
         winVisible = false;
     }
 }
@@ -64,6 +70,15 @@ bool XPlaneWindow::isActive()
 void XPlaneWindow::SetPrefs(std::shared_ptr<Preferences> p)
 {
     prefs = p;
+    auto& xwdp = prefs->Get("/xplane/window");
+    try {
+        winWidth = xwdp.at("/width"_json_pointer);
+        winHeight = xwdp.at("/height"_json_pointer);
+    }
+    catch (...) {}
+    // apply the constraints immediately
+    winWidth = std::min(std::max(winWidth, (int)WIN_MIN_WIDTH), (int)WIN_MAX_WIDTH);
+    winHeight = std::min(std::max(winHeight, (int)WIN_MIN_HEIGHT), (int)WIN_MAX_HEIGHT);
 }
 
 void XPlaneWindow::Connect(std::shared_ptr<WindowEvents> wcb)
@@ -73,16 +88,23 @@ void XPlaneWindow::Connect(std::shared_ptr<WindowEvents> wcb)
 
 void XPlaneWindow::Disconnect()
 {
+    winWidth = std::min(std::max(winWidth, (int)WIN_MIN_WIDTH), (int)WIN_MAX_WIDTH);
+    winHeight = std::min(std::max(winHeight, (int)WIN_MIN_HEIGHT), (int)WIN_MAX_HEIGHT);
+    LOGD(fmt::format("saving window dimensions ({}x{})", winWidth, winHeight));
+    auto xwdp = prefs->Get("/xplane/window");
+    xwdp["width"] = winWidth;
+    xwdp["height"] = winHeight;
+    prefs->Put("/xplane/window", xwdp);
+
     core.reset();
 }
 
-XPlaneWindow::WindowPos::WindowPos(std::pair<int, int> centre)
+void XPlaneWindow::prodWatchdog()
 {
-    left = centre.first - (WIN_STD_WIDTH / 2);
-    top = centre.second + (WIN_STD_HEIGHT / 2);
-    right = left + WIN_STD_WIDTH;
-    bottom = top - WIN_STD_HEIGHT;
+    // The watchdog prod comes from the onDraw() callback, and this only
+    // happens if the window is visible.
+    winDrawWatchdog = 0;
+    winVisible = true;
 }
-
 
 } // namespace navitab

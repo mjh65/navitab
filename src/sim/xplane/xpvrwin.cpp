@@ -28,8 +28,7 @@ namespace navitab {
 
 XPVRWindow::XPVRWindow()
 :   XPlaneWindow("xpvrwin"),
-    winResizePollTimer(0),
-    width(0), height(0)
+    winResizePollTimer(0)
 {
 }
 
@@ -53,8 +52,8 @@ void XPVRWindow::Create(std::shared_ptr<Preferences> prefs, std::shared_ptr<Wind
     XPLMCreateWindow_t cwp;
     cwp.structSize = sizeof(cwp);
     cwp.left = 0;
-    cwp.top = WIN_STD_HEIGHT;
-    cwp.right = WIN_STD_WIDTH;
+    cwp.top = 0;
+    cwp.right = 0;
     cwp.bottom = 0;
     cwp.visible = true;
     cwp.refcon = reinterpret_cast<void*>(this);
@@ -80,10 +79,11 @@ void XPVRWindow::Create(std::shared_ptr<Preferences> prefs, std::shared_ptr<Wind
         };
     winHandle = XPLMCreateWindowEx(&cwp);
     LOGD(fmt::format("XPLMCreateWindowEx() -> {}", winHandle));
-    XPLMSetWindowTitle(winHandle, NAVITAB_NAME " " NAVITAB_VERSION_STR);
-    XPLMSetWindowResizingLimits(winHandle, WIN_STD_WIDTH - 10, WIN_STD_HEIGHT - 10, WIN_STD_WIDTH + 10, WIN_STD_HEIGHT + 10);
     XPLMSetWindowPositioningMode(winHandle, xplm_WindowVR, -1);
-    XPLMSetWindowIsVisible(winHandle, winVisible);
+    XPLMSetWindowTitle(winHandle, NAVITAB_NAME " " NAVITAB_VERSION_STR);
+    XPLMSetWindowGeometryVR(winHandle, winWidth, winHeight);
+    XPLMSetWindowResizingLimits(winHandle, WIN_MIN_WIDTH, WIN_MIN_HEIGHT, WIN_MAX_WIDTH, WIN_MAX_HEIGHT);
+    XPLMSetWindowIsVisible(winHandle, isVisible());
 }
 
 void XPVRWindow::Destroy()
@@ -109,18 +109,18 @@ void XPVRWindow::onDraw()
     assert(winHandle);
 
     // if we get a draw request then the window must be visible, so cancel the watchdog
-    winClosedWatchdog = 0;
+    prodWatchdog();
 
     // check the window position and size. don't need to do this every frame, to keep the overheads down
     if (++winResizePollTimer > 30) {
         winResizePollTimer = 0;
         int w, h;
         XPLMGetWindowGeometryVR(winHandle, &w, &h);
-        if ((width != w) || (height != h)) {
-            LOGD(fmt::format("resized -> {} x {}", w, h));
-            core->onWindowResize(w, h);
+        if ((w != winWidth) || (h != winHeight)) {
+            winWidth = w; winHeight = h;
+            LOGD(fmt::format("resized -> {}x{}", winWidth, winHeight));
+            core->onWindowResize(winWidth, winHeight);
         }
-        width = w; height = h;
     }
 
     // TODO - still need to do the drawing stuff!

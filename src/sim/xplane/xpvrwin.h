@@ -51,7 +51,6 @@ private:
 
 private:
     int winResizePollTimer;
-    int width, height;
 
 };
 

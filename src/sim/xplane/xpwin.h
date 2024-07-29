@@ -52,16 +52,8 @@ protected:
     void Connect(std::shared_ptr<WindowEvents> core) override;
     void Disconnect() override;
 
-protected:
-    struct WindowPos {
-        int left;
-        int top;
-        int right;
-        int bottom;
-        WindowPos(int l, int t, int r, int b) : left(l), top(t), right(r), bottom(b) {}
-        WindowPos() : left(0), top(0), right(0), bottom(0) {}
-        WindowPos(std::pair<int, int>);
-    };
+    void prodWatchdog();
+    bool isVisible() const { return winVisible; }
 
 protected:
     std::shared_ptr<Preferences> prefs;
@@ -69,17 +61,21 @@ protected:
 
     std::unique_ptr<logging::Logger> LOG;
     XPLMWindowID winHandle;
+    int winWidth, winHeight;
+
+private:
     bool winVisible;
-    int winClosedWatchdog;
+    int winDrawWatchdog;
 
 protected:
+    // TODO - these constants should go somewhere central
     enum {
         WIN_MIN_WIDTH = 400,
         WIN_STD_WIDTH = 600,
-        WIN_MAX_WIDTH = 1600,
+        WIN_MAX_WIDTH = 1000,
         WIN_MIN_HEIGHT = 200,
         WIN_STD_HEIGHT = 300,
-        WIN_MAX_HEIGHT = 800
+        WIN_MAX_HEIGHT = 600
     };
 
 };

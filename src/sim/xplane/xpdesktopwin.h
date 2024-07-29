@@ -41,7 +41,7 @@ public:
     void Recentre() override;
 
 private:
-    std::pair<int, int> screenBounds(int& l, int& t, int& r, int& b);
+    std::pair<int, int> screenCentre(int& l, int& t, int& r, int& b);
 
     void onDraw();
     int onLeftClick(int x, int y, XPLMMouseStatus status);
@@ -51,7 +51,7 @@ private:
     XPLMCursorStatus getCursor(int x, int y) { return xplm_CursorDefault; }
 
 private:
-    WindowPos desktopPosition;
+    int winLeft, winTop;
     bool winPoppedOut;
     int winResizePollTimer;
 

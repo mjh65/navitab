@@ -26,8 +26,8 @@
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
 #else
-#include <GL/gl.h>
-#include <GL/glext.h>
+//#include <GL/gl.h>
+//#include <GL/glext.h>
 #endif
 
 std::shared_ptr<navitab::Window> navitab::Window::Factory()
@@ -59,6 +59,7 @@ void WindowGLFW::Disconnect()
 
 int WindowGLFW::FrameRate()
 {
+    return 1;
 }
 
 } // namespace navitab

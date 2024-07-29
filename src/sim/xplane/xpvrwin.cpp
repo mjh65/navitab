@@ -27,7 +27,9 @@
 namespace navitab {
 
 XPVRWindow::XPVRWindow()
-:   XPlaneWindow("xpvrwin")
+:   XPlaneWindow("xpvrwin"),
+    winResizePollTimer(0),
+    width(0), height(0)
 {
 }
 
@@ -47,7 +49,7 @@ void XPVRWindow::Create(std::shared_ptr<Preferences> prefs, std::shared_ptr<Wind
 
     assert(!winHandle);
 
-    // Create an XPlane desktop (floating) window
+    // Create an XPlane VR (floating) window
     XPLMCreateWindow_t cwp;
     cwp.structSize = sizeof(cwp);
     cwp.left = 0;
@@ -78,9 +80,9 @@ void XPVRWindow::Create(std::shared_ptr<Preferences> prefs, std::shared_ptr<Wind
         };
     winHandle = XPLMCreateWindowEx(&cwp);
     LOGD(fmt::format("XPLMCreateWindowEx() -> {}", winHandle));
-    XPLMSetWindowPositioningMode(winHandle, xplm_WindowVR, -1);
     XPLMSetWindowTitle(winHandle, NAVITAB_NAME " " NAVITAB_VERSION_STR);
-    XPLMSetWindowResizingLimits(winHandle, WIN_MIN_WIDTH, WIN_MIN_HEIGHT, WIN_MAX_WIDTH, WIN_MAX_HEIGHT);
+    XPLMSetWindowResizingLimits(winHandle, WIN_STD_WIDTH - 10, WIN_STD_HEIGHT - 10, WIN_STD_WIDTH + 10, WIN_STD_HEIGHT + 10);
+    XPLMSetWindowPositioningMode(winHandle, xplm_WindowVR, -1);
     XPLMSetWindowIsVisible(winHandle, winVisible);
 }
 
@@ -95,39 +97,63 @@ void XPVRWindow::Destroy()
     Disconnect();
 }
 
-void XPVRWindow::Show()
-{
-    UNIMPLEMENTED("Show()"); // but likely to be moved to base class
-    winVisible = true;
-    XPLMSetWindowIsVisible(winHandle, true);
-}
-
 void XPVRWindow::Recentre()
 {
-    UNIMPLEMENTED("Recentre()");
+    assert(winHandle);
+    XPLMSetWindowGeometryVR(winHandle, WIN_STD_WIDTH, WIN_STD_HEIGHT);
+    Show();
 }
 
 void XPVRWindow::onDraw()
 {
+    assert(winHandle);
+
+    // if we get a draw request then the window must be visible, so cancel the watchdog
+    winClosedWatchdog = 0;
+
+    // check the window position and size. don't need to do this every frame, to keep the overheads down
+    if (++winResizePollTimer > 30) {
+        winResizePollTimer = 0;
+        int w, h;
+        XPLMGetWindowGeometryVR(winHandle, &w, &h);
+        if ((width != w) || (height != h)) {
+            LOGD(fmt::format("resized -> {} x {}", w, h));
+            core->onWindowResize(w, h);
+        }
+        width = w; height = h;
+    }
+
+    // TODO - still need to do the drawing stuff!
 }
 
 int XPVRWindow::onLeftClick(int x, int y, XPLMMouseStatus status)
 {
+    // x,y in screen, not window coordinates
+    int l, r, t, b;
+    XPLMGetWindowGeometry(winHandle, &l, &t, &r, &b);
+    int w, h;
+    XPLMGetWindowGeometryVR(winHandle, &w, &h);
+    LOGD(fmt::format("onLeftClick({},{},{}) in win({},{}) lt/rb {},{} -> {},{}", x, y, status, w, h, l, t, r, b));
     return 1;
 }
 
 int XPVRWindow::onRightClick(int x, int y, XPLMMouseStatus status)
 {
+    // x,y in screen, not window coordinates
+    LOGD(fmt::format("onRightClick({},{},{})", x, y, status));
     return 1;
 }
 
 int XPVRWindow::onMouseWheel(int x, int y, int wheel, int clicks)
 {
+    // x,y in screen, not window coordinates
+    LOGD(fmt::format("onMouseWheel({},{},{},{})", x, y, wheel, clicks));
     return 1;
 }
 
 void XPVRWindow::onKey(char key, XPLMKeyFlags flags, char vKey, int losingFocus)
 {
+    LOGD(fmt::format("onKey({},{},{},{})", (int)key, flags, (int)vKey, losingFocus));
 }
 
 }

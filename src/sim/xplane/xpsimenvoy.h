@@ -28,6 +28,7 @@
 #include <XPLM/XPLMUtilities.h>
 #include <XPLM/XPLMProcessing.h>
 #include <XPLM/XPLMMenus.h>
+#include <XPLM/XPLMDataAccess.h>
 #include "xpwin.h"
 #include "navitab/logger.h"
 
@@ -94,6 +95,9 @@ private:
     XPLMMenuID subMenu;
     using MenuCallback = std::function<void()>;
     std::vector<MenuCallback> menuCallbacks;
+
+    // simulation datarefs
+    XPLMDataRef vrModeDataRef;
 
     // window manager
     std::unique_ptr<XPlaneWindow> win;

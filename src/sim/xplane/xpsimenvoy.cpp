@@ -48,6 +48,8 @@ XPlaneSimulatorEnvoy::XPlaneSimulatorEnvoy()
     isInVRmode(false)
 {
     LOGI("Constructing XPlaneSimulatorEnvoy()");
+    vrModeDataRef = XPLMFindDataRef("sim/graphics/VR/enabled");
+    if (!vrModeDataRef) throw LogFatal("required XPlane dataref not found");
 }
 
 void XPlaneSimulatorEnvoy::SetPrefs(std::shared_ptr<Preferences> p)
@@ -199,6 +201,7 @@ void XPlaneSimulatorEnvoy::Enable()
     }
     catch (...) {}
     LOGD(fmt::format("Read open_at_start preference as {}", showNow));
+    isInVRmode = (XPLMGetDatai(vrModeDataRef) != 0);
     if (isInVRmode) {
         win = std::make_unique<XPVRWindow>();
     } else {
@@ -237,7 +240,6 @@ void XPlaneSimulatorEnvoy::Stop()
 
 void XPlaneSimulatorEnvoy::onVRmodeChange(bool entering)
 {
-    // TODO - test this callback when XP is launched from SteamVR home in VR mode
     LOGI(fmt::format("VR mode change notified: {}", entering ? "entering" : "leaving"));
     isInVRmode = entering;
 

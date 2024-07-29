@@ -35,6 +35,13 @@ XPlaneWindow::~XPlaneWindow()
 {
 }
 
+void XPlaneWindow::Show()
+{
+    assert(winHandle);
+    winVisible = true;
+    XPLMSetWindowIsVisible(winHandle, true);
+}
+
 void XPlaneWindow::onFlightLoop()
 {
     assert(winHandle);
@@ -68,5 +75,14 @@ void XPlaneWindow::Disconnect()
 {
     core.reset();
 }
+
+XPlaneWindow::WindowPos::WindowPos(std::pair<int, int> centre)
+{
+    left = centre.first - (WIN_STD_WIDTH / 2);
+    top = centre.second + (WIN_STD_HEIGHT / 2);
+    right = left + WIN_STD_WIDTH;
+    bottom = top - WIN_STD_HEIGHT;
+}
+
 
 } // namespace navitab

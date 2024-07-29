@@ -129,13 +129,6 @@ void XPDesktopWindow::Destroy()
     Disconnect();
 }
 
-void XPDesktopWindow::Show() // TODO - common to desktp/VR ??
-{
-    assert(winHandle);
-    winVisible = true;
-    XPLMSetWindowIsVisible(winHandle, true);
-}
-
 void XPDesktopWindow::Recentre()
 {
     assert(winHandle);
@@ -200,7 +193,10 @@ void XPDesktopWindow::onDraw()
 int XPDesktopWindow::onLeftClick(int x, int y, XPLMMouseStatus status)
 {
     // x,y in screen, not window coordinates
-    LOGD(fmt::format("onLeftClick({},{},{})", x, y, status));
+    // use the general XPLMGetWindowGeometry() API, it works for both floating and popped out windows
+    int l, r, t, b;
+    XPLMGetWindowGeometry(winHandle, &l, &t, &r, &b);
+    LOGD(fmt::format("onLeftClick({},{},{}) in win lt/rb {},{} -> {},{}", x, y, status, l, t, r, b));
     return 1;
 }
 
@@ -221,14 +217,6 @@ int XPDesktopWindow::onMouseWheel(int x, int y, int wheel, int clicks)
 void XPDesktopWindow::onKey(char key, XPLMKeyFlags flags, char vKey, int losingFocus)
 {
     LOGD(fmt::format("onKey({},{},{},{})", (int)key, flags, (int)vKey, losingFocus));
-}
-
-XPDesktopWindow::WindowPos::WindowPos(std::pair<int, int> centre)
-{
-    left = centre.first - (WIN_STD_WIDTH / 2);
-    top = centre.second + (WIN_STD_HEIGHT / 2);
-    right = left + WIN_STD_WIDTH;
-    bottom = top - WIN_STD_HEIGHT;
 }
 
 } // namespace navitab

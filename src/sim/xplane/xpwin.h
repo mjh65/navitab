@@ -39,10 +39,10 @@ public:
     virtual void Create(std::shared_ptr<Preferences> prefs, std::shared_ptr<WindowEvents> core) = 0;
     virtual void Destroy() = 0;
 
-    virtual void Show() = 0;
     virtual void Recentre() = 0;
 
     // common behaviour
+    void Show();
     void onFlightLoop();
     bool isActive();
 

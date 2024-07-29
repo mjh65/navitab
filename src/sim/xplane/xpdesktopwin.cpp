@@ -123,16 +123,17 @@ void XPDesktopWindow::Destroy()
     Disconnect();
 }
 
-void XPDesktopWindow::Recentre()
+void XPDesktopWindow::Reset()
 {
     assert(winHandle);
     int sleft, stop, sright, sbottom;
     auto centre = screenCentre(sleft, stop, sright, sbottom);
-    winLeft = centre.first - (WIN_STD_WIDTH / 2);
-    winTop = centre.second + (WIN_STD_HEIGHT / 2);
-    winWidth = WIN_STD_WIDTH; winHeight = WIN_STD_HEIGHT;
-    XPLMSetWindowGeometry(winHandle, winLeft, winTop, winLeft + winWidth, winTop - winHeight);
+    auto wl = centre.first - (WIN_STD_WIDTH / 2);
+    auto wt = centre.second + (WIN_STD_HEIGHT / 2);
+    // Changing the window geometry will be detected in the draw callback, which will
+    // lead to the correct propogation of the new size into the Navitab core.
     XPLMSetWindowPositioningMode(winHandle, xplm_WindowPositionFree, -1);
+    XPLMSetWindowGeometry(winHandle, wl, wt, wl + WIN_STD_WIDTH, wt - WIN_STD_HEIGHT);
     Show();
 }
 
@@ -155,28 +156,21 @@ void XPDesktopWindow::onDraw()
     assert(winHandle);
 
     // if we get a draw request then the window must be visible, so cancel the watchdog
-    prodWatchdog();
+    ProdWatchdog();
 
     // check the window position and size. don't need to do this every frame, to keep the overheads down
     if (++winResizePollTimer > 30) {
         winResizePollTimer = 0;
-        winPoppedOut = XPLMWindowIsPoppedOut(winHandle);
-        int l, r, t, b;
-        if (winPoppedOut) {
-            XPLMGetWindowGeometryOS(winHandle, &l, &t, &r, &b);
-        } else {
-            XPLMGetWindowGeometry(winHandle, &l, &t, &r, &b);
-        }
-        int w = r - l;
-        int h = t - b;
-        if ((w != winWidth) || (h != winHeight)) {
-            winWidth = w; winHeight = h;
-            LOGD(fmt::format("resized -> width-height {}x{}", winWidth, winHeight));
+        if (UpdateWinGeometry()) {
             core->onWindowResize(winWidth, winHeight);
         }
-        if ((l != winLeft) || (t != winTop)) {
-            winLeft = l; winTop = t;
-            LOGD(fmt::format("moved -> left-top {},{}", l, t));
+        if (!XPLMWindowIsPoppedOut(winHandle)) {
+            int l, r, t, b;
+            XPLMGetWindowGeometry(winHandle, &l, &t, &r, &b);
+            if ((l != winLeft) || (t != winTop)) {
+                winLeft = l; winTop = t;
+                LOGD(fmt::format("moved -> left-top {},{}", l, t));
+            }
         }
     }
 
@@ -185,6 +179,14 @@ void XPDesktopWindow::onDraw()
 
 int XPDesktopWindow::onLeftClick(int x, int y, XPLMMouseStatus status)
 {
+    if (status == xplm_MouseDown)
+    {
+        if (!XPLMIsWindowInFront(winHandle))
+        {
+            XPLMBringWindowToFront(winHandle);
+        }
+    }
+
     // x,y in screen, not window coordinates
     // use the general XPLMGetWindowGeometry() API, it works for both floating and popped out windows
     int l, r, t, b;
@@ -195,6 +197,14 @@ int XPDesktopWindow::onLeftClick(int x, int y, XPLMMouseStatus status)
 
 int XPDesktopWindow::onRightClick(int x, int y, XPLMMouseStatus status)
 {
+    if (status == xplm_MouseDown)
+    {
+        if (!XPLMIsWindowInFront(winHandle))
+        {
+            XPLMBringWindowToFront(winHandle);
+        }
+    }
+
     // x,y in screen, not window coordinates
     LOGD(fmt::format("onRightClick({},{},{})", x, y, status));
     return 1;

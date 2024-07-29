@@ -39,7 +39,7 @@ public:
     virtual void Create(std::shared_ptr<Preferences> prefs, std::shared_ptr<WindowEvents> core) = 0;
     virtual void Destroy() = 0;
 
-    virtual void Recentre() = 0;
+    virtual void Reset() = 0;
 
     // common behaviour
     void Show();
@@ -52,7 +52,8 @@ protected:
     void Connect(std::shared_ptr<WindowEvents> core) override;
     void Disconnect() override;
 
-    void prodWatchdog();
+    void ProdWatchdog();
+    bool UpdateWinGeometry(); // returns true if the size changed
     bool isVisible() const { return winVisible; }
 
 protected:
@@ -64,8 +65,9 @@ protected:
     int winWidth, winHeight;
 
 private:
-    bool winVisible;
     int winDrawWatchdog;
+    int wgl, wgt, wgr, wgb; // window geometry, last observed
+    bool winVisible;
 
 protected:
     // TODO - these constants should go somewhere central

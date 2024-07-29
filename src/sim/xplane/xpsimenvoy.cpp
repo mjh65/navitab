@@ -182,8 +182,8 @@ void XPlaneSimulatorEnvoy::Enable()
     XPLMAppendMenuItem(subMenu, "Show window", reinterpret_cast<void*>(idx), 0);
 
     idx = menuCallbacks.size();
-    menuCallbacks.push_back([this] { recentreWindow(); });
-    XPLMAppendMenuItem(subMenu, "Recentre window", reinterpret_cast<void*>(idx), 0);
+    menuCallbacks.push_back([this] { resetWindow(); });
+    XPLMAppendMenuItem(subMenu, "Reset window", reinterpret_cast<void*>(idx), 0);
 
     // TODO - we probably want to add this menu item only in debug builds??
     idx = menuCallbacks.size();
@@ -342,10 +342,10 @@ void XPlaneSimulatorEnvoy::showWindow()
     if (win) win->Show();
 }
 
-void XPlaneSimulatorEnvoy::recentreWindow()
+void XPlaneSimulatorEnvoy::resetWindow()
 {
-    LOGD("Recentre window menu callback");
-    if (win) win->Recentre();
+    LOGD("Reset window menu callback");
+    if (win) win->Reset();
 }
 
 // Reloading the plugins is a convenience during development. This menu

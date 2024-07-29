@@ -97,10 +97,11 @@ void XPVRWindow::Destroy()
     Disconnect();
 }
 
-void XPVRWindow::Recentre()
+void XPVRWindow::Reset()
 {
     assert(winHandle);
     XPLMSetWindowGeometryVR(winHandle, WIN_STD_WIDTH, WIN_STD_HEIGHT);
+    XPLMSetWindowIsVisible(winHandle, false);
     Show();
 }
 
@@ -109,17 +110,16 @@ void XPVRWindow::onDraw()
     assert(winHandle);
 
     // if we get a draw request then the window must be visible, so cancel the watchdog
-    prodWatchdog();
+    ProdWatchdog();
 
     // check the window position and size. don't need to do this every frame, to keep the overheads down
     if (++winResizePollTimer > 30) {
         winResizePollTimer = 0;
-        int w, h;
-        XPLMGetWindowGeometryVR(winHandle, &w, &h);
-        if ((w != winWidth) || (h != winHeight)) {
-            winWidth = w; winHeight = h;
-            LOGD(fmt::format("resized -> {}x{}", winWidth, winHeight));
-            core->onWindowResize(winWidth, winHeight);
+        if (UpdateWinGeometry()) {
+            int w, h;
+            XPLMGetWindowGeometryVR(winHandle, &w, &h);
+            LOGD(fmt::format("Geometry in VR is {}x{}", w, h));
+            core->onWindowResize(winWidth, winHeight); // TODO - confirm use this or w, h??
         }
     }
 

@@ -214,7 +214,7 @@ void Navitab::onFlightLoop()
 
 void Navitab::onWindowResize(int width, int height)
 {
-    UNIMPLEMENTED("");
+    UNIMPLEMENTED("resize");
     // need to be quick, don't hold up the simulator
 }
 

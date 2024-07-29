@@ -38,7 +38,7 @@ public:
     // Implementation of navitab::XPlaneWindow
     void Create(std::shared_ptr<Preferences> prefs, std::shared_ptr<WindowEvents> core) override;
     void Destroy() override;
-    void Recentre() override;
+    void Reset() override;
 
 private:
     std::pair<int, int> screenCentre(int& l, int& t, int& r, int& b);

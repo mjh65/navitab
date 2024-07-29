@@ -65,7 +65,7 @@ private:
 
     // menu entry callbacks
     void showWindow();
-    void recentreWindow();
+    void resetWindow();
     void reloadAllPlugins();
 
 private:

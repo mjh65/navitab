@@ -62,7 +62,7 @@ endif()
 
 # CMake-compatible external 3rd-party projects are handled here
 include(FetchContent)
-add_subdirectory(extern)
+add_subdirectory(extern EXCLUDE_FROM_ALL)
 
 # Check for simulator SDK's and set variables if defined
 if(WIN32 AND DEFINED ENV{MSFS_SDK})

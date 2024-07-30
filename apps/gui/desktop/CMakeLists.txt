@@ -26,14 +26,15 @@ target_link_libraries(navitab_desktop
     navitab_core
     navitab_sim_mock
     navitab_win_glfw
-    opengl32
 )
 
 if(WIN32)
     target_link_options(navitab_desktop PRIVATE
         $<$<CXX_COMPILER_ID:MSVC>:/ENTRY:mainCRTStartup>
     )
+    target_link_libraries(navitab_desktop opengl32)
 elseif(APPLE)
+    target_link_libraries(navitab_desktop "-framework OpenGL")
 elseif(UNIX)
 endif()
 

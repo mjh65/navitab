@@ -25,6 +25,10 @@ target_sources(navitab_win_glfw PRIVATE
     winglfw.cpp
 )
 
+if(APPLE)
+    target_compile_definitions(navitab_win_glfw PRIVATE GL_SILENCE_DEPRECATION)
+endif()
+
 target_link_libraries(navitab_win_glfw PRIVATE
     navitab_core
     glfw

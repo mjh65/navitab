@@ -22,6 +22,7 @@
 # localised to the external project if required.
 
 add_subdirectory(fmtlib)
+add_subdirectory(glfw)
 add_subdirectory(lvgl)
 add_subdirectory(json)
 add_subdirectory(lunasvg)

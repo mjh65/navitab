@@ -21,6 +21,9 @@
 #pragma once
 
 #include "navitab/window.h"
+#include <vector>
+#include <GLFW/glfw3.h>
+#include "navitab/logger.h"
 
 namespace navitab {
 
@@ -34,12 +37,39 @@ public:
     void SetPrefs(std::shared_ptr<Preferences> prefs) override;
     void Connect(std::shared_ptr<WindowEvents> core) override;
     void Disconnect() override;
+    int EventLoop(int maxLoops) override;
 
     // Access to the window from Navitab core
     // ...
     int FrameRate() override;
+    void Brightness(int percent) override;
 
+protected:
+    void CreateWindow();
+    void DestroyWindow();
+    void RenderFrame();
 
+protected:
+    void onMouse(int button, int action, int flags);
+    void onScrollWheel(double x, double y);
+    void onKey(int key, int scanCode, int action, int mods);
+    void onChar(unsigned int c);
+
+private:
+    std::shared_ptr<Preferences> prefs;
+    std::shared_ptr<WindowEvents> coreWinCallbacks;
+    std::unique_ptr<logging::Logger> LOG;
+
+    // TODO - replace all this with a FrameBuffer once we hook up to Navitab's core
+    int bufferWidth;
+    int bufferHeight;
+    std::vector<uint32_t> imageBuffer;
+
+    GLFWwindow* window;
+    GLuint textureId;
+    int winResizePollTimer;
+    int winWidth;
+    int winHeight;
 };
 
 }

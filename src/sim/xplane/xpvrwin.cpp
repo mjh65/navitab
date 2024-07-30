@@ -36,11 +36,6 @@ XPVRWindow::~XPVRWindow()
 {
 }
 
-int XPVRWindow::FrameRate()
-{
-    return 1;
-}
-
 void XPVRWindow::Create(std::shared_ptr<Preferences> prefs, std::shared_ptr<WindowEvents> core)
 {
     SetPrefs(prefs);

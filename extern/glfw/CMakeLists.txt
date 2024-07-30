@@ -16,16 +16,10 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# Any [abstract] interfaces that are used by the different executables
-# are found in NAVITAB_API_DIR. All other headers that are internal to
-# the Navitab core system are referenced using relative paths from the
-# including file.
+# GLFW project - provides OpenGL window manager, etc
 
-target_sources(navitab_win_glfw PRIVATE
-    winglfw.cpp
+message(STATUS "Fetching glfw")
+FetchContent_Declare(glfw
+    URL "https://github.com/glfw/glfw/releases/download/3.4/glfw-3.4.zip"
 )
-
-target_link_libraries(navitab_win_glfw PRIVATE
-    navitab_core
-    glfw
-)
+FetchContent_MakeAvailable(glfw)

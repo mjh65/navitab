@@ -28,7 +28,7 @@ namespace navitab {
 
 // XPlaneWindow extends Navitab Window to provide a common base class for
 // XP desktop and VR windows. This allows the XP plugin to swap between these
-// when the simulation enters and leaves VR mode.
+// specialisations when the simulation enters and leaves VR mode.
 
 class XPlaneWindow : public Window
 {
@@ -41,6 +41,10 @@ public:
 
     virtual void Reset() = 0;
 
+    // Implementation of navitab::Window, common to desktop and VR
+    int FrameRate() override;
+    void Brightness(int percent) override;
+
     // common behaviour
     void Show();
     void onFlightLoop();
@@ -51,6 +55,7 @@ protected:
     void SetPrefs(std::shared_ptr<Preferences> prefs) override;
     void Connect(std::shared_ptr<WindowEvents> core) override;
     void Disconnect() override;
+    int EventLoop(int maxLoops) override { return 0; } // null implementation, not used
 
     void ProdWatchdog();
     bool UpdateWinGeometry(); // returns true if the size changed
@@ -69,17 +74,6 @@ private:
     int winDrawWatchdog;
     int wgl, wgt, wgr, wgb; // most recently observed window geometry
     bool winVisible;
-
-protected:
-    // TODO - these constants should go somewhere central
-    enum {
-        WIN_MIN_WIDTH = 400,
-        WIN_STD_WIDTH = 600,
-        WIN_MAX_WIDTH = 1000,
-        WIN_MIN_HEIGHT = 200,
-        WIN_STD_HEIGHT = 300,
-        WIN_MAX_HEIGHT = 600
-    };
 
 };
 

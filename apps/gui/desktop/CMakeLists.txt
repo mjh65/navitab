@@ -18,23 +18,21 @@
 
 # Desktop UI program using mock simulator, for interactive UI testing
 
-#add_executable(navitab_desktop WIN32 MACOSX_BUNDLE)
-add_executable(navitab_desktop)
+add_executable(navitab_desktop WIN32)
+
+target_sources(navitab_desktop PRIVATE main.cpp)
 
 target_link_libraries(navitab_desktop
     navitab_core
     navitab_sim_mock
     navitab_win_glfw
+    opengl32
 )
 
-target_sources(navitab_desktop PRIVATE main.cpp)
-
 if(WIN32)
-#    target_sources(navitab_desktop PRIVATE win32main.cpp)
-#    target_compile_definitions(navitab_desktop PRIVATE UNICODE)
-#    if(MSVC)
-#        target_link_options(navitab_desktop PRIVATE /municode)
-#    endif()
+    target_link_options(navitab_desktop PRIVATE
+        $<$<CXX_COMPILER_ID:MSVC>:/ENTRY:mainCRTStartup>
+    )
 elseif(APPLE)
 elseif(UNIX)
 endif()

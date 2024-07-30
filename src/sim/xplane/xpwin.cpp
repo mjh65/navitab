@@ -20,6 +20,12 @@
 
 #include "xpwin.h"
 #include <cassert>
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#else
+#include <GL/gl.h>
+//#include <GL/glext.h>
+#endif
 #include <fmt/core.h>
 #include <nlohmann/json.hpp>
 #include "navitab/core.h"
@@ -38,6 +44,15 @@ XPlaneWindow::XPlaneWindow(const char* logId)
 }
 
 XPlaneWindow::~XPlaneWindow()
+{
+}
+
+int XPlaneWindow::FrameRate()
+{
+    return 1;
+}
+
+void XPlaneWindow::Brightness(int percent)
 {
 }
 
@@ -111,7 +126,7 @@ bool XPlaneWindow::UpdateWinGeometry()
         wgl = l; wgt = t; wgr = r; wgb = b;
         auto popped = XPLMWindowIsPoppedOut(winHandle);
         auto vr = XPLMWindowIsInVR(winHandle);
-        char* mode = vr ? "VR" : popped ? "OS" : "IG";
+        const char* mode = vr ? "VR" : popped ? "OS" : "IG";
         int w = r - l;
         int h = t - b;
         LOGD(fmt::format("Geometry now :{}: {},{} -> {},{} ({}x{})", mode, l, t, r, b, w, h));

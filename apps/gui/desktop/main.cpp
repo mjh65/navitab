@@ -53,17 +53,27 @@ int main(int arg, char** argv)
     LOGS("Early init completed, starting and enabling");
     nvt->Start();
     auto p = nvt->PrefsManager();
+
     sim = navitab::Simulator::Factory();
     sim->SetPrefs(p);
-    sim->Connect(nvt->GetSimulatorInterface());
+    auto nvtsimif = nvt->GetSimulatorInterface();
+    nvtsimif->SetSimulator(sim);
+    sim->Connect(nvtsimif);
+
     win = navitab::Window::Factory();
     win->SetPrefs(p);
-    win->Connect(nvt->GetWindowInterface());
+    auto nvtwinif = nvt->GetWindowInterface();
+    nvtwinif->SetWindow(win);
+    win->Connect(nvtwinif);
+
     nvt->Enable();
 
     LOGS("Starting event loop");
 
-    // TODO - in desktop mode we will handover to GL to run the GUI
+    int pending = 0;
+    while (pending >= 0) {
+        pending = win->EventLoop();
+    }
 
     LOGS("Event loop finished, disabling and stopping");
 

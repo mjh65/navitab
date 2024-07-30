@@ -68,6 +68,14 @@ struct WindowEvents
 
 struct Window
 {
+    enum {
+        WIN_MIN_WIDTH = 400,
+        WIN_STD_WIDTH = 600,
+        WIN_MAX_WIDTH = 1000,
+        WIN_MIN_HEIGHT = 200,
+        WIN_STD_HEIGHT = 300,
+        WIN_MAX_HEIGHT = 600
+    };
 
     // Factory function to create a GUI window object. There will be
     // one of these in each of the simulator-specific libraries.
@@ -77,10 +85,13 @@ struct Window
     virtual void SetPrefs(std::shared_ptr<Preferences> prefs) = 0;
     virtual void Connect(std::shared_ptr<WindowEvents> core) = 0;
     virtual void Disconnect() = 0;
+    // run some iterations of the event loop
+    // returns the number of events in the queue, or -1 if finished
+    virtual int EventLoop(int maxLoops = 1) = 0;
 
-    // Access to the window from Navitab core
-    // ...
+    // APIs called from Navitab core
     virtual int FrameRate() = 0;
+    virtual void Brightness(int percent) = 0;
 
     virtual ~Window() = default;
 };

@@ -138,13 +138,6 @@ void XPDesktopWindow::Reset()
     Show();
 }
 
-int XPDesktopWindow::FrameRate()
-{
-    // TODO - implement calculation - may be in common base class
-    return 1;
-}
-
-
 std::pair<int, int> XPDesktopWindow::screenCentre(int& l, int& t, int& r, int& b)
 {
     XPLMGetScreenBoundsGlobal(&l, &t, &r, &b);

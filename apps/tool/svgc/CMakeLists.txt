@@ -16,10 +16,18 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-add_subdirectory(svgc)
-add_subdirectory(navdb)
-add_subdirectory(mock)
-if(MSFS_SDK)
-    message(STATUS "Adding Flight Simulator panel-server to build")
-    add_subdirectory(msfs)
-endif()
+# Console program for building navigation database from various sources
+
+add_executable(navitab_svgc)
+
+target_sources(navitab_svgc PRIVATE
+    main.cpp
+)
+
+target_link_libraries(navitab_svgc PRIVATE
+    lunasvg
+)
+
+set_target_properties(navitab_svgc PROPERTIES OUTPUT_NAME "svgc")
+
+install(TARGETS navitab_svgc DESTINATION navitab/bin)

@@ -22,5 +22,6 @@
 # including file.
 
 add_subdirectory(glfw)
-add_subdirectory(msfs)
-
+if(MSFS_SDK)
+    add_subdirectory(msfs)
+endif()

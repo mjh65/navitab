@@ -22,3 +22,5 @@
 # including file.
 
 add_subdirectory(glfw)
+add_subdirectory(msfs)
+

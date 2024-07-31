@@ -22,16 +22,23 @@
 
 #include <memory>
 
- /*
-  * This header file defines the interface to the UI window, which handles the
-  * drawing of updated frame buffers, or fragments, and is the source of UI
-  * events.
- */
+// The Window class acts as a container for the 5 parts of the UI:
+// the Canvas, Toolbar, Modebar, Doodlepad, and Keypad.
+// The architecture allows the Toolbar, Modebar, Doodlepad and Keypad
+// to be implemented remotely (specifically directly in the html/jscript
+// of the MSFS panel), so there are separate interfaces defined for these.
+// But the Canvas represents the generic drawing area for the Navitab
+// apps/modes. It doesn't have enough special behaviour, so its interface
+// is just wrapped into the Window class.
 
 namespace navitab {
 
 class Preferences;
 struct Window;
+struct Toolbar;
+struct Modebar;
+struct Doodlepad;
+struct Keypad;
 
 // The WindowEvents interface is how the UI window implementation provides
 // events to and gets UI updates from the Navitab core.
@@ -62,9 +69,8 @@ struct WindowEvents
     virtual bool getUpdateRegion() = 0;
 };
 
-
 // The Window interface defines the services that the UI window provides to
-// the Navitab core.
+// the Navitab core. Mainly these are high-level connectivity and event loop
 
 struct Window
 {
@@ -74,7 +80,9 @@ struct Window
         WIN_MAX_WIDTH = 1000,
         WIN_MIN_HEIGHT = 200,
         WIN_STD_HEIGHT = 300,
-        WIN_MAX_HEIGHT = 600
+        WIN_MAX_HEIGHT = 600,
+        TOOLBAR_HEIGHT = 40,
+        MODEBAR_WIDTH = 60
     };
 
     // Factory function to create a GUI window object. There will be
@@ -82,14 +90,22 @@ struct Window
     static std::shared_ptr<Window> Factory();
 
     // APIs called from the application/plugin
+
     virtual void SetPrefs(std::shared_ptr<Preferences> prefs) = 0;
     virtual void Connect(std::shared_ptr<WindowEvents> core) = 0;
     virtual void Disconnect() = 0;
-    // run some iterations of the event loop
+
+    // Run some iterations of the event loop
     // returns the number of events in the queue, or -1 if finished
     virtual int EventLoop(int maxLoops = 1) = 0;
 
     // APIs called from Navitab core
+
+    // Get the different parts of the window to talk to
+    virtual std::shared_ptr<Toolbar> GetToolbar() = 0;
+    virtual std::shared_ptr<Modebar> GetModebar() = 0;
+    virtual std::shared_ptr<Doodlepad> GetDoodlepad() = 0;
+    virtual std::shared_ptr<Keypad> GetKeypad() = 0;
     virtual int FrameRate() = 0;
     virtual void Brightness(int percent) = 0;
 

@@ -33,14 +33,16 @@ public:
     WindowGLFW();
     ~WindowGLFW();
 
-    // APIs called from the application/plugin
+    // Implementation of the Window interface
     void SetPrefs(std::shared_ptr<Preferences> prefs) override;
     void Connect(std::shared_ptr<WindowEvents> core) override;
     void Disconnect() override;
     int EventLoop(int maxLoops) override;
 
-    // Access to the window from Navitab core
-    // ...
+    std::shared_ptr<Toolbar> GetToolbar() override;
+    std::shared_ptr<Modebar> GetModebar() override;
+    std::shared_ptr<Doodlepad> GetDoodlepad() override;
+    std::shared_ptr<Keypad> GetKeypad() override;
     int FrameRate() override;
     void Brightness(int percent) override;
 

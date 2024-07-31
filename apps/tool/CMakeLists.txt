@@ -18,7 +18,6 @@
 
 add_subdirectory(svgc)
 add_subdirectory(navdb)
-add_subdirectory(mock)
 if(MSFS_SDK)
     message(STATUS "Adding Flight Simulator panel-server to build")
     add_subdirectory(msfs)

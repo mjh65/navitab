@@ -42,6 +42,10 @@ public:
     virtual void Reset() = 0;
 
     // Implementation of navitab::Window, common to desktop and VR
+    std::shared_ptr<Toolbar> GetToolbar() override;
+    std::shared_ptr<Modebar> GetModebar() override;
+    std::shared_ptr<Doodlepad> GetDoodlepad() override;
+    std::shared_ptr<Keypad> GetKeypad() override;
     int FrameRate() override;
     void Brightness(int percent) override;
 

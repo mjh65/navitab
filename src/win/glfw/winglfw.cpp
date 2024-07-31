@@ -112,6 +112,30 @@ int WindowGLFW::EventLoop(int maxLoops)
     return 0; // should return >0 during mouse movements, not sure if this will be useful though.
 }
 
+std::shared_ptr<Toolbar> WindowGLFW::GetToolbar()
+{
+    UNIMPLEMENTED("GetToolbar");
+    return nullptr;
+}
+
+std::shared_ptr<Modebar> WindowGLFW::GetModebar()
+{
+    UNIMPLEMENTED("GetModebar");
+    return nullptr;
+}
+
+std::shared_ptr<Doodlepad> WindowGLFW::GetDoodlepad()
+{
+    UNIMPLEMENTED("GetDoodlepad");
+    return nullptr;
+}
+
+std::shared_ptr<Keypad> WindowGLFW::GetKeypad()
+{
+    UNIMPLEMENTED("GetKeypad");
+    return nullptr;
+}
+
 int WindowGLFW::FrameRate()
 {
     // TODO - measure this, perhaps average of last 20 frames??

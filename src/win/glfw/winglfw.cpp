@@ -26,6 +26,7 @@
 #include <chrono>
 #include <fmt/core.h>
 #include "navitab/core.h"
+#include "svg/sample.h"
 
 std::shared_ptr<navitab::Window> navitab::Window::Factory()
 {
@@ -93,11 +94,26 @@ int WindowGLFW::EventLoop(int maxLoops)
         }
     }
 
-    // TODO - write random pixels until we have something sensible being generated!
-    for (int i = 0; i < 8; ++i) {
-        size_t rp = ((rand() << 20) + rand()) % imageBuffer.size();
-        // red in 7:0, green in 15:8, blue in 23:16, alpha in 31:24
-        imageBuffer[rp] = (rand() % 0xffffff);
+    // TODO - this is just here for development and testing. of course it will get
+    // replaced eventually!
+    if (rand() % 60) {
+        // write random pixels
+        for (int i = 0; i < 8; ++i) {
+            size_t rp = ((rand() << 20) + rand()) % imageBuffer.size();
+            // red in 7:0, green in 15:8, blue in 23:16, alpha in 31:24
+            imageBuffer[rp] = (rand() % 0xffffff);
+        }
+    } else {
+        // draw one of our generated SVG icons to test the generator
+        auto y0 = rand() % (bufferHeight - sample_64x64_HEIGHT);
+        auto x0 = rand() % (bufferWidth - sample_64x64_WIDTH);
+        for (int y=0; y < sample_64x64_HEIGHT; ++y) {
+            for (int x=0; x < sample_64x64_WIDTH; ++x) {
+                auto si = y * sample_64x64_WIDTH + x;
+                auto di = (y + y0) * bufferWidth + (x + x0);
+                imageBuffer[di] = sample_64x64[si];
+            }
+        }
     }
 
     RenderFrame();

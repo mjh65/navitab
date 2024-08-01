@@ -74,7 +74,7 @@ if(DEFINED ENV{XPLANE_SDK})
     message(STATUS "Detected X-Plane_SDK @ ${XPLANE_SDK}")
 endif()
 
-# Host platform definitions
+# Host platform definitions applying to everything declared after here
 if(WIN32)
     add_compile_definitions(NAVITAB_WINDOWS)
     if(MSVC)
@@ -86,13 +86,24 @@ elseif(UNIX)
     add_compile_definitions(NAVITAB_LINUX)
 endif()
 
-# Navitab library API is here
+# Abstract interfaces to the main Navitab architectural components are
+# found in NAVITAB_API_DIR. These interfaces are used by the application
+# and plugin variants. Interfaces that are strictly internal to the Navitab
+# core libraries are kept in the src directory (and referenced using relative
+# paths).
 set(NAVITAB_API_DIR "${CMAKE_CURRENT_LIST_DIR}/include")
+
+# This custom tool is used to compile SVG icons and is declared at this outer
+# level as it is referenced in the resources sub-tree below.
+add_executable(navitab_svgc)
 
 # Navitab common source code is here
 add_subdirectory(src)
 
-# Navitab apps, tools and plugins are here
+# Navitab resources (icons, etc?) are here
+add_subdirectory(res)
+
+# Navitab applications, plugins and supporting tools are here
 add_subdirectory(apps)
 
 # Testing only available if this is the main app

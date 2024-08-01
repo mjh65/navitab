@@ -56,9 +56,10 @@ int main(int argc, const char** argv)
     std::ofstream output(outfile);
     output << "// GENERATED FILE: modifications liable to be overwritten" << std::endl;
     output << "#pragma once" << std::endl;
+    output << "#include <stdint.h>" << std::endl;
     output << "const size_t " << bitmapName.str() << "_WIDTH = " << width << ";" << std::endl;
     output << "const size_t " << bitmapName.str() << "_HEIGHT = " << height << ";" << std::endl;
-    output << "const uint32_t* " << bitmapName.str() << " = {" << std::endl;
+    output << "const uint32_t " << bitmapName.str() << "[] = {" << std::endl;
 
     auto bw = bitmap.width();
     auto bh = bitmap.height();
@@ -77,6 +78,8 @@ int main(int argc, const char** argv)
     }
 
     output << "}; // " << bitmapName.str() << std::endl;
+
+    if (output.fail()) exit(5);
 
     return 0;
 }

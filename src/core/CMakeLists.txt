@@ -23,6 +23,8 @@ target_sources(navitab_core PRIVATE
     prefs.cpp
 )
 
+add_dependencies(navitab_core navitab_svg_headers)
+
 target_link_libraries(navitab_core PUBLIC
     fmt::fmt
     lvgl::lvgl

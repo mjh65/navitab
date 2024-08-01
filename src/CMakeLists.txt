@@ -16,10 +16,6 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# Any [abstract] interfaces that are used by the different executables
-# are found in NAVITAB_API_DIR. All other headers that are internal to
-# the Navitab core system are referenced using relative paths from the
-# including file.
 
 configure_file(config.h.in "${PROJECT_BINARY_DIR}/navitab/config.h")
 

@@ -16,14 +16,4 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# Console program for building navigation database from various sources
-
-target_sources(navitab_svgc PRIVATE
-    main.cpp
-)
-
-target_link_libraries(navitab_svgc PRIVATE
-    lunasvg
-)
-
-set_target_properties(navitab_svgc PROPERTIES OUTPUT_NAME "svgc")
+add_subdirectory(svg)

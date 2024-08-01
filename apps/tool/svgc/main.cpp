@@ -19,33 +19,46 @@
  */
 
 #include <string>
+#include <fstream>
 #include <iostream>
 #include <sstream>
+#include <filesystem>
 #include <lunasvg.h>
 
 
 using namespace lunasvg;
 
-bool parseArgs(int argc, char** argv,
-               std::string& filename, std::uint32_t& width, std::uint32_t& height, std::uint32_t& bgColor);
+std::vector<std::string> args;
+std::string outfile;
+std::uint32_t width = 64, height = 64;
+std::uint32_t bgColor = 0x00000000; // transparent
 
-int main(int argc, char** argv)
+bool parseArgs(int argc, const char** argv);
+
+int main(int argc, const char** argv)
 {
-    // TODO - to be useful as a tool we need proper options, including output file
+    if (!parseArgs(argc, argv)) exit(1);
+    if (args.size() != 1) exit(2);
+  
+    std::filesystem::path input(args.front());
     
-    std::string filename = "sample.svg";
-    std::uint32_t width = 48, height = 48;
-    std::uint32_t bgColor = 0x00000000; // transparent
-    if (argc > 1) {
-        if(!parseArgs(argc, argv, filename, width, height, bgColor)) exit(1);
-    }
-
-    auto document = Document::loadFromFile(filename);
-    if(!document) exit(2);
+    auto document = Document::loadFromFile(input);
+    if(!document) exit(3);
 
     auto bitmap = document->renderToBitmap(width, height, bgColor);
-    if(!bitmap.valid()) exit(3);
+    if(!bitmap.valid()) exit(4);
     bitmap.convertToRGBA();
+
+    std::ostringstream bitmapName;
+    bitmapName << input.stem().string() << '_' << width << 'x' << height;
+    
+    // create the output file
+    std::ofstream output(outfile);
+    output << "// GENERATED FILE: modifications liable to be overwritten" << std::endl;
+    output << "#pragma once" << std::endl;
+    output << "const size_t " << bitmapName.str() << "_WIDTH = " << width << ";" << std::endl;
+    output << "const size_t " << bitmapName.str() << "_HEIGHT = " << height << ";" << std::endl;
+    output << "const uint32_t* " << bitmapName.str() << " = {" << std::endl;
 
     auto bw = bitmap.width();
     auto bh = bitmap.height();
@@ -54,42 +67,55 @@ int main(int argc, char** argv)
 
     for(std::uint32_t y = 0; y < bh; y++) {
         auto data = rowData;
+        std::ostringstream line;
         for(std::uint32_t x = 0; x < bw; x++) {
-            
-            // TODO - write each sample here
-            
+            line << "0x" << std::hex << *(reinterpret_cast<uint32_t*>(data)) << ", ";
             data += 4;
         }
+        output << "    " << line.str() << std::endl;
         rowData += stride;
     }
 
-    // do something useful with the bitmap here.
+    output << "}; // " << bitmapName.str() << std::endl;
 
     return 0;
 }
 
-bool parseArgs(int argc, char** argv,
-               std::string& filename, std::uint32_t& width, std::uint32_t& height, std::uint32_t& bgColor)
+bool parseArgs(int argc, const char** argv)
 {
-    if(argc > 1) filename.assign(argv[1]);
-    if(argc > 2) {
-        std::stringstream ss;
-
-        ss << argv[2];
-        ss >> width;
-
-        if(ss.fail() || ss.get() != 'x')
-            return false;
-
-        ss >> height;
+    ++argv; --argc; // dump the program name
+    for (; argc > 0; ++argv, --argc) {
+        const char *a = *argv;
+        const char *n = (argc > 1) ? *(argv + 1) : "";
+        if (*a != '-') {
+            // not an option, add to list of files
+            args.push_back(a);
+            continue;
+        }
+        std::string opt(a);
+        if (opt.size() == 2) {
+            // all of our single letter options consume the next argument
+            opt += n;
+            ++argv; --argc;
+        }
+        if (opt[1] == 'o') {
+            outfile = opt.substr(2);
+        } else if (opt[1] == 'w') {
+            std::stringstream ss;
+            ss << opt.substr(2);
+            ss >> width;
+            if (ss.fail()) return false;
+        } else if (opt[1] == 'h') {
+            std::stringstream ss;
+            ss << opt.substr(2);
+            ss >> height;
+            if (ss.fail()) return false;
+        } else if (opt[1] == 'b') {
+            std::stringstream ss;
+            ss << std::hex << opt.substr(2);
+            ss >> std::hex >> bgColor;
+            if (ss.fail()) return false;
+        }
     }
-
-    if(argc > 3) {
-        std::stringstream ss;
-
-        ss << std::hex << argv[3];
-        ss >> std::hex >> bgColor;
-    }
-
-    return argc > 1;
+    return true;
 }

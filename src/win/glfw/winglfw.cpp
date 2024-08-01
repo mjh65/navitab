@@ -26,7 +26,7 @@
 #include <chrono>
 #include <fmt/core.h>
 #include "navitab/core.h"
-#include "svg/sample.h"
+#include "svg/sample_64x64.h"
 
 std::shared_ptr<navitab::Window> navitab::Window::Factory()
 {

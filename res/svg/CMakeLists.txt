@@ -23,21 +23,31 @@
 # to do this.
 
 set(SVGC_SOURCES
-    sample.svg
+    # This style of encoding allows specification of the generated bitmap
+    # width and height in the pseudo source file name. The actual SVG source
+    # file name is everything before the final 2 extensions!
+    sample.svg.64.64
+    sample.svg.32.32
 )
 
 set(SVG_TARGETS)
 
-foreach(svg_source ${SVGC_SOURCES})
-    get_filename_component(file_svg "${svg_source}" NAME_WE)
-    set(file_h "${PROJECT_BINARY_DIR}/svg/${file_svg}.h")
+foreach(work ${SVGC_SOURCES})
+    get_filename_component(height "${work}" LAST_EXT)
+    string(SUBSTRING ${height} 1 -1 height)
+    get_filename_component(work "${work}" NAME_WLE)
+    get_filename_component(width "${work}" LAST_EXT)
+    string(SUBSTRING ${width} 1 -1 width)
+    get_filename_component(svg_source "${work}" NAME_WLE)
+    get_filename_component(base "${svg_source}" NAME_WLE)
+    set(file_h "${PROJECT_BINARY_DIR}/svg/${base}_${width}x${height}.h")
     list(APPEND SVG_TARGETS "${file_h}")
-    message(STATUS "CUSTOM ${file_h} from ${svg_source}")
+    #message(STATUS "CUSTOM ${file_h} from ${svg_source}")
     add_custom_command(
             OUTPUT "${file_h}"
-            COMMENT "CUSTOM: $<TARGET_FILE:navitab_svgc> -o ${file_h} ${CMAKE_CURRENT_SOURCE_DIR}/${svg_source}"
+            #COMMENT "CUSTOM: $<TARGET_FILE:navitab_svgc> -o${file_h} -w${width} -h${height} ${CMAKE_CURRENT_LIST_DIR}/${svg_source}"
             COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJECT_BINARY_DIR}/svg"
-            COMMAND $<TARGET_FILE:navitab_svgc> -o "${file_h}" "${CMAKE_CURRENT_SOURCE_DIR}/${svg_source}"
+            COMMAND $<TARGET_FILE:navitab_svgc> "-o${file_h}" -w${width} -h${height} "${CMAKE_CURRENT_LIST_DIR}/${svg_source}"
             DEPENDS "${svg_source}" navitab_svgc
             VERBATIM
     )

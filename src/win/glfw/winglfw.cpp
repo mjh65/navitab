@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <cassert>
 #include <chrono>
+#include <iostream>
 #include <fmt/core.h>
 #include "navitab/core.h"
 #include "svg/sample_64x64.h"
@@ -31,6 +32,11 @@
 std::shared_ptr<navitab::Window> navitab::Window::Factory()
 {
     return std::make_shared<navitab::WindowGLFW>();
+}
+
+static void GLFWERR(int code, const char *msg)
+{
+    std::cerr << "GLFW reports: [" << code << "] " << msg << std::endl;
 }
 
 namespace navitab {
@@ -45,6 +51,7 @@ WindowGLFW::WindowGLFW()
     winWidth(WIN_STD_WIDTH),
     winHeight(WIN_STD_HEIGHT)
 {
+    glfwSetErrorCallback(GLFWERR);
     if (!glfwInit()) {
         throw StartupError("Couldn't initialize GLFW");
     }

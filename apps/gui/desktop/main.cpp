@@ -24,6 +24,8 @@
 // It's used on Linux and Mac.
 
 #include <memory>
+#include <iostream>
+#include <fmt/core.h>
 #include "navitab/core.h"
 #include "navitab/simulator.h"
 #include "navitab/window.h"
@@ -42,49 +44,58 @@ int main(int arg, char** argv)
         nvt = navitab::System::GetSystem(navitab::SimEngine::MOCK, navitab::AppClass::DESKTOP);
     }
     catch (navitab::StartupError& e) {
-        // TODO - report anything we can to stderr and then exit
+        std::cerr << "Navitab startup exception: " << e.What() << std::endl;
+        exit(1);
     }
-    catch (...) {
-        // TODO - handle other exceptions
+    catch (std::exception& e) {
+        std::cerr << "General exception during startup: " << e.what() << std::endl;
+        exit(1);
     }
 
     // if we get this far then we should have logging enabled, so any further issues
     // can be reported through the logging interface.
     LOGS("Early init completed, starting and enabling");
-    nvt->Start();
-    auto p = nvt->PrefsManager();
+    try {
+        nvt->Start();
+        auto p = nvt->PrefsManager();
 
-    sim = navitab::Simulator::Factory();
-    sim->SetPrefs(p);
-    auto nvtsimif = nvt->GetSimulatorInterface();
-    nvtsimif->SetSimulator(sim);
-    sim->Connect(nvtsimif);
+        sim = navitab::Simulator::Factory();
+        sim->SetPrefs(p);
+        auto nvtsimif = nvt->GetSimulatorInterface();
+        nvtsimif->SetSimulator(sim);
+        sim->Connect(nvtsimif);
 
-    win = navitab::Window::Factory();
-    win->SetPrefs(p);
-    auto nvtwinif = nvt->GetWindowInterface();
-    nvtwinif->SetWindow(win);
-    win->Connect(nvtwinif);
+        win = navitab::Window::Factory();
+        win->SetPrefs(p);
+        auto nvtwinif = nvt->GetWindowInterface();
+        nvtwinif->SetWindow(win);
+        win->Connect(nvtwinif);
 
-    nvt->Enable();
+        nvt->Enable();
 
-    LOGS("Starting event loop");
+        LOGS("Starting event loop");
 
-    int pending = 0;
-    while (pending >= 0) {
-        pending = win->EventLoop();
+        int pending = 0;
+        while (pending >= 0) {
+            pending = win->EventLoop();
+        }
+
+        LOGS("Event loop finished, disabling and stopping");
+
+        nvt->Disable();
+        win->Disconnect();
+        win.reset();
+        sim->Disconnect();
+        sim.reset();
+        nvt->Stop();
+        nvt.reset();
     }
-
-    LOGS("Event loop finished, disabling and stopping");
-
-    nvt->Disable();
-    win->Disconnect();
-    win.reset();
-    sim->Disconnect();
-    sim.reset();
-    nvt->Stop();
-    nvt.reset();
+    catch (navitab::Exception& e) {
+        LOGF(fmt::format("Navitab exception: {}", e.What()));
+    }
+    catch (std::exception& e) {
+        LOGF(fmt::format("General exception: {}", e.what()));
+    }
 
     return 0;
 }
-

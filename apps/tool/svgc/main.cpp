@@ -22,6 +22,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <vector>
 #include <filesystem>
 #include <lunasvg.h>
 

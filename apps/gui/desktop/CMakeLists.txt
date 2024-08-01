@@ -36,6 +36,7 @@ if(WIN32)
 elseif(APPLE)
     target_link_libraries(navitab_desktop "-framework OpenGL")
 elseif(UNIX)
+    target_link_libraries(navitab_desktop GL)
 endif()
 
 install(TARGETS navitab_desktop DESTINATION navitab/tools)

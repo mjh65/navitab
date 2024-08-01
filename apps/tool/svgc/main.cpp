@@ -42,7 +42,7 @@ int main(int argc, const char** argv)
   
     std::filesystem::path input(args.front());
     
-    auto document = Document::loadFromFile(input);
+    auto document = Document::loadFromFile(input.string());
     if(!document) exit(3);
 
     auto bitmap = document->renderToBitmap(width, height, bgColor);

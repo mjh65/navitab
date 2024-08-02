@@ -87,7 +87,7 @@ void WindowGLFW::SetPrefs(std::shared_ptr<Preferences> p)
 void WindowGLFW::Connect(std::shared_ptr<WindowEvents> wcb)
 {
     coreWinCallbacks = wcb;
-    coreWinCallbacks->PostWindowResize(winWidth, winHeight);
+    coreWinCallbacks->PostCanvasResize(winWidth, winHeight);
     CreateWindow();
 }
 
@@ -110,7 +110,7 @@ int WindowGLFW::EventLoop(int maxLoops)
         int w, h;
         glfwGetWindowSize(window, &w, &h);
         if ((w != winWidth) || (h != winHeight)) {
-            coreWinCallbacks->PostWindowResize(w, h);
+            coreWinCallbacks->PostCanvasResize(w, h);
             winWidth = w; winHeight = h;
         }
     }
@@ -154,6 +154,9 @@ int WindowGLFW::EventLoop(int maxLoops)
         }
     }
 
+    // TODO - rebind textures for image rectangles that have changed
+    // TODO - add a status field to the ImageRectangle class to record this
+
     RenderFrame();
 
     glfwPollEvents();
@@ -187,30 +190,35 @@ void WindowGLFW::SetHandlers(std::shared_ptr<Toolbar> t, std::shared_ptr<Modebar
 
 std::unique_ptr<ImageRectangle> WindowGLFW::RefreshCanvas(std::unique_ptr<ImageRectangle>)
 {
+    // TODO - mutex needed here and where the image is drawn
     UNIMPLEMENTED("");
     return nullptr;
 }
 
 std::unique_ptr<ImageRectangle> WindowGLFW::RefreshToolbar(std::unique_ptr<ImageRectangle>)
 {
+    // TODO - mutex needed here and where the image is drawn
     UNIMPLEMENTED("");
     return nullptr;
 }
 
 std::unique_ptr<ImageRectangle> WindowGLFW::RefreshModebar(std::unique_ptr<ImageRectangle>)
 {
+    // TODO - mutex needed here and where the image is drawn
     UNIMPLEMENTED("");
     return nullptr;
 }
 
 std::unique_ptr<ImageRectangle> WindowGLFW::RefreshDoodler(std::unique_ptr<ImageRectangle>)
 {
+    // TODO - mutex needed here and where the image is drawn
     UNIMPLEMENTED("");
     return nullptr;
 }
 
 std::unique_ptr<ImageRectangle> WindowGLFW::RefreshKeypad(std::unique_ptr<ImageRectangle>)
 {
+    // TODO - mutex needed here and where the image is drawn
     UNIMPLEMENTED("");
     return nullptr;
 }
@@ -291,6 +299,8 @@ void WindowGLFW::RenderFrame()
     glColor4f(brightness, brightness, brightness, 1.0f);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
+
+    // TODO - mutex needed here to protect the ImageRectangles from update
 
     RenderPart(CANVAS, 0, TOOLBAR_HEIGHT, winWidth, winHeight);
     RenderPart(TOOLBAR, 0, 0, winWidth, TOOLBAR_HEIGHT);

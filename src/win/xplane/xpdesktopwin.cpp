@@ -156,7 +156,7 @@ void XPDesktopWindow::onDraw()
     if (++winResizePollTimer > 30) {
         winResizePollTimer = 0;
         if (UpdateWinGeometry()) {
-            core->PostWindowResize(winWidth, winHeight);
+            core->PostCanvasResize(winWidth, winHeight);
         }
         if (!XPLMWindowIsPoppedOut(winHandle)) {
             int l, r, t, b;

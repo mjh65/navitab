@@ -61,7 +61,7 @@ struct WindowEvents
     // UI-triggered events notified to the Navitab core.
     // These wrapper functions ensure that the UI thread is not stalled while
     // the event is being handled.
-    void PostWindowResize(int w, int h) { 
+    void PostCanvasResize(int w, int h) { 
         AsyncCall([this, w, h]() { onCanvasResize(w, h); });
     }
     void PostMouseEvent(int x, int y, bool l, bool r) {

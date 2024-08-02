@@ -114,7 +114,7 @@ void XPVRWindow::onDraw()
             int w, h;
             XPLMGetWindowGeometryVR(winHandle, &w, &h);
             LOGD(fmt::format("Geometry in VR is {}x{}", w, h));
-            core->PostWindowResize(winWidth, winHeight); // TODO - confirm use this or w, h??
+            core->PostCanvasResize(winWidth, winHeight); // TODO - confirm use this or w, h??
         }
     }
 

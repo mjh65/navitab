@@ -43,19 +43,36 @@ namespace navitab {
 
 WindowGLFW::WindowGLFW()
 :   LOG(std::make_unique<logging::Logger>("winglfw")),
-    bufferWidth(WIN_STD_WIDTH),
-    bufferHeight(WIN_STD_HEIGHT),
     window(nullptr),
-    textureId(0),
     winResizePollTimer(0),
     winWidth(WIN_STD_WIDTH),
-    winHeight(WIN_STD_HEIGHT)
+    winHeight(WIN_STD_HEIGHT),
+    brightness(1.0f),
+    bDelta(-0.002f)
 {
+    for (auto i = 0; i < PART_COUNT; ++i) {
+        textureNames[i] = 0;
+    }
+    partImages[CANVAS] = std::make_unique<ImageRectangle>(WIN_STD_WIDTH, WIN_STD_HEIGHT - TOOLBAR_HEIGHT);
+    partImages[TOOLBAR] = std::make_unique<ImageRectangle>(WIN_STD_WIDTH, TOOLBAR_HEIGHT);
+    partImages[MODEBAR] = std::make_unique<ImageRectangle>(MODEBAR_WIDTH, MODEBAR_HEIGHT);
+    partImages[DOODLEPAD] = std::make_unique<ImageRectangle>(WIN_STD_WIDTH - MODEBAR_WIDTH, WIN_STD_HEIGHT - TOOLBAR_HEIGHT);
+    partImages[KEYPAD] = std::make_unique<ImageRectangle>(WIN_STD_WIDTH - MODEBAR_WIDTH, KEYPAD_HEIGHT);
+
+    auto& tbImage = partImages[TOOLBAR]->imageBuffer;
+    for (auto& i : tbImage) {
+        i = 0xffd0d0d0; // alpha 0xff means it is opaque
+    }
+
+    auto& mbImage = partImages[MODEBAR]->imageBuffer;
+    for (auto& i : mbImage) {
+        i = 0x40f0f0f0; // alpha 0x40 is quite translucent!
+    }
+
     glfwSetErrorCallback(GLFWERR);
     if (!glfwInit()) {
         throw StartupError("Couldn't initialize GLFW");
     }
-    imageBuffer.resize(bufferWidth * bufferHeight);
 }
 
 WindowGLFW::~WindowGLFW()
@@ -103,23 +120,38 @@ int WindowGLFW::EventLoop(int maxLoops)
 
     // TODO - this is just here for development and testing. of course it will get
     // replaced eventually!
+    auto& canvas = *(partImages[CANVAS]);
     if (rand() % 60) {
         // write random pixels
         for (int i = 0; i < 8; ++i) {
-            size_t rp = ((rand() << 20) + rand()) % imageBuffer.size();
+            size_t rp = ((rand() << 20) + rand()) % canvas.imageBuffer.size();
             // red in 7:0, green in 15:8, blue in 23:16, alpha in 31:24
-            imageBuffer[rp] = (rand() % 0xffffff);
+            canvas.imageBuffer[rp] = (rand() % 0xffffff);
         }
     } else {
         // draw one of our generated SVG icons to test the generator
-        auto y0 = rand() % (bufferHeight - sample_64x64_HEIGHT);
-        auto x0 = rand() % (bufferWidth - sample_64x64_WIDTH);
+        auto y0 = rand() % (canvas.Height() - sample_64x64_HEIGHT);
+        auto x0 = rand() % (canvas.Width() - sample_64x64_WIDTH);
         for (int y=0; y < sample_64x64_HEIGHT; ++y) {
             for (int x=0; x < sample_64x64_WIDTH; ++x) {
                 auto si = y * sample_64x64_WIDTH + x;
-                auto di = (y + y0) * bufferWidth + (x + x0);
-                imageBuffer[di] = sample_64x64[si];
+                auto di = (y + y0) * canvas.Width() + (x + x0);
+                canvas.imageBuffer[di] = sample_64x64[si];
             }
+        }
+    }
+
+    if (bDelta > 0.0f) {
+        brightness += bDelta;
+        if (brightness >= 1.0f) {
+            bDelta = 0.0 - bDelta;
+            brightness = 1.0f;
+        }
+    } else {
+        brightness += bDelta;
+        if (brightness <= 0.2f) {
+            bDelta = 0.0 - bDelta;
+            brightness = 0.2f;
         }
     }
 
@@ -145,7 +177,7 @@ void WindowGLFW::CreateWindow()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
     glfwWindowHint(GLFW_RESIZABLE, true);
-    window = glfwCreateWindow(bufferWidth, bufferHeight, "Navitab", nullptr, nullptr);
+    window = glfwCreateWindow(winWidth, winHeight, "Navitab", nullptr, nullptr);
 
     if (!window) {
         throw StartupError("Couldn't create GLFW window");
@@ -179,14 +211,19 @@ void WindowGLFW::CreateWindow()
         reinterpret_cast<WindowGLFW*>(glfwGetWindowUserPointer(wnd))->onChar(c);
     });
 
-    glGenTextures(1, &textureId);
-    glBindTexture(GL_TEXTURE_2D, textureId);
-    glTexImage2D(GL_TEXTURE_2D, 0,
-        GL_RGBA, bufferWidth, bufferHeight, 0,
-        GL_RGBA, GL_UNSIGNED_BYTE, imageBuffer.data());
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    for (auto i = 0; i < PART_COUNT; ++i) {
+        glGenTextures(1, &textureNames[i]);
+        glBindTexture(GL_TEXTURE_2D, textureNames[i]);
+        // TODO - this appears to be required, so will need to be different for each window part
+        // ?? will it need to be done again whenever the image buffer is swapped ??
+        // ?? does it need doing here, or just once each time a new image buffer is delivered ??
+        glTexImage2D(GL_TEXTURE_2D, 0,
+            GL_RGBA, partImages[i]->Width(), partImages[i]->Height(), 0,
+            GL_RGBA, GL_UNSIGNED_BYTE, partImages[i]->Row(0));
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
 }
 
 void WindowGLFW::DestroyWindow()
@@ -208,27 +245,39 @@ void WindowGLFW::RenderFrame()
     glMatrixMode(GL_MODELVIEW);
 
     glClear(GL_COLOR_BUFFER_BIT);
+    glColor4f(brightness, brightness, brightness, 1.0f);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
 
-    glBindTexture(GL_TEXTURE_2D, textureId);
-    glEnable(GL_TEXTURE_2D);
+    RenderPart(CANVAS, 0, TOOLBAR_HEIGHT, winWidth, winHeight);
+    RenderPart(TOOLBAR, 0, 0, winWidth, TOOLBAR_HEIGHT);
+    RenderPart(MODEBAR, 0, TOOLBAR_HEIGHT, MODEBAR_WIDTH, TOOLBAR_HEIGHT + MODEBAR_HEIGHT);
+    // TODO - add doodlepad and keypad, if they are active
 
-    glTexSubImage2D(GL_TEXTURE_2D, 0,
-        0, 0, bufferWidth, bufferHeight,
-        GL_RGBA, GL_UNSIGNED_BYTE, imageBuffer.data());
-
-    glColor3f(1.0f, 1.0f, 1.0f); // TODO - brightness control
-
-    glBegin(GL_QUADS);
-    glTexCoord2i(0, 0);  glVertex2i(0, 0);
-    glTexCoord2i(0, 1);  glVertex2i(0, winHeight);
-    glTexCoord2i(1, 1);  glVertex2i(winWidth, winHeight);
-    glTexCoord2i(1, 0);  glVertex2i(winWidth, 0);
-    glEnd();
-
-    glDisable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
 
     glfwSwapBuffers(window);
+}
+
+void WindowGLFW::RenderPart(int part, int left, int top, int right, int bottom)
+{
+    auto& image = *(partImages[part]);
+    glBindTexture(GL_TEXTURE_2D, textureNames[part]);
+    glEnable(GL_TEXTURE_2D);
+
+    glTexSubImage2D(GL_TEXTURE_2D, 0,
+        0, 0, image.Width(), image.Height(),
+        GL_RGBA, GL_UNSIGNED_BYTE, image.Row(0));
+
+    glBegin(GL_QUADS);
+    glTexCoord2i(0, 0);  glVertex2i(left, top);
+    glTexCoord2i(0, 1);  glVertex2i(left, bottom);
+    glTexCoord2i(1, 1);  glVertex2i(right, bottom);
+    glTexCoord2i(1, 0);  glVertex2i(right, top);
+    glEnd();
+
+    glDisable(GL_TEXTURE_2D);
+
 }
 
 void WindowGLFW::onMouse(int button, int action, int flags)

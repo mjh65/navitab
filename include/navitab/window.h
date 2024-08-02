@@ -98,13 +98,15 @@ struct Window
 {
     enum {
         WIN_MIN_WIDTH = 400,
-        WIN_STD_WIDTH = 600,
-        WIN_MAX_WIDTH = 1000,
-        WIN_MIN_HEIGHT = 200,
-        WIN_STD_HEIGHT = 300,
-        WIN_MAX_HEIGHT = 600,
+        WIN_STD_WIDTH = 800,
+        WIN_MAX_WIDTH = 1600,
+        WIN_MIN_HEIGHT = 300,
+        WIN_STD_HEIGHT = 400,
+        WIN_MAX_HEIGHT = 1000,
         TOOLBAR_HEIGHT = 40,
-        MODEBAR_WIDTH = 60
+        MODEBAR_WIDTH = 50,
+        MODEBAR_HEIGHT = 400,
+        KEYPAD_HEIGHT = 300
     };
 
     // ===============================================================

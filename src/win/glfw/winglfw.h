@@ -44,6 +44,7 @@ protected:
     void CreateWindow();
     void DestroyWindow();
     void RenderFrame();
+    void RenderPart(int part, int left, int top, int right, int bottom);
 
 protected:
     void onMouse(int button, int action, int flags);
@@ -52,20 +53,41 @@ protected:
     void onChar(unsigned int c);
 
 private:
+    enum {
+        CANVAS,
+        TOOLBAR,
+        MODEBAR,
+        DOODLEPAD,
+        KEYPAD,
+        PART_COUNT
+    };
+
     std::shared_ptr<Preferences> prefs;
     std::shared_ptr<WindowEvents> coreWinCallbacks;
     std::unique_ptr<logging::Logger> LOG;
 
-    // TODO - replace all this with a FrameBuffer once we hook up to Navitab's core
-    int bufferWidth;
-    int bufferHeight;
-    std::vector<uint32_t> imageBuffer;
-
     GLFWwindow* window;
-    GLuint textureId;
+    GLuint textureNames[PART_COUNT];
+
+    // TODO - move the ImageRectangle structure into a core header file
+    struct ImageRectangle {
+        int imageWidth;
+        int imageHeight;
+        std::vector<uint32_t> imageBuffer;
+        bool glRegistered;
+        ImageRectangle(int w, int h) : imageWidth(w), imageHeight(h) { imageBuffer.resize(w * h); }
+        int Width() const { return imageWidth; }
+        int Height() const { return imageHeight; }
+        uint32_t* Row(int r) { return &imageBuffer[r * imageWidth]; }
+    };
+    std::unique_ptr<ImageRectangle> partImages[PART_COUNT];
+
     int winResizePollTimer;
     int winWidth;
     int winHeight;
+
+    float brightness;
+    float bDelta;
 };
 
 }

@@ -52,7 +52,7 @@ Navitab::Navitab(SimEngine s, AppClass c)
     appClass(c),
     LOG(std::make_unique<logging::Logger>("navitab")),
     dataFilesPath(FindDataFilesPath()),
-    started(false),
+    running(false),
     enabled(false)
 {
     // Early initialisation needs to do enough to get the preferences loaded
@@ -112,14 +112,14 @@ std::shared_ptr<WindowEvents> Navitab::GetWindowCallbacks()
     return shared_from_this();
 }
 
-void Navitab::SetSimulator(std::shared_ptr<Simulator>)
+void Navitab::SetSimulator(std::shared_ptr<Simulator> s)
 {
-    UNIMPLEMENTED("set member for simulator calls");
+    simulator = s;
 }
 
-void Navitab::SetWindow(std::shared_ptr<Window>)
+void Navitab::SetWindow(std::shared_ptr<Window> w)
 {
-    UNIMPLEMENTED("set member for window calls");
+    window = w;
 }
 
 std::shared_ptr<Toolbar> Navitab::GetToolbar()
@@ -150,15 +150,19 @@ void Navitab::Start()
 {
     // Further initialisation is done here once the basic preference and
     // logging services have been started.
-    // This is called during X-Plane plugin start, and probably does relatively little
-    // Need to review SDK docs and Avitab.
-    if (started) return;
 
-    // curl_global_init(CURL_GLOBAL_ALL); activate this later
+    if (running) return;
+    running = true;
 
-    // TODO - callbacks param (#1) to become a shared_ptr - use shared_from_this
-    //simEnv = Simulator::GetSimulator(shared_from_this(), PrefsManager());
-    started = true;
+    // Start the background worker thread. Most of the actual work done in
+    // the Navitab core is triggered by jobs posted to this thread, and most
+    // of those jobs are UI interactions or simulator updates.
+
+    worker = std::make_unique<std::thread>([this]() { this->AsyncWorker(); });
+
+
+    // curl_global_init(CURL_GLOBAL_ALL); TODO: activate this later
+
 }
 
 void Navitab::Enable()
@@ -166,7 +170,6 @@ void Navitab::Enable()
     // This is called during X-Plane plugin enable, and probably does a bit more
     // Need to review SDK docs and Avitab.
     if (!enabled) {
-        //simEnv->Enable();
         enabled = true;
     }
 }
@@ -176,7 +179,6 @@ void Navitab::Disable()
     // This is called during X-Plane plugin disable
     // Need to review SDK docs and Avitab.
     if (enabled) {
-        //simEnv->Disable();
         enabled = false;
     }
 }
@@ -186,9 +188,10 @@ void Navitab::Stop()
     // This is called during X-Plane plugin stop
     // Avitab also calls curl_global_cleanup(), so we need to not forget that 
     // Need to review SDK docs and Avitab.
-    if (started) {
-        //simEnv.reset();
-        started = false;
+    if (running) {
+        running = false;
+        AsyncCall([]() {});
+        worker->join();
     }
 }
 
@@ -207,28 +210,28 @@ std::filesystem::path Navitab::DataFilesPath()
 // browsing start for the user's resources, eg charts, docs
 std::filesystem::path Navitab::UserResourcesPath()
 {
-    UNIMPLEMENTED("");
+    UNIMPLEMENTED("user documents path");
     return std::filesystem::path();
 }
 
 // browsing start for any aircraft documents
 std::filesystem::path Navitab::AircraftResourcesPath()
 {
-    UNIMPLEMENTED("");
+    UNIMPLEMENTED("aircraft manuals path");
     return std::filesystem::path();
 }
 
 // browsing start for flight plans / routes
 std::filesystem::path Navitab::FlightPlansPath()
 {
-    UNIMPLEMENTED("");
+    UNIMPLEMENTED("flight plans path");
     return std::filesystem::path();
 }
 
 // directory containing the current Navitab executable
 std::filesystem::path Navitab::NavitabPath()
 {
-    UNIMPLEMENTED("");
+    UNIMPLEMENTED("executable path");
     return std::filesystem::path();
 }
 
@@ -244,17 +247,12 @@ void Navitab::onMouseEvent(int x, int y, bool l, bool r)
 
 void Navitab::onWheelEvent(int x, int y, int xdir, int ydir)
 {
-    UNIMPLEMENTED("");
+    UNIMPLEMENTED("scroll wheel event");
 }
 
 void Navitab::onKeyEvent(int code)
 {
-    UNIMPLEMENTED("");
-}
-
-void Navitab::AsyncCall(std::function<void()>)
-{
-    UNIMPLEMENTED("AsyncCall");
+    UNIMPLEMENTED("key event");
 }
 
 std::filesystem::path Navitab::FindDataFilesPath()
@@ -317,6 +315,30 @@ std::filesystem::path Navitab::FindDataFilesPath()
         }
     }
     throw StartupError(fmt::format("Unable to find or create directory for Navitab data files, before line {} in {}", __LINE__, __FILE__));
+}
+
+void Navitab::AsyncCall(std::function<void()> j)
+{
+    {
+        std::lock_guard<std::mutex> lock(qmutex);
+        jobs.push(j);
+    }
+    qsync.notify_one();
+}
+
+void Navitab::AsyncWorker()
+{
+    while (1) {
+        std::unique_lock<std::mutex> lock(qmutex);
+        qsync.wait(lock, [this]() { return !running || !jobs.empty(); });
+        if (!running) break;
+        auto job = jobs.front();
+        jobs.pop();
+        lock.unlock();
+
+        // run the job
+        job();
+    }
 }
 
 } // namespace navitab

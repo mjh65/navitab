@@ -21,6 +21,11 @@
 #pragma once
 
 #include <memory>
+#include <functional>
+#include <queue>
+#include <mutex>
+#include <condition_variable>
+#include <thread>
 #include "navitab/core.h"
 #include "navitab/logger.h"
 #include "navitab/simulator.h"
@@ -92,24 +97,30 @@ public:
     // This satisfies both SimulatorEvents and WindowEvents base classes
     void AsyncCall(std::function<void ()>) override;
 
-protected:
+private:
     std::filesystem::path FindDataFilesPath();
+    void AsyncWorker();
 
 private:
     const HostPlatform              hostPlatform;
     const AppClass                  appClass;
     const SimEngine                 simProduct;
 
-    // logging
     std::unique_ptr<logging::Logger> LOG;
 
     std::filesystem::path           dataFilesPath;
 
-    bool                            started;
+    bool                            running;
     bool                            enabled;
 
-    std::shared_ptr<Simulator> simEnv;
+    std::shared_ptr<Simulator>      simulator;
+    std::shared_ptr<Window>         window;
     std::shared_ptr<Preferences>    prefs;
+
+    std::unique_ptr<std::thread>        worker;
+    std::queue<std::function<void()>>   jobs;
+    std::condition_variable             qsync;
+    std::mutex                          qmutex;
 };
 
 } // namespace navitab

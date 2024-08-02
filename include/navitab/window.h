@@ -21,6 +21,7 @@
 #pragma once
 
 #include <memory>
+#include <functional>
 
 // The Window class acts as a container for the 5 parts of the UI:
 // the Canvas, Toolbar, Modebar, Doodlepad, and Keypad.
@@ -49,9 +50,27 @@ struct WindowEvents
     // if the client window changes, eg switching to/from VR.
     virtual void SetWindow(std::shared_ptr<Window>) = 0;
 
-    // UI-triggered events notified to the Navitab core for further handling
+    // UI-triggered events notified to the Navitab core for further handling.
+    // These wrapper functions ensure that the UI thread is not stalled while
+    // the event is being handled.
+    void PostWindowResize(int w, int h) { 
+        AsyncCall([this, w, h]() { this->onWindowResize(w, h); });
+    }
+    void PostMouseEvent(int x, int y, bool l, bool r) {
+        AsyncCall([this, x, y, l, r]() { this->onMouseEvent(x, y, l, r); });
+    }
+    void PostWheelEvent(int x, int y, int xdir, int ydir) {
+        AsyncCall([this, x, y, xdir, ydir]() { this->onWheelEvent(x, y, xdir, ydir); });
+    }
+    void PostKeyEvent(int code) {
+        AsyncCall([this, code]() { this->onKeyEvent(code); });
+    }
 
-    // Called at start, and then whenever the window is resized.
+protected:
+    // Most callbacks are wrapped in AsyncCall() to avoid stalling the UI.
+    virtual void AsyncCall(std::function<void ()>) = 0;
+
+    // Called whenever the window is resized, including at start to initialise.
     virtual void onWindowResize(int width, int height) = 0;
 
     // Called when a mouse event occurs. Includes movement while a button is down
@@ -61,12 +80,8 @@ struct WindowEvents
     virtual void onWheelEvent(int x, int y, int xdir, int ydir) = 0;
 
     // Called when key events occur.
-    virtual void onKeyEvent(char code) = 0;
+    virtual void onKeyEvent(int code) = 0;
 
-    // TODO the frame buffer interface needs some thought, just have a placeholder for now
-    // called to check for redraw
-    // TODO - define parameters
-    virtual bool getUpdateRegion() = 0;
 };
 
 // The Window interface defines the services that the UI window provides to
@@ -108,6 +123,10 @@ struct Window
     virtual std::shared_ptr<Keypad> GetKeypad() = 0;
     virtual int FrameRate() = 0;
     virtual void Brightness(int percent) = 0;
+
+    // Run a job in the Window's event loop.
+    // MJH: Not sure if this will even be required?
+    //virtual void RunInEventLoop(std::function<void ()>) = 0;
 
     virtual ~Window() = default;
 };

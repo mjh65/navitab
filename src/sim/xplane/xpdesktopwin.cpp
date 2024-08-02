@@ -156,7 +156,7 @@ void XPDesktopWindow::onDraw()
     if (++winResizePollTimer > 30) {
         winResizePollTimer = 0;
         if (UpdateWinGeometry()) {
-            core->onWindowResize(winWidth, winHeight);
+            core->PostWindowResize(winWidth, winHeight);
         }
         if (!XPLMWindowIsPoppedOut(winHandle)) {
             int l, r, t, b;
@@ -186,7 +186,7 @@ int XPDesktopWindow::onLeftClick(int x, int y, XPLMMouseStatus status)
     // and also into our GUI normal form: 0,0 at top-left.
     ScreenToWindow(x, y);
     LOGD(fmt::format("Mouse event at {},{} (local coordinates)", x, y));
-    core->onMouseEvent(x, y, leftButtonPressed, rightButtonPressed);
+    core->PostMouseEvent(x, y, leftButtonPressed, rightButtonPressed);
     return 1;
 }
 
@@ -204,7 +204,7 @@ int XPDesktopWindow::onRightClick(int x, int y, XPLMMouseStatus status)
     // x,y in screen, not window coordinates, we need to convert them,
     // and also into our GUI normal form: 0,0 at top-left.
     ScreenToWindow(x, y);
-    core->onMouseEvent(x, y, leftButtonPressed, rightButtonPressed);
+    core->PostMouseEvent(x, y, leftButtonPressed, rightButtonPressed);
     return 1;
 }
 

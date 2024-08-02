@@ -73,7 +73,7 @@ void WindowGLFW::SetPrefs(std::shared_ptr<Preferences> p)
 void WindowGLFW::Connect(std::shared_ptr<WindowEvents> wcb)
 {
     coreWinCallbacks = wcb;
-    coreWinCallbacks->onWindowResize(winWidth, winHeight);
+    coreWinCallbacks->PostWindowResize(winWidth, winHeight);
     CreateWindow();
 }
 
@@ -96,7 +96,7 @@ int WindowGLFW::EventLoop(int maxLoops)
         int w, h;
         glfwGetWindowSize(window, &w, &h);
         if ((w != winWidth) || (h != winHeight)) {
-            coreWinCallbacks->onWindowResize(w, h);
+            coreWinCallbacks->PostWindowResize(w, h);
             winWidth = w; winHeight = h;
         }
     }

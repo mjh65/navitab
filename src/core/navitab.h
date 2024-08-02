@@ -76,7 +76,6 @@ public:
     // SimulatorEvents implementation
     
     void SetSimulator(std::shared_ptr<Simulator>) override;
-    void onFlightLoop() override;
 
     // WindowEvents implementation
     
@@ -84,12 +83,10 @@ public:
     void onWindowResize(int width, int height) override;
     void onMouseEvent(int x, int y, bool l, bool r) override;
     void onWheelEvent(int x, int y, int xdir, int ydir) override;
-    void onKeyEvent(char code) override;
+    void onKeyEvent(int code) override;
 
-    // TODO the frame buffer interface needs some thought, just have a placeholder for now
-    // called to check for redraw
-    // TODO - define parameters
-    bool getUpdateRegion() override;
+    // This satisfies both SimulatorEvents and WindowEvents base classes
+    void AsyncCall(std::function<void ()>) override;
 
 protected:
     std::filesystem::path FindDataFilesPath();

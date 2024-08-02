@@ -21,6 +21,7 @@
 #pragma once
 
 #include <memory>
+#include <functional>
 
 /*
  * This header file defines the interface to the simulator, which will
@@ -44,8 +45,9 @@ struct SimulatorEvents
     // called once.
     virtual void SetSimulator(std::shared_ptr<Simulator>) = 0;
 
-    // called from the simulator thread on each flight loop.
-    virtual void onFlightLoop() = 0;
+protected:
+    // Most callbacks are wrapped in AsyncCall() to avoid stalling the simulator.
+    virtual void AsyncCall(std::function<void ()>) = 0;
 
 };
 
@@ -55,7 +57,7 @@ struct SimulatorEvents
 
 struct Simulator
 {
-    // Factory
+    // Factory, implemented in each simulator library.
     static std::shared_ptr<Simulator> Factory();
 
     // APIs called from the application/plugin
@@ -64,7 +66,10 @@ struct Simulator
     virtual void Disconnect() = 0;
 
     // Access to the simulator from Navitab core
-    // ...
+
+    // Run a job in the simulator's flight loop.
+    // MJH: Not sure if this will even be required?
+    //virtual void RunInFlightLoop(std::function<void ()>) = 0;
 
     virtual ~Simulator() = default;
 

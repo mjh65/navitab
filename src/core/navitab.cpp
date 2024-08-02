@@ -208,39 +208,29 @@ std::filesystem::path Navitab::NavitabPath()
     return std::filesystem::path();
 }
 
-void Navitab::onFlightLoop()
-{
-}
-
 void Navitab::onWindowResize(int width, int height)
 {
     UNIMPLEMENTED("resize");
-    // need to be quick, don't hold up the simulator
 }
 
 void Navitab::onMouseEvent(int x, int y, bool l, bool r)
 {
     UNIMPLEMENTED("mouse event");
-    // need to be quick, don't hold up the simulator
 }
 
 void Navitab::onWheelEvent(int x, int y, int xdir, int ydir)
 {
     UNIMPLEMENTED("");
-    // need to be quick, don't hold up the simulator
 }
 
-void Navitab::onKeyEvent(char code)
+void Navitab::onKeyEvent(int code)
 {
     UNIMPLEMENTED("");
-    // need to be quick, don't hold up the simulator
 }
 
-bool Navitab::getUpdateRegion()
+void Navitab::AsyncCall(std::function<void()>)
 {
-    UNIMPLEMENTED("");
-    // need to be quick, don't hold up the simulator
-    return false;
+    UNIMPLEMENTED("AsyncCall");
 }
 
 std::filesystem::path Navitab::FindDataFilesPath()

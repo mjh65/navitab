@@ -21,6 +21,7 @@
 #pragma once
 
 #include <exception>
+#include <functional>
 #include <filesystem>
 #include <nlohmann/json_fwd.hpp>
 
@@ -78,15 +79,6 @@ struct System
 
     // Get the interface for UI-window-generated events that Navitab will handle
     virtual std::shared_ptr<WindowEvents> GetWindowInterface() = 0;
-#if 0
-    // Set the simulator that Navitab will work with. Returns the interface that the simulator
-    // should use to talk to Navitab.
-    virtual std::shared_ptr<SimulatorEvents> SetSimulator(std::shared_ptr<Simulator>) = 0;
-
-    // Set the window that Navitab will work with. Returns the interface that the window
-    // should use to talk to Navitab.
-    virtual std::shared_ptr<WindowEvents> SetWindow(std::shared_ptr<Window>) = 0;
-#endif
 
     // Startup and shutdown control - fine-grained enough to support all app classes.
     virtual void Start() = 0;

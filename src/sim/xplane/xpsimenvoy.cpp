@@ -328,10 +328,11 @@ float XPlaneSimulatorEnvoy::onFlightLoop(float elapsedSinceLastCall, float elaps
 
     setLastFrameTime(dataCache.getData("sim/operation/misc/frame_rate_period").floatValue);
 
-    runEnvironmentCallbacks();
+    
 #endif
-    if (win) win->onFlightLoop();
-    coreSimCallbacks->onFlightLoop();
+    if (win) win->CheckVitalSigns();
+    // runEnvironmentCallbacks(); // TODO - from Avitab, review what was done
+    // We probably need to activate and implement the RunInFlightLoop() interface
 
     return -1;
 }

@@ -51,7 +51,7 @@ public:
 
     // common behaviour
     void Show();
-    void onFlightLoop();
+    void CheckVitalSigns();
     bool isActive();
 
 protected:

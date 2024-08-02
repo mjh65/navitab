@@ -88,7 +88,7 @@ void XPlaneWindow::Show()
     XPLMSetWindowIsVisible(winHandle, true);
 }
 
-void XPlaneWindow::onFlightLoop()
+void XPlaneWindow::CheckVitalSigns()
 {
     assert(winHandle);
 

@@ -124,6 +124,11 @@ void Navitab::SetSimulator(std::shared_ptr<Simulator> s)
 void Navitab::SetWindow(std::shared_ptr<Window> w)
 {
     window = w;
+    toolbar->SetWindow(window);
+    modebar->SetWindow(window);
+    doodler->SetWindow(window);
+    keypad->SetWindow(window);
+    window->SetHandlers(toolbar, modebar, doodler, keypad);
 }
 
 std::shared_ptr<Toolbar> Navitab::GetToolbar()
@@ -200,7 +205,6 @@ void Navitab::Start()
     assert(modebar);
     assert(doodler);
     assert(keypad);
-    window->SetHandlers(toolbar, modebar, doodler, keypad);
 
     // curl_global_init(CURL_GLOBAL_ALL); TODO: activate this later
 }

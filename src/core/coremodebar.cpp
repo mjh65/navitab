@@ -28,8 +28,6 @@ CoreModebar::CoreModebar(std::shared_ptr<Navitab> c)
 :   core(c)
 {
     image = std::make_unique<ImageRectangle>(Window::MODEBAR_WIDTH, Window::MODEBAR_HEIGHT);
-    dirty = true;
-    core->AsyncCall([this]() { Redraw(); });
 }
 
 CoreModebar::~CoreModebar()
@@ -39,6 +37,8 @@ CoreModebar::~CoreModebar()
 void CoreModebar::SetWindow(std::shared_ptr<Window> w)
 {
     window = w;
+    dirty = true;
+    core->AsyncCall([this]() { Redraw(); });
 }
 
 void CoreModebar::DisableDoodler()

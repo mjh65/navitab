@@ -26,8 +26,12 @@
 #include <chrono>
 #include <iostream>
 #include <fmt/core.h>
+#include "navitab/config.h"
 #include "navitab/core.h"
-#include "svg/sample_64x64.h"
+#include "navitab/toolbar.h"
+#include "navitab/modebar.h"
+#include "navitab/doodler.h"
+#include "navitab/keypad.h"
 
 std::shared_ptr<navitab::Window> navitab::Window::Factory()
 {
@@ -56,18 +60,11 @@ WindowGLFW::WindowGLFW()
     partImages[CANVAS] = std::make_unique<ImageRectangle>(WIN_STD_WIDTH, WIN_STD_HEIGHT - TOOLBAR_HEIGHT);
     partImages[TOOLBAR] = std::make_unique<ImageRectangle>(WIN_STD_WIDTH, TOOLBAR_HEIGHT);
     partImages[MODEBAR] = std::make_unique<ImageRectangle>(MODEBAR_WIDTH, MODEBAR_HEIGHT);
-    partImages[DOODLEPAD] = std::make_unique<ImageRectangle>(WIN_STD_WIDTH - MODEBAR_WIDTH, WIN_STD_HEIGHT - TOOLBAR_HEIGHT);
+    partImages[DOODLER] = std::make_unique<ImageRectangle>(WIN_STD_WIDTH - MODEBAR_WIDTH, WIN_STD_HEIGHT - TOOLBAR_HEIGHT);
     partImages[KEYPAD] = std::make_unique<ImageRectangle>(WIN_STD_WIDTH - MODEBAR_WIDTH, KEYPAD_HEIGHT);
 
-    auto& tbImage = partImages[TOOLBAR]->imageBuffer;
-    for (auto& i : tbImage) {
-        i = 0xffd0d0d0; // alpha 0xff means it is opaque
-    }
-
-    auto& mbImage = partImages[MODEBAR]->imageBuffer;
-    for (auto& i : mbImage) {
-        i = 0x40f0f0f0; // alpha 0x40 is quite translucent!
-    }
+    partImages[TOOLBAR]->Clear(0xffd0d0d0); // alpha 0xff means it is opaque
+    partImages[MODEBAR]->Clear(0x40f0f0f0); // alpha 0x40 is quite translucent!
 
     glfwSetErrorCallback(GLFWERR);
     if (!glfwInit()) {
@@ -118,6 +115,7 @@ int WindowGLFW::EventLoop(int maxLoops)
         }
     }
 
+#if 0
     // TODO - this is just here for development and testing. of course it will get
     // replaced eventually!
     auto& canvas = *(partImages[CANVAS]);
@@ -140,6 +138,7 @@ int WindowGLFW::EventLoop(int maxLoops)
             }
         }
     }
+#endif
 
     if (bDelta > 0.0f) {
         brightness += bDelta;
@@ -169,7 +168,51 @@ int WindowGLFW::EventLoop(int maxLoops)
 
 void WindowGLFW::Brightness(int percent)
 {
-    UNIMPLEMENTED("Brightness()");
+    if (percent < 0) percent = 0;
+    else if (percent > 100) percent = 100;
+    brightness = 0.1f + (0.9f * percent / 100.0f);
+}
+
+void WindowGLFW::SetHandlers(std::shared_ptr<Toolbar> t, std::shared_ptr<Modebar> m, std::shared_ptr<Doodler> d, std::shared_ptr<Keypad> k)
+{
+    toolbar = t;
+    modebar = m;
+    doodler = d;
+    keypad = k;
+
+    toolbar->PostResize(winWidth);
+    doodler->PostResize(winWidth, winHeight);
+    keypad->PostResize(winWidth, winHeight);
+}
+
+std::unique_ptr<ImageRectangle> WindowGLFW::RefreshCanvas(std::unique_ptr<ImageRectangle>)
+{
+    UNIMPLEMENTED("");
+    return nullptr;
+}
+
+std::unique_ptr<ImageRectangle> WindowGLFW::RefreshToolbar(std::unique_ptr<ImageRectangle>)
+{
+    UNIMPLEMENTED("");
+    return nullptr;
+}
+
+std::unique_ptr<ImageRectangle> WindowGLFW::RefreshModebar(std::unique_ptr<ImageRectangle>)
+{
+    UNIMPLEMENTED("");
+    return nullptr;
+}
+
+std::unique_ptr<ImageRectangle> WindowGLFW::RefreshDoodler(std::unique_ptr<ImageRectangle>)
+{
+    UNIMPLEMENTED("");
+    return nullptr;
+}
+
+std::unique_ptr<ImageRectangle> WindowGLFW::RefreshKeypad(std::unique_ptr<ImageRectangle>)
+{
+    UNIMPLEMENTED("");
+    return nullptr;
 }
 
 void WindowGLFW::CreateWindow()
@@ -177,7 +220,7 @@ void WindowGLFW::CreateWindow()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
     glfwWindowHint(GLFW_RESIZABLE, true);
-    window = glfwCreateWindow(winWidth, winHeight, "Navitab", nullptr, nullptr);
+    window = glfwCreateWindow(winWidth, winHeight, NAVITAB_NAME " " NAVITAB_VERSION_STR, nullptr, nullptr);
 
     if (!window) {
         throw StartupError("Couldn't create GLFW window");
@@ -252,7 +295,7 @@ void WindowGLFW::RenderFrame()
     RenderPart(CANVAS, 0, TOOLBAR_HEIGHT, winWidth, winHeight);
     RenderPart(TOOLBAR, 0, 0, winWidth, TOOLBAR_HEIGHT);
     RenderPart(MODEBAR, 0, TOOLBAR_HEIGHT, MODEBAR_WIDTH, TOOLBAR_HEIGHT + MODEBAR_HEIGHT);
-    // TODO - add doodlepad and keypad, if they are active
+    // TODO - add doodler and keypad, if they are active
 
     glBindTexture(GL_TEXTURE_2D, 0);
 

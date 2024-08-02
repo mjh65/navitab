@@ -21,6 +21,7 @@
 #include "winmsfs.h"
 #include <fmt/core.h>
 #include "navitab/core.h"
+#include "../../win/imagerect.h"
 
 std::shared_ptr<navitab::Window> navitab::Window::Factory()
 {
@@ -52,6 +53,35 @@ void WindowMSFS::Disconnect()
 int WindowMSFS::EventLoop(int maxLoops)
 {
     return 0;
+}
+
+void WindowMSFS::SetHandlers(std::shared_ptr<Toolbar>, std::shared_ptr<Modebar>, std::shared_ptr<Doodler>, std::shared_ptr<Keypad>)
+{
+}
+
+std::unique_ptr<ImageRectangle> WindowMSFS::RefreshCanvas(std::unique_ptr<ImageRectangle>)
+{
+    return nullptr;
+}
+
+std::unique_ptr<ImageRectangle> WindowMSFS::RefreshToolbar(std::unique_ptr<ImageRectangle>)
+{
+    return nullptr;
+}
+
+std::unique_ptr<ImageRectangle> WindowMSFS::RefreshModebar(std::unique_ptr<ImageRectangle>)
+{
+    return nullptr;
+}
+
+std::unique_ptr<ImageRectangle> WindowMSFS::RefreshDoodler(std::unique_ptr<ImageRectangle>)
+{
+    return nullptr;
+}
+
+std::unique_ptr<ImageRectangle> WindowMSFS::RefreshKeypad(std::unique_ptr<ImageRectangle>)
+{
+    return nullptr;
 }
 
 void WindowMSFS::Brightness(int percent)

@@ -25,6 +25,10 @@
 #include <filesystem>
 #include <nlohmann/json.hpp>
 #include <fmt/core.h>
+#include "coretoolbar.h"
+#include "coremodebar.h"
+#include "coredoodler.h"
+#include "corekeypad.h"
 
 namespace navitab {
 
@@ -134,9 +138,9 @@ std::shared_ptr<Modebar> Navitab::GetModebar()
     return nullptr;
 }
 
-std::shared_ptr<Doodlepad> Navitab::GetDoodlepad()
+std::shared_ptr<Doodler> Navitab::GetDoodler()
 {
-    UNIMPLEMENTED("get doodlepad");
+    UNIMPLEMENTED("get doodler");
     return nullptr;
 }
 
@@ -158,11 +162,47 @@ void Navitab::Start()
     // the Navitab core is triggered by jobs posted to this thread, and most
     // of those jobs are UI interactions or simulator updates.
 
-    worker = std::make_unique<std::thread>([this]() { this->AsyncWorker(); });
+    worker = std::make_unique<std::thread>([this]() { AsyncWorker(); });
 
+    // Create the toolbar, modebar, doodler and keypad. Which implementation
+    // depends on the combination of simulator and application type.
+
+    if (simProduct == MSFS) {
+        if (appClass == PLUGIN) {
+            UNIMPLEMENTED("MSFS:PLUGIN");
+        } else if (appClass == DESKTOP) {
+            UNIMPLEMENTED("MSFS:DESKTOP");
+        } else if (appClass == CONSOLE) {
+            UNIMPLEMENTED("MSFS:CONSOLE");
+        }
+    } else if (simProduct == XPLANE) {
+        if (appClass == PLUGIN) {
+            UNIMPLEMENTED("XPLANE:PLUGIN");
+        } else if (appClass == DESKTOP) {
+            UNIMPLEMENTED("XPLANE:DESKTOP");
+        } else if (appClass == CONSOLE) {
+            UNIMPLEMENTED("XPLANE:CONSOLE");
+        }
+    } else if (simProduct == MOCK) {
+        if (appClass == PLUGIN) {
+            UNIMPLEMENTED("MOCK:PLUGIN");
+        } else if (appClass == DESKTOP) {
+            toolbar = std::make_shared<CoreToolbar>(shared_from_this());
+            modebar = std::make_shared<CoreModebar>(shared_from_this());
+            doodler = std::make_shared<CoreDoodler>(shared_from_this());
+            keypad = std::make_shared<CoreKeypad>(shared_from_this());
+        } else if (appClass == CONSOLE) {
+            UNIMPLEMENTED("MOCK:CONSOLE");
+        }
+    }
+
+    assert(toolbar);
+    assert(modebar);
+    assert(doodler);
+    assert(keypad);
+    window->SetHandlers(toolbar, modebar, doodler, keypad);
 
     // curl_global_init(CURL_GLOBAL_ALL); TODO: activate this later
-
 }
 
 void Navitab::Enable()
@@ -235,7 +275,7 @@ std::filesystem::path Navitab::NavitabPath()
     return std::filesystem::path();
 }
 
-void Navitab::onWindowResize(int width, int height)
+void Navitab::onCanvasResize(int width, int height)
 {
     UNIMPLEMENTED("resize");
 }

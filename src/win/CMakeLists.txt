@@ -16,12 +16,14 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# Any [abstract] interfaces that are used by the different executables
-# are found in NAVITAB_API_DIR. All other headers that are internal to
-# the Navitab core system are referenced using relative paths from the
-# including file.
+target_sources(navitab_core PRIVATE
+    "imagerect.cpp"
+)
 
 add_subdirectory(glfw)
+if(XPLANE_SDK)
+    add_subdirectory(xplane)
+endif()
 if(MSFS_SDK)
     add_subdirectory(msfs)
 endif()

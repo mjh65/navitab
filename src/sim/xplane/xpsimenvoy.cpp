@@ -19,8 +19,8 @@
  */
 
 #include "xpsimenvoy.h"
-#include "xpdesktopwin.h"
-#include "xpvrwin.h"
+#include "../../win/xplane/xpdesktopwin.h"
+#include "../../win/xplane/xpvrwin.h"
 #include <cassert>
 #include <XPLM/XPLMPlugin.h>
 #include <XPLM/XPLMPlanes.h>

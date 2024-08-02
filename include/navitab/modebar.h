@@ -21,6 +21,7 @@
 #pragma once
 
 #include <memory>
+#include <functional>
 
 // The Modebar class represents the mode/app chooser which is drawn down the
 // left hand side of the window. It is a fixed size, and contains a set of
@@ -29,8 +30,12 @@
 
 namespace navitab {
 
+struct Window;
+
 // The ModebarEvents interface is how the UI doodle pad implementation provides
 // events to the Navitab core.
+
+// TODO - seems like there is some shared behaviour between Toolbar, Modebar, Doodler and Keypad which should go into a base class.
 
 struct ModebarEvents
 {
@@ -43,8 +48,9 @@ struct ModebarEvents
         AIRPORT     = 0b100,
         ROUTE       = 0b1000,
         DOC_VIEWER  = 0b10000,
-        SETTINGS    = 0b100000
-        // doodle pad and keypad are not modes!
+        SETTINGS    = 0b100000,
+        DOODLER     = 0b1000000,
+        KEYPAD      = 0b10000000
     };
 
     // Called when a mode icon is clicked
@@ -56,15 +62,27 @@ struct ModebarEvents
 
 struct Modebar
 {
-    // APIs called from the application/plugin
-    virtual void DisableDoodlepad() = 0;
-    virtual void EnableKeypad() = 0;
-    virtual void DisableKeypad() = 0;
-
     // APIs called from the window
-    virtual void MouseButtonLeft(int x, int y, bool down) = 0;
+    virtual void SetWindow(std::shared_ptr<Window> window) = 0;
+
+    // Window sends mouse events, Modebar tracks and notifies Navitab core
+    // if new mode is selected, or doodler, or keypad if they are toggled
+    void PostMouseEvent(int x, int y, bool l, bool r) {
+        AsyncCall([this, x, y, l, r]() { onMouseEvent(x, y, l, r); });
+    }
+
+    // APIs called from the Navitab core
+    virtual void DisableDoodler() = 0;
+    virtual void ShowKeypad() = 0;
+    virtual void HideKeypad() = 0;
 
     virtual ~Modebar() = default;
+
+protected:
+    // Most callbacks are wrapped in AsyncCall() to avoid stalling the UI.
+    virtual void AsyncCall(std::function<void ()>) = 0;
+
+    virtual void onMouseEvent(int x, int y, bool l, bool r) = 0;
 };
 
 } // namespace navitab

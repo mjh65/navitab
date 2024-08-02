@@ -24,7 +24,3 @@
 target_sources(navitab_sim_msfs PRIVATE
     winmsfs.cpp
 )
-
-target_link_libraries(navitab_sim_msfs PRIVATE
-    navitab_core
-)

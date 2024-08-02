@@ -42,6 +42,12 @@ public:
     virtual void Reset() = 0;
 
     // Implementation of navitab::Window, common to desktop and VR
+    void SetHandlers(std::shared_ptr<Toolbar>, std::shared_ptr<Modebar>, std::shared_ptr<Doodler>, std::shared_ptr<Keypad>) override;
+    std::unique_ptr<ImageRectangle> RefreshCanvas(std::unique_ptr<ImageRectangle>) override;
+    std::unique_ptr<ImageRectangle> RefreshToolbar(std::unique_ptr<ImageRectangle>) override;
+    std::unique_ptr<ImageRectangle> RefreshModebar(std::unique_ptr<ImageRectangle>) override;
+    std::unique_ptr<ImageRectangle> RefreshDoodler(std::unique_ptr<ImageRectangle>) override;
+    std::unique_ptr<ImageRectangle> RefreshKeypad(std::unique_ptr<ImageRectangle>) override;
     void Brightness(int percent) override;
 
     // common behaviour

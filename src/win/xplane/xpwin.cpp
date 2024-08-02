@@ -29,6 +29,8 @@
 #include <fmt/core.h>
 #include <nlohmann/json.hpp>
 #include "navitab/core.h"
+#include "../../win/imagerect.h"
+
 
 namespace navitab {
 
@@ -145,5 +147,39 @@ bool XPlaneWindow::isActive()
     return winVisible;
 }
 
+
+void XPlaneWindow::SetHandlers(std::shared_ptr<Toolbar>, std::shared_ptr<Modebar>, std::shared_ptr<Doodler>, std::shared_ptr<Keypad>)
+{
+}
+
+std::unique_ptr<ImageRectangle> XPlaneWindow::RefreshCanvas(std::unique_ptr<ImageRectangle>)
+{
+    UNIMPLEMENTED("");
+    return nullptr;
+}
+
+std::unique_ptr<ImageRectangle> XPlaneWindow::RefreshToolbar(std::unique_ptr<ImageRectangle>)
+{
+    UNIMPLEMENTED("");
+    return nullptr;
+}
+
+std::unique_ptr<ImageRectangle> XPlaneWindow::RefreshModebar(std::unique_ptr<ImageRectangle>)
+{
+    UNIMPLEMENTED("");
+    return nullptr;
+}
+
+std::unique_ptr<ImageRectangle> XPlaneWindow::RefreshDoodler(std::unique_ptr<ImageRectangle>)
+{
+    UNIMPLEMENTED("");
+    return nullptr;
+}
+
+std::unique_ptr<ImageRectangle> XPlaneWindow::RefreshKeypad(std::unique_ptr<ImageRectangle>)
+{
+    UNIMPLEMENTED("");
+    return nullptr;
+}
 
 } // namespace navitab

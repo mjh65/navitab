@@ -87,9 +87,9 @@ public:
     void SetWindow(std::shared_ptr<Window>) override;
     std::shared_ptr<Toolbar> GetToolbar() override;
     std::shared_ptr<Modebar> GetModebar() override;
-    std::shared_ptr<Doodlepad> GetDoodlepad() override;
+    std::shared_ptr<Doodler> GetDoodler() override;
     std::shared_ptr<Keypad> GetKeypad() override;
-    void onWindowResize(int width, int height) override;
+    void onCanvasResize(int width, int height) override;
     void onMouseEvent(int x, int y, bool l, bool r) override;
     void onWheelEvent(int x, int y, int xdir, int ydir) override;
     void onKeyEvent(int code) override;
@@ -102,25 +102,30 @@ private:
     void AsyncWorker();
 
 private:
-    const HostPlatform              hostPlatform;
-    const AppClass                  appClass;
-    const SimEngine                 simProduct;
+    const HostPlatform                  hostPlatform;
+    const AppClass                      appClass;
+    const SimEngine                     simProduct;
 
-    std::unique_ptr<logging::Logger> LOG;
+    std::unique_ptr<logging::Logger>    LOG;
+    std::shared_ptr<Preferences>        prefs;
 
-    std::filesystem::path           dataFilesPath;
+    std::shared_ptr<Simulator>          simulator;
+    std::shared_ptr<Window>             window;
+    std::shared_ptr<Toolbar>            toolbar;
+    std::shared_ptr<Modebar>            modebar;
+    std::shared_ptr<Doodler>            doodler;
+    std::shared_ptr<Keypad>             keypad;
 
-    bool                            running;
-    bool                            enabled;
+    std::filesystem::path               dataFilesPath;
 
-    std::shared_ptr<Simulator>      simulator;
-    std::shared_ptr<Window>         window;
-    std::shared_ptr<Preferences>    prefs;
+    bool                                running;
+    bool                                enabled;
 
     std::unique_ptr<std::thread>        worker;
     std::queue<std::function<void()>>   jobs;
     std::condition_variable             qsync;
     std::mutex                          qmutex;
+
 };
 
 } // namespace navitab

@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include <memory>
 #include "navitab/window.h"
 #include "navitab/logger.h"
 
@@ -36,6 +37,12 @@ public:
     void Connect(std::shared_ptr<WindowEvents> core) override;
     void Disconnect() override;
     int EventLoop(int maxLoops) override;
+    void SetHandlers(std::shared_ptr<Toolbar>, std::shared_ptr<Modebar>, std::shared_ptr<Doodler>, std::shared_ptr<Keypad>) override;
+    std::unique_ptr<ImageRectangle> RefreshCanvas(std::unique_ptr<ImageRectangle>) override;
+    std::unique_ptr<ImageRectangle> RefreshToolbar(std::unique_ptr<ImageRectangle>) override;
+    std::unique_ptr<ImageRectangle> RefreshModebar(std::unique_ptr<ImageRectangle>) override;
+    std::unique_ptr<ImageRectangle> RefreshDoodler(std::unique_ptr<ImageRectangle>) override;
+    std::unique_ptr<ImageRectangle> RefreshKeypad(std::unique_ptr<ImageRectangle>) override;
     void Brightness(int percent) override;
 
 private:

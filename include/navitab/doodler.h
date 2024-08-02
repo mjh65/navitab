@@ -23,57 +23,65 @@
 #include <memory>
 #include <functional>
 
-// The Keypad class represents an onscreen keyboard. This is a semi-transparent
-// overlay to the canvas that generates key codes in reponse to mouse-clicks.
-// The keypad can be displayed/hidden through the mode bar.
+// The Doodler class represents the user's doodling area. This is a transparent
+// overlay to the canvas that can be drawn or typed on when it is activated in the
+// mode bar. It doesn't really interact much with the rest of Navitab, so maybe
+// this interface will go away.
 
 namespace navitab {
 
 struct Window;
 
-// The KeypadEvents interface is how the UI doodle pad implementation provides
+// The DoodlerEvents interface is how the UI doodle pad implementation provides
 // events to the Navitab core.
 
-struct KeypadEvents
+struct DoodlerEvents
 {
     // UI-triggered events notified to the Navitab core for further handling
-
-    // Called when key events occur.
-    virtual void onKeyEvent(char code) = 0;
+    // this is empty, since the doodle pad is self-contained!
 };
 
-// The Keypad interface defines the services that the UI window provides to
+// The Doodler interface defines the services that the UI window provides to
 // the Navitab core.
 
 // TODO - seems like there is some shared behaviour between Toolbar, Modebar, Doodler and Keypad which should go into a base class.
+// TODO - they all have an interface to the window, the core, and an async call handler.
 
-struct Keypad
+struct Doodler
 {
-    // From the window (some posted async)
+    // APIs called from the window
     virtual void SetWindow(std::shared_ptr<Window> window) = 0;
 
     void PostResize(int w, int h) {
-        AsyncCall([this, w, h]() { onKeypadResize(w, h); });
+        AsyncCall([this, w, h]() { onDoodlerResize(w, h); });
     }
     void PostMouseEvent(int x, int y, bool l, bool r) {
         AsyncCall([this, x, y, l, r]() { onMouseEvent(x, y, l, r); });
     }
+    void PostKeyEvent(int code) {
+        AsyncCall([this, code]() { onKeyEvent(code); });
+    }
 
-    // APIs called from the Navitab core (sync call is OK)
-    virtual void Show() = 0;
-    virtual void Hide() = 0;
-    // other stuff, like setting any multi-character keys (nearest airports etc)
+    // Navitab core calls these (originate from the Modebar click handler)
+    void Enable() { 
+        AsyncCall([this]() { onEnable(); });
+    }
+    void Disable() { 
+        AsyncCall([this]() { onDisable(); });
+    }
 
-    virtual ~Keypad() = default;
+    virtual ~Doodler() = default;
 
 protected:
     // Most callbacks are wrapped in AsyncCall() to avoid stalling the UI.
     virtual void AsyncCall(std::function<void ()>) = 0;
 
-    virtual void onKeypadResize(int width, int height) = 0;
+    virtual void onEnable() = 0;
+    virtual void onDisable() = 0;
+    virtual void onDoodlerResize(int width, int height) = 0;
     virtual void onMouseEvent(int x, int y, bool l, bool r) = 0;
+    virtual void onKeyEvent(int c) = 0;
 
-    void Redraw();
 };
 
 } // namespace navitab

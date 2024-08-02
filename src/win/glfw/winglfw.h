@@ -23,6 +23,7 @@
 #include "navitab/window.h"
 #include <vector>
 #include <GLFW/glfw3.h>
+#include "../imagerect.h"
 #include "navitab/logger.h"
 
 namespace navitab {
@@ -38,6 +39,12 @@ public:
     void Connect(std::shared_ptr<WindowEvents> core) override;
     void Disconnect() override;
     int EventLoop(int maxLoops) override;
+    void SetHandlers(std::shared_ptr<Toolbar>, std::shared_ptr<Modebar>, std::shared_ptr<Doodler>, std::shared_ptr<Keypad>) override;
+    std::unique_ptr<ImageRectangle> RefreshCanvas(std::unique_ptr<ImageRectangle>) override;
+    std::unique_ptr<ImageRectangle> RefreshToolbar(std::unique_ptr<ImageRectangle>) override;
+    std::unique_ptr<ImageRectangle> RefreshModebar(std::unique_ptr<ImageRectangle>) override;
+    std::unique_ptr<ImageRectangle> RefreshDoodler(std::unique_ptr<ImageRectangle>) override;
+    std::unique_ptr<ImageRectangle> RefreshKeypad(std::unique_ptr<ImageRectangle>) override;
     void Brightness(int percent) override;
 
 protected:
@@ -57,7 +64,7 @@ private:
         CANVAS,
         TOOLBAR,
         MODEBAR,
-        DOODLEPAD,
+        DOODLER,
         KEYPAD,
         PART_COUNT
     };
@@ -65,10 +72,15 @@ private:
     std::shared_ptr<Preferences> prefs;
     std::shared_ptr<WindowEvents> coreWinCallbacks;
     std::unique_ptr<logging::Logger> LOG;
+    std::shared_ptr<Toolbar> toolbar;
+    std::shared_ptr<Modebar> modebar;
+    std::shared_ptr<Doodler> doodler;
+    std::shared_ptr<Keypad> keypad;
 
     GLFWwindow* window;
     GLuint textureNames[PART_COUNT];
 
+#if 0
     // TODO - move the ImageRectangle structure into a core header file
     struct ImageRectangle {
         int imageWidth;
@@ -80,6 +92,8 @@ private:
         int Height() const { return imageHeight; }
         uint32_t* Row(int r) { return &imageBuffer[r * imageWidth]; }
     };
+#endif
+
     std::unique_ptr<ImageRectangle> partImages[PART_COUNT];
 
     int winResizePollTimer;

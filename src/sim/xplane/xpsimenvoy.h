@@ -29,7 +29,7 @@
 #include <XPLM/XPLMProcessing.h>
 #include <XPLM/XPLMMenus.h>
 #include <XPLM/XPLMDataAccess.h>
-#include "xpwin.h"
+#include "../../win/xplane/xpwin.h"
 #include "navitab/logger.h"
 
 namespace navitab {

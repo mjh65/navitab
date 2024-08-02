@@ -18,15 +18,20 @@
 
 target_sources(navitab_core PRIVATE
     navitab.cpp
+    navitab.h
     logger.cpp
     logmanager.cpp
+    logmanager.h
     prefs.cpp
+    prefs.h
+    coretoolbar.cpp
+    coretoolbar.h
+    coremodebar.cpp
+    coremodebar.h
+    coredoodler.cpp
+    coredoodler.h
+    corekeypad.cpp
+    corekeypad.h
 )
 
 add_dependencies(navitab_core navitab_svg_headers)
-
-target_link_libraries(navitab_core PUBLIC
-    fmt::fmt
-    lvgl::lvgl
-    nlohmann_json::nlohmann_json
-)

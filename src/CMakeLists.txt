@@ -31,6 +31,11 @@ target_include_directories(navitab_core PRIVATE
     "${NAVITAB_API_DIR}"
     "${PROJECT_BINARY_DIR}"
 )
+target_link_libraries(navitab_core PUBLIC
+    fmt::fmt
+    lvgl::lvgl
+    nlohmann_json::nlohmann_json
+)
 
 # The mock simulator generates random or scripted events for the Navitab core.
 add_library(navitab_sim_mock)
@@ -38,6 +43,7 @@ target_include_directories(navitab_sim_mock PRIVATE
     "${NAVITAB_API_DIR}"
     "${PROJECT_BINARY_DIR}"
 )
+# TODO target_link_libaries for navitab_sim_mock
 
 # The glfw window library provides a desktop GUI window interface to the Navitab core.
 add_library(navitab_win_glfw)
@@ -45,14 +51,27 @@ target_include_directories(navitab_win_glfw PRIVATE
     "${NAVITAB_API_DIR}"
     "${PROJECT_BINARY_DIR}"
 )
+if(APPLE)
+    target_compile_definitions(navitab_win_glfw PRIVATE GL_SILENCE_DEPRECATION)
+endif()
+target_link_libraries(navitab_win_glfw PRIVATE
+    navitab_core
+    glfw
+)
 
 if(XPLANE_SDK)
     # The XPlane library provides interfacing to XPlane for both simulator and window interfaces.
     add_library(navitab_sim_xp)
-    target_include_directories(navitab_sim_xp PRIVATE
+    target_include_directories(navitab_sim_xp PUBLIC
         "${NAVITAB_API_DIR}"
         "${PROJECT_BINARY_DIR}"
+        "${XPLANE_SDK}/CHeaders"
     )
+    target_compile_definitions(navitab_sim_xp PUBLIC
+        XPLM400 XPLM303 XPLM301 XPLM300 XPLM210 XPLM200
+        APL=$<BOOL:${APPLE}> IBM=$<BOOL:${WIN32}> LIN=$<AND:$<BOOL:${UNIX}>,$<NOT:$<BOOL:${APPLE}>>>
+    )
+    target_link_libraries(navitab_sim_xp PRIVATE navitab_core)
 endif()
 
 if(MSFS_SDK)
@@ -62,6 +81,9 @@ if(MSFS_SDK)
         "${NAVITAB_API_DIR}"
         "${PROJECT_BINARY_DIR}"
     )
+    target_link_libraries(navitab_sim_msfs PRIVATE
+        navitab_core
+    )
 endif()
 
 add_subdirectory(core)
@@ -70,4 +92,3 @@ add_subdirectory(lvglcpp)
 add_subdirectory(charts)
 add_subdirectory(sim)
 add_subdirectory(win)
-

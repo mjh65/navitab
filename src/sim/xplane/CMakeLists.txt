@@ -18,25 +18,5 @@
 
 target_sources(navitab_sim_xp PRIVATE
     xpsimenvoy.cpp
-    xpwin.cpp
-    xpdesktopwin.cpp
-    xpvrwin.cpp
-    datarefexport.cpp
-    datarefimport.cpp
+    xpsimenvoy.h
 )
-
-target_compile_definitions(navitab_sim_xp PUBLIC
-    XPLM400 XPLM303 XPLM301 XPLM300 XPLM210 XPLM200
-    APL=$<BOOL:${APPLE}> IBM=$<BOOL:${WIN32}> LIN=$<AND:$<BOOL:${UNIX}>,$<NOT:$<BOOL:${APPLE}>>>
-)
-
-target_include_directories(navitab_sim_xp PUBLIC
-    "${XPLANE_SDK}/CHeaders"
-)
-
-target_link_libraries(navitab_sim_xp PRIVATE navitab_core)
-
-if(WIN32)
-elseif(APPLE)
-elseif(UNIX)
-endif()

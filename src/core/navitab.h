@@ -45,8 +45,8 @@ public:
     // System base class overrides
     
     // hook up with simulator and window
-    std::shared_ptr<SimulatorEvents> GetSimulatorInterface() override;
-    std::shared_ptr<WindowEvents> GetWindowInterface() override;
+    std::shared_ptr<SimulatorEvents> GetSimulatorCallbacks() override;
+    std::shared_ptr<WindowEvents> GetWindowCallbacks() override;
 
     // Startup and shutdown control - fine-grained enough to support all app classes.
     void Start() override;    // TODO - called from XPluginStart - review this in SDK and Avitab
@@ -80,6 +80,10 @@ public:
     // WindowEvents implementation
     
     void SetWindow(std::shared_ptr<Window>) override;
+    std::shared_ptr<Toolbar> GetToolbar() override;
+    std::shared_ptr<Modebar> GetModebar() override;
+    std::shared_ptr<Doodlepad> GetDoodlepad() override;
+    std::shared_ptr<Keypad> GetKeypad() override;
     void onWindowResize(int width, int height) override;
     void onMouseEvent(int x, int y, bool l, bool r) override;
     void onWheelEvent(int x, int y, int xdir, int ydir) override;

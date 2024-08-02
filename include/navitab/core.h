@@ -75,10 +75,10 @@ struct System
     static std::shared_ptr<System> GetSystem(SimEngine s, AppClass c);
 
     // Get the interface for simulation-generated events that Navitab will handle
-    virtual std::shared_ptr<SimulatorEvents> GetSimulatorInterface() = 0;
+    virtual std::shared_ptr<SimulatorEvents> GetSimulatorCallbacks() = 0;
 
     // Get the interface for UI-window-generated events that Navitab will handle
-    virtual std::shared_ptr<WindowEvents> GetWindowInterface() = 0;
+    virtual std::shared_ptr<WindowEvents> GetWindowCallbacks() = 0;
 
     // Startup and shutdown control - fine-grained enough to support all app classes.
     virtual void Start() = 0;

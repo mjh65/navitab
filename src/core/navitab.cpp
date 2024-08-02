@@ -102,12 +102,12 @@ Navitab::~Navitab()
     LOGS("~Navitab() done");
 }
 
-std::shared_ptr<SimulatorEvents> Navitab::GetSimulatorInterface()
+std::shared_ptr<SimulatorEvents> Navitab::GetSimulatorCallbacks()
 {
     return shared_from_this();
 }
 
-std::shared_ptr<WindowEvents> Navitab::GetWindowInterface()
+std::shared_ptr<WindowEvents> Navitab::GetWindowCallbacks()
 {
     return shared_from_this();
 }
@@ -120,6 +120,30 @@ void Navitab::SetSimulator(std::shared_ptr<Simulator>)
 void Navitab::SetWindow(std::shared_ptr<Window>)
 {
     UNIMPLEMENTED("set member for window calls");
+}
+
+std::shared_ptr<Toolbar> Navitab::GetToolbar()
+{
+    UNIMPLEMENTED("get toolbar");
+    return nullptr;
+}
+
+std::shared_ptr<Modebar> Navitab::GetModebar()
+{
+    UNIMPLEMENTED("get modebar");
+    return nullptr;
+}
+
+std::shared_ptr<Doodlepad> Navitab::GetDoodlepad()
+{
+    UNIMPLEMENTED("get doodlepad");
+    return nullptr;
+}
+
+std::shared_ptr<Keypad> Navitab::GetKeypad()
+{
+    UNIMPLEMENTED("get keypad");
+    return nullptr;
 }
 
 void Navitab::Start()

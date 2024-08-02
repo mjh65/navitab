@@ -42,11 +42,6 @@ public:
     virtual void Reset() = 0;
 
     // Implementation of navitab::Window, common to desktop and VR
-    std::shared_ptr<Toolbar> GetToolbar() override;
-    std::shared_ptr<Modebar> GetModebar() override;
-    std::shared_ptr<Doodlepad> GetDoodlepad() override;
-    std::shared_ptr<Keypad> GetKeypad() override;
-    int FrameRate() override;
     void Brightness(int percent) override;
 
     // common behaviour
@@ -55,6 +50,7 @@ public:
     bool isActive();
 
 protected:
+    // Implementation of navitab::Window, common to desktop and VR
     // these get called internally from the Create/Destroy functions.
     void SetPrefs(std::shared_ptr<Preferences> prefs) override;
     void Connect(std::shared_ptr<WindowEvents> core) override;

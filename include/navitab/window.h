@@ -46,11 +46,18 @@ struct Keypad;
 
 struct WindowEvents
 {
-    // Set the window that Navitab will work with. May be called several times
-    // if the client window changes, eg switching to/from VR.
+    // Tell Navitab the interface to the window it will work with.
+    // This may be called 'mid-flight' as the client window can change when
+    // switching to/from VR.
     virtual void SetWindow(std::shared_ptr<Window>) = 0;
 
-    // UI-triggered events notified to the Navitab core for further handling.
+    // Get the interfaces for each of the window parts
+    virtual std::shared_ptr<Toolbar> GetToolbar() = 0;
+    virtual std::shared_ptr<Modebar> GetModebar() = 0;
+    virtual std::shared_ptr<Doodlepad> GetDoodlepad() = 0;
+    virtual std::shared_ptr<Keypad> GetKeypad() = 0;
+
+    // UI-triggered events notified to the Navitab core.
     // These wrapper functions ensure that the UI thread is not stalled while
     // the event is being handled.
     void PostWindowResize(int w, int h) { 
@@ -100,12 +107,15 @@ struct Window
         MODEBAR_WIDTH = 60
     };
 
+    // ===============================================================
     // Factory function to create a GUI window object. There will be
     // one of these in each of the simulator-specific libraries.
     static std::shared_ptr<Window> Factory();
 
+    // ===============================================================
     // APIs called from the application/plugin
 
+    // Initialisation and shutdown of the window.
     virtual void SetPrefs(std::shared_ptr<Preferences> prefs) = 0;
     virtual void Connect(std::shared_ptr<WindowEvents> core) = 0;
     virtual void Disconnect() = 0;
@@ -114,14 +124,10 @@ struct Window
     // returns the number of events in the queue, or -1 if finished
     virtual int EventLoop(int maxLoops = 1) = 0;
 
+    // ===============================================================
     // APIs called from Navitab core
 
-    // Get the different parts of the window to talk to
-    virtual std::shared_ptr<Toolbar> GetToolbar() = 0;
-    virtual std::shared_ptr<Modebar> GetModebar() = 0;
-    virtual std::shared_ptr<Doodlepad> GetDoodlepad() = 0;
-    virtual std::shared_ptr<Keypad> GetKeypad() = 0;
-    virtual int FrameRate() = 0;
+    // Adjust the brightness of the display
     virtual void Brightness(int percent) = 0;
 
     // Run a job in the Window's event loop.

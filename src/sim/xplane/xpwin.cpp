@@ -47,35 +47,6 @@ XPlaneWindow::~XPlaneWindow()
 {
 }
 
-std::shared_ptr<Toolbar> XPlaneWindow::GetToolbar()
-{
-    UNIMPLEMENTED("GetToolbar");
-    return nullptr;
-}
-
-std::shared_ptr<Modebar> XPlaneWindow::GetModebar()
-{
-    UNIMPLEMENTED("GetModebar");
-    return nullptr;
-}
-
-std::shared_ptr<Doodlepad> XPlaneWindow::GetDoodlepad()
-{
-    UNIMPLEMENTED("GetDoodlepad");
-    return nullptr;
-}
-
-std::shared_ptr<Keypad> XPlaneWindow::GetKeypad()
-{
-    UNIMPLEMENTED("GetKeypad");
-    return nullptr;
-}
-
-int XPlaneWindow::FrameRate()
-{
-    return 1;
-}
-
 void XPlaneWindow::Brightness(int percent)
 {
 }

@@ -61,13 +61,13 @@ int main(int arg, char** argv)
 
         sim = navitab::Simulator::Factory();
         sim->SetPrefs(p);
-        auto nvtsimif = nvt->GetSimulatorInterface();
+        auto nvtsimif = nvt->GetSimulatorCallbacks();
         nvtsimif->SetSimulator(sim);
         sim->Connect(nvtsimif);
 
         win = navitab::Window::Factory();
         win->SetPrefs(p);
-        auto nvtwinif = nvt->GetWindowInterface();
+        auto nvtwinif = nvt->GetWindowCallbacks();
         nvtwinif->SetWindow(win);
         win->Connect(nvtwinif);
 

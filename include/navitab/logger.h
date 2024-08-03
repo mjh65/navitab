@@ -41,7 +41,7 @@
 #define LOGI(M) (LOG->Log(__FILE__,__LINE__,logging::Logger::Severity::I,M))
 #define LOGD(M) (LOG->Log(__FILE__,__LINE__,logging::Logger::Severity::D,M))
 
-#define UNIMPLEMENTED(M) LOGE("UNIMPLEMENTED CODE: " M)
+#define UNIMPLEMENTED(M) LOGE(std::string("UNIMPLEMENTED CODE: ") + M)
 
 namespace logging {
 

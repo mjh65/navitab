@@ -51,6 +51,7 @@ XPlaneWindow::~XPlaneWindow()
 
 void XPlaneWindow::Brightness(int percent)
 {
+    UNIMPLEMENTED(__func__);
 }
 
 void XPlaneWindow::Show()
@@ -150,35 +151,36 @@ bool XPlaneWindow::isActive()
 
 void XPlaneWindow::SetHandlers(std::shared_ptr<Toolbar>, std::shared_ptr<Modebar>, std::shared_ptr<Doodler>, std::shared_ptr<Keypad>)
 {
+    UNIMPLEMENTED(__func__);
 }
 
 std::unique_ptr<ImageRectangle> XPlaneWindow::RefreshCanvas(std::unique_ptr<ImageRectangle>)
 {
-    UNIMPLEMENTED("");
+    UNIMPLEMENTED(__func__);
     return nullptr;
 }
 
 std::unique_ptr<ImageRectangle> XPlaneWindow::RefreshToolbar(std::unique_ptr<ImageRectangle>)
 {
-    UNIMPLEMENTED("");
+    UNIMPLEMENTED(__func__);
     return nullptr;
 }
 
 std::unique_ptr<ImageRectangle> XPlaneWindow::RefreshModebar(std::unique_ptr<ImageRectangle>)
 {
-    UNIMPLEMENTED("");
+    UNIMPLEMENTED(__func__);
     return nullptr;
 }
 
 std::unique_ptr<ImageRectangle> XPlaneWindow::RefreshDoodler(std::unique_ptr<ImageRectangle>)
 {
-    UNIMPLEMENTED("");
+    UNIMPLEMENTED(__func__);
     return nullptr;
 }
 
 std::unique_ptr<ImageRectangle> XPlaneWindow::RefreshKeypad(std::unique_ptr<ImageRectangle>)
 {
-    UNIMPLEMENTED("");
+    UNIMPLEMENTED(__func__);
     return nullptr;
 }
 

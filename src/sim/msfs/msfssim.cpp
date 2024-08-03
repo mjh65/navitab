@@ -28,6 +28,7 @@ std::shared_ptr<navitab::Simulator> navitab::Simulator::Factory()
 namespace navitab {
 
 MsfsSimulator::MsfsSimulator()
+:   LOG(std::make_unique<logging::Logger>("msfssim"))
 {
 }
 
@@ -47,6 +48,7 @@ void MsfsSimulator::Connect(std::shared_ptr<SimulatorEvents> c)
 
 void MsfsSimulator::Disconnect()
 {
+    UNIMPLEMENTED(__func__);
 }
 
 } // namespace navitab

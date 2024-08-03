@@ -21,6 +21,7 @@
 #pragma once
 
 #include "navitab/simulator.h"
+#include "navitab/logger.h"
 
 namespace navitab {
 
@@ -35,6 +36,7 @@ public:
     void Disconnect() override;
 
 private:
+    std::unique_ptr<logging::Logger> LOG;
     std::shared_ptr<Preferences> prefs;
     std::shared_ptr<SimulatorEvents> core;
 };

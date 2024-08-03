@@ -20,8 +20,9 @@
 
 #pragma once
 
-#include "navitab/keypad.h"
 #include <memory>
+#include "navitab/keypad.h"
+#include "navitab/logger.h"
 
 namespace navitab {
 
@@ -54,6 +55,7 @@ protected:
     void Redraw();
 
 private:
+    std::unique_ptr<logging::Logger> LOG;
     std::shared_ptr<Navitab> core;
     std::shared_ptr<Window> window;
     std::unique_ptr<ImageRectangle> image;

@@ -205,6 +205,7 @@ int XPDesktopWindow::onRightClick(int x, int y, XPLMMouseStatus status)
     // and also into our GUI normal form: 0,0 at top-left.
     ScreenToWindow(x, y);
     core->PostMouseEvent(x, y, leftButtonPressed, rightButtonPressed);
+    UNIMPLEMENTED(__func__);
     return 1;
 }
 
@@ -212,12 +213,14 @@ int XPDesktopWindow::onMouseWheel(int x, int y, int wheel, int clicks)
 {
     // x,y in screen, not window coordinates
     LOGD(fmt::format("onMouseWheel({},{},{},{})", x, y, wheel, clicks));
+    UNIMPLEMENTED(__func__);
     return 1;
 }
 
 void XPDesktopWindow::onKey(char key, XPLMKeyFlags flags, char vKey, int losingFocus)
 {
     LOGD(fmt::format("onKey({},{},{},{})", (int)key, flags, (int)vKey, losingFocus));
+    UNIMPLEMENTED(__func__);
 }
 
 } // namespace navitab

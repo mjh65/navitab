@@ -191,35 +191,35 @@ void WindowGLFW::SetHandlers(std::shared_ptr<Toolbar> t, std::shared_ptr<Modebar
 std::unique_ptr<ImageRectangle> WindowGLFW::RefreshCanvas(std::unique_ptr<ImageRectangle>)
 {
     // TODO - mutex needed here and where the image is drawn
-    UNIMPLEMENTED("");
+    UNIMPLEMENTED(__func__);
     return nullptr;
 }
 
 std::unique_ptr<ImageRectangle> WindowGLFW::RefreshToolbar(std::unique_ptr<ImageRectangle>)
 {
     // TODO - mutex needed here and where the image is drawn
-    UNIMPLEMENTED("");
+    UNIMPLEMENTED(__func__);
     return nullptr;
 }
 
 std::unique_ptr<ImageRectangle> WindowGLFW::RefreshModebar(std::unique_ptr<ImageRectangle>)
 {
     // TODO - mutex needed here and where the image is drawn
-    UNIMPLEMENTED("");
+    UNIMPLEMENTED(__func__);
     return nullptr;
 }
 
 std::unique_ptr<ImageRectangle> WindowGLFW::RefreshDoodler(std::unique_ptr<ImageRectangle>)
 {
     // TODO - mutex needed here and where the image is drawn
-    UNIMPLEMENTED("");
+    UNIMPLEMENTED(__func__);
     return nullptr;
 }
 
 std::unique_ptr<ImageRectangle> WindowGLFW::RefreshKeypad(std::unique_ptr<ImageRectangle>)
 {
     // TODO - mutex needed here and where the image is drawn
-    UNIMPLEMENTED("");
+    UNIMPLEMENTED(__func__);
     return nullptr;
 }
 
@@ -335,22 +335,22 @@ void WindowGLFW::RenderPart(int part, int left, int top, int right, int bottom)
 
 void WindowGLFW::onMouse(int button, int action, int flags)
 {
-    UNIMPLEMENTED("onMouse");
+    UNIMPLEMENTED(__func__);
 }
 
 void WindowGLFW::onScrollWheel(double x, double y)
 {
-    UNIMPLEMENTED("onWheel");
+    UNIMPLEMENTED(__func__);
 }
 
 void WindowGLFW::onKey(int key, int scanCode, int action, int mods)
 {
-    UNIMPLEMENTED("onKey");
+    UNIMPLEMENTED(__func__);
 }
 
 void WindowGLFW::onChar(unsigned int c)
 {
-    UNIMPLEMENTED("onChar");
+    UNIMPLEMENTED(__func__);
 }
 
 } // namespace navitab

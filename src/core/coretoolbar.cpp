@@ -25,7 +25,8 @@
 namespace navitab {
 
 CoreToolbar::CoreToolbar(std::shared_ptr<Navitab> c)
-:   core(c)
+:   core(c),
+    LOG(std::make_unique<logging::Logger>("toolbar"))
 {
 }
 
@@ -35,14 +36,17 @@ CoreToolbar::~CoreToolbar()
 
 void CoreToolbar::SetSimZuluTime(int h, int m, int s)
 {
+    UNIMPLEMENTED(__func__);
 }
 
 void CoreToolbar::EnableTools(int selectMask)
 {
+    UNIMPLEMENTED(__func__);
 }
 
 void CoreToolbar::DisableTools(int selectMask)
 {
+    UNIMPLEMENTED(__func__);
 }
 
 void CoreToolbar::SetWindow(std::shared_ptr<Window> w)
@@ -69,6 +73,7 @@ void CoreToolbar::onToolbarResize(int width)
 
 void CoreToolbar::onMouseEvent(int x, int y, bool l, bool r)
 {
+    UNIMPLEMENTED(__func__);
 }
 
 void CoreToolbar::Redraw()

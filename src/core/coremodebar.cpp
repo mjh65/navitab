@@ -25,7 +25,8 @@
 namespace navitab {
 
 CoreModebar::CoreModebar(std::shared_ptr<Navitab> c)
-:   core(c)
+:   core(c),
+    LOG(std::make_unique<logging::Logger>("modebar"))
 {
     image = std::make_unique<ImageRectangle>(Window::MODEBAR_WIDTH, Window::MODEBAR_HEIGHT);
 }
@@ -43,14 +44,17 @@ void CoreModebar::SetWindow(std::shared_ptr<Window> w)
 
 void CoreModebar::DisableDoodler()
 {
+    UNIMPLEMENTED(__func__);
 }
 
 void CoreModebar::ShowKeypad()
 {
+    UNIMPLEMENTED(__func__);
 }
 
 void CoreModebar::HideKeypad()
 {
+    UNIMPLEMENTED(__func__);
 }
 
 void CoreModebar::AsyncCall(std::function<void()> f)
@@ -60,6 +64,7 @@ void CoreModebar::AsyncCall(std::function<void()> f)
 
 void CoreModebar::onMouseEvent(int x, int y, bool l, bool r)
 {
+    UNIMPLEMENTED(__func__);
 }
 
 void CoreModebar::Redraw()

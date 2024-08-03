@@ -129,6 +129,7 @@ int XPVRWindow::onLeftClick(int x, int y, XPLMMouseStatus status)
     int w, h;
     XPLMGetWindowGeometryVR(winHandle, &w, &h);
     LOGD(fmt::format("onLeftClick({},{},{}) in win({},{}) lt/rb {},{} -> {},{}", x, y, status, w, h, l, t, r, b));
+    UNIMPLEMENTED(__func__);
     return 1;
 }
 
@@ -136,6 +137,7 @@ int XPVRWindow::onRightClick(int x, int y, XPLMMouseStatus status)
 {
     // x,y in screen, not window coordinates
     LOGD(fmt::format("onRightClick({},{},{})", x, y, status));
+    UNIMPLEMENTED(__func__);
     return 1;
 }
 
@@ -143,12 +145,14 @@ int XPVRWindow::onMouseWheel(int x, int y, int wheel, int clicks)
 {
     // x,y in screen, not window coordinates
     LOGD(fmt::format("onMouseWheel({},{},{},{})", x, y, wheel, clicks));
+    UNIMPLEMENTED(__func__);
     return 1;
 }
 
 void XPVRWindow::onKey(char key, XPLMKeyFlags flags, char vKey, int losingFocus)
 {
     LOGD(fmt::format("onKey({},{},{},{})", (int)key, flags, (int)vKey, losingFocus));
+    UNIMPLEMENTED(__func__);
 }
 
 }

@@ -76,6 +76,5 @@ int main(int arg, char** argv)
     nvt.reset();
 
     return 0;
-
 }
 

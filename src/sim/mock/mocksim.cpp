@@ -28,6 +28,7 @@ std::shared_ptr<navitab::Simulator> navitab::Simulator::Factory()
 namespace navitab {
 
 MockSimulator::MockSimulator()
+:   LOG(std::make_unique<logging::Logger>("mocksim"))
 {
 }
 
@@ -47,6 +48,7 @@ void MockSimulator::Connect(std::shared_ptr<SimulatorEvents> c)
 
 void MockSimulator::Disconnect()
 {
+    UNIMPLEMENTED(__func__);
 }
 
 } // namespace navitab

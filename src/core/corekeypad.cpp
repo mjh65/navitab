@@ -25,7 +25,8 @@
 namespace navitab {
 
 CoreKeypad::CoreKeypad(std::shared_ptr<Navitab> c)
-:   core(c)
+:   core(c),
+    LOG(std::make_unique<logging::Logger>("keypad"))
 {
 }
 
@@ -40,10 +41,12 @@ void CoreKeypad::SetWindow(std::shared_ptr<Window> w)
 
 void CoreKeypad::Show()
 {
+    UNIMPLEMENTED(__func__);
 }
 
 void CoreKeypad::Hide()
 {
+    UNIMPLEMENTED(__func__);
 }
 
 void CoreKeypad::AsyncCall(std::function<void()> f)
@@ -53,10 +56,12 @@ void CoreKeypad::AsyncCall(std::function<void()> f)
 
 void CoreKeypad::onKeypadResize(int width, int height)
 {
+    UNIMPLEMENTED(__func__);
 }
 
 void CoreKeypad::onMouseEvent(int x, int y, bool l, bool r)
 {
+    UNIMPLEMENTED(__func__);
 }
 
 void CoreKeypad::Redraw()

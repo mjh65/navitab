@@ -133,25 +133,25 @@ void Navitab::SetWindow(std::shared_ptr<Window> w)
 
 std::shared_ptr<Toolbar> Navitab::GetToolbar()
 {
-    UNIMPLEMENTED("get toolbar");
+    UNIMPLEMENTED(__func__);
     return nullptr;
 }
 
 std::shared_ptr<Modebar> Navitab::GetModebar()
 {
-    UNIMPLEMENTED("get modebar");
+    UNIMPLEMENTED(__func__);
     return nullptr;
 }
 
 std::shared_ptr<Doodler> Navitab::GetDoodler()
 {
-    UNIMPLEMENTED("get doodler");
+    UNIMPLEMENTED(__func__);
     return nullptr;
 }
 
 std::shared_ptr<Keypad> Navitab::GetKeypad()
 {
-    UNIMPLEMENTED("get keypad");
+    UNIMPLEMENTED(__func__);
     return nullptr;
 }
 
@@ -254,49 +254,49 @@ std::filesystem::path Navitab::DataFilesPath()
 // browsing start for the user's resources, eg charts, docs
 std::filesystem::path Navitab::UserResourcesPath()
 {
-    UNIMPLEMENTED("user documents path");
+    UNIMPLEMENTED(__func__);
     return std::filesystem::path();
 }
 
 // browsing start for any aircraft documents
 std::filesystem::path Navitab::AircraftResourcesPath()
 {
-    UNIMPLEMENTED("aircraft manuals path");
+    UNIMPLEMENTED(__func__);
     return std::filesystem::path();
 }
 
 // browsing start for flight plans / routes
 std::filesystem::path Navitab::FlightPlansPath()
 {
-    UNIMPLEMENTED("flight plans path");
+    UNIMPLEMENTED(__func__);
     return std::filesystem::path();
 }
 
 // directory containing the current Navitab executable
 std::filesystem::path Navitab::NavitabPath()
 {
-    UNIMPLEMENTED("executable path");
+    UNIMPLEMENTED(__func__);
     return std::filesystem::path();
 }
 
 void Navitab::onCanvasResize(int width, int height)
 {
-    UNIMPLEMENTED("resize");
+    UNIMPLEMENTED(__func__);
 }
 
 void Navitab::onMouseEvent(int x, int y, bool l, bool r)
 {
-    UNIMPLEMENTED("mouse event");
+    UNIMPLEMENTED(__func__);
 }
 
 void Navitab::onWheelEvent(int x, int y, int xdir, int ydir)
 {
-    UNIMPLEMENTED("scroll wheel event");
+    UNIMPLEMENTED(__func__);
 }
 
 void Navitab::onKeyEvent(int code)
 {
-    UNIMPLEMENTED("key event");
+    UNIMPLEMENTED(__func__);
 }
 
 std::filesystem::path Navitab::FindDataFilesPath()

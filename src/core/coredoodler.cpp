@@ -25,7 +25,8 @@
 namespace navitab {
 
 CoreDoodler::CoreDoodler(std::shared_ptr<Navitab> c)
-:   core(c)
+:   core(c),
+    LOG(std::make_unique<logging::Logger>("doodler"))
 {
 }
 
@@ -45,22 +46,27 @@ void CoreDoodler::AsyncCall(std::function<void()> f)
 
 void CoreDoodler::onEnable()
 {
+    UNIMPLEMENTED(__func__);
 }
 
 void CoreDoodler::onDisable()
 {
+    UNIMPLEMENTED(__func__);
 }
 
 void CoreDoodler::onDoodlerResize(int width, int height)
 {
+    UNIMPLEMENTED(__func__);
 }
 
 void CoreDoodler::onMouseEvent(int x, int y, bool l, bool r)
 {
+    UNIMPLEMENTED(__func__);
 }
 
 void CoreDoodler::onKeyEvent(int c)
 {
+    UNIMPLEMENTED(__func__);
 }
 
 void CoreDoodler::Redraw()

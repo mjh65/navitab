@@ -32,6 +32,7 @@
 #include "navitab/window.h"
 #include "navitab/toolbar.h"
 #include "navitab/modebar.h"
+#include "navitab/doodler.h"
 #include "navitab/keypad.h"
 
 // This header file defines a class that manages the startup and use of the
@@ -43,7 +44,7 @@ namespace navitab {
 
 class Navitab : public std::enable_shared_from_this<Navitab>, public System,
                 public SimulatorEvents, public WindowEvents,
-                public ToolbarEvents, public ModebarEvents, public KeypadEvents
+                public ToolbarEvents, public ModebarEvents, public DoodlerEvents, public KeypadEvents
 {
 public:
     // Constructing the Navitab object also does enough initialisation to
@@ -106,7 +107,7 @@ public:
     // KeypadEvents implementation
     void onKeypadEvent(int code) override;
 
-    // This satisfies both SimulatorEvents and WindowEvents base classes
+    // Callback implementation (via several other intermediate base classes)
     void AsyncCall(std::function<void ()>) override;
 
 private:

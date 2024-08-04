@@ -33,6 +33,11 @@ namespace navitab {
 
 struct Window;
 
+struct DoodlerEvents : public Callback
+{
+
+};
+
 // TODO - seems like there is some shared behaviour between Toolbar, Modebar, Doodler and Keypad which should go into a base class.
 // TODO - they all have an interface to the window, the core, and an async call handler.
 

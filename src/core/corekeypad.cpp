@@ -24,7 +24,7 @@
 
 namespace navitab {
 
-CoreKeypad::CoreKeypad(std::shared_ptr<Navitab> c)
+CoreKeypad::CoreKeypad(std::shared_ptr<KeypadEvents> c)
 :   core(c),
     LOG(std::make_unique<logging::Logger>("keypad"))
 {

@@ -33,7 +33,6 @@ namespace navitab {
  */
 struct Callback
 {
-protected:
     // Callbacks are wrapped in AsyncCall() to avoid stalling the UI.
     virtual void AsyncCall(std::function<void ()>) = 0;
 };

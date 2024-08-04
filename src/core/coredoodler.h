@@ -36,7 +36,7 @@ class ImageRectangle;
 class CoreDoodler : public Doodler
 {
 public:
-    CoreDoodler(std::shared_ptr<Navitab> core);
+    CoreDoodler(std::shared_ptr<DoodlerEvents> core);
     ~CoreDoodler();
 
     // APIs called from the application/plugin
@@ -56,7 +56,7 @@ protected:
 
 private:
     std::unique_ptr<logging::Logger> LOG;
-    std::shared_ptr<Navitab> core;
+    std::shared_ptr<DoodlerEvents> core;
     std::shared_ptr<Window> window;
     std::unique_ptr<ImageRectangle> image;
     bool dirty; // this is to prevent excess redrawing if nothing has changed

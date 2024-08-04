@@ -24,7 +24,7 @@
 
 namespace navitab {
 
-CoreToolbar::CoreToolbar(std::shared_ptr<Navitab> c)
+CoreToolbar::CoreToolbar(std::shared_ptr<ToolbarEvents> c)
 :   core(c),
     LOG(std::make_unique<logging::Logger>("toolbar"))
 {

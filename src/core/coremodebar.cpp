@@ -24,7 +24,7 @@
 
 namespace navitab {
 
-CoreModebar::CoreModebar(std::shared_ptr<Navitab> c)
+CoreModebar::CoreModebar(std::shared_ptr<ModebarEvents> c)
 :   core(c),
     LOG(std::make_unique<logging::Logger>("modebar"))
 {

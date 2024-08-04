@@ -68,11 +68,11 @@ struct Preferences
 // The System class is the central management and interface object for the Navitab
 // system.
 
-struct System
+struct System // TODO - rename to CoreAPI, or perhaps split into smaller APIs?
 {
     // The executable / plugin's main() function should call the factory to create
     // exactly one instance of the Navitab core, and then destroy it on closure.
-    static std::shared_ptr<System> GetSystem(SimEngine s, AppClass c);
+    static std::shared_ptr<System> GetSystem(SimEngine s, AppClass c); // TODO - rename
 
     // Get the interface for simulation-generated events that Navitab will handle
     virtual std::shared_ptr<SimulatorEvents> GetSimulatorCallbacks() = 0;

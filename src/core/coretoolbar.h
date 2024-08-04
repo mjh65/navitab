@@ -36,7 +36,7 @@ class ImageRectangle;
 class CoreToolbar : public Toolbar
 {
 public:
-    CoreToolbar(std::shared_ptr<Navitab> core);
+    CoreToolbar(std::shared_ptr<ToolbarEvents> core);
     ~CoreToolbar();
 
     // APIs called from the window
@@ -57,7 +57,7 @@ protected:
 
 private:
     std::unique_ptr<logging::Logger> LOG;
-    std::shared_ptr<Navitab>        core;
+    std::shared_ptr<ToolbarEvents>  core;
     std::shared_ptr<Window>         window;
     std::unique_ptr<ImageRectangle> image;
     bool dirty; // this is to prevent excess redrawing if nothing has changed

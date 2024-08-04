@@ -24,7 +24,7 @@
 
 namespace navitab {
 
-CoreDoodler::CoreDoodler(std::shared_ptr<Navitab> c)
+CoreDoodler::CoreDoodler(std::shared_ptr<DoodlerEvents> c)
 :   core(c),
     LOG(std::make_unique<logging::Logger>("doodler"))
 {

@@ -22,6 +22,7 @@
 
 #include <memory>
 #include <functional>
+#include "callback.h"
 
 // The Window class acts as a container for the 5 parts of the UI:
 // the Canvas, Toolbar, Modebar, Doodler, and Keypad.
@@ -45,7 +46,7 @@ class ImageRectangle;
 // The WindowEvents interface is how the UI window implementation provides
 // events to and gets UI updates from the Navitab core.
 
-struct WindowEvents
+struct WindowEvents : public Callback
 {
     // Tell Navitab the interface to the window it will work with.
     // This may be called 'mid-flight' as the client window can change when
@@ -75,9 +76,6 @@ struct WindowEvents
     }
 
 protected:
-    // Most callbacks are wrapped in AsyncCall() to avoid stalling the UI.
-    virtual void AsyncCall(std::function<void ()>) = 0;
-
     // Called at start, and then whenever the window is resized. The size provided
     // is for the canvas area, it does not include the toolbar which is separately
     // managed.

@@ -22,6 +22,7 @@
 
 #include <memory>
 #include <functional>
+#include "callback.h"
 
 // The Keypad class represents an onscreen keyboard. This is a semi-transparent
 // overlay to the canvas that generates key codes in reponse to mouse-clicks.
@@ -34,10 +35,14 @@ struct Window;
 // The KeypadEvents interface is how the UI doodle pad implementation provides
 // events to the Navitab core.
 
-struct KeypadEvents
+struct KeypadEvents : public Callback
 {
     // UI-triggered events notified to the Navitab core for further handling
+    void PostKeypadEvent(int k) {
+        AsyncCall([this, k]() { onKeypadEvent(k); });
+    }
 
+protected:
     // Called when key events occur.
     virtual void onKeypadEvent(int code) = 0;
 };
@@ -47,7 +52,7 @@ struct KeypadEvents
 
 // TODO - seems like there is some shared behaviour between Toolbar, Modebar, Doodler and Keypad which should go into a base class.
 
-struct Keypad
+struct Keypad : public Callback
 {
     // From the window (some posted async)
     virtual void SetWindow(std::shared_ptr<Window> window) = 0;
@@ -67,9 +72,6 @@ struct Keypad
     virtual ~Keypad() = default;
 
 protected:
-    // Most callbacks are wrapped in AsyncCall() to avoid stalling the UI.
-    virtual void AsyncCall(std::function<void ()>) = 0;
-
     virtual void onKeypadResize(int width, int height) = 0;
     virtual void onMouseEvent(int x, int y, bool l, bool r) = 0;
 

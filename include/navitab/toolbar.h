@@ -22,6 +22,7 @@
 
 #include <memory>
 #include <functional>
+#include "callback.h"
 
 // The Toolbar class represents the toolbar which is drawn across the top
 // of the window. It is a fixed height, and displays some current status
@@ -35,7 +36,7 @@ struct Window;
 // The ToolbarEvents interface is how the UI toolbar implementation provides
 // events to the Navitab core.
 
-struct ToolbarEvents
+struct ToolbarEvents : public Callback
 {
     // UI-triggered events notified to the Navitab core for further handling
 
@@ -50,6 +51,11 @@ struct ToolbarEvents
         UP          = 0b10000000
     };
 
+    void PostToolClick(Tool t) {
+        AsyncCall([this, t]() { onToolClick(t); });
+    }
+
+protected:
     // Called when a tool icon is clicked
     virtual void onToolClick(Tool) = 0;
 };
@@ -59,7 +65,7 @@ struct ToolbarEvents
 
 // TODO - seems like there is some shared behaviour between Toolbar, Modebar, Doodler and Keypad which should go into a base class.
 
-struct Toolbar
+struct Toolbar : public Callback
 {
     // APIs called from the window
     virtual void SetWindow(std::shared_ptr<Window> window) = 0;
@@ -80,9 +86,6 @@ struct Toolbar
     virtual ~Toolbar() = default;
 
 protected:
-    // Most callbacks are wrapped in AsyncCall() to avoid stalling the UI.
-    virtual void AsyncCall(std::function<void ()>) = 0;
-
     virtual void onToolbarResize(int width) = 0;
     virtual void onMouseEvent(int x, int y, bool l, bool r) = 0;
 

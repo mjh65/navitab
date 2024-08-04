@@ -22,6 +22,7 @@
 
 #include <memory>
 #include <functional>
+#include "callback.h"
 
 /*
  * This header file defines the interface to the simulator, which will
@@ -39,15 +40,11 @@ struct Simulator;
 // requires from the Navitab core. Calls to these services will generally
 // be from the simulator's thread and should do minimal work.
 
-struct SimulatorEvents
+struct SimulatorEvents : public Callback
 {
     // Set the simulator that Navitab will work with. Only expected to be
     // called once.
     virtual void SetSimulator(std::shared_ptr<Simulator>) = 0;
-
-protected:
-    // Most callbacks are wrapped in AsyncCall() to avoid stalling the simulator.
-    virtual void AsyncCall(std::function<void ()>) = 0;
 
 };
 

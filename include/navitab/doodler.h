@@ -22,6 +22,7 @@
 
 #include <memory>
 #include <functional>
+#include "callback.h"
 
 // The Doodler class represents the user's doodling area. This is a transparent
 // overlay to the canvas that can be drawn or typed on when it is activated in the
@@ -32,22 +33,10 @@ namespace navitab {
 
 struct Window;
 
-// The DoodlerEvents interface is how the UI doodle pad implementation provides
-// events to the Navitab core.
-
-struct DoodlerEvents
-{
-    // UI-triggered events notified to the Navitab core for further handling
-    // this is empty, since the doodle pad is self-contained!
-};
-
-// The Doodler interface defines the services that the UI window provides to
-// the Navitab core.
-
 // TODO - seems like there is some shared behaviour between Toolbar, Modebar, Doodler and Keypad which should go into a base class.
 // TODO - they all have an interface to the window, the core, and an async call handler.
 
-struct Doodler
+struct Doodler : public Callback
 {
     // APIs called from the window
     virtual void SetWindow(std::shared_ptr<Window> window) = 0;
@@ -73,9 +62,6 @@ struct Doodler
     virtual ~Doodler() = default;
 
 protected:
-    // Most callbacks are wrapped in AsyncCall() to avoid stalling the UI.
-    virtual void AsyncCall(std::function<void ()>) = 0;
-
     virtual void onEnable() = 0;
     virtual void onDisable() = 0;
     virtual void onDoodlerResize(int width, int height) = 0;

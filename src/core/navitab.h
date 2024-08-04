@@ -30,6 +30,9 @@
 #include "navitab/logger.h"
 #include "navitab/simulator.h"
 #include "navitab/window.h"
+#include "navitab/toolbar.h"
+#include "navitab/modebar.h"
+#include "navitab/keypad.h"
 
 // This header file defines a class that manages the startup and use of the
 // Navitab subsystems. Each of the executable/plugin's main() function should
@@ -38,7 +41,9 @@
 
 namespace navitab {
 
-class Navitab : public std::enable_shared_from_this<Navitab>, public System, public SimulatorEvents, public WindowEvents
+class Navitab : public std::enable_shared_from_this<Navitab>, public System,
+                public SimulatorEvents, public WindowEvents,
+                public ToolbarEvents, public ModebarEvents, public KeypadEvents
 {
 public:
     // Constructing the Navitab object also does enough initialisation to
@@ -79,11 +84,9 @@ public:
     std::filesystem::path NavitabPath() override;
 
     // SimulatorEvents implementation
-    
     void SetSimulator(std::shared_ptr<Simulator>) override;
 
     // WindowEvents implementation
-    
     void SetWindow(std::shared_ptr<Window>) override;
     std::shared_ptr<Toolbar> GetToolbar() override;
     std::shared_ptr<Modebar> GetModebar() override;
@@ -93,6 +96,15 @@ public:
     void onMouseEvent(int x, int y, bool l, bool r) override;
     void onWheelEvent(int x, int y, int xdir, int ydir) override;
     void onKeyEvent(int code) override;
+
+    // ToolbarEvents implementation
+    void onToolClick(Tool t) override;
+
+    // ModebarEvents implementation
+    void onModeSelect(Mode m) override;
+
+    // KeypadEvents implementation
+    void onKeypadEvent(int code) override;
 
     // This satisfies both SimulatorEvents and WindowEvents base classes
     void AsyncCall(std::function<void ()>) override;

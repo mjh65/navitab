@@ -299,6 +299,21 @@ void Navitab::onKeyEvent(int code)
     UNIMPLEMENTED(__func__);
 }
 
+void Navitab::onToolClick(Tool t)
+{
+    UNIMPLEMENTED(__func__);
+}
+
+void Navitab::onModeSelect(Mode m)
+{
+    UNIMPLEMENTED(__func__);
+}
+
+void Navitab::onKeypadEvent(int code)
+{
+    UNIMPLEMENTED(__func__);
+}
+
 std::filesystem::path Navitab::FindDataFilesPath()
 {
     // The data files path is where the log file, preferences, downloads

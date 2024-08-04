@@ -39,7 +39,7 @@ struct KeypadEvents
     // UI-triggered events notified to the Navitab core for further handling
 
     // Called when key events occur.
-    virtual void onKeyEvent(char code) = 0;
+    virtual void onKeypadEvent(int code) = 0;
 };
 
 // The Keypad interface defines the services that the UI window provides to

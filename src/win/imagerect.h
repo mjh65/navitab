@@ -36,16 +36,21 @@ public:
     ImageRectangle(int w, int h);
     ~ImageRectangle() = default;
 
+    void Reset() { isTexRegistered = false; }
+
     void Clear(uint32_t px);
     int Width() const { return width; }
     int Height() const { return height; }
 
     uint32_t* Row(int r) { return &data[r * width]; }
 
+    bool NeedsRegistration() { auto nr = !isTexRegistered; isTexRegistered = true; return nr; }
+
 private:
     int width;
     int height;
     std::vector<uint32_t> data;
+    bool isTexRegistered;
 };
 
 } // namespace navitab

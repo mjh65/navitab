@@ -22,6 +22,7 @@
 
 #include "navitab/window.h"
 #include <vector>
+#include <mutex>
 #include <GLFW/glfw3.h>
 #include "../imagerect.h"
 #include "navitab/logger.h"
@@ -50,6 +51,7 @@ public:
 protected:
     void CreateWindow();
     void DestroyWindow();
+    std::unique_ptr<ImageRectangle> Swap(int part, std::unique_ptr<ImageRectangle>);
     void RenderFrame();
     void RenderPart(int part, int left, int top, int right, int bottom);
 
@@ -80,21 +82,8 @@ private:
     GLFWwindow* window;
     GLuint textureNames[PART_COUNT];
 
-#if 0
-    // TODO - move the ImageRectangle structure into a core header file
-    struct ImageRectangle {
-        int imageWidth;
-        int imageHeight;
-        std::vector<uint32_t> imageBuffer;
-        bool glRegistered;
-        ImageRectangle(int w, int h) : imageWidth(w), imageHeight(h) { imageBuffer.resize(w * h); }
-        int Width() const { return imageWidth; }
-        int Height() const { return imageHeight; }
-        uint32_t* Row(int r) { return &imageBuffer[r * imageWidth]; }
-    };
-#endif
-
     std::unique_ptr<ImageRectangle> partImages[PART_COUNT];
+    std::mutex imageMutex;
 
     int winResizePollTimer;
     int winWidth;

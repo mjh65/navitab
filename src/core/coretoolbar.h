@@ -60,6 +60,8 @@ private:
     std::shared_ptr<ToolbarEvents>  core;
     std::shared_ptr<Window>         window;
     std::unique_ptr<ImageRectangle> image;
+
+    int width;
     bool dirty; // this is to prevent excess redrawing if nothing has changed
 
 };

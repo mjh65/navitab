@@ -57,14 +57,6 @@ WindowGLFW::WindowGLFW()
     for (auto i = 0; i < PART_COUNT; ++i) {
         textureNames[i] = 0;
     }
-    partImages[CANVAS] = std::make_unique<ImageRectangle>(WIN_STD_WIDTH, WIN_STD_HEIGHT - TOOLBAR_HEIGHT);
-    partImages[TOOLBAR] = std::make_unique<ImageRectangle>(WIN_STD_WIDTH, TOOLBAR_HEIGHT);
-    partImages[MODEBAR] = std::make_unique<ImageRectangle>(MODEBAR_WIDTH, MODEBAR_HEIGHT);
-    partImages[DOODLER] = std::make_unique<ImageRectangle>(WIN_STD_WIDTH - MODEBAR_WIDTH, WIN_STD_HEIGHT - TOOLBAR_HEIGHT);
-    partImages[KEYPAD] = std::make_unique<ImageRectangle>(WIN_STD_WIDTH - MODEBAR_WIDTH, KEYPAD_HEIGHT);
-
-    partImages[TOOLBAR]->Clear(0xffd0d0d0); // alpha 0xff means it is opaque
-    partImages[MODEBAR]->Clear(0x40f0f0f0); // alpha 0x40 is quite translucent!
 
     glfwSetErrorCallback(GLFWERR);
     if (!glfwInit()) {
@@ -115,48 +107,6 @@ int WindowGLFW::EventLoop(int maxLoops)
         }
     }
 
-#if 0
-    // TODO - this is just here for development and testing. of course it will get
-    // replaced eventually!
-    auto& canvas = *(partImages[CANVAS]);
-    if (rand() % 60) {
-        // write random pixels
-        for (int i = 0; i < 8; ++i) {
-            size_t rp = ((rand() << 20) + rand()) % canvas.imageBuffer.size();
-            // red in 7:0, green in 15:8, blue in 23:16, alpha in 31:24
-            canvas.imageBuffer[rp] = (rand() % 0xffffff);
-        }
-    } else {
-        // draw one of our generated SVG icons to test the generator
-        auto y0 = rand() % (canvas.Height() - sample_64x64_HEIGHT);
-        auto x0 = rand() % (canvas.Width() - sample_64x64_WIDTH);
-        for (int y=0; y < sample_64x64_HEIGHT; ++y) {
-            for (int x=0; x < sample_64x64_WIDTH; ++x) {
-                auto si = y * sample_64x64_WIDTH + x;
-                auto di = (y + y0) * canvas.Width() + (x + x0);
-                canvas.imageBuffer[di] = sample_64x64[si];
-            }
-        }
-    }
-#endif
-
-    if (bDelta > 0.0f) {
-        brightness += bDelta;
-        if (brightness >= 1.0f) {
-            bDelta = 0.0 - bDelta;
-            brightness = 1.0f;
-        }
-    } else {
-        brightness += bDelta;
-        if (brightness <= 0.2f) {
-            bDelta = 0.0 - bDelta;
-            brightness = 0.2f;
-        }
-    }
-
-    // TODO - rebind textures for image rectangles that have changed
-    // TODO - add a status field to the ImageRectangle class to record this
-
     RenderFrame();
 
     glfwPollEvents();
@@ -164,9 +114,9 @@ int WindowGLFW::EventLoop(int maxLoops)
     // TODO - generate mouse movements when either button is active
     // TODO - generate button up events on release
     // TODO - scroll wheel handling
+    // TODO - check key events and forward useful stuff
 
-
-    return 0; // should return >0 during mouse movements, not sure if this will be useful though.
+    return 0; // should return >0 during mouse movements, not sure if this will be useful though?
 }
 
 void WindowGLFW::Brightness(int percent)
@@ -188,39 +138,45 @@ void WindowGLFW::SetHandlers(std::shared_ptr<Toolbar> t, std::shared_ptr<Modebar
     keypad->PostResize(winWidth, winHeight);
 }
 
-std::unique_ptr<ImageRectangle> WindowGLFW::RefreshCanvas(std::unique_ptr<ImageRectangle>)
+std::unique_ptr<ImageRectangle> WindowGLFW::Swap(int part, std::unique_ptr<ImageRectangle> newImage)
 {
-    // TODO - mutex needed here and where the image is drawn
-    UNIMPLEMENTED(__func__);
-    return nullptr;
+    // This function is called (indirectly) from the core thread.
+    const std::lock_guard<std::mutex> lock(imageMutex);
+    std::unique_ptr<ImageRectangle> returnedImage;
+    if (partImages[part]) partImages[part]->Reset();
+    returnedImage = std::move(partImages[part]);
+    partImages[part] = std::move(newImage);
+    return returnedImage;
 }
 
-std::unique_ptr<ImageRectangle> WindowGLFW::RefreshToolbar(std::unique_ptr<ImageRectangle>)
+std::unique_ptr<ImageRectangle> WindowGLFW::RefreshCanvas(std::unique_ptr<ImageRectangle> newImage)
 {
-    // TODO - mutex needed here and where the image is drawn
-    UNIMPLEMENTED(__func__);
-    return nullptr;
+    // This function is called from the core thread.
+    return Swap(CANVAS, std::move(newImage));
 }
 
-std::unique_ptr<ImageRectangle> WindowGLFW::RefreshModebar(std::unique_ptr<ImageRectangle>)
+std::unique_ptr<ImageRectangle> WindowGLFW::RefreshToolbar(std::unique_ptr<ImageRectangle> newImage)
 {
-    // TODO - mutex needed here and where the image is drawn
-    UNIMPLEMENTED(__func__);
-    return nullptr;
+    // This function is called from the core thread.
+    return Swap(TOOLBAR, std::move(newImage));
 }
 
-std::unique_ptr<ImageRectangle> WindowGLFW::RefreshDoodler(std::unique_ptr<ImageRectangle>)
+std::unique_ptr<ImageRectangle> WindowGLFW::RefreshModebar(std::unique_ptr<ImageRectangle> newImage)
 {
-    // TODO - mutex needed here and where the image is drawn
-    UNIMPLEMENTED(__func__);
-    return nullptr;
+    // This function is called from the core thread.
+    return Swap(MODEBAR, std::move(newImage));
 }
 
-std::unique_ptr<ImageRectangle> WindowGLFW::RefreshKeypad(std::unique_ptr<ImageRectangle>)
+std::unique_ptr<ImageRectangle> WindowGLFW::RefreshDoodler(std::unique_ptr<ImageRectangle> newImage)
 {
-    // TODO - mutex needed here and where the image is drawn
-    UNIMPLEMENTED(__func__);
-    return nullptr;
+    // This function is called from the core thread.
+    return Swap(DOODLER, std::move(newImage));
+}
+
+std::unique_ptr<ImageRectangle> WindowGLFW::RefreshKeypad(std::unique_ptr<ImageRectangle> newImage)
+{
+    // This function is called from the core thread.
+    return Swap(KEYPAD, std::move(newImage));
 }
 
 void WindowGLFW::CreateWindow()
@@ -265,12 +221,6 @@ void WindowGLFW::CreateWindow()
     for (auto i = 0; i < PART_COUNT; ++i) {
         glGenTextures(1, &textureNames[i]);
         glBindTexture(GL_TEXTURE_2D, textureNames[i]);
-        // TODO - this appears to be required, so will need to be different for each window part
-        // ?? will it need to be done again whenever the image buffer is swapped ??
-        // ?? does it need doing here, or just once each time a new image buffer is delivered ??
-        glTexImage2D(GL_TEXTURE_2D, 0,
-            GL_RGBA, partImages[i]->Width(), partImages[i]->Height(), 0,
-            GL_RGBA, GL_UNSIGNED_BYTE, partImages[i]->Row(0));
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glBindTexture(GL_TEXTURE_2D, 0);
@@ -300,12 +250,11 @@ void WindowGLFW::RenderFrame()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
 
-    // TODO - mutex needed here to protect the ImageRectangles from update
-
     RenderPart(CANVAS, 0, TOOLBAR_HEIGHT, winWidth, winHeight);
     RenderPart(TOOLBAR, 0, 0, winWidth, TOOLBAR_HEIGHT);
     RenderPart(MODEBAR, 0, TOOLBAR_HEIGHT, MODEBAR_WIDTH, TOOLBAR_HEIGHT + MODEBAR_HEIGHT);
-    // TODO - add doodler and keypad, if they are active
+    RenderPart(DOODLER, MODEBAR_WIDTH, TOOLBAR_HEIGHT, winWidth, winHeight);
+    //RenderPart(KEYPAD, MODEBAR_WIDTH, winHeight - ??keypad height??, winWidth, winHeight);
 
     glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -314,10 +263,19 @@ void WindowGLFW::RenderFrame()
 
 void WindowGLFW::RenderPart(int part, int left, int top, int right, int bottom)
 {
-    auto& image = *(partImages[part]);
-    glBindTexture(GL_TEXTURE_2D, textureNames[part]);
-    glEnable(GL_TEXTURE_2D);
+    const std::lock_guard<std::mutex> lock(imageMutex);
+    if (!partImages[part]) return;
 
+    auto& image = *(partImages[part]);
+
+    glBindTexture(GL_TEXTURE_2D, textureNames[part]);
+    if (image.NeedsRegistration()) {
+        glTexImage2D(GL_TEXTURE_2D, 0,
+            GL_RGBA, image.Width(), image.Height(), 0,
+            GL_RGBA, GL_UNSIGNED_BYTE, image.Row(0));
+    }
+
+    glEnable(GL_TEXTURE_2D);
     glTexSubImage2D(GL_TEXTURE_2D, 0,
         0, 0, image.Width(), image.Height(),
         GL_RGBA, GL_UNSIGNED_BYTE, image.Row(0));
@@ -328,7 +286,6 @@ void WindowGLFW::RenderPart(int part, int left, int top, int right, int bottom)
     glTexCoord2i(1, 1);  glVertex2i(right, bottom);
     glTexCoord2i(1, 0);  glVertex2i(right, top);
     glEnd();
-
     glDisable(GL_TEXTURE_2D);
 
 }

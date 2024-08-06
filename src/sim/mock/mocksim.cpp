@@ -48,7 +48,7 @@ void MockSimulator::Connect(std::shared_ptr<SimulatorEvents> c)
 
 void MockSimulator::Disconnect()
 {
-    UNIMPLEMENTED(__func__);
+    core.reset();
 }
 
 } // namespace navitab

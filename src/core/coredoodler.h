@@ -59,6 +59,7 @@ private:
     std::shared_ptr<DoodlerEvents> core;
     std::shared_ptr<Window> window;
     std::unique_ptr<ImageRectangle> image;
+    bool enabled;
     bool dirty; // this is to prevent excess redrawing if nothing has changed
 
 };

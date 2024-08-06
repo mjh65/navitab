@@ -56,7 +56,7 @@ void CoreToolbar::SetWindow(std::shared_ptr<Window> w)
 
 void CoreToolbar::SetFrameRate(float fps)
 {
-
+    UNIMPLEMENTED(__func__);
 }
 
 void CoreToolbar::AsyncCall(std::function<void()> f)
@@ -64,10 +64,12 @@ void CoreToolbar::AsyncCall(std::function<void()> f)
     core->AsyncCall(f);
 }
 
-void CoreToolbar::onToolbarResize(int width)
+void CoreToolbar::onToolbarResize(int w)
 {
-    image = std::make_unique<ImageRectangle>(width, Window::TOOLBAR_HEIGHT);
-    dirty = true;
+    // if the toolbar is resized then the previous image is just abandoned
+    // and a new one is created and scheduled for redrawing
+    width = w;
+    image.reset();
     core->AsyncCall([this]() { Redraw(); });
 }
 
@@ -78,10 +80,17 @@ void CoreToolbar::onMouseEvent(int x, int y, bool l, bool r)
 
 void CoreToolbar::Redraw()
 {
+    if (!image) {
+        // a complete redraw is required
+        image = std::make_unique<ImageRectangle>(width, Window::TOOLBAR_HEIGHT);
+        image->Clear(0xffd0d0d0);
+        dirty = true;
+    }
+
     if (!dirty) return;
 
-    image->Clear(0xffd0d0d0);
-    // TODO - do the drawing work here
+    // TODO - do the delta drawing work here (FPS, time, selected tool), 
+
     dirty = false;
 
     // do the image buffer swap with the window

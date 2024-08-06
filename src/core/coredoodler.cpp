@@ -26,7 +26,9 @@ namespace navitab {
 
 CoreDoodler::CoreDoodler(std::shared_ptr<DoodlerEvents> c)
 :   core(c),
-    LOG(std::make_unique<logging::Logger>("doodler"))
+    LOG(std::make_unique<logging::Logger>("doodler")),
+    enabled(false),
+    dirty(false)
 {
 }
 
@@ -46,17 +48,33 @@ void CoreDoodler::AsyncCall(std::function<void()> f)
 
 void CoreDoodler::onEnable()
 {
-    UNIMPLEMENTED(__func__);
+    // TODO - mutex needed?
+    enabled = true;
 }
 
 void CoreDoodler::onDisable()
 {
-    UNIMPLEMENTED(__func__);
+    // TODO - mutex needed?
+    enabled = false;
 }
 
 void CoreDoodler::onDoodlerResize(int width, int height)
 {
-    UNIMPLEMENTED(__func__);
+#if 0 // disable this for now
+    // if the doodler is resized then a new image is created, and if the doodler is enabled
+    // the old image is copied into the new image
+    auto newImage = std::make_unique<ImageRectangle>(width, Window::TOOLBAR_HEIGHT);
+    if (enabled) {
+        auto yn = std::min(image->Height(), height);
+        auto xn = std::min(image->Width(), width);
+        for (int y = 0; y < yn; ++y) {
+            std::memcpy(newImage->Row(y), image->Row(y), xn);
+        }
+    }
+
+    dirty = true;
+    core->AsyncCall([this]() { Redraw(); });
+#endif
 }
 
 void CoreDoodler::onMouseEvent(int x, int y, bool l, bool r)

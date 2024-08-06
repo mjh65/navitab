@@ -282,6 +282,45 @@ std::filesystem::path Navitab::NavitabPath()
 void Navitab::onCanvasResize(int width, int height)
 {
     UNIMPLEMENTED(__func__);
+#if 0
+    // TODO - this is just here for development and testing. of course it will get
+    // replaced eventually!
+    auto& canvas = *(partImages[CANVAS]);
+    if (rand() % 60) {
+        // write random pixels
+        for (int i = 0; i < 8; ++i) {
+            size_t rp = ((rand() << 20) + rand()) % canvas.imageBuffer.size();
+            // red in 7:0, green in 15:8, blue in 23:16, alpha in 31:24
+            canvas.imageBuffer[rp] = (rand() % 0xffffff);
+        }
+    } else {
+        // draw one of our generated SVG icons to test the generator
+        auto y0 = rand() % (canvas.Height() - sample_64x64_HEIGHT);
+        auto x0 = rand() % (canvas.Width() - sample_64x64_WIDTH);
+        for (int y=0; y < sample_64x64_HEIGHT; ++y) {
+            for (int x=0; x < sample_64x64_WIDTH; ++x) {
+                auto si = y * sample_64x64_WIDTH + x;
+                auto di = (y + y0) * canvas.Width() + (x + x0);
+                canvas.imageBuffer[di] = sample_64x64[si];
+            }
+        }
+    }
+
+    if (bDelta > 0.0f) {
+        brightness += bDelta;
+        if (brightness >= 1.0f) {
+            bDelta = 0.0 - bDelta;
+            brightness = 1.0f;
+        }
+    } else {
+        brightness += bDelta;
+        if (brightness <= 0.2f) {
+            bDelta = 0.0 - bDelta;
+            brightness = 0.2f;
+        }
+    }
+#endif
+
 }
 
 void Navitab::onMouseEvent(int x, int y, bool l, bool r)

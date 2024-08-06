@@ -24,6 +24,7 @@
  // or just does random stuff.
 
 #include <memory>
+#include <iostream>
 #include "navitab/core.h"
 #include "navitab/simulator.h"
 #include "navitab/window.h"
@@ -42,10 +43,12 @@ int main(int arg, char** argv)
         nvt = navitab::System::GetSystem(navitab::SimEngine::MSFS, navitab::AppClass::CONSOLE);
     }
     catch (navitab::StartupError& e) {
-        // TODO - report anything we can to stderr and then exit
+        std::cerr << "Navitab startup exception: " << e.What() << std::endl;
+        exit(1);
     }
-    catch (...) {
-        // TODO - handle other exceptions
+    catch (std::exception& e) {
+        std::cerr << "General exception during startup: " << e.what() << std::endl;
+        exit(1);
     }
 
     // if we get this far then we should have logging enabled, so any further issues

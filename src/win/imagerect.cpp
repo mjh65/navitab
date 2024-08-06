@@ -23,16 +23,14 @@
 namespace navitab {
 
 ImageRectangle::ImageRectangle(int w, int h)
-:   width(w), height(h)
+:   width(w), height(h), isTexRegistered(false)
 {
     data.resize(width * height);
 }
 
 void ImageRectangle::Clear(uint32_t px)
 {
-    for (auto i: data) {
-        data[i] = px;
-    }
+    std::fill(data.begin(), data.end(), px);
 }
 
 } // namespace navitab

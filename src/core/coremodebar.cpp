@@ -28,7 +28,6 @@ CoreModebar::CoreModebar(std::shared_ptr<ModebarEvents> c)
 :   core(c),
     LOG(std::make_unique<logging::Logger>("modebar"))
 {
-    image = std::make_unique<ImageRectangle>(Window::MODEBAR_WIDTH, Window::MODEBAR_HEIGHT);
 }
 
 CoreModebar::~CoreModebar()
@@ -69,10 +68,17 @@ void CoreModebar::onMouseEvent(int x, int y, bool l, bool r)
 
 void CoreModebar::Redraw()
 {
+    if (!image) {
+        // a complete redraw is required
+        image = std::make_unique<ImageRectangle>(Window::MODEBAR_WIDTH, Window::MODEBAR_HEIGHT);
+        image->Clear(0x40f0f0f0);
+        dirty = true;
+    }
+
     if (!dirty) return;
 
-    image->Clear(0x40f0f0f0);
-    // TODO - do the drawing work here
+    // TODO - do the delta drawing work here (selected mode)
+
     dirty = false;
 
     // do the image buffer swap with the window

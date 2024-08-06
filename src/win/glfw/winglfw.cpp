@@ -236,10 +236,10 @@ void WindowGLFW::DestroyWindow()
 
 void WindowGLFW::RenderFrame()
 {
-    int winWidth, winHeight;
-    glfwGetFramebufferSize(window, &winWidth, &winHeight);
+    int fbw, fbh;
+    glfwGetFramebufferSize(window, &fbw, &fbh);
 
-    glViewport(0, 0, winWidth, winHeight);
+    glViewport(0, 0, fbw, fbh);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(0, winWidth, winHeight, 0, -1, 1);

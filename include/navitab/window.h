@@ -107,9 +107,9 @@ struct Window
         WIN_MIN_HEIGHT = 300,
         WIN_STD_HEIGHT = 400,
         WIN_MAX_HEIGHT = 1000,
-        TOOLBAR_HEIGHT = 40,
-        MODEBAR_WIDTH = 50,
-        MODEBAR_HEIGHT = 400,
+        TOOLBAR_HEIGHT = 32,
+        MODEBAR_WIDTH = 40,
+        MODEBAR_HEIGHT = MODEBAR_WIDTH * 8, // 8 mode selectors
         KEYPAD_HEIGHT = 300
     };
 

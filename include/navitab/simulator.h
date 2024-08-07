@@ -22,7 +22,7 @@
 
 #include <memory>
 #include <functional>
-#include "callback.h"
+#include "navitab/callback.h"
 
 /*
  * This header file defines the interface to the simulator, which will
@@ -33,6 +33,7 @@
 
 namespace navitab {
 
+struct CoreServices;
 class Preferences;
 struct Simulator;
 
@@ -44,7 +45,7 @@ struct SimulatorEvents : public Callback
 {
     // Set the simulator that Navitab will work with. Only expected to be
     // called once.
-    virtual void SetSimulator(std::shared_ptr<Simulator>) = 0;
+    //virtual void SetSimulator(std::shared_ptr<Simulator>) = 0;
 
     // Called from the simulator on each flight loop, and provides updates
     // to simulation-derived data.
@@ -59,7 +60,7 @@ protected:
 
 
 // The Simulator interface defines the services that the Simulator offers to 
-// the application or Navitab core.
+// the application/plugin.
 
 struct Simulator
 {
@@ -67,11 +68,8 @@ struct Simulator
     static std::shared_ptr<Simulator> Factory();
 
     // APIs called from the application/plugin
-    virtual void SetPrefs(std::shared_ptr<Preferences> prefs) = 0;
-    virtual void Connect(std::shared_ptr<SimulatorEvents> core) = 0;
+    virtual void Connect(std::shared_ptr<CoreServices> core) = 0;
     virtual void Disconnect() = 0;
-
-    // Access to the simulator from Navitab core
 
     virtual ~Simulator() = default;
 

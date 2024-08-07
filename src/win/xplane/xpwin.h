@@ -30,27 +30,27 @@ namespace navitab {
 // XP desktop and VR windows. This allows the XP plugin to swap between these
 // specialisations when the simulation enters and leaves VR mode.
 
-class XPlaneWindow : public Window
+class XPlaneWindow : public Window, public WindowControl, public PartPainter
 {
 public:
     XPlaneWindow(const char *logId);
     ~XPlaneWindow();
 
-    virtual void Create(std::shared_ptr<Preferences> prefs, std::shared_ptr<WindowEvents> core) = 0;
-    virtual void Destroy() = 0;
+    // Implementation of Window, 
+    int EventLoop(int maxLoops) override { return 0; } // null implementation, not used
 
-    virtual void Reset() = 0;
-
-    // Implementation of navitab::Window, common to desktop and VR
-    void SetHandlers(std::shared_ptr<Toolbar>, std::shared_ptr<Modebar>, std::shared_ptr<Doodler>, std::shared_ptr<Keypad>) override;
-    std::unique_ptr<ImageRectangle> RefreshCanvas(std::unique_ptr<ImageRectangle>) override;
-    std::unique_ptr<ImageRectangle> RefreshToolbar(std::unique_ptr<ImageRectangle>) override;
-    std::unique_ptr<ImageRectangle> RefreshModebar(std::unique_ptr<ImageRectangle>) override;
-    std::unique_ptr<ImageRectangle> RefreshDoodler(std::unique_ptr<ImageRectangle>) override;
-    std::unique_ptr<ImageRectangle> RefreshKeypad(std::unique_ptr<ImageRectangle>) override;
+    // Implementation of WindowControl, common to desktop and VR
     void Brightness(int percent) override;
 
-    // common behaviour
+    // Implementation of PartPainter, common to desktop and VR
+    std::unique_ptr<ImageRectangle> RefreshPart(int part, std::unique_ptr<ImageRectangle>) override;
+
+    // XPlane addition requiring specific implementations for desktop and VR windows
+    virtual void Create(std::shared_ptr<CoreServices> core) = 0;
+    virtual void Destroy() = 0;
+    virtual void Reset() = 0; // Reset size and reposition centrally (in VR attaches to HMD or controller)
+
+    // Common behaviour
     void Show();
     void CheckVitalSigns();
     bool isActive();
@@ -58,10 +58,8 @@ public:
 protected:
     // Implementation of navitab::Window, common to desktop and VR
     // these get called internally from the Create/Destroy functions.
-    void SetPrefs(std::shared_ptr<Preferences> prefs) override;
-    void Connect(std::shared_ptr<WindowEvents> core) override;
+    void Connect(std::shared_ptr<CoreServices> core) override;
     void Disconnect() override;
-    int EventLoop(int maxLoops) override { return 0; } // null implementation, not used
 
     void ProdWatchdog();
     bool UpdateWinGeometry(); // returns true if the size changed
@@ -69,12 +67,17 @@ protected:
     void ScreenToWindow(int& x, int& y);
 
 protected:
+    std::shared_ptr<CoreServices> core;
     std::shared_ptr<Preferences> prefs;
-    std::shared_ptr<WindowEvents> core;
-
     std::unique_ptr<logging::Logger> LOG;
+    std::shared_ptr<WindowPart> parts[PART_COUNT];
+
     XPLMWindowID winHandle;
     int winWidth, winHeight;
+
+private:
+    std::unique_ptr<ImageRectangle> partImages[PART_COUNT];
+    std::mutex imageMutex;
 
 private:
     int winDrawWatchdog;

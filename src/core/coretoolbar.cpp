@@ -39,22 +39,12 @@ void CoreToolbar::SetSimZuluTime(int h, int m, int s)
     UNIMPLEMENTED(__func__);
 }
 
-void CoreToolbar::EnableTools(int selectMask)
-{
-    UNIMPLEMENTED(__func__);
-}
-
-void CoreToolbar::DisableTools(int selectMask)
-{
-    UNIMPLEMENTED(__func__);
-}
-
-void CoreToolbar::SetWindow(std::shared_ptr<Window> w)
-{
-    window = w;
-}
-
 void CoreToolbar::SetFrameRate(float fps)
+{
+    UNIMPLEMENTED(__func__);
+}
+
+void CoreToolbar::SetEnabledTools(int selectMask)
 {
     UNIMPLEMENTED(__func__);
 }
@@ -64,7 +54,7 @@ void CoreToolbar::AsyncCall(std::function<void()> f)
     core->AsyncCall(f);
 }
 
-void CoreToolbar::onToolbarResize(int w)
+void CoreToolbar::onResize(int w, int)
 {
     // if the toolbar is resized then the previous image is just abandoned
     // and a new one is created and scheduled for redrawing
@@ -94,7 +84,7 @@ void CoreToolbar::Redraw()
     dirty = false;
 
     // do the image buffer swap with the window
-    image = window->RefreshToolbar(std::move(image));
+    image = painter->RefreshPart(Window::PART_TOOLBAR, std::move(image));
 }
 
 

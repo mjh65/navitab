@@ -20,6 +20,7 @@
 
 #include <chrono>
 #include "mocksim.h"
+#include "navitab/core.h"
 
 std::shared_ptr<navitab::Simulator> navitab::Simulator::Factory()
 {
@@ -38,14 +39,11 @@ MockSimulator::~MockSimulator()
 {
 }
 
-void MockSimulator::SetPrefs(std::shared_ptr<Preferences> p)
-{
-    prefs = p;
-}
-
-void MockSimulator::Connect(std::shared_ptr<SimulatorEvents> c)
+void MockSimulator::Connect(std::shared_ptr<CoreServices> c)
 {
     core = c;
+    prefs = core->PrefsManager();
+    handler = core->GetSimulatorCallbacks();
     running = true;
     worker = std::make_unique<std::thread>([this]() { AsyncRunSimulator(); });
 }
@@ -54,6 +52,8 @@ void MockSimulator::Disconnect()
 {
     running = false;
     worker->join();
+    handler.reset();
+    prefs.reset();
     core.reset();
 }
 
@@ -62,7 +62,7 @@ void MockSimulator::AsyncRunSimulator()
     using namespace std::chrono_literals;
     while (running) {
         std::this_thread::sleep_for(50ms);
-        core->PostSimUpdates();
+        handler->PostSimUpdates();
     }
 }
 

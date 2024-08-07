@@ -22,7 +22,8 @@
 
 #include <memory>
 #include <functional>
-#include "callback.h"
+#include "navitab/callback.h"
+#include "navitab/window.h"
 
 // The Keypad class represents an onscreen keyboard. This is a semi-transparent
 // overlay to the canvas that generates key codes in reponse to mouse-clicks.
@@ -50,32 +51,14 @@ protected:
 // The Keypad interface defines the services that the UI window provides to
 // the Navitab core.
 
-// TODO - seems like there is some shared behaviour between Toolbar, Modebar, Doodler and Keypad which should go into a base class.
-
-struct Keypad : public Callback
+struct Keypad : public WindowPart
 {
-    // From the window (some posted async)
-    virtual void SetWindow(std::shared_ptr<Window> window) = 0;
-
-    void PostResize(int w, int h) {
-        AsyncCall([this, w, h]() { onKeypadResize(w, h); });
-    }
-    void PostMouseEvent(int x, int y, bool l, bool r) {
-        AsyncCall([this, x, y, l, r]() { onMouseEvent(x, y, l, r); });
-    }
-
     // APIs called from the Navitab core (sync call is OK)
     virtual void Show() = 0;
     virtual void Hide() = 0;
     // other stuff, like setting any multi-character keys (nearest airports etc)
 
     virtual ~Keypad() = default;
-
-protected:
-    virtual void onKeypadResize(int width, int height) = 0;
-    virtual void onMouseEvent(int x, int y, bool l, bool r) = 0;
-
-    void Redraw();
 };
 
 } // namespace navitab

@@ -39,25 +39,23 @@ public:
     CoreDoodler(std::shared_ptr<DoodlerEvents> core);
     ~CoreDoodler();
 
-    // APIs called from the application/plugin
-
-    // APIs called from the window
-    void SetWindow(std::shared_ptr<Window> window) override;
+    // APIs called from the core
+    void Enable() override;
+    void Disable() override;
 
 protected:
-    void AsyncCall(std::function<void ()>) override;
-    void onEnable() override;
-    void onDisable() override;
-    void onDoodlerResize(int width, int height) override;
+    void onResize(int w, int h) override;
     void onMouseEvent(int x, int y, bool l, bool r) override;
-    void onKeyEvent(int c) override;
+    void onWheelEvent(int x, int y, int xdir, int ydir) override {}
+    void onKeyEvent(int code) override;
+
+    void AsyncCall(std::function<void ()>) override;
 
     void Redraw();
 
 private:
     std::unique_ptr<logging::Logger> LOG;
     std::shared_ptr<DoodlerEvents> core;
-    std::shared_ptr<Window> window;
     std::unique_ptr<ImageRectangle> image;
     bool enabled;
     bool dirty; // this is to prevent excess redrawing if nothing has changed

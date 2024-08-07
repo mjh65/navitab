@@ -110,14 +110,21 @@ std::shared_ptr<SimulatorEvents> Navitab::GetSimulatorCallbacks()
     return shared_from_this();
 }
 
-std::shared_ptr<WindowEvents> Navitab::GetWindowCallbacks()
+std::shared_ptr<WindowPart> Navitab::GetPartCallbacks(int part)
 {
-    return shared_from_this();
+    switch (part) {
+        case Window::PART_TOOLBAR: return toolbar;
+        case Window::PART_MODEBAR: return modebar;
+        case Window::PART_DOODLER: return doodler;
+        case Window::PART_KEYPAD: return keypad;
+        case Window::PART_CANVAS: return shared_from_this();
+        default: assert(0); return nullptr;
+    }
 }
 
-void Navitab::SetSimulator(std::shared_ptr<Simulator> s)
+void Navitab::SetWindowControl(std::shared_ptr<WindowControl> w)
 {
-    simulator = s;
+    winCtrl = w;
 }
 
 void Navitab::onSimFlightLoop()
@@ -127,40 +134,6 @@ void Navitab::onSimFlightLoop()
     // zulu time and current time, update every 1s
     // FPS, update every 2s ish
     // location - on each report
-}
-
-void Navitab::SetWindow(std::shared_ptr<Window> w)
-{
-    window = w;
-    toolbar->SetWindow(window);
-    modebar->SetWindow(window);
-    doodler->SetWindow(window);
-    keypad->SetWindow(window);
-    window->SetHandlers(toolbar, modebar, doodler, keypad);
-}
-
-std::shared_ptr<Toolbar> Navitab::GetToolbar()
-{
-    UNIMPLEMENTED(__func__);
-    return nullptr;
-}
-
-std::shared_ptr<Modebar> Navitab::GetModebar()
-{
-    UNIMPLEMENTED(__func__);
-    return nullptr;
-}
-
-std::shared_ptr<Doodler> Navitab::GetDoodler()
-{
-    UNIMPLEMENTED(__func__);
-    return nullptr;
-}
-
-std::shared_ptr<Keypad> Navitab::GetKeypad()
-{
-    UNIMPLEMENTED(__func__);
-    return nullptr;
 }
 
 void Navitab::Start()
@@ -287,9 +260,10 @@ std::filesystem::path Navitab::NavitabPath()
     return std::filesystem::path();
 }
 
-void Navitab::onCanvasResize(int width, int height)
+void Navitab::onResize(int width, int height)
 {
     UNIMPLEMENTED(__func__);
+    // this is the resize notification for the canvas part
 #if 0
     // TODO - this is just here for development and testing. of course it will get
     // replaced eventually!

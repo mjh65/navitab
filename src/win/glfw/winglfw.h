@@ -20,64 +20,52 @@
 
 #pragma once
 
-#include "navitab/window.h"
+#include <memory>
 #include <vector>
 #include <mutex>
 #include <GLFW/glfw3.h>
-#include "../imagerect.h"
+#include "navitab/window.h"
 #include "navitab/logger.h"
+#include "../imagerect.h"
 
 namespace navitab {
 
-class WindowGLFW : public Window
+class WindowGLFW : public std::enable_shared_from_this<WindowGLFW>,
+                   public Window, public PartPainter, public WindowControl
 {
 public:
     WindowGLFW();
     ~WindowGLFW();
 
     // Implementation of the Window interface
-    void SetPrefs(std::shared_ptr<Preferences> prefs) override;
-    void Connect(std::shared_ptr<WindowEvents> core) override;
+    void Connect(std::shared_ptr<CoreServices> core) override;
     void Disconnect() override;
     int EventLoop(int maxLoops) override;
-    void SetHandlers(std::shared_ptr<Toolbar>, std::shared_ptr<Modebar>, std::shared_ptr<Doodler>, std::shared_ptr<Keypad>) override;
-    std::unique_ptr<ImageRectangle> RefreshCanvas(std::unique_ptr<ImageRectangle>) override;
-    std::unique_ptr<ImageRectangle> RefreshToolbar(std::unique_ptr<ImageRectangle>) override;
-    std::unique_ptr<ImageRectangle> RefreshModebar(std::unique_ptr<ImageRectangle>) override;
-    std::unique_ptr<ImageRectangle> RefreshDoodler(std::unique_ptr<ImageRectangle>) override;
-    std::unique_ptr<ImageRectangle> RefreshKeypad(std::unique_ptr<ImageRectangle>) override;
+
+    // Implementation of the PartPainter interface
+    std::unique_ptr<ImageRectangle> RefreshPart(int part, std::unique_ptr<ImageRectangle>) override;
+
+    // Implementation of the WindowControl interface
     void Brightness(int percent) override;
 
 protected:
     void CreateWindow();
     void DestroyWindow();
-    std::unique_ptr<ImageRectangle> Swap(int part, std::unique_ptr<ImageRectangle>);
     void RenderFrame();
     void RenderPart(int part, int left, int top, int right, int bottom);
 
 protected:
+    void ResizeNotifyAll(int w, int h);
     void onMouse(int button, int action, int flags);
     void onScrollWheel(double x, double y);
     void onKey(int key, int scanCode, int action, int mods);
     void onChar(unsigned int c);
 
 private:
-    enum {
-        CANVAS,
-        TOOLBAR,
-        MODEBAR,
-        DOODLER,
-        KEYPAD,
-        PART_COUNT
-    };
-
+    std::shared_ptr<CoreServices> core;
     std::shared_ptr<Preferences> prefs;
-    std::shared_ptr<WindowEvents> coreWinCallbacks;
+    std::shared_ptr<WindowPart> parts[PART_COUNT];
     std::unique_ptr<logging::Logger> LOG;
-    std::shared_ptr<Toolbar> toolbar;
-    std::shared_ptr<Modebar> modebar;
-    std::shared_ptr<Doodler> doodler;
-    std::shared_ptr<Keypad> keypad;
 
     GLFWwindow* window;
     GLuint textureNames[PART_COUNT];

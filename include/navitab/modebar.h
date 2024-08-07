@@ -22,7 +22,8 @@
 
 #include <memory>
 #include <functional>
-#include "callback.h"
+#include "navitab/callback.h"
+#include "navitab/window.h"
 
 // The Modebar class represents the mode/app chooser which is drawn down the
 // left hand side of the window. It is a fixed size, and contains a set of
@@ -35,8 +36,6 @@ struct Window;
 
 // The ModebarEvents interface is how the UI doodle pad implementation provides
 // events to the Navitab core.
-
-// TODO - seems like there is some shared behaviour between Toolbar, Modebar, Doodler and Keypad which should go into a base class.
 
 struct ModebarEvents : public Callback
 {
@@ -66,26 +65,12 @@ protected:
 // The Modebar interface defines the services that the UI window provides to
 // the Navitab core.
 
-struct Modebar : public Callback
+struct Modebar : public WindowPart
 {
-    // APIs called from the window
-    virtual void SetWindow(std::shared_ptr<Window> window) = 0;
-
-    // Window sends mouse events, Modebar tracks and notifies Navitab core
-    // if new mode is selected, or doodler, or keypad if they are toggled
-    void PostMouseEvent(int x, int y, bool l, bool r) {
-        AsyncCall([this, x, y, l, r]() { onMouseEvent(x, y, l, r); });
-    }
-
     // APIs called from the Navitab core
-    virtual void DisableDoodler() = 0;
-    virtual void ShowKeypad() = 0;
-    virtual void HideKeypad() = 0;
+    virtual void SetHighlights(int selectMask) = 0;
 
     virtual ~Modebar() = default;
-
-protected:
-    virtual void onMouseEvent(int x, int y, bool l, bool r) = 0;
 };
 
 } // namespace navitab

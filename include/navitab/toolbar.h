@@ -22,7 +22,8 @@
 
 #include <memory>
 #include <functional>
-#include "callback.h"
+#include "navitab/callback.h"
+#include "navitab/window.h"
 
 // The Toolbar class represents the toolbar which is drawn across the top
 // of the window. It is a fixed height, and displays some current status
@@ -33,7 +34,7 @@ namespace navitab {
 
 struct Window;
 
-// The ToolbarEvents interface is how the UI toolbar implementation provides
+// The ToolbarEvents interface is how the UI toolbar implementation signals
 // events to the Navitab core.
 
 struct ToolbarEvents : public Callback
@@ -60,34 +61,17 @@ protected:
     virtual void onToolClick(Tool) = 0;
 };
 
-// The Toolbar interface defines the services that the UI window provides to
-// the Navitab core.
+// The Toolbar interface defines the services that this part of the UI window
+// provides to the Navitab core.
 
-// TODO - seems like there is some shared behaviour between Toolbar, Modebar, Doodler and Keypad which should go into a base class.
-
-struct Toolbar : public Callback
+struct Toolbar : public WindowPart
 {
-    // APIs called from the window
-    virtual void SetWindow(std::shared_ptr<Window> window) = 0;
-
-    void PostResize(int w) {
-        AsyncCall([this, w]() { onToolbarResize(w); });
-    }
-    void PostMouseEvent(int x, int y, bool l, bool r) {
-        AsyncCall([this, x, y, l, r]() { onMouseEvent(x, y, l, r); });
-    }
-
-    // APIs called from the Navitab core (sync call OK)
+    // APIs called from the Navitab core
     virtual void SetFrameRate(float fps) = 0;
     virtual void SetSimZuluTime(int h, int m, int s) = 0;
-    virtual void EnableTools(int selectMask) = 0;
-    virtual void DisableTools(int selectMask) = 0;
+    virtual void SetEnabledTools(int selectMask) = 0;
 
     virtual ~Toolbar() = default;
-
-protected:
-    virtual void onToolbarResize(int width) = 0;
-    virtual void onMouseEvent(int x, int y, bool l, bool r) = 0;
 
 };
 

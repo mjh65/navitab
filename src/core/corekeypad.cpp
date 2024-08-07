@@ -34,11 +34,6 @@ CoreKeypad::~CoreKeypad()
 {
 }
 
-void CoreKeypad::SetWindow(std::shared_ptr<Window> w)
-{
-    window = w;
-}
-
 void CoreKeypad::Show()
 {
     UNIMPLEMENTED(__func__);
@@ -54,7 +49,7 @@ void CoreKeypad::AsyncCall(std::function<void()> f)
     core->AsyncCall(f);
 }
 
-void CoreKeypad::onKeypadResize(int width, int height)
+void CoreKeypad::onResize(int width, int height)
 {
     UNIMPLEMENTED(__func__);
 }
@@ -72,7 +67,7 @@ void CoreKeypad::Redraw()
     dirty = false;
 
     // do the image buffer swap with the window
-    image = window->RefreshKeypad(std::move(image));
+    image = painter->RefreshPart(Window::PART_KEYPAD, std::move(image));
 }
 
 

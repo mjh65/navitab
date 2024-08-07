@@ -34,7 +34,7 @@ public:
     ~XPVRWindow();
 
     // Implementation of navitab::XPlaneWindow
-    void Create(std::shared_ptr<Preferences> prefs, std::shared_ptr<WindowEvents> core) override;
+    void Create(std::shared_ptr<CoreServices> core) override;
     void Destroy() override;
     void Reset() override;
 

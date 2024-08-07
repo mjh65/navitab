@@ -40,10 +40,8 @@ public:
     XPlaneSimulatorEnvoy();
     ~XPlaneSimulatorEnvoy();
 
-    // Connect/disconnect the XPlane liaison from Navitab. Called when XPlane starts and stops the plugin
-    void SetPrefs(std::shared_ptr<Preferences> prefs) override;
-    void Connect(std::shared_ptr<SimulatorEvents> scb, std::shared_ptr<WindowEvents> wcb) override;
-    void Connect(std::shared_ptr<SimulatorEvents>) override { assert(0); }
+    // Connect/disconnect the XPlane envoy from Navitab. Called when XPlane starts and stops the plugin
+    void Connect(std::shared_ptr<CoreServices> core) override;
     void Disconnect() override;
 
     // The main plugin state machine events
@@ -54,7 +52,6 @@ public:
 
     void onVRmodeChange(bool entering) override;
     void onPlaneLoaded() override;
-
 
 private:
     XPLMFlightLoopID CreateFlightLoop();
@@ -70,9 +67,9 @@ private:
 
 private:
     // access to Navitab core
-    std::shared_ptr<SimulatorEvents> coreSimCallbacks;
-    std::shared_ptr<WindowEvents> coreWinCallbacks;
+    std::shared_ptr<CoreServices> core;
     std::shared_ptr<Preferences> prefs;
+    std::shared_ptr<SimulatorEvents> coreSimCallbacks;
 
     // logging
     std::unique_ptr<logging::Logger> LOG;

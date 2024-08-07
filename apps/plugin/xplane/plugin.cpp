@@ -60,10 +60,7 @@ PLUGIN_API int XPluginStart(char* outName, char* outSignature, char* outDescript
         // start Navitab, and construct the XPlane simulation liaison
         nvt->Start();
         sim = navitab::XPlaneSimulator::Factory();
-        sim->SetPrefs(nvt->PrefsManager());
-        auto si = nvt->GetSimulatorCallbacks();
-        si->SetSimulator(sim);
-        sim->Connect(si, nvt->GetWindowCallbacks());
+        sim->Connect(nvt);
         sim->Start();
         LOGS("XPluginStart: remaining init completed");
     }

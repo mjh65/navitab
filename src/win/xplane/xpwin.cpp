@@ -54,6 +54,17 @@ void XPlaneWindow::Brightness(int percent)
     UNIMPLEMENTED(__func__);
 }
 
+std::unique_ptr<ImageRectangle> XPlaneWindow::RefreshPart(int part, std::unique_ptr<ImageRectangle> newImage)
+{
+    // This function is called from the core thread.
+    const std::lock_guard<std::mutex> lock(imageMutex);
+    std::unique_ptr<ImageRectangle> returnedImage;
+    if (partImages[part]) partImages[part]->Reset();
+    returnedImage = std::move(partImages[part]);
+    partImages[part] = std::move(newImage);
+    return returnedImage;
+}
+
 void XPlaneWindow::Show()
 {
     assert(winHandle);
@@ -76,9 +87,11 @@ void XPlaneWindow::CheckVitalSigns()
     }
 }
 
-void XPlaneWindow::SetPrefs(std::shared_ptr<Preferences> p)
+void XPlaneWindow::Connect(std::shared_ptr<CoreServices> c)
 {
-    prefs = p;
+    core = c;
+
+    prefs = core->PrefsManager();
     auto& xwdp = prefs->Get("/xplane/window");
     try {
         winWidth = xwdp.at("/width"_json_pointer);
@@ -88,11 +101,11 @@ void XPlaneWindow::SetPrefs(std::shared_ptr<Preferences> p)
     // apply the constraints immediately
     winWidth = std::min(std::max(winWidth, (int)WIN_MIN_WIDTH), (int)WIN_MAX_WIDTH);
     winHeight = std::min(std::max(winHeight, (int)WIN_MIN_HEIGHT), (int)WIN_MAX_HEIGHT);
-}
 
-void XPlaneWindow::Connect(std::shared_ptr<WindowEvents> wcb)
-{
-    core = wcb;
+    for (auto i = 0; i < PART_COUNT; ++i) {
+        parts[i] = core->GetPartCallbacks(i);
+    }
+
 }
 
 void XPlaneWindow::Disconnect()
@@ -104,6 +117,11 @@ void XPlaneWindow::Disconnect()
     xwdp["width"] = winWidth;
     xwdp["height"] = winHeight;
     prefs->Put("/xplane/window", xwdp);
+
+    for (auto i = 0; i < PART_COUNT; ++i) {
+        parts[i].reset();
+    }
+    prefs.reset();
 
     core.reset();
 }
@@ -146,42 +164,6 @@ void XPlaneWindow::ScreenToWindow(int& x, int& y)
 bool XPlaneWindow::isActive()
 {
     return winVisible;
-}
-
-
-void XPlaneWindow::SetHandlers(std::shared_ptr<Toolbar>, std::shared_ptr<Modebar>, std::shared_ptr<Doodler>, std::shared_ptr<Keypad>)
-{
-    UNIMPLEMENTED(__func__);
-}
-
-std::unique_ptr<ImageRectangle> XPlaneWindow::RefreshCanvas(std::unique_ptr<ImageRectangle>)
-{
-    UNIMPLEMENTED(__func__);
-    return nullptr;
-}
-
-std::unique_ptr<ImageRectangle> XPlaneWindow::RefreshToolbar(std::unique_ptr<ImageRectangle>)
-{
-    UNIMPLEMENTED(__func__);
-    return nullptr;
-}
-
-std::unique_ptr<ImageRectangle> XPlaneWindow::RefreshModebar(std::unique_ptr<ImageRectangle>)
-{
-    UNIMPLEMENTED(__func__);
-    return nullptr;
-}
-
-std::unique_ptr<ImageRectangle> XPlaneWindow::RefreshDoodler(std::unique_ptr<ImageRectangle>)
-{
-    UNIMPLEMENTED(__func__);
-    return nullptr;
-}
-
-std::unique_ptr<ImageRectangle> XPlaneWindow::RefreshKeypad(std::unique_ptr<ImageRectangle>)
-{
-    UNIMPLEMENTED(__func__);
-    return nullptr;
 }
 
 } // namespace navitab

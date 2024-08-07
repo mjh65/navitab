@@ -22,12 +22,12 @@
 
 #include <memory>
 #include <functional>
-#include "callback.h"
+#include "navitab/callback.h"
+#include "navitab/window.h"
 
 // The Doodler class represents the user's doodling area. This is a transparent
 // overlay to the canvas that can be drawn or typed on when it is activated in the
-// mode bar. It doesn't really interact much with the rest of Navitab, so maybe
-// this interface will go away.
+// mode bar.
 
 namespace navitab {
 
@@ -35,44 +35,17 @@ struct Window;
 
 struct DoodlerEvents : public Callback
 {
-
+    // The doodler doesn't really interact much with the rest of Navitab, so there's
+    // nothing in here. Perhaps the interface will disappear?
 };
 
-// TODO - seems like there is some shared behaviour between Toolbar, Modebar, Doodler and Keypad which should go into a base class.
-// TODO - they all have an interface to the window, the core, and an async call handler.
-
-struct Doodler : public Callback
+struct Doodler : public WindowPart
 {
-    // APIs called from the window
-    virtual void SetWindow(std::shared_ptr<Window> window) = 0;
-
-    void PostResize(int w, int h) {
-        AsyncCall([this, w, h]() { onDoodlerResize(w, h); });
-    }
-    void PostMouseEvent(int x, int y, bool l, bool r) {
-        AsyncCall([this, x, y, l, r]() { onMouseEvent(x, y, l, r); });
-    }
-    void PostKeyEvent(int code) {
-        AsyncCall([this, code]() { onKeyEvent(code); });
-    }
-
-    // Navitab core calls these (originate from the Modebar click handler)
-    void Enable() { 
-        AsyncCall([this]() { onEnable(); });
-    }
-    void Disable() { 
-        AsyncCall([this]() { onDisable(); });
-    }
+    // API calls from Navitab core (these will be triggered from the Modebar click handler)
+    virtual void Enable() = 0;
+    virtual void Disable() = 0;
 
     virtual ~Doodler() = default;
-
-protected:
-    virtual void onEnable() = 0;
-    virtual void onDisable() = 0;
-    virtual void onDoodlerResize(int width, int height) = 0;
-    virtual void onMouseEvent(int x, int y, bool l, bool r) = 0;
-    virtual void onKeyEvent(int c) = 0;
-
 };
 
 } // namespace navitab

@@ -52,30 +52,26 @@ XPlaneSimulatorEnvoy::XPlaneSimulatorEnvoy()
     if (!vrModeDataRef) throw LogFatal("required XPlane dataref not found");
 }
 
-void XPlaneSimulatorEnvoy::SetPrefs(std::shared_ptr<Preferences> p)
-{
-    prefs = p;
-}
-
-void XPlaneSimulatorEnvoy::Connect(std::shared_ptr<SimulatorEvents> scb, std::shared_ptr<WindowEvents> wcb)
+void XPlaneSimulatorEnvoy::Connect(std::shared_ptr<CoreServices> c)
 {
     LOGI("Connect() called");
-    coreSimCallbacks = scb;
-    coreWinCallbacks = wcb;
+    core = c;
+    prefs = core->PrefsManager();
+    coreSimCallbacks = core->GetSimulatorCallbacks();
 }
 
 void XPlaneSimulatorEnvoy::Disconnect()
 {
     LOGI("Disonnect() called");
     coreSimCallbacks.reset();
-    coreWinCallbacks.reset();
+    prefs.reset();
+    core.reset();
 }
 
 void XPlaneSimulatorEnvoy::Start()
 {
     LOGI("Start() called");
     assert(coreSimCallbacks);
-    assert(coreWinCallbacks);
     XPLMEnableFeature("XPLM_USE_NATIVE_PATHS", 1); // 
     XPLMDebugString("NaviTab version " NAVITAB_VERSION_STR "\n");
 
@@ -207,7 +203,7 @@ void XPlaneSimulatorEnvoy::Enable()
     } else {
         win = std::make_unique<XPDesktopWindow>();
     }
-    win->Create(prefs, coreWinCallbacks);
+    win->Create(core);
     if (showNow) win->Show();
 }
 
@@ -252,7 +248,7 @@ void XPlaneSimulatorEnvoy::onVRmodeChange(bool entering)
     else {
         win = std::make_unique<XPDesktopWindow>();
     }
-    win->Create(prefs, coreWinCallbacks);
+    win->Create(core);
     if (active) win->Show();
 }
 

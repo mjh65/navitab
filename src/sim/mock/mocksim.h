@@ -32,8 +32,7 @@ public:
     MockSimulator();
     ~MockSimulator();
 
-    void SetPrefs(std::shared_ptr<Preferences> prefs) override;
-    void Connect(std::shared_ptr<SimulatorEvents> core) override;
+    void Connect(std::shared_ptr<CoreServices>) override;
     void Disconnect() override;
 
 private:
@@ -42,7 +41,8 @@ private:
 private:
     std::unique_ptr<logging::Logger> LOG;
     std::shared_ptr<Preferences> prefs;
-    std::shared_ptr<SimulatorEvents> core;
+    std::shared_ptr<CoreServices> core;
+    std::shared_ptr<SimulatorEvents> handler;
 
     bool running;
     std::unique_ptr<std::thread> worker;

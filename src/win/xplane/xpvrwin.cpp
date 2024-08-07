@@ -36,9 +36,8 @@ XPVRWindow::~XPVRWindow()
 {
 }
 
-void XPVRWindow::Create(std::shared_ptr<Preferences> prefs, std::shared_ptr<WindowEvents> core)
+void XPVRWindow::Create(std::shared_ptr<CoreServices> core)
 {
-    SetPrefs(prefs);
     Connect(core);
 
     assert(!winHandle);
@@ -113,8 +112,12 @@ void XPVRWindow::onDraw()
         if (UpdateWinGeometry()) {
             int w, h;
             XPLMGetWindowGeometryVR(winHandle, &w, &h);
-            LOGD(fmt::format("Geometry in VR is {}x{}", w, h));
-            core->PostCanvasResize(winWidth, winHeight); // TODO - confirm use this or w, h??
+            LOGD(fmt::format("Geometry in VR is {}x{} or {}x{}", w, h, winWidth, winHeight));
+            parts[PART_TOOLBAR]->PostResize(winWidth, TOOLBAR_HEIGHT);
+            parts[PART_MODEBAR]->PostResize(MODEBAR_WIDTH, MODEBAR_HEIGHT);
+            parts[PART_DOODLER]->PostResize(winWidth - MODEBAR_WIDTH, winHeight - TOOLBAR_HEIGHT);
+            parts[PART_KEYPAD]->PostResize(winWidth - MODEBAR_WIDTH, KEYPAD_HEIGHT);
+            parts[PART_CANVAS]->PostResize(winWidth - MODEBAR_WIDTH, winHeight - TOOLBAR_HEIGHT);
         }
     }
 

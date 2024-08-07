@@ -35,35 +35,28 @@
 
 namespace navitab {
 
+struct CoreServices;
 class Preferences;
 struct Window;
+struct PartPainter;
 struct Toolbar;
 struct Modebar;
 struct Doodler;
 struct Keypad;
 class ImageRectangle;
 
-// The WindowEvents interface is how the UI window implementation provides
-// events to and gets UI updates from the Navitab core.
-
-struct WindowEvents : public Callback
+// Each window part (toolbar, modebar, canvas, doodler, keypad) implements
+// this interface so that the window manager can pass on UI events of interest.
+struct WindowPart : public Callback
 {
-    // Tell Navitab the interface to the window it will work with.
+    // Set the interface to the painter this window part should work with.
     // This may be called 'mid-flight' as the client window can change when
     // switching to/from VR.
-    virtual void SetWindow(std::shared_ptr<Window>) = 0;
-
-    // Get the interfaces for each of the window parts
-    virtual std::shared_ptr<Toolbar> GetToolbar() = 0;
-    virtual std::shared_ptr<Modebar> GetModebar() = 0;
-    virtual std::shared_ptr<Doodler> GetDoodler() = 0;
-    virtual std::shared_ptr<Keypad> GetKeypad() = 0;
-
-    // UI-triggered events notified to the Navitab core.
-    // These wrapper functions ensure that the UI thread is not stalled while
-    // the event is being handled.
-    void PostCanvasResize(int w, int h) { 
-        AsyncCall([this, w, h]() { onCanvasResize(w, h); });
+    void SetPainter(std::shared_ptr<PartPainter> p) {
+        AsyncCall([this, p]() { onSetPainter(p); });
+    }
+    void PostResize(int w, int h) {
+        AsyncCall([this, w, h]() { onResize(w, h); });
     }
     void PostMouseEvent(int x, int y, bool l, bool r) {
         AsyncCall([this, x, y, l, r]() { onMouseEvent(x, y, l, r); });
@@ -76,15 +69,15 @@ struct WindowEvents : public Callback
     }
 
 protected:
-    // Called at start, and then whenever the window is resized. The size provided
-    // is for the canvas area, it does not include the toolbar which is separately
-    // managed.
-    virtual void onCanvasResize(int width, int height) = 0;
+    void onSetPainter(std::shared_ptr<PartPainter> p) {
+        painter = p;
+    }
 
-    // UI-triggered events notified to the Navitab core for further handling
+    // Called at start, and then whenever the window part is resized.
+    virtual void onResize(int width, int height) = 0;
+
+    // Called when a mouse event occurs. Includes movement while a button is down.
     // Position coordinates are relative to canvas top-left.
-
-    // Called when a mouse event occurs. Includes movement while a button is down
     virtual void onMouseEvent(int x, int y, bool l, bool r) = 0;
 
     // Called when scroll wheel events occur.
@@ -93,10 +86,36 @@ protected:
     // Called when key events occur.
     virtual void onKeyEvent(int code) = 0;
 
+protected:
+    std::shared_ptr<PartPainter> painter;
+
+};
+
+// The PartPainter interface defines the services the UI window provides to the
+// window parts.
+
+struct PartPainter
+{
+    // This is called whenever one of the window parts has been updated and needs repainting.
+    // The design uses double-buffering, with the window owning the ImageRectangle
+    // that is currently being drawn, and the part owning the other one that is being
+    // updated. It is the responsibility of the part to size the ImageRectangle to match
+    // the display aperture. The window will simply stretch/compress the ImageRectangle
+    // to fit.
+    virtual std::unique_ptr<ImageRectangle> RefreshPart(int part, std::unique_ptr<ImageRectangle>) = 0;
+};
+
+// The WindowControl interface defines the services the UI window provides to the
+// Navitab core system.
+
+struct WindowControl
+{
+    // Adjust the brightness of the display
+    virtual void Brightness(int percent) = 0;
 };
 
 // The Window interface defines the services that the UI window provides
-// for the the Navitab core and variant application.
+// to the application / plugin.
 
 struct Window
 {
@@ -110,8 +129,18 @@ struct Window
         TOOLBAR_HEIGHT = 32,
         MODEBAR_WIDTH = 40,
         MODEBAR_HEIGHT = MODEBAR_WIDTH * 8, // 8 mode selectors
-        KEYPAD_HEIGHT = 300
+        KEYPAD_HEIGHT = 200
     };
+
+    enum {
+        PART_TOOLBAR,
+        PART_MODEBAR,
+        PART_DOODLER,
+        PART_KEYPAD,
+        PART_CANVAS,
+        PART_COUNT
+    };
+
 
     // ===============================================================
     // Factory function to create a GUI window object. There will be
@@ -122,34 +151,12 @@ struct Window
     // APIs called from the application/plugin
 
     // Initialisation and shutdown of the window.
-    virtual void SetPrefs(std::shared_ptr<Preferences> prefs) = 0;
-    virtual void Connect(std::shared_ptr<WindowEvents> core) = 0;
+    virtual void Connect(std::shared_ptr<CoreServices> core) = 0;
     virtual void Disconnect() = 0;
 
     // Run some iterations of the event loop
     // returns the number of events in the queue, or -1 if finished
     virtual int EventLoop(int maxLoops = 1) = 0;
-
-    // ===============================================================
-    // APIs called from Navitab core
-
-    // Provide the window with interfaces to handlers for each of the top-level window parts
-    virtual void SetHandlers(std::shared_ptr<Toolbar>, std::shared_ptr<Modebar>, std::shared_ptr<Doodler>, std::shared_ptr<Keypad>) = 0;
-
-    // These are called whenever the Navitab core has redrawn some part of the
-    // UI. The design uses double-buffering, with the window owning the ImageRectangle
-    // that is currently being drawn, and the core owning the other one that is being
-    // updated. It is the responsibility of the core to size the ImageRectangle to match
-    // the display aperture. The window will simply stretch/compress the ImageRectangle
-    // to fit.
-    virtual std::unique_ptr<ImageRectangle> RefreshCanvas(std::unique_ptr<ImageRectangle>) = 0;
-    virtual std::unique_ptr<ImageRectangle> RefreshToolbar(std::unique_ptr<ImageRectangle>) = 0;
-    virtual std::unique_ptr<ImageRectangle> RefreshModebar(std::unique_ptr<ImageRectangle>) = 0;
-    virtual std::unique_ptr<ImageRectangle> RefreshDoodler(std::unique_ptr<ImageRectangle>) = 0;
-    virtual std::unique_ptr<ImageRectangle> RefreshKeypad(std::unique_ptr<ImageRectangle>) = 0;
-
-    // Adjust the brightness of the display
-    virtual void Brightness(int percent) = 0;
 
     virtual ~Window() = default;
 };

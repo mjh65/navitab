@@ -70,24 +70,27 @@ WindowGLFW::~WindowGLFW()
     glfwTerminate();
 }
 
-void WindowGLFW::SetPrefs(std::shared_ptr<Preferences> p)
+void WindowGLFW::Connect(std::shared_ptr<CoreServices> c)
 {
-    prefs = p;
-    // TODO - restore previous window width and height from prefs
-}
-
-void WindowGLFW::Connect(std::shared_ptr<WindowEvents> wcb)
-{
-    coreWinCallbacks = wcb;
-    coreWinCallbacks->PostCanvasResize(winWidth, winHeight);
+    core = c;
+    prefs = core->PrefsManager();
+    for (auto i = 0; i < PART_COUNT; ++i) {
+        parts[i] = core->GetPartCallbacks(i);
+        parts[i]->SetPainter(shared_from_this());
+    }
     CreateWindow();
+    ResizeNotifyAll(winWidth, winHeight);
 }
 
 void WindowGLFW::Disconnect()
 {
-    DestroyWindow();
-    coreWinCallbacks.reset();
     // TODO - write window size preferences
+    DestroyWindow();
+    for (auto i = 0; i < PART_COUNT; ++i) {
+        parts[i].reset();
+    }
+    prefs.reset();
+    core.reset();
 }
 
 int WindowGLFW::EventLoop(int maxLoops)
@@ -102,8 +105,8 @@ int WindowGLFW::EventLoop(int maxLoops)
         int w, h;
         glfwGetWindowSize(window, &w, &h);
         if ((w != winWidth) || (h != winHeight)) {
-            coreWinCallbacks->PostCanvasResize(w, h);
             winWidth = w; winHeight = h;
+            ResizeNotifyAll(w, h);
         }
     }
 
@@ -126,57 +129,15 @@ void WindowGLFW::Brightness(int percent)
     brightness = 0.1f + (0.9f * percent / 100.0f);
 }
 
-void WindowGLFW::SetHandlers(std::shared_ptr<Toolbar> t, std::shared_ptr<Modebar> m, std::shared_ptr<Doodler> d, std::shared_ptr<Keypad> k)
+std::unique_ptr<ImageRectangle> WindowGLFW::RefreshPart(int part, std::unique_ptr<ImageRectangle> newImage)
 {
-    toolbar = t;
-    modebar = m;
-    doodler = d;
-    keypad = k;
-
-    toolbar->PostResize(winWidth);
-    doodler->PostResize(winWidth, winHeight);
-    keypad->PostResize(winWidth, winHeight);
-}
-
-std::unique_ptr<ImageRectangle> WindowGLFW::Swap(int part, std::unique_ptr<ImageRectangle> newImage)
-{
-    // This function is called (indirectly) from the core thread.
+    // This function is called from the core thread.
     const std::lock_guard<std::mutex> lock(imageMutex);
     std::unique_ptr<ImageRectangle> returnedImage;
     if (partImages[part]) partImages[part]->Reset();
     returnedImage = std::move(partImages[part]);
     partImages[part] = std::move(newImage);
     return returnedImage;
-}
-
-std::unique_ptr<ImageRectangle> WindowGLFW::RefreshCanvas(std::unique_ptr<ImageRectangle> newImage)
-{
-    // This function is called from the core thread.
-    return Swap(CANVAS, std::move(newImage));
-}
-
-std::unique_ptr<ImageRectangle> WindowGLFW::RefreshToolbar(std::unique_ptr<ImageRectangle> newImage)
-{
-    // This function is called from the core thread.
-    return Swap(TOOLBAR, std::move(newImage));
-}
-
-std::unique_ptr<ImageRectangle> WindowGLFW::RefreshModebar(std::unique_ptr<ImageRectangle> newImage)
-{
-    // This function is called from the core thread.
-    return Swap(MODEBAR, std::move(newImage));
-}
-
-std::unique_ptr<ImageRectangle> WindowGLFW::RefreshDoodler(std::unique_ptr<ImageRectangle> newImage)
-{
-    // This function is called from the core thread.
-    return Swap(DOODLER, std::move(newImage));
-}
-
-std::unique_ptr<ImageRectangle> WindowGLFW::RefreshKeypad(std::unique_ptr<ImageRectangle> newImage)
-{
-    // This function is called from the core thread.
-    return Swap(KEYPAD, std::move(newImage));
 }
 
 void WindowGLFW::CreateWindow()
@@ -250,11 +211,11 @@ void WindowGLFW::RenderFrame()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
 
-    RenderPart(CANVAS, 0, TOOLBAR_HEIGHT, winWidth, winHeight);
-    RenderPart(TOOLBAR, 0, 0, winWidth, TOOLBAR_HEIGHT);
-    RenderPart(MODEBAR, 0, TOOLBAR_HEIGHT, MODEBAR_WIDTH, TOOLBAR_HEIGHT + MODEBAR_HEIGHT);
-    RenderPart(DOODLER, MODEBAR_WIDTH, TOOLBAR_HEIGHT, winWidth, winHeight);
-    //RenderPart(KEYPAD, MODEBAR_WIDTH, winHeight - ??keypad height??, winWidth, winHeight);
+    RenderPart(PART_TOOLBAR, 0, 0, winWidth, TOOLBAR_HEIGHT);
+    RenderPart(PART_MODEBAR, 0, TOOLBAR_HEIGHT, MODEBAR_WIDTH, TOOLBAR_HEIGHT + MODEBAR_HEIGHT);
+    RenderPart(PART_DOODLER, MODEBAR_WIDTH, TOOLBAR_HEIGHT, winWidth, winHeight);
+    RenderPart(PART_KEYPAD, MODEBAR_WIDTH, winHeight - KEYPAD_HEIGHT, winWidth, winHeight);
+    RenderPart(PART_CANVAS, 0, TOOLBAR_HEIGHT, winWidth, winHeight);
 
     glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -288,6 +249,15 @@ void WindowGLFW::RenderPart(int part, int left, int top, int right, int bottom)
     glEnd();
     glDisable(GL_TEXTURE_2D);
 
+}
+
+void WindowGLFW::ResizeNotifyAll(int w, int h)
+{
+    parts[PART_TOOLBAR]->PostResize(w, TOOLBAR_HEIGHT);
+    parts[PART_MODEBAR]->PostResize(MODEBAR_WIDTH, MODEBAR_HEIGHT);
+    parts[PART_DOODLER]->PostResize(w - MODEBAR_WIDTH, h - TOOLBAR_HEIGHT);
+    parts[PART_KEYPAD]->PostResize(w - MODEBAR_WIDTH, KEYPAD_HEIGHT);
+    parts[PART_CANVAS]->PostResize(w - MODEBAR_WIDTH, h - TOOLBAR_HEIGHT);
 }
 
 void WindowGLFW::onMouse(int button, int action, int flags)

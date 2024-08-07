@@ -57,20 +57,11 @@ int main(int arg, char** argv)
     LOGS("Early init completed, starting and enabling");
     try {
         nvt->Start();
-        auto p = nvt->PrefsManager();
 
         sim = navitab::Simulator::Factory();
-        sim->SetPrefs(p);
-        auto nvtsimif = nvt->GetSimulatorCallbacks();
-        nvtsimif->SetSimulator(sim);
-        sim->Connect(nvtsimif);
-
+        sim->Connect(nvt);
         win = navitab::Window::Factory();
-        win->SetPrefs(p);
-        auto nvtwinif = nvt->GetWindowCallbacks();
-        nvtwinif->SetWindow(win);
-        win->Connect(nvtwinif);
-
+        win->Connect(nvt);
         nvt->Enable();
 
         LOGS("Starting event loop");

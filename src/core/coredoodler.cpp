@@ -36,29 +36,22 @@ CoreDoodler::~CoreDoodler()
 {
 }
 
-void CoreDoodler::SetWindow(std::shared_ptr<Window> w)
-{
-    window = w;
-}
-
 void CoreDoodler::AsyncCall(std::function<void()> f)
 {
     core->AsyncCall(f);
 }
 
-void CoreDoodler::onEnable()
+void CoreDoodler::Enable()
 {
-    // TODO - mutex needed?
     enabled = true;
 }
 
-void CoreDoodler::onDisable()
+void CoreDoodler::Disable()
 {
-    // TODO - mutex needed?
     enabled = false;
 }
 
-void CoreDoodler::onDoodlerResize(int width, int height)
+void CoreDoodler::onResize(int w, int h)
 {
 #if 0 // disable this for now
     // if the doodler is resized then a new image is created, and if the doodler is enabled
@@ -95,7 +88,7 @@ void CoreDoodler::Redraw()
     dirty = false;
 
     // do the image buffer swap with the window
-    image = window->RefreshDoodler(std::move(image));
+    image = painter->RefreshPart(Window::PART_DOODLER, std::move(image));
 }
 
 } // namespace navitab

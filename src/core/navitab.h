@@ -43,7 +43,9 @@
 namespace navitab {
 
 class Navitab : public std::enable_shared_from_this<Navitab>,
-                public CoreServices, public SimulatorEvents, public WindowEvents,
+                public CoreServices,
+                public SimulatorEvents,
+                public WindowPart, // implements this for the canvas, but maybe will be separated out?
                 public ToolbarEvents, public ModebarEvents, public DoodlerEvents, public KeypadEvents
 {
 public:
@@ -56,9 +58,10 @@ public:
     // ======================================================================
     // Implementation of CoreServices
     
-    // hook up with simulator and window
+    // Interfaces used by simulator and UI window
     std::shared_ptr<SimulatorEvents> GetSimulatorCallbacks() override;
-    std::shared_ptr<WindowEvents> GetWindowCallbacks() override;
+    std::shared_ptr<WindowPart> GetPartCallbacks(int part) override;
+    void SetWindowControl(std::shared_ptr<WindowControl> w) override;
 
     // Startup and shutdown control - fine-grained enough to support all app classes.
     void Start() override;    // TODO - called from XPluginStart - review this in SDK and Avitab
@@ -87,17 +90,11 @@ public:
 
     // ======================================================================
     // Implementation of SimulatorEvents
-    void SetSimulator(std::shared_ptr<Simulator>) override;
     void onSimFlightLoop() override;
 
     // ======================================================================
-    // Implementation of WindowEvents
-    void SetWindow(std::shared_ptr<Window>) override;
-    std::shared_ptr<Toolbar> GetToolbar() override;
-    std::shared_ptr<Modebar> GetModebar() override;
-    std::shared_ptr<Doodler> GetDoodler() override;
-    std::shared_ptr<Keypad> GetKeypad() override;
-    void onCanvasResize(int width, int height) override;
+    // Implementation of WindowPart (for canvas)
+    void onResize(int width, int height) override;
     void onMouseEvent(int x, int y, bool l, bool r) override;
     void onWheelEvent(int x, int y, int xdir, int ydir) override;
     void onKeyEvent(int code) override;
@@ -130,8 +127,7 @@ private:
     std::unique_ptr<logging::Logger>    LOG;
     std::shared_ptr<Preferences>        prefs;
 
-    std::shared_ptr<Simulator>          simulator;
-    std::shared_ptr<Window>             window;
+    std::shared_ptr<WindowControl>      winCtrl;
     std::shared_ptr<Toolbar>            toolbar;
     std::shared_ptr<Modebar>            modebar;
     std::shared_ptr<Doodler>            doodler;

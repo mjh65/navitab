@@ -30,11 +30,9 @@
 
 namespace navitab {
 
-struct Simulator;
 struct SimulatorEvents;
-
-struct Window;
-struct WindowEvents;
+struct WindowPart;
+struct WindowControl;
 
 enum HostPlatform { WIN, LNX, MAC };
 enum AppClass { PLUGIN, DESKTOP, CONSOLE };
@@ -66,7 +64,8 @@ struct Preferences
 };
 
 // The CoreServices class is the central management and interface object for the Navitab
-// system.
+// system, and provides the connectivity by sharing interfaces needed by the simulation
+// and windowing UI subsystems.
 
 struct CoreServices
 {
@@ -74,11 +73,18 @@ struct CoreServices
     // exactly one instance of the Navitab core, and then destroy it on closure.
     static std::shared_ptr<CoreServices> MakeNavitab(SimEngine s, AppClass c);
 
+    // Get the interface to the preferences manager
+    virtual std::shared_ptr<Preferences> PrefsManager() = 0;
+
     // Get the interface for simulation-generated events that Navitab will handle
     virtual std::shared_ptr<SimulatorEvents> GetSimulatorCallbacks() = 0;
 
-    // Get the interface for UI-window-generated events that Navitab will handle
-    virtual std::shared_ptr<WindowEvents> GetWindowCallbacks() = 0;
+    // Get the interfaces for UI-window-generated events that each of the window
+    // parts will handle.
+    virtual std::shared_ptr<WindowPart> GetPartCallbacks(int part) = 0;
+
+    // Set the interface to the UI-window for window-level control
+    virtual void SetWindowControl(std::shared_ptr<WindowControl> w) = 0;
 
     // Startup and shutdown control - fine-grained enough to support all app classes.
     virtual void Start() = 0;
@@ -86,9 +92,7 @@ struct CoreServices
     virtual void Disable() = 0;
     virtual void Stop() = 0;
 
-    // access to preferences
-    virtual std::shared_ptr<Preferences> PrefsManager() = 0;
-
+    // TODO - perhaps these should go to the (currently empty) platform header?
     // location of the preferences and log files, as well as any temporary file
     // and cached downloads
     virtual std::filesystem::path DataFilesPath() = 0;

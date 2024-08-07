@@ -44,9 +44,8 @@ XPDesktopWindow::~XPDesktopWindow()
     assert(!winHandle);
 }
 
-void XPDesktopWindow::Create(std::shared_ptr<Preferences> prefs, std::shared_ptr<WindowEvents> core)
+void XPDesktopWindow::Create(std::shared_ptr<CoreServices> core)
 {
-    SetPrefs(prefs);
     Connect(core);
 
     auto& xwdp = prefs->Get("/xplane/window/desktop");
@@ -156,7 +155,11 @@ void XPDesktopWindow::onDraw()
     if (++winResizePollTimer > 30) {
         winResizePollTimer = 0;
         if (UpdateWinGeometry()) {
-            core->PostCanvasResize(winWidth, winHeight);
+            parts[PART_TOOLBAR]->PostResize(winWidth, TOOLBAR_HEIGHT);
+            parts[PART_MODEBAR]->PostResize(MODEBAR_WIDTH, MODEBAR_HEIGHT);
+            parts[PART_DOODLER]->PostResize(winWidth - MODEBAR_WIDTH, winHeight - TOOLBAR_HEIGHT);
+            parts[PART_KEYPAD]->PostResize(winWidth - MODEBAR_WIDTH, KEYPAD_HEIGHT);
+            parts[PART_CANVAS]->PostResize(winWidth - MODEBAR_WIDTH, winHeight - TOOLBAR_HEIGHT);
         }
         if (!XPLMWindowIsPoppedOut(winHandle)) {
             int l, r, t, b;
@@ -186,7 +189,9 @@ int XPDesktopWindow::onLeftClick(int x, int y, XPLMMouseStatus status)
     // and also into our GUI normal form: 0,0 at top-left.
     ScreenToWindow(x, y);
     LOGD(fmt::format("Mouse event at {},{} (local coordinates)", x, y));
-    core->PostMouseEvent(x, y, leftButtonPressed, rightButtonPressed);
+    // TODO - mouse handling needs to identify window part on mouse down, and then
+    // track the mouse until the button is released.
+    //core->PostMouseEvent(x, y, leftButtonPressed, rightButtonPressed);
     return 1;
 }
 
@@ -204,7 +209,7 @@ int XPDesktopWindow::onRightClick(int x, int y, XPLMMouseStatus status)
     // x,y in screen, not window coordinates, we need to convert them,
     // and also into our GUI normal form: 0,0 at top-left.
     ScreenToWindow(x, y);
-    core->PostMouseEvent(x, y, leftButtonPressed, rightButtonPressed);
+    //core->PostMouseEvent(x, y, leftButtonPressed, rightButtonPressed);
     UNIMPLEMENTED(__func__);
     return 1;
 }

@@ -34,24 +34,7 @@ CoreModebar::~CoreModebar()
 {
 }
 
-void CoreModebar::SetWindow(std::shared_ptr<Window> w)
-{
-    window = w;
-    dirty = true;
-    core->AsyncCall([this]() { Redraw(); });
-}
-
-void CoreModebar::DisableDoodler()
-{
-    UNIMPLEMENTED(__func__);
-}
-
-void CoreModebar::ShowKeypad()
-{
-    UNIMPLEMENTED(__func__);
-}
-
-void CoreModebar::HideKeypad()
+void CoreModebar::SetHighlights(int selectMask)
 {
     UNIMPLEMENTED(__func__);
 }
@@ -59,6 +42,12 @@ void CoreModebar::HideKeypad()
 void CoreModebar::AsyncCall(std::function<void()> f)
 {
     core->AsyncCall(f);
+}
+
+void CoreModebar::onResize(int w, int h)
+{
+    dirty = true;
+    core->AsyncCall([this]() { Redraw(); });
 }
 
 void CoreModebar::onMouseEvent(int x, int y, bool l, bool r)
@@ -82,7 +71,7 @@ void CoreModebar::Redraw()
     dirty = false;
 
     // do the image buffer swap with the window
-    image = window->RefreshModebar(std::move(image));
+    image = painter->RefreshPart(Window::PART_MODEBAR, std::move(image));
 }
 
 } // namespace navitab

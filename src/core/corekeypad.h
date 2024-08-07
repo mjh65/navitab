@@ -41,23 +41,22 @@ public:
     ~CoreKeypad();
 
     // APIs called from the application/plugin
-
-    // APIs called from the window
-    void SetWindow(std::shared_ptr<Window> window) override;
     void Show() override;
     void Hide() override;
 
 protected:
-    void AsyncCall(std::function<void ()>) override;
-    void onKeypadResize(int width, int height) override;
+    void onResize(int w, int h) override;
     void onMouseEvent(int x, int y, bool l, bool r) override;
+    void onWheelEvent(int x, int y, int xdir, int ydir) override {}
+    void onKeyEvent(int code) override {}
+
+    void AsyncCall(std::function<void ()>) override;
 
     void Redraw();
 
 private:
     std::unique_ptr<logging::Logger> LOG;
     std::shared_ptr<KeypadEvents> core;
-    std::shared_ptr<Window> window;
     std::unique_ptr<ImageRectangle> image;
     bool dirty; // this is to prevent excess redrawing if nothing has changed
 

@@ -21,6 +21,7 @@
 #pragma once
 
 #include <memory>
+#include <functional>
 #include "navitab/toolbar.h"
 #include "navitab/logger.h"
 
@@ -39,26 +40,25 @@ public:
     CoreToolbar(std::shared_ptr<ToolbarEvents> core);
     ~CoreToolbar();
 
-    // APIs called from the window
-    void SetWindow(std::shared_ptr<Window> window) override;
-    void SetFrameRate(float fps) override;
-
     // APIs called from the Navitab core (sync call OK)
     void SetSimZuluTime(int h, int m, int s) override;
-    void EnableTools(int selectMask) override;
-    void DisableTools(int selectMask) override;
+    void SetFrameRate(float fps) override;
+    void SetEnabledTools(int selectMask) override;
 
 protected:
-    void AsyncCall(std::function<void ()>) override;
-    void onToolbarResize(int width) override;
+    // Called indirectly from the window
+    void onResize(int w, int h) override;
     void onMouseEvent(int x, int y, bool l, bool r) override;
+    void onWheelEvent(int x, int y, int xdir, int ydir) override {}
+    void onKeyEvent(int code) override {}
+
+    void AsyncCall(std::function<void ()>) override;
 
     void Redraw();
 
 private:
     std::unique_ptr<logging::Logger> LOG;
     std::shared_ptr<ToolbarEvents>  core;
-    std::shared_ptr<Window>         window;
     std::unique_ptr<ImageRectangle> image;
 
     int width;

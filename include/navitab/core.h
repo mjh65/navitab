@@ -65,14 +65,14 @@ struct Preferences
     virtual void Put(const std::string key, nlohmann::json& value) = 0;
 };
 
-// The System class is the central management and interface object for the Navitab
+// The CoreServices class is the central management and interface object for the Navitab
 // system.
 
-struct System // TODO - rename to CoreAPI, or perhaps split into smaller APIs?
+struct CoreServices
 {
     // The executable / plugin's main() function should call the factory to create
     // exactly one instance of the Navitab core, and then destroy it on closure.
-    static std::shared_ptr<System> GetSystem(SimEngine s, AppClass c); // TODO - rename
+    static std::shared_ptr<CoreServices> MakeNavitab(SimEngine s, AppClass c);
 
     // Get the interface for simulation-generated events that Navitab will handle
     virtual std::shared_ptr<SimulatorEvents> GetSimulatorCallbacks() = 0;
@@ -105,7 +105,7 @@ struct System // TODO - rename to CoreAPI, or perhaps split into smaller APIs?
     // directory containing the current Navitab executable
     virtual std::filesystem::path NavitabPath() = 0;
 
-    virtual ~System() = default;
+    virtual ~CoreServices() = default;
 
 };
 

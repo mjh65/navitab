@@ -95,8 +95,8 @@ protected:
 
 };
 
-// The Window interface defines the services that the UI window provides to
-// the Navitab core. Mainly these are high-level connectivity and event loop
+// The Window interface defines the services that the UI window provides
+// for the the Navitab core and variant application.
 
 struct Window
 {
@@ -150,10 +150,6 @@ struct Window
 
     // Adjust the brightness of the display
     virtual void Brightness(int percent) = 0;
-
-    // Run a job in the Window's event loop.
-    // MJH: Not sure if this will even be required?
-    //virtual void RunInEventLoop(std::function<void ()>) = 0;
 
     virtual ~Window() = default;
 };

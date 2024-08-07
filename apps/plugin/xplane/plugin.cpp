@@ -31,7 +31,7 @@
 // of the X-Plane plugin entry points.
 
 std::unique_ptr<logging::Logger> LOG;
-std::shared_ptr<navitab::System> nvt;
+std::shared_ptr<navitab::CoreServices> nvt;
 std::shared_ptr<navitab::XPlaneSimulator> sim;
 // there is no separate management of the XPlane window here, it's handled by the sim envoy.
 
@@ -46,7 +46,7 @@ PLUGIN_API int XPluginStart(char* outName, char* outSignature, char* outDescript
         // try to initialise logging and preferences - raises exception if fails
         LOG = std::make_unique<logging::Logger>("plugin");
         // construct the Navitab core, this will do enough to get the preferences
-        nvt = navitab::System::GetSystem(navitab::SimEngine::XPLANE, navitab::AppClass::PLUGIN);
+        nvt = navitab::CoreServices::MakeNavitab(navitab::SimEngine::XPLANE, navitab::AppClass::PLUGIN);
     }
     catch (const std::exception& e) {
         strncpy(outDescription, e.what(), 255);

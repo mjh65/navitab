@@ -76,9 +76,9 @@ struct Toolbar : public Callback
     void PostMouseEvent(int x, int y, bool l, bool r) {
         AsyncCall([this, x, y, l, r]() { onMouseEvent(x, y, l, r); });
     }
-    virtual void SetFrameRate(float fps) = 0;
 
     // APIs called from the Navitab core (sync call OK)
+    virtual void SetFrameRate(float fps) = 0;
     virtual void SetSimZuluTime(int h, int m, int s) = 0;
     virtual void EnableTools(int selectMask) = 0;
     virtual void DisableTools(int selectMask) = 0;

@@ -32,7 +32,7 @@
 
 namespace navitab {
 
-std::shared_ptr<System> System::GetSystem(SimEngine s, AppClass c)
+std::shared_ptr<CoreServices> CoreServices::MakeNavitab(SimEngine s, AppClass c)
 {
     static bool done = false;
     if (done) return nullptr;
@@ -56,7 +56,6 @@ Navitab::Navitab(SimEngine s, AppClass c)
     appClass(c),
     LOG(std::make_unique<logging::Logger>("navitab")),
     dataFilesPath(FindDataFilesPath()),
-    running(false),
     enabled(false)
 {
     // Early initialisation needs to do enough to get the preferences loaded
@@ -119,6 +118,15 @@ std::shared_ptr<WindowEvents> Navitab::GetWindowCallbacks()
 void Navitab::SetSimulator(std::shared_ptr<Simulator> s)
 {
     simulator = s;
+}
+
+void Navitab::onSimFlightLoop()
+{
+    UNIMPLEMENTED(__func__);
+    // TODO - this will be the trigger for various regular update jobs
+    // zulu time and current time, update every 1s
+    // FPS, update every 2s ish
+    // location - on each report
 }
 
 void Navitab::SetWindow(std::shared_ptr<Window> w)

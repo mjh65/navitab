@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include <thread>
 #include "navitab/simulator.h"
 #include "navitab/logger.h"
 
@@ -36,10 +37,15 @@ public:
     void Disconnect() override;
 
 private:
+    void AsyncPollSimulator();
+
+private:
     std::unique_ptr<logging::Logger> LOG;
     std::shared_ptr<Preferences> prefs;
     std::shared_ptr<SimulatorEvents> core;
     
+    bool running;
+    std::unique_ptr<std::thread> worker;
 };
 
 } // namespace navitab

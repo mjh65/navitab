@@ -46,6 +46,15 @@ struct SimulatorEvents : public Callback
     // called once.
     virtual void SetSimulator(std::shared_ptr<Simulator>) = 0;
 
+    // Called from the simulator on each flight loop, and provides updates
+    // to simulation-derived data.
+    void PostSimUpdates() {
+        AsyncCall([this]() { onSimFlightLoop(); });
+    }
+
+protected:
+    virtual void onSimFlightLoop() = 0;
+
 };
 
 
@@ -63,10 +72,6 @@ struct Simulator
     virtual void Disconnect() = 0;
 
     // Access to the simulator from Navitab core
-
-    // Run a job in the simulator's flight loop.
-    // MJH: Not sure if this will even be required?
-    //virtual void RunInFlightLoop(std::function<void ()>) = 0;
 
     virtual ~Simulator() = default;
 

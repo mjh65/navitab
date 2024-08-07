@@ -34,13 +34,13 @@
 int main(int arg, char** argv)
 {
     std::unique_ptr<logging::Logger> LOG;
-    std::shared_ptr<navitab::System> nvt;
+    std::shared_ptr<navitab::CoreServices> nvt;
     std::shared_ptr<navitab::Simulator> sim;
     std::shared_ptr<navitab::Window> win;
     try {
         // try to initialise logging and preferences - raises exception if fails
         LOG = std::make_unique<logging::Logger>("main");
-        nvt = navitab::System::GetSystem(navitab::SimEngine::MSFS, navitab::AppClass::CONSOLE);
+        nvt = navitab::CoreServices::MakeNavitab(navitab::SimEngine::MSFS, navitab::AppClass::CONSOLE);
     }
     catch (navitab::StartupError& e) {
         std::cerr << "Navitab startup exception: " << e.What() << std::endl;

@@ -18,6 +18,7 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <chrono>
 #include "mocksim.h"
 
 std::shared_ptr<navitab::Simulator> navitab::Simulator::Factory()
@@ -28,7 +29,8 @@ std::shared_ptr<navitab::Simulator> navitab::Simulator::Factory()
 namespace navitab {
 
 MockSimulator::MockSimulator()
-:   LOG(std::make_unique<logging::Logger>("mocksim"))
+:   LOG(std::make_unique<logging::Logger>("mocksim")),
+    running(false)
 {
 }
 
@@ -44,11 +46,24 @@ void MockSimulator::SetPrefs(std::shared_ptr<Preferences> p)
 void MockSimulator::Connect(std::shared_ptr<SimulatorEvents> c)
 {
     core = c;
+    running = true;
+    worker = std::make_unique<std::thread>([this]() { AsyncRunSimulator(); });
 }
 
 void MockSimulator::Disconnect()
 {
+    running = false;
+    worker->join();
     core.reset();
+}
+
+void MockSimulator::AsyncRunSimulator()
+{
+    using namespace std::chrono_literals;
+    while (running) {
+        std::this_thread::sleep_for(50ms);
+        core->PostSimUpdates();
+    }
 }
 
 } // namespace navitab

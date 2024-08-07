@@ -44,11 +44,25 @@ void MsfsSimulator::SetPrefs(std::shared_ptr<Preferences> p)
 void MsfsSimulator::Connect(std::shared_ptr<SimulatorEvents> c)
 {
     core = c;
+    running = true;
+    worker = std::make_unique<std::thread>([this]() { AsyncRunSimulator(); });
 }
 
 void MsfsSimulator::Disconnect()
 {
-    UNIMPLEMENTED(__func__);
+    running = false;
+    worker->join();
+    core.reset();
+}
+
+void MsfsSimulator::AsyncPollSimulator()
+{
+    // TODO - look at the current Avitab MSFS interface (using SimDLL) for pattern
+    using namespace std::chrono_literals;
+    while (running) {
+        std::this_thread::sleep_for(50ms);
+        core->PostSimUpdates();
+    }
 }
 
 } // namespace navitab

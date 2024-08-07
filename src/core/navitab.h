@@ -42,8 +42,8 @@
 
 namespace navitab {
 
-class Navitab : public std::enable_shared_from_this<Navitab>, public System,
-                public SimulatorEvents, public WindowEvents,
+class Navitab : public std::enable_shared_from_this<Navitab>,
+                public CoreServices, public SimulatorEvents, public WindowEvents,
                 public ToolbarEvents, public ModebarEvents, public DoodlerEvents, public KeypadEvents
 {
 public:
@@ -53,7 +53,8 @@ public:
     Navitab(SimEngine s, AppClass c);
     virtual ~Navitab();
 
-    // System base class overrides
+    // ======================================================================
+    // Implementation of CoreServices
     
     // hook up with simulator and window
     std::shared_ptr<SimulatorEvents> GetSimulatorCallbacks() override;
@@ -84,10 +85,13 @@ public:
     // directory containing the current Navitab executable
     std::filesystem::path NavitabPath() override;
 
-    // SimulatorEvents implementation
+    // ======================================================================
+    // Implementation of SimulatorEvents
     void SetSimulator(std::shared_ptr<Simulator>) override;
+    void onSimFlightLoop() override;
 
-    // WindowEvents implementation
+    // ======================================================================
+    // Implementation of WindowEvents
     void SetWindow(std::shared_ptr<Window>) override;
     std::shared_ptr<Toolbar> GetToolbar() override;
     std::shared_ptr<Modebar> GetModebar() override;
@@ -98,16 +102,20 @@ public:
     void onWheelEvent(int x, int y, int xdir, int ydir) override;
     void onKeyEvent(int code) override;
 
-    // ToolbarEvents implementation
+    // ======================================================================
+    // Implementation of ToolbarEvents
     void onToolClick(Tool t) override;
 
-    // ModebarEvents implementation
+    // ======================================================================
+    // Implementation of ModebarEvents
     void onModeSelect(Mode m) override;
 
-    // KeypadEvents implementation
+    // ======================================================================
+    // Implementation of KeypadEvents
     void onKeypadEvent(int code) override;
 
-    // Callback implementation (via several other intermediate base classes)
+    // ======================================================================
+    // Implementation of Callback (via several other intermediate base classes)
     void AsyncCall(std::function<void ()>) override;
 
 private:

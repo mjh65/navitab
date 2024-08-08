@@ -18,21 +18,23 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "xpwin.h"
 #include <cassert>
+#include <fmt/core.h>
+#include <nlohmann/json.hpp>
+#include <XPLM/XPLMGraphics.h>
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
 #else
 #include <GL/gl.h>
-//#include <GL/glext.h>
 #endif
-#include <fmt/core.h>
-#include <nlohmann/json.hpp>
+#include "xpwin.h"
 #include "navitab/core.h"
 #include "../../win/imagerect.h"
 
 
 namespace navitab {
+
+std::vector<int> XPlaneWindow::xpTextureIds;
 
 XPlaneWindow::XPlaneWindow(const char* logId)
 :   LOG(std::make_unique<logging::Logger>(logId)),
@@ -63,6 +65,21 @@ std::unique_ptr<ImageRectangle> XPlaneWindow::RefreshPart(int part, std::unique_
     returnedImage = std::move(partImages[part]);
     partImages[part] = std::move(newImage);
     return returnedImage;
+}
+
+void XPlaneWindow::Create(std::shared_ptr<CoreServices> core)
+{
+    if (xpTextureIds.empty()) {
+        xpTextureIds.resize(PART_COUNT);
+        XPLMGenerateTextureNumbers(xpTextureIds.data(), PART_COUNT);
+        for (auto i = 0; i < PART_COUNT; ++i) {
+            XPLMBindTexture2d(xpTextureIds[i], 0);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
+    }
+    Connect(core);
 }
 
 void XPlaneWindow::Show()
@@ -106,7 +123,7 @@ void XPlaneWindow::Connect(std::shared_ptr<CoreServices> c)
         parts[i] = core->GetPartCallbacks(i);
         parts[i]->SetPainter(shared_from_this());
     }
-
+    ResizeNotifyAll(winWidth, winHeight);
 }
 
 void XPlaneWindow::Disconnect()
@@ -156,6 +173,16 @@ bool XPlaneWindow::UpdateWinGeometry()
     return false;
 }
 
+void XPlaneWindow::ResizeNotifyAll(int w, int h)
+{
+    parts[PART_TOOLBAR]->PostResize(w, TOOLBAR_HEIGHT);
+    parts[PART_MODEBAR]->PostResize(MODEBAR_WIDTH, MODEBAR_HEIGHT);
+    parts[PART_DOODLER]->PostResize(w - MODEBAR_WIDTH, h - TOOLBAR_HEIGHT);
+    parts[PART_KEYPAD]->PostResize(w - MODEBAR_WIDTH, KEYPAD_HEIGHT);
+    parts[PART_CANVAS]->PostResize(w - MODEBAR_WIDTH, h - TOOLBAR_HEIGHT);
+}
+
+
 void XPlaneWindow::ScreenToWindow(int& x, int& y)
 {
     x = x - wgl;
@@ -165,6 +192,49 @@ void XPlaneWindow::ScreenToWindow(int& x, int& y)
 bool XPlaneWindow::isActive()
 {
     return winVisible;
+}
+
+void XPlaneWindow::RenderContent()
+{
+    int left, top, right, bottom;
+    XPLMGetWindowGeometry(winHandle, &left, &top, &right, &bottom);
+    RenderPart(PART_TOOLBAR, left, top, right, top - TOOLBAR_HEIGHT);
+    RenderPart(PART_MODEBAR, left, top - TOOLBAR_HEIGHT, left + MODEBAR_WIDTH, std::max(top - (TOOLBAR_HEIGHT + MODEBAR_HEIGHT), bottom));
+    RenderPart(PART_DOODLER, left + MODEBAR_WIDTH, top - TOOLBAR_HEIGHT, right, bottom);
+    RenderPart(PART_KEYPAD, left + MODEBAR_WIDTH, bottom + KEYPAD_HEIGHT, right, bottom);
+    RenderPart(PART_CANVAS, left, top - TOOLBAR_HEIGHT, right, bottom);
+}
+
+void XPlaneWindow::RenderPart(int part, int left, int top, int right, int bottom)
+{
+    const std::lock_guard<std::mutex> lock(imageMutex);
+    if (!partImages[part]) return;
+
+    auto& image = *(partImages[part]);
+
+    XPLMBindTexture2d(xpTextureIds[part], 0);
+    if (image.NeedsRegistration()) {
+        glTexImage2D(GL_TEXTURE_2D, 0,
+            GL_RGBA, image.Width(), image.Height(), 0,
+            GL_RGBA, GL_UNSIGNED_BYTE, image.Row(0));
+    }
+
+    XPLMSetGraphicsState(0, 1, 0, 0, 1, 0, 0);
+
+    glTexSubImage2D(GL_TEXTURE_2D, 0,
+        0, 0, image.Width(), image.Height(),
+        GL_RGBA, GL_UNSIGNED_BYTE, image.Row(0));
+
+    glBegin(GL_QUADS);
+    // map top left texture to bottom left vertex
+    glTexCoord2i(0, 1); glVertex2i(left, bottom);
+    // map bottom left texture to top left vertex
+    glTexCoord2i(0, 0); glVertex2i(left, top);
+    // map bottom right texture to top right vertex
+    glTexCoord2i(1, 0); glVertex2i(right, top);
+    // map top right texture to bottom right vertex
+    glTexCoord2i(1, 1); glVertex2i(right, bottom);
+    glEnd();
 }
 
 } // namespace navitab

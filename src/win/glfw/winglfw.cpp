@@ -180,8 +180,8 @@ void WindowGLFW::CreateWindow()
         reinterpret_cast<WindowGLFW*>(glfwGetWindowUserPointer(wnd))->onChar(c);
     });
 
+    glGenTextures(PART_COUNT, textureNames);
     for (auto i = 0; i < PART_COUNT; ++i) {
-        glGenTextures(1, &textureNames[i]);
         glBindTexture(GL_TEXTURE_2D, textureNames[i]);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

@@ -46,7 +46,7 @@ XPDesktopWindow::~XPDesktopWindow()
 
 void XPDesktopWindow::Create(std::shared_ptr<CoreServices> core)
 {
-    Connect(core);
+    XPlaneWindow::Create(core);
 
     auto& xwdp = prefs->Get("/xplane/window/desktop");
     try {
@@ -155,6 +155,7 @@ void XPDesktopWindow::onDraw()
     if (++winResizePollTimer > 30) {
         winResizePollTimer = 0;
         if (UpdateWinGeometry()) {
+            ResizeNotifyAll(winWidth, winHeight);
             parts[PART_TOOLBAR]->PostResize(winWidth, TOOLBAR_HEIGHT);
             parts[PART_MODEBAR]->PostResize(MODEBAR_WIDTH, MODEBAR_HEIGHT);
             parts[PART_DOODLER]->PostResize(winWidth - MODEBAR_WIDTH, winHeight - TOOLBAR_HEIGHT);
@@ -171,7 +172,7 @@ void XPDesktopWindow::onDraw()
         }
     }
 
-    // TODO - still need to do the drawing stuff!
+    RenderContent();
 }
 
 int XPDesktopWindow::onLeftClick(int x, int y, XPLMMouseStatus status)
@@ -224,6 +225,7 @@ int XPDesktopWindow::onMouseWheel(int x, int y, int wheel, int clicks)
 
 void XPDesktopWindow::onKey(char key, XPLMKeyFlags flags, char vKey, int losingFocus)
 {
+    // TODO - Avitab uses a key sniffer. Should we do that too?
     LOGD(fmt::format("onKey({},{},{},{})", (int)key, flags, (int)vKey, losingFocus));
     UNIMPLEMENTED(__func__);
 }

@@ -34,10 +34,20 @@ MockSimulator::MockSimulator()
     running(false),
     tiktok(false)
 {
-    // TODO - prefill these with sensible starting values
-    mockData[0].nOtherPlanes = MAX_OTHER_AIRCRAFT;
-    mockData[0].zuluTime = 0;
-    mockData[0].fps = 15;
+    auto& d = mockData[0];
+    d.myPlane.latitude = 55.974728f;
+    d.myPlane.longitude = -3.970579f;
+    d.myPlane.elevation = 100.0f;
+    d.myPlane.heading = 290.0f;
+    d.nOtherPlanes = MAX_OTHER_AIRCRAFT;
+    for (auto i = 0; i < MAX_OTHER_AIRCRAFT; ++i) {
+        d.otherPlanes[i].latitude = 55.0f + ((rand() % 2000) / 1000.0f);
+        d.otherPlanes[i].longitude = -3.0f - ((rand() % 2000) / 1000.0f);
+        d.otherPlanes[i].elevation = 100.0f + ((rand() % 100) * 100.0);
+        d.otherPlanes[i].heading = (rand() % 360);
+    }
+    d.zuluTime = rand() % (24 * 60 * 60);
+    d.fps = 15;
     mockData[1] = mockData[0];
 }
 
@@ -65,6 +75,7 @@ void MockSimulator::Disconnect()
 
 void MockSimulator::AsyncRunSimulator()
 {
+    // TODO - move the planes around a bit, and get frame rate from window
     using namespace std::chrono_literals;
     while (running) {
         std::this_thread::sleep_for(50ms);

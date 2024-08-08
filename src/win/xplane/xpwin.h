@@ -49,7 +49,7 @@ public:
     std::unique_ptr<ImageRectangle> RefreshPart(int part, std::unique_ptr<ImageRectangle>) override;
 
     // XPlane addition requiring specific implementations for desktop and VR windows
-    virtual void Create(std::shared_ptr<CoreServices> core) = 0;
+    virtual void Create(std::shared_ptr<CoreServices> core);
     virtual void Destroy() = 0;
     virtual void Reset() = 0; // Reset size and reposition centrally (in VR attaches to HMD or controller)
 
@@ -64,8 +64,12 @@ protected:
     void Connect(std::shared_ptr<CoreServices> core) override;
     void Disconnect() override;
 
+    void RenderContent();
+    void RenderPart(int part, int left, int top, int right, int bottom);
+
     void ProdWatchdog();
     bool UpdateWinGeometry(); // returns true if the size changed
+    void ResizeNotifyAll(int w, int h);
     bool isVisible() const { return winVisible; }
     void ScreenToWindow(int& x, int& y);
 
@@ -86,6 +90,10 @@ private:
     int winDrawWatchdog;
     int wgl, wgt, wgr, wgb; // most recently observed window geometry
     bool winVisible;
+
+protected:
+    // singleton data, initialised once and reused when switching modes
+    static std::vector<int> xpTextureIds;
 
 };
 

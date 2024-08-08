@@ -38,7 +38,7 @@ XPVRWindow::~XPVRWindow()
 
 void XPVRWindow::Create(std::shared_ptr<CoreServices> core)
 {
-    Connect(core);
+    XPlaneWindow::Create(core);
 
     assert(!winHandle);
 
@@ -113,16 +113,16 @@ void XPVRWindow::onDraw()
             int w, h;
             XPLMGetWindowGeometryVR(winHandle, &w, &h);
             LOGD(fmt::format("Geometry in VR is {}x{} or {}x{}", w, h, winWidth, winHeight));
-            parts[PART_TOOLBAR]->PostResize(winWidth, TOOLBAR_HEIGHT);
-            parts[PART_MODEBAR]->PostResize(MODEBAR_WIDTH, MODEBAR_HEIGHT);
-            parts[PART_DOODLER]->PostResize(winWidth - MODEBAR_WIDTH, winHeight - TOOLBAR_HEIGHT);
-            parts[PART_KEYPAD]->PostResize(winWidth - MODEBAR_WIDTH, KEYPAD_HEIGHT);
-            parts[PART_CANVAS]->PostResize(winWidth - MODEBAR_WIDTH, winHeight - TOOLBAR_HEIGHT);
+            ResizeNotifyAll(winWidth, winHeight);
         }
     }
 
     // TODO - still need to do the drawing stuff!
 }
+
+// TODO - Avitab has code to capture the VR controller trigger and
+// treat this as a left-button mouse for selection and dragging. We
+// should probably do this too!
 
 int XPVRWindow::onLeftClick(int x, int y, XPLMMouseStatus status)
 {

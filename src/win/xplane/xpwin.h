@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include <memory>
 #include <mutex>
 #include <XPLM/XPLMDisplay.h>
 #include "navitab/window.h"
@@ -31,7 +32,8 @@ namespace navitab {
 // XP desktop and VR windows. This allows the XP plugin to swap between these
 // specialisations when the simulation enters and leaves VR mode.
 
-class XPlaneWindow : public Window, public WindowControl, public PartPainter
+class XPlaneWindow : public std::enable_shared_from_this<XPlaneWindow>,
+                     public Window, public WindowControl, public PartPainter
 {
 public:
     XPlaneWindow(const char *logId);

@@ -131,7 +131,7 @@ int XPVRWindow::onLeftClick(int x, int y, XPLMMouseStatus status)
     XPLMGetWindowGeometry(winHandle, &l, &t, &r, &b);
     int w, h;
     XPLMGetWindowGeometryVR(winHandle, &w, &h);
-    LOGD(fmt::format("onLeftClick({},{},{}) in win({},{}) lt/rb {},{} -> {},{}", x, y, status, w, h, l, t, r, b));
+    LOGD(fmt::format("onLeftClick({},{},{}) in panel({},{}) lt/rb {},{} -> {},{}", x, y, status, w, h, l, t, r, b));
     UNIMPLEMENTED(__func__);
     return 1;
 }

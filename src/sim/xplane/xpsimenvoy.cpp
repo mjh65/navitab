@@ -198,12 +198,12 @@ void XPlaneSimulatorEnvoy::Enable()
     LOGD(fmt::format("Read open_at_start preference as {}", showNow));
     isInVRmode = (XPLMGetDatai(vrModeDataRef) != 0);
     if (isInVRmode) {
-        win = std::make_unique<XPVRWindow>();
+        panel = std::make_shared<XPVRWindow>();
     } else {
-        win = std::make_unique<XPDesktopWindow>();
+        panel = std::make_shared<XPDesktopWindow>();
     }
-    win->Create(core);
-    if (showNow) win->Show();
+    panel->Create(core);
+    if (showNow) panel->Show();
 }
 
 void XPlaneSimulatorEnvoy::Disable()
@@ -213,12 +213,12 @@ void XPlaneSimulatorEnvoy::Disable()
 
     // save the window state for next time
     auto xwdp = prefs->Get("/xplane/window");
-    xwdp["open_at_start"] = win->isActive();
+    xwdp["open_at_start"] = panel->isActive();
     prefs->Put("/xplane/window", xwdp);
-    LOGD(fmt::format("Wrote open_at_start preference to {}", win->isActive()));
+    LOGD(fmt::format("Wrote open_at_start preference to {}", panel->isActive()));
 
-    win->Destroy();
-    win.reset();
+    panel->Destroy();
+    panel.reset();
 
     if (subMenu) {
         XPLMDestroyMenu(subMenu);
@@ -238,17 +238,17 @@ void XPlaneSimulatorEnvoy::onVRmodeChange(bool entering)
     LOGI(fmt::format("VR mode change notified: {}", entering ? "entering" : "leaving"));
     isInVRmode = entering;
 
-    auto active = win->isActive();
-    win->Destroy();
+    auto active = panel->isActive();
+    panel->Destroy();
 
     if (isInVRmode) {
-        win = std::make_unique<XPVRWindow>();
+        panel = std::make_shared<XPVRWindow>();
     }
     else {
-        win = std::make_unique<XPDesktopWindow>();
+        panel = std::make_shared<XPDesktopWindow>();
     }
-    win->Create(core);
-    if (active) win->Show();
+    panel->Create(core);
+    if (active) panel->Show();
 }
 
 void XPlaneSimulatorEnvoy::onPlaneLoaded()
@@ -324,7 +324,7 @@ float XPlaneSimulatorEnvoy::onFlightLoop(float elapsedSinceLastCall, float elaps
     setLastFrameTime(dataCache.getData("sim/operation/misc/frame_rate_period").floatValue);
 #endif
 
-    if (win) win->CheckVitalSigns();
+    if (panel) panel->CheckVitalSigns();
     coreSimCallbacks->PostSimUpdates();
 
     return -1;
@@ -333,13 +333,13 @@ float XPlaneSimulatorEnvoy::onFlightLoop(float elapsedSinceLastCall, float elaps
 void XPlaneSimulatorEnvoy::showWindow()
 {
     LOGD("Show window menu callback");
-    if (win) win->Show();
+    if (panel) panel->Show();
 }
 
 void XPlaneSimulatorEnvoy::resetWindow()
 {
     LOGD("Reset window menu callback");
-    if (win) win->Reset();
+    if (panel) panel->Reset();
 }
 
 // Reloading the plugins is a convenience during development. This menu

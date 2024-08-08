@@ -104,6 +104,7 @@ void XPlaneWindow::Connect(std::shared_ptr<CoreServices> c)
 
     for (auto i = 0; i < PART_COUNT; ++i) {
         parts[i] = core->GetPartCallbacks(i);
+        parts[i]->SetPainter(shared_from_this());
     }
 
 }

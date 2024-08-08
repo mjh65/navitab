@@ -97,7 +97,7 @@ private:
     XPLMDataRef vrModeDataRef;
 
     // window manager
-    std::unique_ptr<XPlaneWindow> win;
+    std::shared_ptr<XPlaneWindow> panel;
     bool isInVRmode;
 
 };

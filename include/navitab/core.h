@@ -74,7 +74,7 @@ struct CoreServices
     static std::shared_ptr<CoreServices> MakeNavitab(SimEngine s, AppClass c);
 
     // Get the interface to the preferences manager
-    virtual std::shared_ptr<Preferences> PrefsManager() = 0;
+    virtual std::shared_ptr<Preferences> GetPrefsManager() = 0;
 
     // Get the interface for simulation-generated events that Navitab will handle
     virtual std::shared_ptr<SimulatorEvents> GetSimulatorCallbacks() = 0;

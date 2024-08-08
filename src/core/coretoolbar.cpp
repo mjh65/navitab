@@ -39,7 +39,7 @@ void CoreToolbar::SetSimZuluTime(int h, int m, int s)
     UNIMPLEMENTED(__func__);
 }
 
-void CoreToolbar::SetFrameRate(float fps)
+void CoreToolbar::SetFrameRate(int fps)
 {
     UNIMPLEMENTED(__func__);
 }

@@ -31,8 +31,14 @@ namespace navitab {
 
 MsfsSimulator::MsfsSimulator()
 :   LOG(std::make_unique<logging::Logger>("msfssim")),
-    running(false)
+    running(false),
+    tiktok(false)
 {
+    // TODO - replace this with real data extracted from the simlation
+    mockData[0].nOtherPlanes = MAX_OTHER_AIRCRAFT;
+    mockData[0].zuluTime = 0;
+    mockData[0].fps = 15;
+    mockData[1] = mockData[0];
 }
 
 MsfsSimulator::~MsfsSimulator()
@@ -42,7 +48,7 @@ MsfsSimulator::~MsfsSimulator()
 void MsfsSimulator::Connect(std::shared_ptr<CoreServices> c)
 {
     core = c;
-    prefs = core->PrefsManager();
+    prefs = core->GetPrefsManager();
     handler = core->GetSimulatorCallbacks();
     running = true;
     worker = std::make_unique<std::thread>([this]() { AsyncPollSimulator(); });
@@ -63,7 +69,8 @@ void MsfsSimulator::AsyncPollSimulator()
     using namespace std::chrono_literals;
     while (running) {
         std::this_thread::sleep_for(50ms);
-        handler->PostSimUpdates();
+        handler->PostSimUpdates(mockData[tiktok ? 1 : 0]);
+        tiktok = !tiktok;
     }
 }
 

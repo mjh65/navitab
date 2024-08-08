@@ -55,6 +55,7 @@ public:
 
 private:
     XPLMFlightLoopID CreateFlightLoop();
+    bool GetFlightLoopDataRefs();
 
 private:
     // called from XPlane on each flight loop
@@ -93,8 +94,13 @@ private:
     using MenuCallback = std::function<void()>;
     std::vector<MenuCallback> menuCallbacks;
 
-    // simulation datarefs
+    // simulation datarefs and per-flightloop data
     XPLMDataRef vrModeDataRef;
+    XPLMDataRef zuluTimeDataRef;
+    XPLMDataRef frameRateDataRef;
+    std::vector<XPLMDataRef> aircraftPositionDataRefs;
+    FlightLoopData simState[2];
+    bool tiktok;
 
     // window manager
     std::shared_ptr<XPlaneWindow> panel;

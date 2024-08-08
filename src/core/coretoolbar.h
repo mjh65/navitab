@@ -42,7 +42,7 @@ public:
 
     // APIs called from the Navitab core (sync call OK)
     void SetSimZuluTime(int h, int m, int s) override;
-    void SetFrameRate(float fps) override;
+    void SetFrameRate(int fps) override;
     void SetEnabledTools(int selectMask) override;
 
 protected:

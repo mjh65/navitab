@@ -31,8 +31,14 @@ namespace navitab {
 
 MockSimulator::MockSimulator()
 :   LOG(std::make_unique<logging::Logger>("mocksim")),
-    running(false)
+    running(false),
+    tiktok(false)
 {
+    // TODO - prefill these with sensible starting values
+    mockData[0].nOtherPlanes = MAX_OTHER_AIRCRAFT;
+    mockData[0].zuluTime = 0;
+    mockData[0].fps = 15;
+    mockData[1] = mockData[0];
 }
 
 MockSimulator::~MockSimulator()
@@ -42,7 +48,7 @@ MockSimulator::~MockSimulator()
 void MockSimulator::Connect(std::shared_ptr<CoreServices> c)
 {
     core = c;
-    prefs = core->PrefsManager();
+    prefs = core->GetPrefsManager();
     handler = core->GetSimulatorCallbacks();
     running = true;
     worker = std::make_unique<std::thread>([this]() { AsyncRunSimulator(); });
@@ -62,7 +68,8 @@ void MockSimulator::AsyncRunSimulator()
     using namespace std::chrono_literals;
     while (running) {
         std::this_thread::sleep_for(50ms);
-        handler->PostSimUpdates();
+        handler->PostSimUpdates(mockData[tiktok ? 1 : 0]);
+        tiktok = !tiktok;
     }
 }
 

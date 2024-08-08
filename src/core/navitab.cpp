@@ -20,7 +20,7 @@
 
 #include "navitab.h"
 #include "logmanager.h"
-#include "prefs.h"
+#include "prefsmgr.h"
 #include <cstdio>
 #include <filesystem>
 #include <nlohmann/json.hpp>
@@ -81,7 +81,7 @@ Navitab::Navitab(SimEngine s, AppClass c)
     pfp += "_prefs.json";
 
     // load the preferences
-    prefs = std::make_shared<Prefs>(pfp);
+    prefs = std::make_shared<PrefsManager>(pfp);
 
     // configure the logging manager
     bool reloaded = false;
@@ -128,13 +128,21 @@ void Navitab::SetWindowControl(std::shared_ptr<WindowControl> w)
     winCtrl = w;
 }
 
-void Navitab::onSimFlightLoop()
+void Navitab::onSimFlightLoop(const FlightLoopData& data)
 {
-    UNIMPLEMENTED(__func__);
-    // TODO - this will be the trigger for various regular update jobs
-    // zulu time and current time, update every 1s
-    // FPS, update every 2s ish
-    // location - on each report
+    auto prevZulu = simState.zuluTime;
+    simState = data;
+
+    // only update the toolbar display each second
+    if (simState.zuluTime != prevZulu) {
+        int s = simState.zuluTime;
+        int h = s / (60 * 60); s -= (h * 60 * 60);
+        int m = s / 60; s -= (m * 60);
+        toolbar->SetSimZuluTime(h, m, s);
+        toolbar->SetFrameRate(simState.fps);
+        LOGD(fmt::format("Z:{}:{}:{}, FPS:{}", h, m, s, simState.fps));
+        LOGD(fmt::format("N:{},E:{}", simState.myPlane.latitude, simState.myPlane.longitude));
+    }
 }
 
 void Navitab::Start()
@@ -222,9 +230,10 @@ void Navitab::Stop()
         AsyncCall([]() {});
         worker->join();
     }
+    prefs.reset();
 }
 
-std::shared_ptr<Preferences> Navitab::PrefsManager()
+std::shared_ptr<Preferences> Navitab::GetPrefsManager()
 {
     return prefs;
 }

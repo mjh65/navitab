@@ -32,11 +32,11 @@
 
 namespace navitab {
 
-class Prefs : public Preferences
+class PrefsManager : public Preferences
 {
 public:
-    Prefs(std::filesystem::path prefsFile);
-    ~Prefs();
+    PrefsManager(std::filesystem::path prefsFile);
+    ~PrefsManager();
 
     const nlohmann::json& Get(const std::string key) override;
     void Put(const std::string key, nlohmann::json& value) override;

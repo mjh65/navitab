@@ -22,7 +22,9 @@
 
 #include <memory>
 #include <functional>
+#include <vector>
 #include "navitab/callback.h"
+#include "navitab/navigation.h"
 
 /*
  * This header file defines the interface to the simulator, which will
@@ -37,24 +39,29 @@ struct CoreServices;
 class Preferences;
 struct Simulator;
 
+struct FlightLoopData
+{
+    AircraftPosition    myPlane;
+    size_t              nOtherPlanes;
+    AircraftPosition    otherPlanes[MAX_OTHER_AIRCRAFT];
+    int                 zuluTime;
+    int                 fps;
+};
+
 // The SimulatorEvents interface defines services that the simulator
 // requires from the Navitab core. Calls to these services will generally
 // be from the simulator's thread and should do minimal work.
 
 struct SimulatorEvents : public Callback
 {
-    // Set the simulator that Navitab will work with. Only expected to be
-    // called once.
-    //virtual void SetSimulator(std::shared_ptr<Simulator>) = 0;
-
     // Called from the simulator on each flight loop, and provides updates
-    // to simulation-derived data.
-    void PostSimUpdates() {
-        AsyncCall([this]() { onSimFlightLoop(); });
+    // to simulation-derived data. Double-buffered in sim, but not mutex protected.
+    void PostSimUpdates(const FlightLoopData &data) {
+        AsyncCall([this, data]() { onSimFlightLoop(data); });
     }
 
 protected:
-    virtual void onSimFlightLoop() = 0;
+    virtual void onSimFlightLoop(const FlightLoopData& data) = 0;
 
 };
 

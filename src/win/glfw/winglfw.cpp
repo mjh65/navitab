@@ -73,7 +73,7 @@ WindowGLFW::~WindowGLFW()
 void WindowGLFW::Connect(std::shared_ptr<CoreServices> c)
 {
     core = c;
-    prefs = core->PrefsManager();
+    prefs = core->GetPrefsManager();
     // TODO - read window size preferences
     for (auto i = 0; i < PART_COUNT; ++i) {
         parts[i] = core->GetPartCallbacks(i);

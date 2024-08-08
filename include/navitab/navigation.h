@@ -1,8 +1,8 @@
 /*
- *  Navitab - Navigation Tablet for VR flight simulation
- *  Copyright (c) 2024 Michael Hasling
+ *  Navitab - Navigation tablet for VR flight simulation
+ *  Copyright (C) 2024 Michael Hasling
  *  Significantly derived from Avitab
- *  Copyright (c) 2018-2024 Folke Will
+ *  Copyright (C) 2018-2024 Folke Will <folko@solhost.org>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published by
@@ -20,35 +20,22 @@
 
 #pragma once
 
-#include <thread>
-#include "navitab/simulator.h"
-#include "navitab/logger.h"
+// This header file defines abstract interfaces to the main components of
+// Navitab, and a single factory function to make the central core object.
 
 namespace navitab {
 
-class MsfsSimulator : public Simulator
-{
-public:
-    MsfsSimulator();
-    ~MsfsSimulator();
-    
-    void Connect(std::shared_ptr<CoreServices>) override;
-    void Disconnect() override;
-
-private:
-    void AsyncPollSimulator();
-
-private:
-    std::unique_ptr<logging::Logger> LOG;
-    std::shared_ptr<Preferences> prefs;
-    std::shared_ptr<CoreServices> core;
-    std::shared_ptr<SimulatorEvents> handler;
-
-    bool running;
-    std::unique_ptr<std::thread> worker;
-
-    FlightLoopData mockData[2];
-    bool tiktok;
+enum {
+    MAX_OTHER_AIRCRAFT = 32
 };
+
+struct AircraftPosition
+{
+    float latitude;     // -90 .. 90
+    float longitude;    // -180 .. 180
+    float elevation;    // metres above sea-level
+    float heading;      // 0 .. 360, true heading
+};
+
 
 } // namespace navitab

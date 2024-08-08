@@ -45,6 +45,7 @@ XPlaneSimulatorEnvoy::XPlaneSimulatorEnvoy()
     flightLoopId(nullptr),
     subMenuIdx(-1),
     subMenu(nullptr),
+    tiktok(false),
     isInVRmode(false)
 {
     LOGI("Constructing XPlaneSimulatorEnvoy()");
@@ -56,13 +57,13 @@ void XPlaneSimulatorEnvoy::Connect(std::shared_ptr<CoreServices> c)
 {
     LOGI("Connect() called");
     core = c;
-    prefs = core->PrefsManager();
+    prefs = core->GetPrefsManager();
     coreSimCallbacks = core->GetSimulatorCallbacks();
 }
 
 void XPlaneSimulatorEnvoy::Disconnect()
 {
-    LOGI("Disonnect() called");
+    LOGI("Disconnect() called");
     coreSimCallbacks.reset();
     prefs.reset();
     core.reset();
@@ -95,53 +96,15 @@ void XPlaneSimulatorEnvoy::Start()
     pluginRootPath = rp.parent_path().lexically_normal();
     LOGI(fmt::format("Navitab plugin path: {}", pluginRootPath.string()));
 
-    // create and schedule the flight loop
+    // get all the datarefs we will be reading on each flight loop
+    if (!GetFlightLoopDataRefs()) {
+        LOGE("Could not get all datarefs from XPlane - Navitab will not finish loading");
+        return;
+    }
+
+    // create and schedule the flight loop - only if all datarefs were retrieved
     flightLoopId = CreateFlightLoop();
     XPLMScheduleFlightLoop(flightLoopId, -1, true);
-
-#if 0 // TODO, revive later
-    if (xplmVersion >= 400) {
-        getMetar = (GetMetarPtr)XPLMFindSymbol("XPLMGetMETARForAirport");
-    }
-    else {
-        getMetar = nullptr;
-    }
-
-    updatePlaneCount();
-
-    panelEnabled = std::make_shared<int>(0);
-    panelPowered = std::make_shared<int>(0);
-    brightness = std::make_shared<float>(1);
-
-    reloadAircraftPath();
-
-    panelEnabledRef = std::make_unique<DataRefExport<int>>("avitab/panel_enabled", this,
-        [](void* self) { return *((reinterpret_cast<XPlaneEnvironment*>(self))->panelEnabled); },
-        [](void* self, int v) { *((reinterpret_cast<XPlaneEnvironment*>(self))->panelEnabled) = v; });
-
-    panelPoweredRef = std::make_unique<DataRefExport<int>>("avitab/panel_powered", this,
-        [](void* self) { return *((reinterpret_cast<XPlaneEnvironment*>(self))->panelPowered); },
-        [](void* self, int v) { *((reinterpret_cast<XPlaneEnvironment*>(self))->panelPowered) = v; });
-
-    brightnessRef = std::make_unique<DataRefExport<float>>("avitab/brightness", this,
-        [](void* self) { return *((reinterpret_cast<XPlaneEnvironment*>(self))->brightness); },
-        [](void* self, float v) { *((reinterpret_cast<XPlaneEnvironment*>(self))->brightness) = v; });
-
-    isInMenuRef = std::make_unique<DataRefExport<int>>("avitab/is_in_menu", this,
-        [](void* self) { return (reinterpret_cast<XPlaneEnvironment*>(self))->isInMenu; });
-
-    mapLatitudeRef = std::make_unique<DataRefExport<float>>("avitab/map/latitude", this,
-        [](void* self) { return (reinterpret_cast<XPlaneEnvironment*>(self))->getMapLatitude(); });
-
-    mapLongitudeRef = std::make_unique<DataRefExport<float>>("avitab/map/longitude", this,
-        [](void* self) { return (reinterpret_cast<XPlaneEnvironment*>(self))->getMapLongitude(); });
-
-    mapZoomRef = std::make_unique<DataRefExport<int>>("avitab/map/zoom", this,
-        [](void* self) { return (reinterpret_cast<XPlaneEnvironment*>(self))->getMapZoom(); });
-
-    mapVerticalRangeRef = std::make_unique<DataRefExport<float>>("avitab/map/vertical_range", this,
-        [](void* self) { return (reinterpret_cast<XPlaneEnvironment*>(self))->getMapVerticalRange(); });
-#endif
 }
 
 void XPlaneSimulatorEnvoy::Enable()
@@ -295,37 +258,75 @@ XPLMFlightLoopID XPlaneSimulatorEnvoy::CreateFlightLoop()
     return id;
 }
 
+bool XPlaneSimulatorEnvoy::GetFlightLoopDataRefs()
+{
+    if (!(zuluTimeDataRef = XPLMFindDataRef("sim/time/zulu_time_sec"))) return false;
+    if (!(frameRateDataRef = XPLMFindDataRef("sim/time/framerate_period"))) return false;
+
+    aircraftPositionDataRefs.push_back(XPLMFindDataRef("sim/flightmodel/position/latitude"));
+    aircraftPositionDataRefs.push_back(XPLMFindDataRef("sim/flightmodel/position/longitude"));
+    aircraftPositionDataRefs.push_back(XPLMFindDataRef("sim/flightmodel/position/elevation"));
+    aircraftPositionDataRefs.push_back(XPLMFindDataRef("sim/flightmodel/position/psi"));
+    std::string b0("sim/multiplayer/position/plane");
+    for (int i = 1; i < 10; ++i) {
+        char d = '0' + i;
+        aircraftPositionDataRefs.push_back(XPLMFindDataRef((b0 + d + "_lat").c_str()));
+        aircraftPositionDataRefs.push_back(XPLMFindDataRef((b0 + d + "_lon").c_str()));
+        aircraftPositionDataRefs.push_back(XPLMFindDataRef((b0 + d + "_el").c_str()));
+        aircraftPositionDataRefs.push_back(XPLMFindDataRef((b0 + d + "_psi").c_str()));
+    }
+    std::string b1("sim/multiplayer/position/plane1");
+    for (int i = 0; i < 10; ++i) {
+        char d = '0' + i;
+        aircraftPositionDataRefs.push_back(XPLMFindDataRef((b1 + d + "_lat").c_str()));
+        aircraftPositionDataRefs.push_back(XPLMFindDataRef((b1 + d + "_lon").c_str()));
+        aircraftPositionDataRefs.push_back(XPLMFindDataRef((b1 + d + "_el").c_str()));
+        aircraftPositionDataRefs.push_back(XPLMFindDataRef((b1 + d + "_psi").c_str()));
+    }
+    assert(aircraftPositionDataRefs.size() == 80);
+
+    for (auto& dr : aircraftPositionDataRefs) {
+        if (!dr) return false;
+    }
+
+    return true;
+}
+
 float XPlaneSimulatorEnvoy::onFlightLoop(float elapsedSinceLastCall, float elapseSinceLastLoop, int count)
 {
-#if 0 // TODO, revive later
-    std::vector<Location> activeAircraftLocations;
+    auto& fld = simState[tiktok];
+    tiktok = !tiktok;
 
-    updatePlaneCount();
-    for (AircraftID i = 0; i <= otherAircraftCount; ++i) {
-        try {
-            Location loc;
-            loc.latitude = dataCache.getLocationData(i, 0).doubleValue;
-            loc.longitude = dataCache.getLocationData(i, 1).doubleValue;
-            loc.elevation = dataCache.getLocationData(i, 2).doubleValue;
-            loc.heading = dataCache.getLocationData(i, 3).floatValue;
-            activeAircraftLocations.push_back(loc);
-        }
-        catch (const std::exception& e) {
-            // silently ignore to avoid flooding the log
-            // can fail with TCAS override, more than 19 AI aircraft
+    int tmp1, active;
+    XPLMPluginID tmp2;
+    XPLMCountAircraft(&tmp1, &active, &tmp2);
+    assert(active > 0);
+    fld.nOtherPlanes = std::min(active - 1, (int)MAX_OTHER_AIRCRAFT);
+
+    auto dri = aircraftPositionDataRefs.begin();
+    fld.myPlane.latitude = XPLMGetDataf(*dri++);
+    fld.myPlane.longitude = XPLMGetDataf(*dri++);
+    fld.myPlane.elevation = XPLMGetDataf(*dri++);
+    fld.myPlane.heading = XPLMGetDataf(*dri++);
+    for (int p = 0; p < MAX_OTHER_AIRCRAFT; ++p) {
+        if (p < fld.nOtherPlanes) {
+            fld.otherPlanes[p].latitude = XPLMGetDataf(*dri++);
+            fld.otherPlanes[p].longitude = XPLMGetDataf(*dri++);
+            fld.otherPlanes[p].elevation = XPLMGetDataf(*dri++);
+            fld.otherPlanes[p].heading = XPLMGetDataf(*dri++);
+        } else {
+            fld.otherPlanes[p].latitude = 0.0f;
+            fld.otherPlanes[p].longitude = 0.0f;
+            fld.otherPlanes[p].elevation = -1000.0f;
+            fld.otherPlanes[p].heading = 0.0f;
         }
     }
 
-    {
-        std::lock_guard<std::mutex> lock(stateMutex);
-        aircraftLocations = activeAircraftLocations;
-    }
-
-    setLastFrameTime(dataCache.getData("sim/operation/misc/frame_rate_period").floatValue);
-#endif
+    fld.zuluTime = (int)XPLMGetDataf(zuluTimeDataRef);
+    fld.fps = (int)(1.0f / std::max(XPLMGetDataf(frameRateDataRef), 0.01f));
+    coreSimCallbacks->PostSimUpdates(fld);
 
     if (panel) panel->CheckVitalSigns();
-    coreSimCallbacks->PostSimUpdates();
 
     return -1;
 }

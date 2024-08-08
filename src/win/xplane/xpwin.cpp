@@ -91,7 +91,7 @@ void XPlaneWindow::Connect(std::shared_ptr<CoreServices> c)
 {
     core = c;
 
-    prefs = core->PrefsManager();
+    prefs = core->GetPrefsManager();
     auto& xwdp = prefs->Get("/xplane/window");
     try {
         winWidth = xwdp.at("/width"_json_pointer);

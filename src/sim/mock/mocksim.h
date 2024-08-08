@@ -46,6 +46,9 @@ private:
 
     bool running;
     std::unique_ptr<std::thread> worker;
+
+    FlightLoopData mockData[2];
+    bool tiktok;
 };
 
 } // namespace navitab

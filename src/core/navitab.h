@@ -70,7 +70,7 @@ public:
     void Stop() override;    // TODO - called from XPluginStop - review this in SDK and Avitab
 
     // access to preferences
-    std::shared_ptr<Preferences> PrefsManager() override;
+    std::shared_ptr<Preferences> GetPrefsManager() override;
     
     // location of the preferences and log files, as well as any temporary file
     // and cached downloads
@@ -90,7 +90,7 @@ public:
 
     // ======================================================================
     // Implementation of SimulatorEvents
-    void onSimFlightLoop() override;
+    void onSimFlightLoop(const FlightLoopData& data) override;
 
     // ======================================================================
     // Implementation of WindowPart (for canvas)
@@ -135,6 +135,7 @@ private:
 
     std::filesystem::path               dataFilesPath;
 
+    FlightLoopData                      simState;
     bool                                running;
     bool                                enabled;
 

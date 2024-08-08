@@ -67,7 +67,7 @@ protected:
 struct Toolbar : public WindowPart
 {
     // APIs called from the Navitab core
-    virtual void SetFrameRate(float fps) = 0;
+    virtual void SetFrameRate(int fps) = 0;
     virtual void SetSimZuluTime(int h, int m, int s) = 0;
     virtual void SetEnabledTools(int selectMask) = 0;
 

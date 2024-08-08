@@ -21,35 +21,43 @@
 #pragma once
 
 #include <memory>
+#include <mutex>
 #include "navitab/window.h"
 #include "navitab/logger.h"
 
 namespace navitab {
 
-class WindowMSFS : public Window
+class WindowMSFS : public std::enable_shared_from_this<WindowMSFS>,
+                   public Window, public PartPainter, public WindowControl
 {
 public:
     WindowMSFS();
     ~WindowMSFS();
 
     // Implementation of the Window interface
-    void SetPrefs(std::shared_ptr<Preferences> prefs) override;
-    void Connect(std::shared_ptr<WindowEvents> core) override;
+    void Connect(std::shared_ptr<CoreServices> core) override;
     void Disconnect() override;
     int EventLoop(int maxLoops) override;
-    void SetHandlers(std::shared_ptr<Toolbar>, std::shared_ptr<Modebar>, std::shared_ptr<Doodler>, std::shared_ptr<Keypad>) override;
-    std::unique_ptr<ImageRectangle> RefreshCanvas(std::unique_ptr<ImageRectangle>) override;
-    std::unique_ptr<ImageRectangle> RefreshToolbar(std::unique_ptr<ImageRectangle>) override;
-    std::unique_ptr<ImageRectangle> RefreshModebar(std::unique_ptr<ImageRectangle>) override;
-    std::unique_ptr<ImageRectangle> RefreshDoodler(std::unique_ptr<ImageRectangle>) override;
-    std::unique_ptr<ImageRectangle> RefreshKeypad(std::unique_ptr<ImageRectangle>) override;
+
+    // Implementation of the PartPainter interface
+    std::unique_ptr<ImageRectangle> RefreshPart(int part, std::unique_ptr<ImageRectangle>) override;
+
+    // Implementation of the WindowControl interface
     void Brightness(int percent) override;
 
 private:
-    std::shared_ptr<Preferences> prefs;
-    std::shared_ptr<WindowEvents> coreWinCallbacks;
     std::unique_ptr<logging::Logger> LOG;
+    std::shared_ptr<CoreServices> core;
+    std::shared_ptr<Preferences> prefs;
+    std::shared_ptr<WindowPart> canvas;
 
+    std::unique_ptr<ImageRectangle> canvasImage;
+    std::mutex imageMutex;
+
+    int winWidth;
+    int winHeight;
+
+    float brightness;
 };
 
 }

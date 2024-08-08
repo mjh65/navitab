@@ -74,6 +74,7 @@ void WindowGLFW::Connect(std::shared_ptr<CoreServices> c)
 {
     core = c;
     prefs = core->PrefsManager();
+    // TODO - read window size preferences
     for (auto i = 0; i < PART_COUNT; ++i) {
         parts[i] = core->GetPartCallbacks(i);
         parts[i]->SetPainter(shared_from_this());

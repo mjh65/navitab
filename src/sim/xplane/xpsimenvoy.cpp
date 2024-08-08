@@ -18,9 +18,6 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "xpsimenvoy.h"
-#include "../../win/xplane/xpdesktopwin.h"
-#include "../../win/xplane/xpvrwin.h"
 #include <cassert>
 #include <XPLM/XPLMPlugin.h>
 #include <XPLM/XPLMPlanes.h>
@@ -29,8 +26,11 @@
 #include <XPLM/XPLMProcessing.h>
 #include <fmt/core.h>
 #include <nlohmann/json.hpp>
+#include "xpsimenvoy.h"
 #include "navitab/config.h"
 #include "navitab/core.h"
+#include "../../win/xplane/xpdesktopwin.h"
+#include "../../win/xplane/xpvrwin.h"
 
 std::shared_ptr<navitab::XPlaneSimulator> navitab::XPlaneSimulator::Factory()
 {
@@ -149,7 +149,6 @@ void XPlaneSimulatorEnvoy::Enable()
     // this is done in response to the XPluginStart() entry point
     LOGI("Enable() called");
     assert(coreSimCallbacks);
-    assert(coreWinCallbacks);
 
     // In Avitab quite a lot of this stuff seems to be in the Avitab class,
     // although it feels like it should be simulator specific, so in Navitab

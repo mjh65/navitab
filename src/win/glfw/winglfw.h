@@ -62,10 +62,10 @@ protected:
     void onChar(unsigned int c);
 
 private:
+    std::unique_ptr<logging::Logger> LOG;
     std::shared_ptr<CoreServices> core;
     std::shared_ptr<Preferences> prefs;
     std::shared_ptr<WindowPart> parts[PART_COUNT];
-    std::unique_ptr<logging::Logger> LOG;
 
     GLFWwindow* window;
     GLuint textureNames[PART_COUNT];

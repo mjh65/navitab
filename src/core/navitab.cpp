@@ -56,6 +56,7 @@ Navitab::Navitab(SimEngine s, AppClass c)
     appClass(c),
     LOG(std::make_unique<logging::Logger>("navitab")),
     dataFilesPath(FindDataFilesPath()),
+    running(false),
     enabled(false)
 {
     // Early initialisation needs to do enough to get the preferences loaded
@@ -113,12 +114,12 @@ std::shared_ptr<SimulatorEvents> Navitab::GetSimulatorCallbacks()
 std::shared_ptr<WindowPart> Navitab::GetPartCallbacks(int part)
 {
     switch (part) {
-        case Window::PART_TOOLBAR: return toolbar;
-        case Window::PART_MODEBAR: return modebar;
-        case Window::PART_DOODLER: return doodler;
-        case Window::PART_KEYPAD: return keypad;
-        case Window::PART_CANVAS: return shared_from_this();
-        default: assert(0); return nullptr;
+    case Window::PART_TOOLBAR: assert(toolbar); return toolbar;
+    case Window::PART_MODEBAR: assert(modebar); return modebar;
+    case Window::PART_DOODLER: assert(doodler); return doodler;
+    case Window::PART_KEYPAD: assert(keypad);  return keypad;
+    case Window::PART_CANVAS: return shared_from_this();
+    default: assert(0); return nullptr;
     }
 }
 
@@ -163,7 +164,10 @@ void Navitab::Start()
         }
     } else if (simProduct == XPLANE) {
         if (appClass == PLUGIN) {
-            UNIMPLEMENTED("XPLANE:PLUGIN");
+            toolbar = std::make_shared<CoreToolbar>(shared_from_this());
+            modebar = std::make_shared<CoreModebar>(shared_from_this());
+            doodler = std::make_shared<CoreDoodler>(shared_from_this());
+            keypad = std::make_shared<CoreKeypad>(shared_from_this());
         } else if (appClass == DESKTOP) {
             UNIMPLEMENTED("XPLANE:DESKTOP");
         } else if (appClass == CONSOLE) {

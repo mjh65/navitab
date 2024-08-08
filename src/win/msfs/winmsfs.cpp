@@ -18,8 +18,10 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "winmsfs.h"
+#include <cassert>
+#include <memory>
 #include <fmt/core.h>
+#include "winmsfs.h"
 #include "navitab/core.h"
 #include "../../win/imagerect.h"
 
@@ -31,7 +33,10 @@ std::shared_ptr<navitab::Window> navitab::Window::Factory()
 namespace navitab {
 
 WindowMSFS::WindowMSFS()
-:   LOG(std::make_unique<logging::Logger>("winmsfs"))
+:   LOG(std::make_unique<logging::Logger>("winmsfs")),
+    winWidth(WIN_STD_WIDTH),
+    winHeight(WIN_STD_HEIGHT),
+    brightness(1.0f)
 {
 }
 
@@ -39,60 +44,39 @@ WindowMSFS::~WindowMSFS()
 {
 }
 
-void WindowMSFS::SetPrefs(std::shared_ptr<Preferences> prefs)
+void WindowMSFS::Connect(std::shared_ptr<CoreServices> c)
 {
-    UNIMPLEMENTED(__func__);
-}
-
-void WindowMSFS::Connect(std::shared_ptr<WindowEvents> core)
-{
-    UNIMPLEMENTED(__func__);
+    core = c;
+    prefs = core->PrefsManager();
+    canvas->SetPainter(shared_from_this());
+    canvas->PostResize(winWidth - MODEBAR_WIDTH, winHeight - TOOLBAR_HEIGHT);
+    // TODO - start simple web server
 }
 
 void WindowMSFS::Disconnect()
 {
-    UNIMPLEMENTED(__func__);
+    // TODO - shutdown web server
+    canvas.reset();
+    prefs.reset();
+    core.reset();
 }
 
 int WindowMSFS::EventLoop(int maxLoops)
 {
-    UNIMPLEMENTED(__func__);
+    // TODO - deal with events received from the panel via the web server
     return 0;
 }
 
-void WindowMSFS::SetHandlers(std::shared_ptr<Toolbar>, std::shared_ptr<Modebar>, std::shared_ptr<Doodler>, std::shared_ptr<Keypad>)
+std::unique_ptr<ImageRectangle> WindowMSFS::RefreshPart(int part, std::unique_ptr<ImageRectangle> newImage)
 {
-    UNIMPLEMENTED(__func__);
-}
-
-std::unique_ptr<ImageRectangle> WindowMSFS::RefreshCanvas(std::unique_ptr<ImageRectangle>)
-{
-    UNIMPLEMENTED(__func__);
-    return nullptr;
-}
-
-std::unique_ptr<ImageRectangle> WindowMSFS::RefreshToolbar(std::unique_ptr<ImageRectangle>)
-{
-    UNIMPLEMENTED(__func__);
-    return nullptr;
-}
-
-std::unique_ptr<ImageRectangle> WindowMSFS::RefreshModebar(std::unique_ptr<ImageRectangle>)
-{
-    UNIMPLEMENTED(__func__);
-    return nullptr;
-}
-
-std::unique_ptr<ImageRectangle> WindowMSFS::RefreshDoodler(std::unique_ptr<ImageRectangle>)
-{
-    UNIMPLEMENTED(__func__);
-    return nullptr;
-}
-
-std::unique_ptr<ImageRectangle> WindowMSFS::RefreshKeypad(std::unique_ptr<ImageRectangle>)
-{
-    UNIMPLEMENTED(__func__);
-    return nullptr;
+    assert(part == PART_CANVAS);
+    // This function is called from the core thread.
+    const std::lock_guard<std::mutex> lock(imageMutex);
+    std::unique_ptr<ImageRectangle> returnedImage;
+    if (canvasImage) canvasImage->Reset();
+    returnedImage = std::move(canvasImage);
+    canvasImage = std::move(newImage);
+    return returnedImage;
 }
 
 void WindowMSFS::Brightness(int percent)

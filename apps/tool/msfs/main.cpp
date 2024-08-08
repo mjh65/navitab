@@ -25,6 +25,7 @@
 
 #include <memory>
 #include <iostream>
+#include <fmt/core.h>
 #include "navitab/core.h"
 #include "navitab/simulator.h"
 #include "navitab/window.h"
@@ -54,29 +55,39 @@ int main(int arg, char** argv)
     // if we get this far then we should have logging enabled, so any further issues
     // can be reported through the logging interface.
     LOGS("Early init completed, starting and enabling");
-    nvt->Start();
-    auto p = nvt->PrefsManager();
-    sim = navitab::Simulator::Factory();
-    sim->SetPrefs(p);
-    sim->Connect(nvt->GetSimulatorCallbacks());
-    win = navitab::Window::Factory();
-    win->SetPrefs(p);
-    win->Connect(nvt->GetWindowCallbacks());
-    nvt->Enable();
+    try {
+        nvt->Start();
 
-    LOGS("Starting event loop");
+        sim = navitab::Simulator::Factory();
+        sim->Connect(nvt);
+        win = navitab::Window::Factory();
+        win->Connect(nvt);
+        nvt->Enable();
 
-    // TODO - in console mode we need to run an event loop
+        LOGS("Starting event loop");
 
-    LOGS("Event loop finished, disabling and stopping");
+        int pending = 0;
+        while (pending >= 0) {
+            pending = win->EventLoop();
+        }
 
-    nvt->Disable();
-    win->Disconnect();
-    win.reset();
-    sim->Disconnect();
-    sim.reset();
-    nvt->Stop();
-    nvt.reset();
+        LOGS("Event loop finished, disabling and stopping");
+
+        nvt->Disable();
+        win->Disconnect();
+        win.reset();
+        sim->Disconnect();
+        sim.reset();
+
+        nvt->Stop();
+        nvt.reset();
+    }
+    catch (navitab::Exception& e) {
+        LOGF(fmt::format("Navitab exception: {}", e.What()));
+    }
+    catch (std::exception& e) {
+        LOGF(fmt::format("General exception: {}", e.what()));
+    }
 
     return 0;
 }

@@ -78,6 +78,7 @@ int main(int arg, char** argv)
         win.reset();
         sim->Disconnect();
         sim.reset();
+
         nvt->Stop();
         nvt.reset();
     }

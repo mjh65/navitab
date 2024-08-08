@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include "navitab/xpplugin.h"
 #include <functional>
 #include <vector>
 #include <filesystem>
@@ -29,8 +28,9 @@
 #include <XPLM/XPLMProcessing.h>
 #include <XPLM/XPLMMenus.h>
 #include <XPLM/XPLMDataAccess.h>
-#include "../../win/xplane/xpwin.h"
+#include "navitab/xpplugin.h"
 #include "navitab/logger.h"
+#include "../../win/xplane/xpwin.h"
 
 namespace navitab {
 

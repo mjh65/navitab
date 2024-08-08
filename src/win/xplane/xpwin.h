@@ -20,8 +20,9 @@
 
 #pragma once
 
-#include "navitab/window.h"
+#include <mutex>
 #include <XPLM/XPLMDisplay.h>
+#include "navitab/window.h"
 #include "navitab/logger.h"
 
 namespace navitab {

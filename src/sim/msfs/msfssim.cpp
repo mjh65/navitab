@@ -18,7 +18,9 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <chrono>
 #include "msfssim.h"
+#include "navitab/core.h"
 
 std::shared_ptr<navitab::Simulator> navitab::Simulator::Factory()
 {
@@ -28,7 +30,8 @@ std::shared_ptr<navitab::Simulator> navitab::Simulator::Factory()
 namespace navitab {
 
 MsfsSimulator::MsfsSimulator()
-:   LOG(std::make_unique<logging::Logger>("msfssim"))
+:   LOG(std::make_unique<logging::Logger>("msfssim")),
+    running(false)
 {
 }
 
@@ -36,22 +39,21 @@ MsfsSimulator::~MsfsSimulator()
 {
 }
 
-void MsfsSimulator::SetPrefs(std::shared_ptr<Preferences> p)
-{
-    prefs = p;
-}
-
-void MsfsSimulator::Connect(std::shared_ptr<SimulatorEvents> c)
+void MsfsSimulator::Connect(std::shared_ptr<CoreServices> c)
 {
     core = c;
+    prefs = core->PrefsManager();
+    handler = core->GetSimulatorCallbacks();
     running = true;
-    worker = std::make_unique<std::thread>([this]() { AsyncRunSimulator(); });
+    worker = std::make_unique<std::thread>([this]() { AsyncPollSimulator(); });
 }
 
 void MsfsSimulator::Disconnect()
 {
     running = false;
     worker->join();
+    handler.reset();
+    prefs.reset();
     core.reset();
 }
 
@@ -61,7 +63,7 @@ void MsfsSimulator::AsyncPollSimulator()
     using namespace std::chrono_literals;
     while (running) {
         std::this_thread::sleep_for(50ms);
-        core->PostSimUpdates();
+        handler->PostSimUpdates();
     }
 }
 

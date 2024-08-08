@@ -212,11 +212,12 @@ void WindowGLFW::RenderFrame()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
 
+    // order is important!
+    RenderPart(PART_CANVAS, 0, TOOLBAR_HEIGHT, winWidth, winHeight);
     RenderPart(PART_TOOLBAR, 0, 0, winWidth, TOOLBAR_HEIGHT);
     RenderPart(PART_MODEBAR, 0, TOOLBAR_HEIGHT, MODEBAR_WIDTH, TOOLBAR_HEIGHT + MODEBAR_HEIGHT);
     RenderPart(PART_DOODLER, MODEBAR_WIDTH, TOOLBAR_HEIGHT, winWidth, winHeight);
     RenderPart(PART_KEYPAD, MODEBAR_WIDTH, winHeight - KEYPAD_HEIGHT, winWidth, winHeight);
-    RenderPart(PART_CANVAS, 0, TOOLBAR_HEIGHT, winWidth, winHeight);
 
     glBindTexture(GL_TEXTURE_2D, 0);
 

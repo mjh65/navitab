@@ -34,6 +34,7 @@
 #include "navitab/modebar.h"
 #include "navitab/doodler.h"
 #include "navitab/keypad.h"
+#include "canvas.h"
 
 // This header file defines a class that manages the startup and use of the
 // Navitab subsystems. Each of the executable/plugin's main() function should
@@ -45,8 +46,7 @@ namespace navitab {
 class Navitab : public std::enable_shared_from_this<Navitab>,
                 public CoreServices,
                 public SimulatorEvents,
-                public WindowPart, // implements this for the canvas, but maybe will be separated out?
-                public ToolbarEvents, public ModebarEvents, public DoodlerEvents, public KeypadEvents
+                public ToolbarEvents, public ModebarEvents, public DoodlerEvents, public KeypadEvents, public CanvasEvents
 {
 public:
     // Constructing the Navitab object also does enough initialisation to
@@ -93,13 +93,6 @@ public:
     void onSimFlightLoop(const FlightLoopData& data) override;
 
     // ======================================================================
-    // Implementation of WindowPart (for canvas)
-    void onResize(int width, int height) override;
-    void onMouseEvent(int x, int y, bool l, bool r) override;
-    void onWheelEvent(int x, int y, int xdir, int ydir) override;
-    void onKeyEvent(int code) override;
-
-    // ======================================================================
     // Implementation of ToolbarEvents
     void onToolClick(Tool t) override;
 
@@ -110,6 +103,10 @@ public:
     // ======================================================================
     // Implementation of KeypadEvents
     void onKeypadEvent(int code) override;
+
+    // ======================================================================
+    // Implementation of CanvasEvents
+    void onFoo() override {}
 
     // ======================================================================
     // Implementation of Callback (via several other intermediate base classes)
@@ -132,6 +129,7 @@ private:
     std::shared_ptr<Modebar>            modebar;
     std::shared_ptr<Doodler>            doodler;
     std::shared_ptr<Keypad>             keypad;
+    std::shared_ptr<Canvas>             canvas;
 
     std::filesystem::path               dataFilesPath;
 

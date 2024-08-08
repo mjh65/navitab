@@ -120,24 +120,24 @@ struct WindowControl
 struct Window
 {
     enum {
-        WIN_MIN_WIDTH = 400,
-        WIN_STD_WIDTH = 800,
-        WIN_MAX_WIDTH = 1600,
-        WIN_MIN_HEIGHT = 300,
-        WIN_STD_HEIGHT = 400,
-        WIN_MAX_HEIGHT = 1000,
         TOOLBAR_HEIGHT = 32,
         MODEBAR_WIDTH = 40,
         MODEBAR_HEIGHT = MODEBAR_WIDTH * 8, // 8 mode selectors
-        KEYPAD_HEIGHT = 200
+        KEYPAD_HEIGHT = 200,
+        WIN_MIN_WIDTH = 400,
+        WIN_STD_WIDTH = 800,
+        WIN_MAX_WIDTH = 1600,
+        WIN_MIN_HEIGHT = TOOLBAR_HEIGHT + MODEBAR_HEIGHT,
+        WIN_STD_HEIGHT = 480,
+        WIN_MAX_HEIGHT = 1000,
     };
 
     enum {
+        PART_CANVAS,
         PART_TOOLBAR,
         PART_MODEBAR,
         PART_DOODLER,
         PART_KEYPAD,
-        PART_CANVAS,
         PART_COUNT
     };
 

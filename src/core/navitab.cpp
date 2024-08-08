@@ -117,8 +117,8 @@ std::shared_ptr<WindowPart> Navitab::GetPartCallbacks(int part)
     case Window::PART_TOOLBAR: assert(toolbar); return toolbar;
     case Window::PART_MODEBAR: assert(modebar); return modebar;
     case Window::PART_DOODLER: assert(doodler); return doodler;
-    case Window::PART_KEYPAD: assert(keypad);  return keypad;
-    case Window::PART_CANVAS: return shared_from_this();
+    case Window::PART_KEYPAD: assert(keypad); return keypad;
+    case Window::PART_CANVAS: assert(canvas); return canvas;
     default: assert(0); return nullptr;
     }
 }
@@ -126,23 +126,6 @@ std::shared_ptr<WindowPart> Navitab::GetPartCallbacks(int part)
 void Navitab::SetWindowControl(std::shared_ptr<WindowControl> w)
 {
     winCtrl = w;
-}
-
-void Navitab::onSimFlightLoop(const FlightLoopData& data)
-{
-    auto prevZulu = simState.zuluTime;
-    simState = data;
-
-    // only update the toolbar display each second
-    if (simState.zuluTime != prevZulu) {
-        int s = simState.zuluTime;
-        int h = s / (60 * 60); s -= (h * 60 * 60);
-        int m = s / 60; s -= (m * 60);
-        toolbar->SetSimZuluTime(h, m, s);
-        toolbar->SetFrameRate(simState.fps);
-        LOGD(fmt::format("Z:{}:{}:{}, FPS:{}", h, m, s, simState.fps));
-        LOGD(fmt::format("N:{},E:{}", simState.myPlane.latitude, simState.myPlane.longitude));
-    }
 }
 
 void Navitab::Start()
@@ -176,6 +159,7 @@ void Navitab::Start()
             modebar = std::make_shared<CoreModebar>(shared_from_this());
             doodler = std::make_shared<CoreDoodler>(shared_from_this());
             keypad = std::make_shared<CoreKeypad>(shared_from_this());
+            canvas = std::make_shared<Canvas>(shared_from_this());
         } else if (appClass == DESKTOP) {
             UNIMPLEMENTED("XPLANE:DESKTOP");
         } else if (appClass == CONSOLE) {
@@ -189,6 +173,7 @@ void Navitab::Start()
             modebar = std::make_shared<CoreModebar>(shared_from_this());
             doodler = std::make_shared<CoreDoodler>(shared_from_this());
             keypad = std::make_shared<CoreKeypad>(shared_from_this());
+            canvas = std::make_shared<Canvas>(shared_from_this());
         } else if (appClass == CONSOLE) {
             UNIMPLEMENTED("MOCK:CONSOLE");
         }
@@ -273,64 +258,23 @@ std::filesystem::path Navitab::NavitabPath()
     return std::filesystem::path();
 }
 
-void Navitab::onResize(int width, int height)
+void Navitab::onSimFlightLoop(const FlightLoopData& data)
 {
-    UNIMPLEMENTED(__func__);
-    // this is the resize notification for the canvas part
-#if 0
-    // TODO - this is just here for development and testing. of course it will get
-    // replaced eventually!
-    auto& canvas = *(partImages[CANVAS]);
-    if (rand() % 60) {
-        // write random pixels
-        for (int i = 0; i < 8; ++i) {
-            size_t rp = ((rand() << 20) + rand()) % canvas.imageBuffer.size();
-            // red in 7:0, green in 15:8, blue in 23:16, alpha in 31:24
-            canvas.imageBuffer[rp] = (rand() % 0xffffff);
-        }
-    } else {
-        // draw one of our generated SVG icons to test the generator
-        auto y0 = rand() % (canvas.Height() - sample_64x64_HEIGHT);
-        auto x0 = rand() % (canvas.Width() - sample_64x64_WIDTH);
-        for (int y=0; y < sample_64x64_HEIGHT; ++y) {
-            for (int x=0; x < sample_64x64_WIDTH; ++x) {
-                auto si = y * sample_64x64_WIDTH + x;
-                auto di = (y + y0) * canvas.Width() + (x + x0);
-                canvas.imageBuffer[di] = sample_64x64[si];
-            }
-        }
+    auto prevZulu = simState.zuluTime;
+    simState = data;
+
+    // only update the toolbar display each second
+    if (simState.zuluTime != prevZulu) {
+        int s = simState.zuluTime;
+        int h = s / (60 * 60); s -= (h * 60 * 60);
+        int m = s / 60; s -= (m * 60);
+        toolbar->SetSimZuluTime(h, m, s);
+        toolbar->SetFrameRate(simState.fps);
+        LOGD(fmt::format("Z:{}:{}:{}, FPS:{}", h, m, s, simState.fps));
+        LOGD(fmt::format("N:{},E:{}", simState.myPlane.latitude, simState.myPlane.longitude));
     }
 
-    if (bDelta > 0.0f) {
-        brightness += bDelta;
-        if (brightness >= 1.0f) {
-            bDelta = 0.0 - bDelta;
-            brightness = 1.0f;
-        }
-    } else {
-        brightness += bDelta;
-        if (brightness <= 0.2f) {
-            bDelta = 0.0 - bDelta;
-            brightness = 0.2f;
-        }
-    }
-#endif
-
-}
-
-void Navitab::onMouseEvent(int x, int y, bool l, bool r)
-{
-    UNIMPLEMENTED(__func__);
-}
-
-void Navitab::onWheelEvent(int x, int y, int xdir, int ydir)
-{
-    UNIMPLEMENTED(__func__);
-}
-
-void Navitab::onKeyEvent(int code)
-{
-    UNIMPLEMENTED(__func__);
+    canvas->Update();
 }
 
 void Navitab::onToolClick(Tool t)

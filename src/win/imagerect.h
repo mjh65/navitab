@@ -43,6 +43,7 @@ public:
     int Height() const { return height; }
 
     uint32_t* Row(int r) { return &data[r * width]; }
+    std::vector<uint32_t>::iterator PixAt(int y, int x) { return data.begin() + (y * width + x); }
 
     bool NeedsRegistration() { auto nr = !isTexRegistered; isTexRegistered = true; return nr; }
 

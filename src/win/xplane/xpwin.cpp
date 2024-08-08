@@ -198,11 +198,11 @@ void XPlaneWindow::RenderContent()
 {
     int left, top, right, bottom;
     XPLMGetWindowGeometry(winHandle, &left, &top, &right, &bottom);
+    RenderPart(PART_CANVAS, left, top - TOOLBAR_HEIGHT, right, bottom);
     RenderPart(PART_TOOLBAR, left, top, right, top - TOOLBAR_HEIGHT);
     RenderPart(PART_MODEBAR, left, top - TOOLBAR_HEIGHT, left + MODEBAR_WIDTH, std::max(top - (TOOLBAR_HEIGHT + MODEBAR_HEIGHT), bottom));
     RenderPart(PART_DOODLER, left + MODEBAR_WIDTH, top - TOOLBAR_HEIGHT, right, bottom);
     RenderPart(PART_KEYPAD, left + MODEBAR_WIDTH, bottom + KEYPAD_HEIGHT, right, bottom);
-    RenderPart(PART_CANVAS, left, top - TOOLBAR_HEIGHT, right, bottom);
 }
 
 void XPlaneWindow::RenderPart(int part, int left, int top, int right, int bottom)

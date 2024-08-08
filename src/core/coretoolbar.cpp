@@ -80,6 +80,14 @@ void CoreToolbar::Redraw()
     if (!dirty) return;
 
     // TODO - do the delta drawing work here (FPS, time, selected tool), 
+    // but meanwhile let's draw a grid of where the tools will go
+    for (int y = 0; y < Window::TOOLBAR_HEIGHT; ++y) {
+        auto r = image->Row(y);
+        for (int i = 1; i < 10; ++i) {
+            auto x = (width - (i * Window::TOOLBAR_HEIGHT));
+            *(r + x) = 0xff00ff00;
+        }
+    }
 
     dirty = false;
 

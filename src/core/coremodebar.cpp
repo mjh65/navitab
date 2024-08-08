@@ -66,7 +66,15 @@ void CoreModebar::Redraw()
 
     if (!dirty) return;
 
-    // TODO - do the delta drawing work here (selected mode)
+    // TODO - do the proper drawing work here (selected mode)
+    // but meanwhile let's draw a grid of where the mode selectors will go
+    for (int i = 1; i < 8; ++i) {
+        int y = i * (Window::MODEBAR_HEIGHT / 8);
+        auto r = image->Row(y);
+        for (int x = 0; x < Window::MODEBAR_WIDTH; ++x) {
+            *(r + x) = 0x400000ff;
+        }
+    }
 
     dirty = false;
 

@@ -32,7 +32,8 @@
 
 namespace navitab {
 
-struct Window;
+class Navitab;
+class ImageRectangle;
 
 struct CanvasEvents : public Callback
 {
@@ -52,7 +53,7 @@ class Canvas : public WindowPart
 {
 public:
     Canvas(std::shared_ptr<CanvasEvents> core);
-    virtual ~Canvas() = default;
+    ~Canvas();
 
     void Update();
 

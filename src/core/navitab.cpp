@@ -29,6 +29,7 @@
 #include "coremodebar.h"
 #include "coredoodler.h"
 #include "corekeypad.h"
+#include "canvas.h"
 
 namespace navitab {
 

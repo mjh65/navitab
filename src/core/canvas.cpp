@@ -31,6 +31,10 @@ Canvas::Canvas(std::shared_ptr<CanvasEvents> c)
 {
 }
 
+Canvas::~Canvas()
+{
+}
+
 void Canvas::Update()
 {
     // TODO - this is just here for development and testing. of course it will get

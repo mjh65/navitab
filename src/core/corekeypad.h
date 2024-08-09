@@ -20,15 +20,10 @@
 
 #pragma once
 
-#include <memory>
 #include "navitab/keypad.h"
 #include "navitab/logger.h"
 
 namespace navitab {
-
-class Window;
-class Navitab;
-class ImageRectangle;
 
 // The CoreToolbar class implements the toolbar which is drawn across the top
 // of the window. It regenerates an ImageRect whenever some part of it changes
@@ -45,20 +40,20 @@ public:
     void Hide() override;
 
 protected:
+    // Implementation of WindowPart
     void onResize(int w, int h) override;
     void onMouseEvent(int x, int y, bool l, bool r) override;
     void onWheelEvent(int x, int y, int xdir, int ydir) override {}
     void onKeyEvent(int code) override {}
 
-    void AsyncCall(std::function<void ()>) override;
-
-    void Redraw();
+    // Implementation of Callback
+    void AsyncCall(std::function<void ()> f) override { core->AsyncCall(f); }
 
 private:
+    const uint32_t backgroundPixels = 0x10202020;
     std::unique_ptr<logging::Logger> LOG;
     std::shared_ptr<KeypadEvents> core;
-    std::unique_ptr<ImageRectangle> image;
-    bool dirty; // this is to prevent excess redrawing if nothing has changed
+    bool visible;
 
 };
 

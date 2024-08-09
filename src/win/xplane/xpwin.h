@@ -28,6 +28,8 @@
 
 namespace navitab {
 
+class TextureBuffer;
+
 // XPlaneWindow extends Navitab Window to provide a common base class for
 // XP desktop and VR windows. This allows the XP plugin to swap between these
 // specialisations when the simulation enters and leaves VR mode.
@@ -46,7 +48,7 @@ public:
     void Brightness(int percent) override;
 
     // Implementation of PartPainter, common to desktop and VR
-    std::unique_ptr<ImageRectangle> RefreshPart(int part, std::unique_ptr<ImageRectangle>) override;
+    void RefreshPart(int part, const ImageRectangle* src, const std::vector<Region>& regions) override;
 
     // XPlane addition requiring specific implementations for desktop and VR windows
     virtual void Create(std::shared_ptr<CoreServices> core);
@@ -77,19 +79,20 @@ protected:
     std::shared_ptr<CoreServices> core;
     std::shared_ptr<Preferences> prefs;
     std::unique_ptr<logging::Logger> LOG;
-    std::shared_ptr<WindowPart> parts[PART_COUNT];
+    std::shared_ptr<WindowPart> parts[WindowPart::TOTAL_PARTS];
 
     XPLMWindowID winHandle;
     int winWidth, winHeight;
 
 private:
-    std::unique_ptr<ImageRectangle> partImages[PART_COUNT];
+    std::unique_ptr<TextureBuffer> partImages[WindowPart::TOTAL_PARTS];
     std::mutex imageMutex;
 
 private:
     int winDrawWatchdog;
     int wgl, wgt, wgr, wgb; // most recently observed window geometry
     bool winVisible;
+    float brightness;
 
 protected:
     // singleton data, initialised once and reused when switching modes

@@ -39,13 +39,15 @@ struct DoodlerEvents : public Callback
     // nothing in here. Perhaps the interface will disappear?
 };
 
-struct Doodler : public WindowPart
+class Doodler : public WindowPart
 {
+public:
+    Doodler() : WindowPart(DOODLER) { }
+    virtual ~Doodler() = default;
+
     // API calls from Navitab core (these will be triggered from the Modebar click handler)
     virtual void Enable() = 0;
     virtual void Disable() = 0;
-
-    virtual ~Doodler() = default;
 };
 
 } // namespace navitab

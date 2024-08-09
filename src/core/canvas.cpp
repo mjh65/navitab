@@ -20,14 +20,13 @@
 
 #include <algorithm>
 #include "canvas.h"
-#include "../win/imagerect.h"
 
 namespace navitab {
 
 Canvas::Canvas(std::shared_ptr<CanvasEvents> c)
-:   LOG(std::make_unique<logging::Logger>("canvas")),
-    core(c),
-    dirty(false)
+:   WindowPart(CANVAS),
+    LOG(std::make_unique<logging::Logger>("canvas")),
+    core(c)
 {
 }
 
@@ -45,7 +44,7 @@ void Canvas::Update()
         auto y = rand() % height;
         auto x = rand() % width;
         // red in 7:0, green in 15:8, blue in 23:16, alpha in 31:24
-        *(image->PixAt(y, x)) = (rand() % 0xff) + ((rand() % 0xff) << 8) + ((rand() % 0xff) << 16);
+        *(image->PixAt(y, x)) = (rand() % 0xff) + ((rand() % 0xff) << 8) + ((rand() % 0xff) << 16) + (0xff << 24);
     }
 #if 0
     else {
@@ -61,8 +60,7 @@ void Canvas::Update()
         }
     }
 #endif
-
-    dirty = true;
+    dirtyBits.push_back(Region(0, 0, width, height));
     core->AsyncCall([this]() { Redraw(); });
 }
 
@@ -73,7 +71,7 @@ void Canvas::onResize(int w, int h)
     // from the old one before dumping it.
 
     auto ni = std::make_unique<ImageRectangle>(w, h);
-    ni->Clear(0xff701010);
+    ni->Clear(backgroundPixels);
     if (image) {
         for (auto y = 0; y < std::min(h, height); ++y) {
             auto sr = image->PixAt(y, 0);
@@ -84,8 +82,8 @@ void Canvas::onResize(int w, int h)
     }
     std::swap(image, ni);
     width = w; height = h;
-    dirty = true;
-    core->AsyncCall([this]() { Redraw(); });
+    dirtyBits.push_back(Region(0, 0, width, height));
+    AsyncCall([this]() { Redraw(); });
 }
 
 void Canvas::onMouseEvent(int x, int y, bool l, bool r)
@@ -101,23 +99,6 @@ void Canvas::onWheelEvent(int x, int y, int xdir, int ydir)
 void Canvas::onKeyEvent(int code)
 {
     UNIMPLEMENTED(__func__);
-}
-
-void Canvas::AsyncCall(std::function<void()> f)
-{
-    core->AsyncCall(f);
-}
-
-void Canvas::Redraw()
-{
-    if (!image || !dirty) return;
-    dirty = false;
-    image = painter->RefreshPart(Window::PART_CANVAS, std::move(image));
-    if (!image) {
-        image = std::make_unique<ImageRectangle>(width, height);
-        image->Clear(0xff701010);
-    }
-
 }
 
 } // namespace navitab

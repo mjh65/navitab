@@ -22,8 +22,8 @@
 #include <memory>
 #include <fmt/core.h>
 #include "winmsfs.h"
+#include "../texbuffer.h"
 #include "navitab/core.h"
-#include "../../win/imagerect.h"
 
 std::shared_ptr<navitab::Window> navitab::Window::Factory()
 {
@@ -67,9 +67,10 @@ int WindowMSFS::EventLoop(int maxLoops)
     return 0;
 }
 
-std::unique_ptr<ImageRectangle> WindowMSFS::RefreshPart(int part, std::unique_ptr<ImageRectangle> newImage)
+void WindowMSFS::RefreshPart(int part, const ImageRectangle* src, const std::vector<Region>& regions)
 {
-    assert(part == PART_CANVAS);
+#if 0
+    assert(part == CANVAS);
     // This function is called from the core thread.
     const std::lock_guard<std::mutex> lock(imageMutex);
     std::unique_ptr<ImageRectangle> returnedImage;
@@ -77,6 +78,7 @@ std::unique_ptr<ImageRectangle> WindowMSFS::RefreshPart(int part, std::unique_pt
     returnedImage = std::move(canvasImage);
     canvasImage = std::move(newImage);
     return returnedImage;
+#endif
 }
 
 void WindowMSFS::Brightness(int percent)

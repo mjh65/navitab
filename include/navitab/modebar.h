@@ -65,12 +65,14 @@ protected:
 // The Modebar interface defines the services that the UI window provides to
 // the Navitab core.
 
-struct Modebar : public WindowPart
+class Modebar : public WindowPart
 {
-    // APIs called from the Navitab core
-    virtual void SetHighlights(int selectMask) = 0;
-
+public:
+    Modebar() : WindowPart(MODEBAR) { }
     virtual ~Modebar() = default;
+
+    // APIs called from the Navitab core
+    virtual void SetHighlighted(int selectMask) = 0;
 };
 
 } // namespace navitab

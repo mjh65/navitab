@@ -20,15 +20,13 @@
 
 #include "coredoodler.h"
 #include "navitab.h"
-#include "../win/imagerect.h"
 
 namespace navitab {
 
 CoreDoodler::CoreDoodler(std::shared_ptr<DoodlerEvents> c)
-:   core(c),
-    LOG(std::make_unique<logging::Logger>("doodler")),
-    enabled(false),
-    dirty(false)
+:   LOG(std::make_unique<logging::Logger>("doodler")),
+    core(c),
+    enabled(false)
 {
 }
 
@@ -36,38 +34,48 @@ CoreDoodler::~CoreDoodler()
 {
 }
 
-void CoreDoodler::AsyncCall(std::function<void()> f)
-{
-    core->AsyncCall(f);
-}
-
 void CoreDoodler::Enable()
 {
-    enabled = true;
+    if (!enabled) {
+        if (oldDoodle) std::swap(image, oldDoodle);
+        enabled = true;
+        AsyncCall([this]() { onResize(width, height); });
+    }
 }
 
 void CoreDoodler::Disable()
 {
-    enabled = false;
+    if (enabled) {
+        std::swap(image, oldDoodle);
+        enabled = false;
+        AsyncCall([this]() { Redraw(); });
+    }
 }
 
 void CoreDoodler::onResize(int w, int h)
 {
-#if 0 // disable this for now
     // if the doodler is resized then a new image is created, and if the doodler is enabled
     // the old image is copied into the new image
-    auto newImage = std::make_unique<ImageRectangle>(width, Window::TOOLBAR_HEIGHT);
-    if (enabled) {
-        auto yn = std::min(image->Height(), height);
-        auto xn = std::min(image->Width(), width);
-        for (int y = 0; y < yn; ++y) {
-            std::memcpy(newImage->Row(y), image->Row(y), xn);
+
+    auto ni = std::make_unique<ImageRectangle>(w, h);
+    ni->Clear(backgroundPixels);
+    // temporarily swap the old doodle into image if doodler is currently disabled
+    if (!enabled) std::swap(image, oldDoodle);
+    if (image) {
+        for (auto y = 0; y < std::min(h, height); ++y) {
+            auto sr = image->PixAt(y, 0);
+            auto dr = ni->PixAt(y, 0);
+            auto nx = std::min(w, width);
+            std::copy(sr, sr + nx, dr);
         }
     }
+    std::swap(image, ni);
+    // and swap back after updating
+    if (!enabled) std::swap(image, oldDoodle);
+    width = w; height = h;
 
-    dirty = true;
-    core->AsyncCall([this]() { Redraw(); });
-#endif
+    dirtyBits.push_back(Region(0, 0, width, height));
+    AsyncCall([this]() { Redraw(); });
 }
 
 void CoreDoodler::onMouseEvent(int x, int y, bool l, bool r)
@@ -78,17 +86,6 @@ void CoreDoodler::onMouseEvent(int x, int y, bool l, bool r)
 void CoreDoodler::onKeyEvent(int c)
 {
     UNIMPLEMENTED(__func__);
-}
-
-void CoreDoodler::Redraw()
-{
-    if (!dirty) return;
-
-    // TODO - do the drawing work here
-    dirty = false;
-
-    // do the image buffer swap with the window
-    image = painter->RefreshPart(Window::PART_DOODLER, std::move(image));
 }
 
 } // namespace navitab

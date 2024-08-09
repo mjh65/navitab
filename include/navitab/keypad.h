@@ -51,14 +51,17 @@ protected:
 // The Keypad interface defines the services that the UI window provides to
 // the Navitab core.
 
-struct Keypad : public WindowPart
+class Keypad : public WindowPart
 {
+public:
+    Keypad() : WindowPart(KEYPAD) { }
+    virtual ~Keypad() = default;
+
     // APIs called from the Navitab core (sync call is OK)
     virtual void Show() = 0;
     virtual void Hide() = 0;
-    // other stuff, like setting any multi-character keys (nearest airports etc)
+    // TBD: other stuff, like setting any multi-character keys (nearest airports etc)
 
-    virtual ~Keypad() = default;
 };
 
 } // namespace navitab

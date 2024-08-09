@@ -20,13 +20,12 @@
 
 #include "coremodebar.h"
 #include "navitab.h"
-#include "../win/imagerect.h"
 
 namespace navitab {
 
 CoreModebar::CoreModebar(std::shared_ptr<ModebarEvents> c)
-:   core(c),
-    LOG(std::make_unique<logging::Logger>("modebar"))
+:   LOG(std::make_unique<logging::Logger>("modebar")),
+    core(c)
 {
 }
 
@@ -34,40 +33,19 @@ CoreModebar::~CoreModebar()
 {
 }
 
-void CoreModebar::SetHighlights(int selectMask)
+void CoreModebar::SetHighlighted(int selectMask)
 {
     UNIMPLEMENTED(__func__);
 }
 
-void CoreModebar::AsyncCall(std::function<void()> f)
+void CoreModebar::onResize(int, int)
 {
-    core->AsyncCall(f);
-}
-
-void CoreModebar::onResize(int w, int h)
-{
-    dirty = true;
-    core->AsyncCall([this]() { Redraw(); });
-}
-
-void CoreModebar::onMouseEvent(int x, int y, bool l, bool r)
-{
-    UNIMPLEMENTED(__func__);
-}
-
-void CoreModebar::Redraw()
-{
-    if (!image) {
-        // a complete redraw is required
-        image = std::make_unique<ImageRectangle>(Window::MODEBAR_WIDTH, Window::MODEBAR_HEIGHT);
-        image->Clear(0x40f0f0f0);
-        dirty = true;
-    }
-
-    if (!dirty) return;
-
-    // TODO - do the proper drawing work here (selected mode)
-    // but meanwhile let's draw a grid of where the mode selectors will go
+    // if the modebar is resized then the previous image is just abandoned
+    // and a new one is created and scheduled for redrawing
+    width = Window::MODEBAR_WIDTH; height = Window::MODEBAR_HEIGHT;
+    image = std::make_unique<ImageRectangle>(width, height);
+    image->Clear(backgroundPixels);
+    // this is temporary code during initial development
     for (int i = 1; i < 8; ++i) {
         int y = i * (Window::MODEBAR_HEIGHT / 8);
         auto r = image->Row(y);
@@ -76,10 +54,15 @@ void CoreModebar::Redraw()
         }
     }
 
-    dirty = false;
+    // TODO - generate the basic modebar image
 
-    // do the image buffer swap with the window
-    image = painter->RefreshPart(Window::PART_MODEBAR, std::move(image));
+    dirtyBits.push_back(Region(0, 0, width, height));
+    AsyncCall([this]() { Redraw(); });
+}
+
+void CoreModebar::onMouseEvent(int x, int y, bool l, bool r)
+{
+    UNIMPLEMENTED(__func__);
 }
 
 } // namespace navitab

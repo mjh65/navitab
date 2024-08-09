@@ -20,13 +20,12 @@
 
 #include "coretoolbar.h"
 #include "navitab.h"
-#include "../win/imagerect.h"
 
 namespace navitab {
 
 CoreToolbar::CoreToolbar(std::shared_ptr<ToolbarEvents> c)
-:   core(c),
-    LOG(std::make_unique<logging::Logger>("toolbar"))
+:   LOG(std::make_unique<logging::Logger>("toolbar")),
+    core(c)
 {
 }
 
@@ -49,38 +48,14 @@ void CoreToolbar::SetEnabledTools(int selectMask)
     UNIMPLEMENTED(__func__);
 }
 
-void CoreToolbar::AsyncCall(std::function<void()> f)
-{
-    core->AsyncCall(f);
-}
-
 void CoreToolbar::onResize(int w, int)
 {
     // if the toolbar is resized then the previous image is just abandoned
     // and a new one is created and scheduled for redrawing
-    width = w;
-    image.reset();
-    core->AsyncCall([this]() { Redraw(); });
-}
-
-void CoreToolbar::onMouseEvent(int x, int y, bool l, bool r)
-{
-    UNIMPLEMENTED(__func__);
-}
-
-void CoreToolbar::Redraw()
-{
-    if (!image) {
-        // a complete redraw is required
-        image = std::make_unique<ImageRectangle>(width, Window::TOOLBAR_HEIGHT);
-        image->Clear(0xffd0d0d0);
-        dirty = true;
-    }
-
-    if (!dirty) return;
-
-    // TODO - do the delta drawing work here (FPS, time, selected tool), 
-    // but meanwhile let's draw a grid of where the tools will go
+    width = w; height = Window::TOOLBAR_HEIGHT;
+    image = std::make_unique<ImageRectangle>(width, height);
+    image->Clear(0xffd0d0d0);
+    // this is temporary code during initial development
     for (int y = 0; y < Window::TOOLBAR_HEIGHT; ++y) {
         auto r = image->Row(y);
         for (int i = 1; i < 10; ++i) {
@@ -89,12 +64,15 @@ void CoreToolbar::Redraw()
         }
     }
 
-    dirty = false;
+    // TODO - generate the basic toolbar image
 
-    // do the image buffer swap with the window
-    image = painter->RefreshPart(Window::PART_TOOLBAR, std::move(image));
+    dirtyBits.push_back(Region(0, 0, width, height));
+    AsyncCall([this]() { Redraw(); });
 }
 
-
+void CoreToolbar::onMouseEvent(int x, int y, bool l, bool r)
+{
+    UNIMPLEMENTED(__func__);
+}
 
 } // namespace navitab

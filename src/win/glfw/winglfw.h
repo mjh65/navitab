@@ -26,9 +26,10 @@
 #include <GLFW/glfw3.h>
 #include "navitab/window.h"
 #include "navitab/logger.h"
-#include "../imagerect.h"
 
 namespace navitab {
+
+class TextureBuffer;
 
 class WindowGLFW : public std::enable_shared_from_this<WindowGLFW>,
                    public Window, public PartPainter, public WindowControl
@@ -43,7 +44,7 @@ public:
     int EventLoop(int maxLoops) override;
 
     // Implementation of the PartPainter interface
-    std::unique_ptr<ImageRectangle> RefreshPart(int part, std::unique_ptr<ImageRectangle>) override;
+    void RefreshPart(int part, const ImageRectangle* src, const std::vector<Region>& regions) override;
 
     // Implementation of the WindowControl interface
     void Brightness(int percent) override;
@@ -65,12 +66,12 @@ private:
     std::unique_ptr<logging::Logger> LOG;
     std::shared_ptr<CoreServices> core;
     std::shared_ptr<Preferences> prefs;
-    std::shared_ptr<WindowPart> parts[PART_COUNT];
+    //std::shared_ptr<WindowPart> parts[WindowPart::TOTAL_PARTS];
 
     GLFWwindow* window;
-    GLuint textureNames[PART_COUNT];
+    //GLuint textureNames[WindowPart::TOTAL_PARTS];
 
-    std::unique_ptr<ImageRectangle> partImages[PART_COUNT];
+    //std::unique_ptr<TextureBuffer> partImages[WindowPart::TOTAL_PARTS];
     std::mutex imageMutex;
 
     int winResizePollTimer;
@@ -78,7 +79,15 @@ private:
     int winHeight;
 
     float brightness;
-    float bDelta;
+
+private:
+    struct WinPart {
+        GLuint textureId;
+        std::unique_ptr<TextureBuffer> textureImage;
+        std::shared_ptr<WindowPart> client;
+        bool active;
+    };
+    WinPart winParts[WindowPart::TOTAL_PARTS];
 };
 
 }

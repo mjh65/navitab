@@ -18,19 +18,17 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "imagerect.h"
+#include "texbuffer.h"
+#include "navitab/window.h"
 
 namespace navitab {
 
-ImageRectangle::ImageRectangle(int w, int h)
-:   width(w), height(h), isTexRegistered(false)
+void TextureBuffer::CopyRegionsFrom(const ImageRectangle *src, const std::vector<Region> &regions)
 {
-    data.resize(width * height);
-}
+    // TODO - have a stab at doing something a bit more optimal.
+    // Simple implementation just copies the entire image
 
-void ImageRectangle::Clear(uint32_t px)
-{
-    std::fill(data.begin(), data.end(), px);
+    std::copy(src->Data().begin(), src->Data().end(), data.begin());
 }
 
 } // namespace navitab

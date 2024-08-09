@@ -20,13 +20,13 @@
 
 #include "corekeypad.h"
 #include "navitab.h"
-#include "../win/imagerect.h"
 
 namespace navitab {
 
 CoreKeypad::CoreKeypad(std::shared_ptr<KeypadEvents> c)
 :   core(c),
-    LOG(std::make_unique<logging::Logger>("keypad"))
+    LOG(std::make_unique<logging::Logger>("keypad")),
+    visible(false)
 {
 }
 
@@ -36,39 +36,31 @@ CoreKeypad::~CoreKeypad()
 
 void CoreKeypad::Show()
 {
-    UNIMPLEMENTED(__func__);
+    visible = true;
+    AsyncCall([this]() { onResize(width, height); });
 }
 
 void CoreKeypad::Hide()
 {
-    UNIMPLEMENTED(__func__);
+    visible = false;
+    image.reset();
+    AsyncCall([this]() { Redraw(); });
 }
 
-void CoreKeypad::AsyncCall(std::function<void()> f)
+void CoreKeypad::onResize(int w, int h)
 {
-    core->AsyncCall(f);
-}
+    width = w; height = h;
+    if (!visible) return;
 
-void CoreKeypad::onResize(int width, int height)
-{
-    UNIMPLEMENTED(__func__);
+    image = std::make_unique<ImageRectangle>(width, height);
+    // TODO - generate the basic keypad image, depending on dimensions
+
+    AsyncCall([this]() { Redraw(); });
 }
 
 void CoreKeypad::onMouseEvent(int x, int y, bool l, bool r)
 {
     UNIMPLEMENTED(__func__);
 }
-
-void CoreKeypad::Redraw()
-{
-    if (!dirty) return;
-
-    // TODO - do the drawing work here
-    dirty = false;
-
-    // do the image buffer swap with the window
-    image = painter->RefreshPart(Window::PART_KEYPAD, std::move(image));
-}
-
 
 } // namespace navitab

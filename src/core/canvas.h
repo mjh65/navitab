@@ -20,10 +20,8 @@
 
 #pragma once
 
-#include <memory>
-#include <functional>
-#include "navitab/logger.h"
 #include "navitab/window.h"
+#include "navitab/logger.h"
 
  // The Toolbar class represents the toolbar which is drawn across the top
  // of the window. It is a fixed height, and displays some current status
@@ -31,9 +29,6 @@
  // right hand side which trigger behaviours in the currently active mode/app.
 
 namespace navitab {
-
-class Navitab;
-class ImageRectangle;
 
 struct CanvasEvents : public Callback
 {
@@ -63,17 +58,13 @@ public:
     void onWheelEvent(int x, int y, int xdir, int ydir) override;
     void onKeyEvent(int code) override;
 
-    void AsyncCall(std::function<void()>) override;
+    // Implementation of Callback
+    void AsyncCall(std::function<void ()> f) override { core->AsyncCall(f); }
 
-    void Redraw();
-
-protected:
-    std::unique_ptr<logging::Logger>    LOG;
+private:
+    const uint32_t backgroundPixels = 0xff00df00;
+    std::unique_ptr<logging::Logger> LOG;
     std::shared_ptr<CanvasEvents> core;
-    std::unique_ptr<ImageRectangle> image;
-
-    int width, height;
-    bool dirty; // this is to prevent excess redrawing if nothing has changed
 };
 
 } // namespace navitab

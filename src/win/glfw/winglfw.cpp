@@ -20,12 +20,13 @@
 
 // inspired by GlfwGUIDriver.cpp in AviTab.
 
-#include "winglfw.h"
 #include <algorithm>
 #include <cassert>
 #include <chrono>
 #include <iostream>
 #include <fmt/core.h>
+#include "winglfw.h"
+#include "../texbuffer.h"
 #include "navitab/config.h"
 #include "navitab/core.h"
 #include "navitab/toolbar.h"
@@ -51,12 +52,17 @@ WindowGLFW::WindowGLFW()
     winResizePollTimer(0),
     winWidth(WIN_STD_WIDTH),
     winHeight(WIN_STD_HEIGHT),
-    brightness(1.0f),
-    bDelta(-0.002f)
+    brightness(1.0f)
 {
-    for (auto i = 0; i < PART_COUNT; ++i) {
-        textureNames[i] = 0;
+    for (auto i = 0; i < WindowPart::TOTAL_PARTS; ++i) {
+        winParts[i].textureId = 0;
+        winParts[i].active = 0;
     }
+    winParts[WindowPart::CANVAS].textureImage = std::make_unique<TextureBuffer>(WIN_MAX_WIDTH, (WIN_MAX_HEIGHT - TOOLBAR_HEIGHT));
+    winParts[WindowPart::TOOLBAR].textureImage = std::make_unique<TextureBuffer>(WIN_MAX_WIDTH, TOOLBAR_HEIGHT);
+    winParts[WindowPart::MODEBAR].textureImage = std::make_unique<TextureBuffer>(MODEBAR_WIDTH, MODEBAR_HEIGHT);
+    winParts[WindowPart::DOODLER].textureImage = std::make_unique<TextureBuffer>((WIN_MAX_WIDTH - MODEBAR_WIDTH), (WIN_MAX_HEIGHT - TOOLBAR_HEIGHT));
+    winParts[WindowPart::KEYPAD].textureImage = std::make_unique<TextureBuffer>(WIN_MAX_WIDTH, KEYPAD_HEIGHT);
 
     glfwSetErrorCallback(GLFWERR);
     if (!glfwInit()) {
@@ -75,9 +81,9 @@ void WindowGLFW::Connect(std::shared_ptr<CoreServices> c)
     core = c;
     prefs = core->GetPrefsManager();
     // TODO - read window size preferences
-    for (auto i = 0; i < PART_COUNT; ++i) {
-        parts[i] = core->GetPartCallbacks(i);
-        parts[i]->SetPainter(shared_from_this());
+    for (auto i = 0; i < WindowPart::TOTAL_PARTS; ++i) {
+        winParts[i].client = core->GetPartCallbacks(i);
+        winParts[i].client->SetPainter(shared_from_this());
     }
     CreateWindow();
     ResizeNotifyAll(winWidth, winHeight);
@@ -87,8 +93,8 @@ void WindowGLFW::Disconnect()
 {
     // TODO - write window size preferences
     DestroyWindow();
-    for (auto i = 0; i < PART_COUNT; ++i) {
-        parts[i].reset();
+    for (auto i = 0; i < WindowPart::TOTAL_PARTS; ++i) {
+        winParts[i].client.reset();
     }
     prefs.reset();
     core.reset();
@@ -130,15 +136,18 @@ void WindowGLFW::Brightness(int percent)
     brightness = 0.1f + (0.9f * percent / 100.0f);
 }
 
-std::unique_ptr<ImageRectangle> WindowGLFW::RefreshPart(int part, std::unique_ptr<ImageRectangle> newImage)
+void WindowGLFW::RefreshPart(int part, const ImageRectangle* src, const std::vector<Region>& regions)
 {
     // This function is called from the core thread.
     const std::lock_guard<std::mutex> lock(imageMutex);
-    std::unique_ptr<ImageRectangle> returnedImage;
-    if (partImages[part]) partImages[part]->Reset();
-    returnedImage = std::move(partImages[part]);
-    partImages[part] = std::move(newImage);
-    return returnedImage;
+    auto& wp = winParts[part];
+    wp.active = src && regions.size();
+    if (!wp.active) return;
+    auto& ti = wp.textureImage;
+    if ((ti->Width() != src->Width()) || (ti->Height() != src->Height())) {
+        ti->Resize(src->Width(), src->Height());
+    }
+    ti->CopyRegionsFrom(src, regions);
 }
 
 void WindowGLFW::CreateWindow()
@@ -180,9 +189,11 @@ void WindowGLFW::CreateWindow()
         reinterpret_cast<WindowGLFW*>(glfwGetWindowUserPointer(wnd))->onChar(c);
     });
 
-    glGenTextures(PART_COUNT, textureNames);
-    for (auto i = 0; i < PART_COUNT; ++i) {
-        glBindTexture(GL_TEXTURE_2D, textureNames[i]);
+    GLuint texIds[WindowPart::TOTAL_PARTS];
+    glGenTextures(WindowPart::TOTAL_PARTS, texIds);
+    for (auto i = 0; i < WindowPart::TOTAL_PARTS; ++i) {
+        winParts[i].textureId = texIds[i];
+        glBindTexture(GL_TEXTURE_2D, winParts[i].textureId);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glBindTexture(GL_TEXTURE_2D, 0);
@@ -213,11 +224,11 @@ void WindowGLFW::RenderFrame()
     glEnable(GL_BLEND);
 
     // order is important!
-    RenderPart(PART_CANVAS, 0, TOOLBAR_HEIGHT, winWidth, winHeight);
-    RenderPart(PART_TOOLBAR, 0, 0, winWidth, TOOLBAR_HEIGHT);
-    RenderPart(PART_MODEBAR, 0, TOOLBAR_HEIGHT, MODEBAR_WIDTH, TOOLBAR_HEIGHT + MODEBAR_HEIGHT);
-    RenderPart(PART_DOODLER, MODEBAR_WIDTH, TOOLBAR_HEIGHT, winWidth, winHeight);
-    RenderPart(PART_KEYPAD, MODEBAR_WIDTH, winHeight - KEYPAD_HEIGHT, winWidth, winHeight);
+    RenderPart(WindowPart::CANVAS, 0, TOOLBAR_HEIGHT, winWidth, winHeight);
+    RenderPart(WindowPart::TOOLBAR, 0, 0, winWidth, TOOLBAR_HEIGHT);
+    RenderPart(WindowPart::MODEBAR, 0, TOOLBAR_HEIGHT, MODEBAR_WIDTH, TOOLBAR_HEIGHT + MODEBAR_HEIGHT);
+    RenderPart(WindowPart::DOODLER, MODEBAR_WIDTH, TOOLBAR_HEIGHT, winWidth, winHeight);
+    RenderPart(WindowPart::KEYPAD, MODEBAR_WIDTH, winHeight - KEYPAD_HEIGHT, winWidth, winHeight);
 
     glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -227,21 +238,22 @@ void WindowGLFW::RenderFrame()
 void WindowGLFW::RenderPart(int part, int left, int top, int right, int bottom)
 {
     const std::lock_guard<std::mutex> lock(imageMutex);
-    if (!partImages[part]) return;
+    if (!winParts[part].active) return;
+    assert(winParts[part].textureImage);
 
-    auto& image = *(partImages[part]);
+    auto& buffer = *(winParts[part].textureImage);
 
-    glBindTexture(GL_TEXTURE_2D, textureNames[part]);
-    if (image.NeedsRegistration()) {
+    glBindTexture(GL_TEXTURE_2D, winParts[part].textureId);
+    if (buffer.NeedsRegistration()) {
         glTexImage2D(GL_TEXTURE_2D, 0,
-            GL_RGBA, image.Width(), image.Height(), 0,
-            GL_RGBA, GL_UNSIGNED_BYTE, image.Row(0));
+            GL_RGBA, buffer.Width(), buffer.Height(), 0,
+            GL_RGBA, GL_UNSIGNED_BYTE, buffer.Data());
     }
 
     glEnable(GL_TEXTURE_2D);
     glTexSubImage2D(GL_TEXTURE_2D, 0,
-        0, 0, image.Width(), image.Height(),
-        GL_RGBA, GL_UNSIGNED_BYTE, image.Row(0));
+        0, 0, buffer.Width(), buffer.Height(),
+        GL_RGBA, GL_UNSIGNED_BYTE, buffer.Data());
 
     glBegin(GL_QUADS);
     glTexCoord2i(0, 0);  glVertex2i(left, top);
@@ -255,11 +267,11 @@ void WindowGLFW::RenderPart(int part, int left, int top, int right, int bottom)
 
 void WindowGLFW::ResizeNotifyAll(int w, int h)
 {
-    parts[PART_TOOLBAR]->PostResize(w, TOOLBAR_HEIGHT);
-    parts[PART_MODEBAR]->PostResize(MODEBAR_WIDTH, MODEBAR_HEIGHT);
-    parts[PART_DOODLER]->PostResize(w - MODEBAR_WIDTH, h - TOOLBAR_HEIGHT);
-    parts[PART_KEYPAD]->PostResize(w - MODEBAR_WIDTH, KEYPAD_HEIGHT);
-    parts[PART_CANVAS]->PostResize(w - MODEBAR_WIDTH, h - TOOLBAR_HEIGHT);
+    winParts[WindowPart::CANVAS].client->PostResize(w - MODEBAR_WIDTH, h - TOOLBAR_HEIGHT);
+    winParts[WindowPart::TOOLBAR].client->PostResize(w, TOOLBAR_HEIGHT);
+    winParts[WindowPart::MODEBAR].client->PostResize(MODEBAR_WIDTH, MODEBAR_HEIGHT);
+    winParts[WindowPart::DOODLER].client->PostResize(w - MODEBAR_WIDTH, h - TOOLBAR_HEIGHT);
+    winParts[WindowPart::KEYPAD].client->PostResize(w - MODEBAR_WIDTH, KEYPAD_HEIGHT);
 }
 
 void WindowGLFW::onMouse(int button, int action, int flags)

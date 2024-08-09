@@ -115,11 +115,11 @@ std::shared_ptr<SimulatorEvents> Navitab::GetSimulatorCallbacks()
 std::shared_ptr<WindowPart> Navitab::GetPartCallbacks(int part)
 {
     switch (part) {
-    case Window::PART_TOOLBAR: assert(toolbar); return toolbar;
-    case Window::PART_MODEBAR: assert(modebar); return modebar;
-    case Window::PART_DOODLER: assert(doodler); return doodler;
-    case Window::PART_KEYPAD: assert(keypad); return keypad;
-    case Window::PART_CANVAS: assert(canvas); return canvas;
+    case WindowPart::TOOLBAR: assert(toolbar); return toolbar;
+    case WindowPart::MODEBAR: assert(modebar); return modebar;
+    case WindowPart::DOODLER: assert(doodler); return doodler;
+    case WindowPart::KEYPAD: assert(keypad); return keypad;
+    case WindowPart::CANVAS: assert(canvas); return canvas;
     default: assert(0); return nullptr;
     }
 }

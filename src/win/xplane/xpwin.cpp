@@ -28,8 +28,8 @@
 #include <GL/gl.h>
 #endif
 #include "xpwin.h"
+#include "../texbuffer.h"
 #include "navitab/core.h"
-#include "../../win/imagerect.h"
 
 
 namespace navitab {
@@ -42,6 +42,7 @@ XPlaneWindow::XPlaneWindow(const char* logId)
     winDrawWatchdog(0),
     wgl(0), wgt(0), wgr(0), wgb(0),
     winVisible(false),
+    brightness(1.0f),
     winWidth(WIN_STD_WIDTH),
     winHeight(WIN_STD_HEIGHT)
 {
@@ -53,11 +54,14 @@ XPlaneWindow::~XPlaneWindow()
 
 void XPlaneWindow::Brightness(int percent)
 {
-    UNIMPLEMENTED(__func__);
+    if (percent < 0) percent = 0;
+    else if (percent > 100) percent = 100;
+    brightness = 0.1f + (0.9f * percent / 100.0f);
 }
 
-std::unique_ptr<ImageRectangle> XPlaneWindow::RefreshPart(int part, std::unique_ptr<ImageRectangle> newImage)
+void XPlaneWindow::RefreshPart(int part, const ImageRectangle* src, const std::vector<Region>& regions)
 {
+#if 0
     // This function is called from the core thread.
     const std::lock_guard<std::mutex> lock(imageMutex);
     std::unique_ptr<ImageRectangle> returnedImage;
@@ -65,14 +69,15 @@ std::unique_ptr<ImageRectangle> XPlaneWindow::RefreshPart(int part, std::unique_
     returnedImage = std::move(partImages[part]);
     partImages[part] = std::move(newImage);
     return returnedImage;
+#endif
 }
 
 void XPlaneWindow::Create(std::shared_ptr<CoreServices> core)
 {
     if (xpTextureIds.empty()) {
-        xpTextureIds.resize(PART_COUNT);
-        XPLMGenerateTextureNumbers(xpTextureIds.data(), PART_COUNT);
-        for (auto i = 0; i < PART_COUNT; ++i) {
+        xpTextureIds.resize(WindowPart::TOTAL_PARTS);
+        XPLMGenerateTextureNumbers(xpTextureIds.data(), WindowPart::TOTAL_PARTS);
+        for (auto i = 0; i < WindowPart::TOTAL_PARTS; ++i) {
             XPLMBindTexture2d(xpTextureIds[i], 0);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -119,7 +124,7 @@ void XPlaneWindow::Connect(std::shared_ptr<CoreServices> c)
     winWidth = std::min(std::max(winWidth, (int)WIN_MIN_WIDTH), (int)WIN_MAX_WIDTH);
     winHeight = std::min(std::max(winHeight, (int)WIN_MIN_HEIGHT), (int)WIN_MAX_HEIGHT);
 
-    for (auto i = 0; i < PART_COUNT; ++i) {
+    for (auto i = 0; i < WindowPart::TOTAL_PARTS; ++i) {
         parts[i] = core->GetPartCallbacks(i);
         parts[i]->SetPainter(shared_from_this());
     }
@@ -136,7 +141,7 @@ void XPlaneWindow::Disconnect()
     xwdp["height"] = winHeight;
     prefs->Put("/xplane/window", xwdp);
 
-    for (auto i = 0; i < PART_COUNT; ++i) {
+    for (auto i = 0; i < WindowPart::TOTAL_PARTS; ++i) {
         parts[i].reset();
     }
     prefs.reset();
@@ -175,11 +180,11 @@ bool XPlaneWindow::UpdateWinGeometry()
 
 void XPlaneWindow::ResizeNotifyAll(int w, int h)
 {
-    parts[PART_TOOLBAR]->PostResize(w, TOOLBAR_HEIGHT);
-    parts[PART_MODEBAR]->PostResize(MODEBAR_WIDTH, MODEBAR_HEIGHT);
-    parts[PART_DOODLER]->PostResize(w - MODEBAR_WIDTH, h - TOOLBAR_HEIGHT);
-    parts[PART_KEYPAD]->PostResize(w - MODEBAR_WIDTH, KEYPAD_HEIGHT);
-    parts[PART_CANVAS]->PostResize(w - MODEBAR_WIDTH, h - TOOLBAR_HEIGHT);
+    parts[WindowPart::TOOLBAR]->PostResize(w, TOOLBAR_HEIGHT);
+    parts[WindowPart::MODEBAR]->PostResize(MODEBAR_WIDTH, MODEBAR_HEIGHT);
+    parts[WindowPart::DOODLER]->PostResize(w - MODEBAR_WIDTH, h - TOOLBAR_HEIGHT);
+    parts[WindowPart::KEYPAD]->PostResize(w - MODEBAR_WIDTH, KEYPAD_HEIGHT);
+    parts[WindowPart::CANVAS]->PostResize(w - MODEBAR_WIDTH, h - TOOLBAR_HEIGHT);
 }
 
 
@@ -198,11 +203,11 @@ void XPlaneWindow::RenderContent()
 {
     int left, top, right, bottom;
     XPLMGetWindowGeometry(winHandle, &left, &top, &right, &bottom);
-    RenderPart(PART_CANVAS, left, top - TOOLBAR_HEIGHT, right, bottom);
-    RenderPart(PART_TOOLBAR, left, top, right, top - TOOLBAR_HEIGHT);
-    RenderPart(PART_MODEBAR, left, top - TOOLBAR_HEIGHT, left + MODEBAR_WIDTH, std::max(top - (TOOLBAR_HEIGHT + MODEBAR_HEIGHT), bottom));
-    RenderPart(PART_DOODLER, left + MODEBAR_WIDTH, top - TOOLBAR_HEIGHT, right, bottom);
-    RenderPart(PART_KEYPAD, left + MODEBAR_WIDTH, bottom + KEYPAD_HEIGHT, right, bottom);
+    RenderPart(WindowPart::CANVAS, left, top - TOOLBAR_HEIGHT, right, bottom);
+    RenderPart(WindowPart::TOOLBAR, left, top, right, top - TOOLBAR_HEIGHT);
+    RenderPart(WindowPart::MODEBAR, left, top - TOOLBAR_HEIGHT, left + MODEBAR_WIDTH, std::max(top - (TOOLBAR_HEIGHT + MODEBAR_HEIGHT), bottom));
+    RenderPart(WindowPart::DOODLER, left + MODEBAR_WIDTH, top - TOOLBAR_HEIGHT, right, bottom);
+    RenderPart(WindowPart::KEYPAD, left + MODEBAR_WIDTH, bottom + KEYPAD_HEIGHT, right, bottom);
 }
 
 void XPlaneWindow::RenderPart(int part, int left, int top, int right, int bottom)
@@ -216,14 +221,15 @@ void XPlaneWindow::RenderPart(int part, int left, int top, int right, int bottom
     if (image.NeedsRegistration()) {
         glTexImage2D(GL_TEXTURE_2D, 0,
             GL_RGBA, image.Width(), image.Height(), 0,
-            GL_RGBA, GL_UNSIGNED_BYTE, image.Row(0));
+            GL_RGBA, GL_UNSIGNED_BYTE, image.Data());
     }
 
     XPLMSetGraphicsState(0, 1, 0, 0, 1, 0, 0);
+    glColor4f(brightness, brightness, brightness, 1.0f);
 
     glTexSubImage2D(GL_TEXTURE_2D, 0,
         0, 0, image.Width(), image.Height(),
-        GL_RGBA, GL_UNSIGNED_BYTE, image.Row(0));
+        GL_RGBA, GL_UNSIGNED_BYTE, image.Data());
 
     glBegin(GL_QUADS);
     // map top left texture to bottom left vertex

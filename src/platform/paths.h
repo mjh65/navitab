@@ -20,36 +20,47 @@
 
 #pragma once
 
-#include <filesystem>
-#include <string>
+#include "navitab/platform.h"
+#include "navitab/logger.h"
 
 /*
- * This header file defines the interface to the platform, which will
- * probably be stuff like the filesystem etc.
+ * This header file defines the interface to stuff like where files are stored, etc
 */
 
 namespace navitab {
 
-struct PathServices
+class Paths : public PathServices
 {
+public:
+    Paths();
+
     // location of the preferences and log files, as well as any temporary file
     // and cached downloads
-    virtual std::filesystem::path DataFilesPath() = 0;
+    std::filesystem::path DataFilesPath() override;
 
     // browsing start for the user's resources, eg charts, docs
-    virtual std::filesystem::path UserResourcesPath() = 0;
+    std::filesystem::path UserResourcesPath() override;
 
     // browsing start for any aircraft documents
-    virtual std::filesystem::path AircraftResourcesPath() = 0;
+    std::filesystem::path AircraftResourcesPath() override;
 
     // browsing start for flight plans / routes
-    virtual std::filesystem::path FlightPlansPath() = 0;
+    std::filesystem::path FlightPlansPath() override;
 
     // directory containing the current Navitab executable
-    virtual std::filesystem::path NavitabPath() = 0;
+    std::filesystem::path NavitabPath() override;
+
+private:
+    std::filesystem::path FindDataFilesPath();
+
+private:
+    std::unique_ptr<logging::Logger> LOG;
+    std::filesystem::path dataFilesPath;
+    std::filesystem::path userResourcesPath;
+    std::filesystem::path aircraftResourcesPath;
+    std::filesystem::path flightPlansPath;
+    std::filesystem::path navitabPath;
 
 };
-
-std::string LocalTime(const char *format);
 
 } // namespace navitab

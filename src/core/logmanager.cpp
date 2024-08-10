@@ -25,9 +25,9 @@
 #include <iostream>
 #include <map>
 #include <fmt/core.h>
-#include <fmt/chrono.h>
 #include <nlohmann/json.hpp>
 #include "navitab/core.h"
+#include "navitab/platform.h"
 
 namespace logging {
 
@@ -56,8 +56,8 @@ LogManager::LogManager()
 
 LogManager::~LogManager()
 {
-    auto now = std::chrono::round<std::chrono::seconds>(std::chrono::system_clock::now());
-    std::string msg(fmt::format("Navitab logging ended at {:%Y-%m-%d %H:%M:%S}", now));
+    auto now = navitab::LocalTime("%Y-%m-%d %H:%M:%S");
+    std::string msg(fmt::format("Navitab logging ended at {}", now));
     if (logFile) {
         (*logFile) << msg << std::endl;
     } else {
@@ -80,8 +80,8 @@ void LogManager::Configure(bool useStdio, std::filesystem::path path, bool appen
     }
 
     // Opening message
-    auto now = std::chrono::round<std::chrono::seconds>(std::chrono::system_clock::now());
-    std::string msg(fmt::format("Navitab logging started at {:%Y-%m-%d %H:%M:%S}", now));
+    auto now = navitab::LocalTime("%Y-%m-%d %H:%M:%S");
+    std::string msg(fmt::format("Navitab logging started at {}", now));
     if (logFile) {
         (*logFile) << msg << std::endl;
     } else {
@@ -173,10 +173,10 @@ int LogManager::Log(int filterId, const char* name, const char* file, const int 
     int dests = f.dests[s];
     if (!dests) return filterId;    // short-circuit if this message is being discarded
 
-    auto now = std::chrono::round<std::chrono::seconds>(std::chrono::system_clock::now());
+    auto now = navitab::LocalTime("%H:%M:%S");
     const char* sch = "FESWID";
     const char* src = file + srcFilePrefixLength;
-    auto logline = fmt::format("{:%H:%M:%S}|{}|{:<12}|{:<32}|{:>3}|{}", now, sch[s], name, src, line, msg);
+    auto logline = fmt::format("{}|{}|{:<12}|{:<32}|{:>3}|{}", now, sch[s], name, src, line, msg);
     if (dests & Dest::STDERR) std::cerr << logline << std::endl;
     if (dests & Dest::STDOUT) std::cout << logline << std::endl;
     if (logFile && (dests & Dest::FILE)) (*logFile) << logline << std::endl;

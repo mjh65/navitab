@@ -18,6 +18,7 @@
 
 target_sources(navitab_core PRIVATE
     platform.cpp
+    paths.cpp
 )
 
 if(WIN32)

@@ -30,6 +30,7 @@
 #include "coredoodler.h"
 #include "corekeypad.h"
 #include "canvas.h"
+#include "../platform/paths.h"
 
 namespace navitab {
 
@@ -56,7 +57,6 @@ Navitab::Navitab(SimEngine s, AppClass c)
     simProduct(s),
     appClass(c),
     LOG(std::make_unique<logging::Logger>("navitab")),
-    dataFilesPath(FindDataFilesPath()),
     running(false),
     enabled(false)
 {
@@ -64,8 +64,10 @@ Navitab::Navitab(SimEngine s, AppClass c)
     // and the log file created. Everything else can wait! Any failures are
     // reported as thrown exceptions.
 
+    paths = std::make_shared<Paths>();
+
     // create the log and preferences file names - they have the same format
-    auto lfp = dataFilesPath;
+    auto lfp = paths->DataFilesPath();
     lfp /= "navitab";
     switch (appClass) {
     case PLUGIN: lfp += "_p"; break;
@@ -81,22 +83,22 @@ Navitab::Navitab(SimEngine s, AppClass c)
     lfp += "_log.txt";
     pfp += "_prefs.json";
 
-    // load the preferences
-    prefs = std::make_shared<SettingsManager>(pfp);
+    // load the settings
+    settings = std::make_shared<SettingsManager>(pfp);
 
     // configure the logging manager
     bool reloaded = false;
-    auto gp = prefs->Get("/general");
+    auto gp = settings->Get("/general");
     try {
         reloaded = gp.at("/reloading"_json_pointer);
         // remove it to avoid persisting on next run (unless overridden!)
         gp.erase("reloading");
-        prefs->Put("/general", gp);
+        settings->Put("/general", gp);
     }
     catch (...) {}
 
     auto lm = logging::LogManager::GetLogManager();
-    lm->Configure(appClass == CONSOLE, lfp, reloaded, prefs->Get("/logging"));
+    lm->Configure(appClass == CONSOLE, lfp, reloaded, settings->Get("/logging"));
 }
 
 Navitab::~Navitab()
@@ -216,47 +218,7 @@ void Navitab::Stop()
         RunLater([]() {});
         worker->join();
     }
-    prefs.reset();
-}
-
-std::shared_ptr<Settings> Navitab::GetPrefsManager()
-{
-    return prefs;
-}
-
-// location of the preferences and log files, as well as any temporary file
-// and cached downloads
-std::filesystem::path Navitab::DataFilesPath()
-{
-    return dataFilesPath;
-}
-
-// browsing start for the user's resources, eg charts, docs
-std::filesystem::path Navitab::UserResourcesPath()
-{
-    UNIMPLEMENTED(__func__);
-    return std::filesystem::path();
-}
-
-// browsing start for any aircraft documents
-std::filesystem::path Navitab::AircraftResourcesPath()
-{
-    UNIMPLEMENTED(__func__);
-    return std::filesystem::path();
-}
-
-// browsing start for flight plans / routes
-std::filesystem::path Navitab::FlightPlansPath()
-{
-    UNIMPLEMENTED(__func__);
-    return std::filesystem::path();
-}
-
-// directory containing the current Navitab executable
-std::filesystem::path Navitab::NavitabPath()
-{
-    UNIMPLEMENTED(__func__);
-    return std::filesystem::path();
+    settings.reset();
 }
 
 void Navitab::onSimFlightLoop(const SimStateData& data)
@@ -264,7 +226,7 @@ void Navitab::onSimFlightLoop(const SimStateData& data)
     auto prevZulu = simState.zuluTime;
     simState = data;
 
-    // only update the toolbar display each second
+    // only update the toolbar display each second (TODO: use wallclock for this, in case sim pause stops ZT incrementing)
     if (simState.zuluTime != prevZulu) {
         int s = simState.zuluTime;
         int h = s / (60 * 60); s -= (h * 60 * 60);
@@ -291,68 +253,6 @@ void Navitab::onModeSelect(Mode m)
 void Navitab::onKeypadEvent(int code)
 {
     UNIMPLEMENTED(__func__);
-}
-
-std::filesystem::path Navitab::FindDataFilesPath()
-{
-    // The data files path is where the log file, preferences, downloads
-    // and cached files are stored. The location is system dependent, and
-    // a number of options are tried in order until one is successful. The
-    // first pass looks for an existing directory. If none are found the
-    // next pass attempts to create the directory. If that doesn't work the
-    // game is abandoned.
-
-    std::vector<std::filesystem::path> options;
-#if defined(NAVITAB_WINDOWS)
-    // try these environment variables in turn, use the first one that's defined
-    const char* e;
-    if (e = std::getenv("LOCALAPPDATA")) options.push_back(e);
-    if (e = std::getenv("APPDATA")) options.push_back(e);
-    if (e = std::getenv("USERPROFILE")) options.push_back(e);
-    if (e = std::getenv("TEMP")) options.push_back(e);
-    options.push_back("C:\\"); // clutching at straws
-#elif defined(NAVITAB_LINUX)
-    // on Linux the preferred location is ~/.navitab - probably!
-    const char *e;
-    if ((e = std::getenv("HOME")) != nullptr) {
-        std::filesystem::path home(e);
-        std::filesystem::path d1(home); d1 /= ".navitab";
-        options.push_back(d1);
-        std::filesystem::path d2(home); d2 /= ".config"; d2 /= "navitab";
-        options.push_back(d2);
-    }
-#elif defined(NAVITAB_MACOSX)
-    // on Mac the preferred location is ~/Library/Application Support/Navitab
-    const char *e;
-    if ((e = std::getenv("HOME")) != nullptr) {
-        std::filesystem::path home(e);
-        std::filesystem::path as(home); as /= "Library"; as /= "Application Support";
-        options.push_back(as);
-        options.push_back(home);
-    }
-    if ((e = std::getenv("TMPDIR"))!= nullptr) options.push_back(e);
-    options.push_back("/tmp"); // clutching at straws
-#endif
-
-    // first pass, directory must exist and be useable
-    // second pass, try to make the directory before testing
-    for (auto pass : { 1,2 }) {
-        for (auto& p : options) {
-            std::filesystem::path d(p);
-#if !defined(NAVITAB_LINUX)
-            d /= "Navitab";
-#endif
-            if (pass == 2) (void)std::filesystem::create_directory(d);
-            if (std::filesystem::exists(d) || std::filesystem::is_directory(d)) {
-                // check we can create files
-                std::filesystem::path tmpf(d / "navitab.tmp");
-                bool failed = !std::ofstream(tmpf).put('x');
-                std::remove(tmpf.string().c_str());
-                if (!failed) return d;
-            }
-        }
-    }
-    throw StartupError(fmt::format("Unable to find or create directory for Navitab data files, before line {} in {}", __LINE__, __FILE__));
 }
 
 void Navitab::RunLater(std::function<void()> j)

@@ -156,11 +156,6 @@ void XPDesktopWindow::onDraw()
         winResizePollTimer = 0;
         if (UpdateWinGeometry()) {
             ResizeNotifyAll(winWidth, winHeight);
-            parts[WindowPart::TOOLBAR]->PostResize(winWidth, TOOLBAR_HEIGHT);
-            parts[WindowPart::MODEBAR]->PostResize(MODEBAR_WIDTH, MODEBAR_HEIGHT);
-            parts[WindowPart::DOODLER]->PostResize(winWidth - MODEBAR_WIDTH, winHeight - TOOLBAR_HEIGHT);
-            parts[WindowPart::KEYPAD]->PostResize(winWidth - MODEBAR_WIDTH, KEYPAD_HEIGHT);
-            parts[WindowPart::CANVAS]->PostResize(winWidth - MODEBAR_WIDTH, winHeight - TOOLBAR_HEIGHT);
         }
         if (!XPLMWindowIsPoppedOut(winHandle)) {
             int l, r, t, b;

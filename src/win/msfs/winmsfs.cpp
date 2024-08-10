@@ -47,7 +47,7 @@ WindowMSFS::~WindowMSFS()
 void WindowMSFS::Connect(std::shared_ptr<CoreServices> c)
 {
     core = c;
-    prefs = core->GetPrefsManager();
+    prefs = core->GetSettingsManager();
     canvas->SetPainter(shared_from_this());
     canvas->PostResize(winWidth - MODEBAR_WIDTH, winHeight - TOOLBAR_HEIGHT);
     // TODO - start simple web server

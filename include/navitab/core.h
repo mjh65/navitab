@@ -30,6 +30,7 @@
 
 namespace navitab {
 
+struct PathServices;
 struct Simulator2Core;
 struct WindowPart;
 struct WindowControls;
@@ -74,7 +75,10 @@ struct CoreServices
     static std::shared_ptr<CoreServices> MakeNavitab(SimEngine s, AppClass c);
 
     // Get the interface to the preferences manager
-    virtual std::shared_ptr<Settings> GetPrefsManager() = 0;
+    virtual std::shared_ptr<Settings> GetSettingsManager() = 0;
+
+    // Get the interface to the paths service
+    virtual std::shared_ptr<PathServices> GetPathService() = 0;
 
     // Get the interface for simulation-generated events that Navitab will handle
     virtual std::shared_ptr<Simulator2Core> GetSimulatorCallbacks() = 0;
@@ -91,23 +95,6 @@ struct CoreServices
     virtual void Enable() = 0;
     virtual void Disable() = 0;
     virtual void Stop() = 0;
-
-    // TODO - perhaps these should go to the (currently empty) platform header?
-    // location of the preferences and log files, as well as any temporary file
-    // and cached downloads
-    virtual std::filesystem::path DataFilesPath() = 0;
-
-    // browsing start for the user's resources, eg charts, docs
-    virtual std::filesystem::path UserResourcesPath() = 0;
-
-    // browsing start for any aircraft documents
-    virtual std::filesystem::path AircraftResourcesPath() = 0;
-
-    // browsing start for flight plans / routes
-    virtual std::filesystem::path FlightPlansPath() = 0;
-
-    // directory containing the current Navitab executable
-    virtual std::filesystem::path NavitabPath() = 0;
 
     virtual ~CoreServices() = default;
 

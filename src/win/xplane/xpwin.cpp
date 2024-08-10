@@ -39,37 +39,25 @@ std::vector<int> XPlaneWindow::xpTextureIds;
 XPlaneWindow::XPlaneWindow(const char* logId)
 :   LOG(std::make_unique<logging::Logger>(logId)),
     winHandle(nullptr),
+    winWidth(WIN_STD_WIDTH),
+    winHeight(WIN_STD_HEIGHT),
     winDrawWatchdog(0),
     wgl(0), wgt(0), wgr(0), wgb(0),
     winVisible(false),
-    brightness(1.0f),
-    winWidth(WIN_STD_WIDTH),
-    winHeight(WIN_STD_HEIGHT)
+    brightness(1.0f)
 {
+    for (auto i = 0; i < WindowPart::TOTAL_PARTS; ++i) {
+        winParts[i].active = 0;
+    }
+    winParts[WindowPart::CANVAS].textureImage = std::make_unique<TextureBuffer>(WIN_MAX_WIDTH, (WIN_MAX_HEIGHT - TOOLBAR_HEIGHT));
+    winParts[WindowPart::TOOLBAR].textureImage = std::make_unique<TextureBuffer>(WIN_MAX_WIDTH, TOOLBAR_HEIGHT);
+    winParts[WindowPart::MODEBAR].textureImage = std::make_unique<TextureBuffer>(MODEBAR_WIDTH, MODEBAR_HEIGHT);
+    winParts[WindowPart::DOODLER].textureImage = std::make_unique<TextureBuffer>((WIN_MAX_WIDTH - MODEBAR_WIDTH), (WIN_MAX_HEIGHT - TOOLBAR_HEIGHT));
+    winParts[WindowPart::KEYPAD].textureImage = std::make_unique<TextureBuffer>(WIN_MAX_WIDTH, KEYPAD_HEIGHT);
 }
 
 XPlaneWindow::~XPlaneWindow()
 {
-}
-
-void XPlaneWindow::Brightness(int percent)
-{
-    if (percent < 0) percent = 0;
-    else if (percent > 100) percent = 100;
-    brightness = 0.1f + (0.9f * percent / 100.0f);
-}
-
-void XPlaneWindow::Paint(int part, const FrameBuffer* src, const std::vector<FrameRegion>& regions)
-{
-#if 0
-    // This function is called from the core thread.
-    const std::lock_guard<std::mutex> lock(imageMutex);
-    std::unique_ptr<ImageRectangle> returnedImage;
-    if (partImages[part]) partImages[part]->Reset();
-    returnedImage = std::move(partImages[part]);
-    partImages[part] = std::move(newImage);
-    return returnedImage;
-#endif
 }
 
 void XPlaneWindow::Create(std::shared_ptr<CoreServices> core)
@@ -84,6 +72,7 @@ void XPlaneWindow::Create(std::shared_ptr<CoreServices> core)
             glBindTexture(GL_TEXTURE_2D, 0);
         }
     }
+
     Connect(core);
 }
 
@@ -113,7 +102,7 @@ void XPlaneWindow::Connect(std::shared_ptr<CoreServices> c)
 {
     core = c;
 
-    prefs = core->GetPrefsManager();
+    prefs = core->GetSettingsManager();
     auto& xwdp = prefs->Get("/xplane/window");
     try {
         winWidth = xwdp.at("/width"_json_pointer);
@@ -125,8 +114,8 @@ void XPlaneWindow::Connect(std::shared_ptr<CoreServices> c)
     winHeight = std::min(std::max(winHeight, (int)WIN_MIN_HEIGHT), (int)WIN_MAX_HEIGHT);
 
     for (auto i = 0; i < WindowPart::TOTAL_PARTS; ++i) {
-        parts[i] = core->GetPartCallbacks(i);
-        parts[i]->SetPainter(shared_from_this());
+        winParts[i].client = core->GetPartCallbacks(i);
+        winParts[i].client->SetPainter(shared_from_this());
     }
     ResizeNotifyAll(winWidth, winHeight);
 }
@@ -142,7 +131,7 @@ void XPlaneWindow::Disconnect()
     prefs->Put("/xplane/window", xwdp);
 
     for (auto i = 0; i < WindowPart::TOTAL_PARTS; ++i) {
-        parts[i].reset();
+        winParts[i].client.reset();
     }
     prefs.reset();
 
@@ -180,13 +169,12 @@ bool XPlaneWindow::UpdateWinGeometry()
 
 void XPlaneWindow::ResizeNotifyAll(int w, int h)
 {
-    parts[WindowPart::TOOLBAR]->PostResize(w, TOOLBAR_HEIGHT);
-    parts[WindowPart::MODEBAR]->PostResize(MODEBAR_WIDTH, MODEBAR_HEIGHT);
-    parts[WindowPart::DOODLER]->PostResize(w - MODEBAR_WIDTH, h - TOOLBAR_HEIGHT);
-    parts[WindowPart::KEYPAD]->PostResize(w - MODEBAR_WIDTH, KEYPAD_HEIGHT);
-    parts[WindowPart::CANVAS]->PostResize(w - MODEBAR_WIDTH, h - TOOLBAR_HEIGHT);
+    winParts[WindowPart::CANVAS].client->PostResize(w - MODEBAR_WIDTH, h - TOOLBAR_HEIGHT);
+    winParts[WindowPart::TOOLBAR].client->PostResize(w, TOOLBAR_HEIGHT);
+    winParts[WindowPart::MODEBAR].client->PostResize(MODEBAR_WIDTH, MODEBAR_HEIGHT);
+    winParts[WindowPart::DOODLER].client->PostResize(w - MODEBAR_WIDTH, h - TOOLBAR_HEIGHT);
+    winParts[WindowPart::KEYPAD].client->PostResize(w - MODEBAR_WIDTH, KEYPAD_HEIGHT);
 }
-
 
 void XPlaneWindow::ScreenToWindow(int& x, int& y)
 {
@@ -197,6 +185,20 @@ void XPlaneWindow::ScreenToWindow(int& x, int& y)
 bool XPlaneWindow::isActive()
 {
     return winVisible;
+}
+
+void XPlaneWindow::Paint(int part, const FrameBuffer* src, const std::vector<FrameRegion>& regions)
+{
+    // This function is called from the core thread.
+    const std::lock_guard<std::mutex> lock(paintMutex);
+    auto& wp = winParts[part];
+    wp.active = src && regions.size();
+    if (!wp.active) return;
+    auto& ti = wp.textureImage;
+    if ((ti->Width() != src->Width()) || (ti->Height() != src->Height())) {
+        ti->Resize(src->Width(), src->Height());
+}
+    ti->CopyRegionsFrom(src, regions);
 }
 
 void XPlaneWindow::RenderContent()
@@ -212,24 +214,25 @@ void XPlaneWindow::RenderContent()
 
 void XPlaneWindow::RenderPart(int part, int left, int top, int right, int bottom)
 {
-    const std::lock_guard<std::mutex> lock(imageMutex);
-    if (!partImages[part]) return;
+    const std::lock_guard<std::mutex> lock(paintMutex);
+    if (!winParts[part].active) return;
+    assert(winParts[part].textureImage);
 
-    auto& image = *(partImages[part]);
+    auto& buffer = *(winParts[part].textureImage);
 
     XPLMBindTexture2d(xpTextureIds[part], 0);
-    if (image.NeedsRegistration()) {
+    if (buffer.NeedsRegistration()) {
         glTexImage2D(GL_TEXTURE_2D, 0,
-            GL_RGBA, image.Width(), image.Height(), 0,
-            GL_RGBA, GL_UNSIGNED_BYTE, image.Data());
+            GL_RGBA, buffer.Width(), buffer.Height(), 0,
+            GL_RGBA, GL_UNSIGNED_BYTE, buffer.Data());
     }
 
     XPLMSetGraphicsState(0, 1, 0, 0, 1, 0, 0);
     glColor4f(brightness, brightness, brightness, 1.0f);
 
     glTexSubImage2D(GL_TEXTURE_2D, 0,
-        0, 0, image.Width(), image.Height(),
-        GL_RGBA, GL_UNSIGNED_BYTE, image.Data());
+        0, 0, buffer.Width(), buffer.Height(),
+        GL_RGBA, GL_UNSIGNED_BYTE, buffer.Data());
 
     glBegin(GL_QUADS);
     // map top left texture to bottom left vertex
@@ -242,5 +245,13 @@ void XPlaneWindow::RenderPart(int part, int left, int top, int right, int bottom
     glTexCoord2i(1, 1); glVertex2i(right, bottom);
     glEnd();
 }
+
+void XPlaneWindow::Brightness(int percent)
+{
+    if (percent < 0) percent = 0;
+    else if (percent > 100) percent = 100;
+    brightness = 0.1f + (0.9f * percent / 100.0f);
+}
+
 
 } // namespace navitab

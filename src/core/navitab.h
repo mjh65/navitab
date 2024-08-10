@@ -28,6 +28,7 @@
 #include <thread>
 #include "navitab/core.h"
 #include "navitab/logger.h"
+#include "navitab/platform.h"
 #include "navitab/simulator.h"
 #include "navitab/window.h"
 #include "navitab/toolbar.h"
@@ -58,6 +59,10 @@ public:
     // ======================================================================
     // Implementation of CoreServices
     
+    // access to platform and settings
+    std::shared_ptr<PathServices> GetPathService() { return paths; }
+    std::shared_ptr<Settings> GetSettingsManager() { return settings; }
+
     // Interfaces used by simulator and UI window
     std::shared_ptr<Simulator2Core> GetSimulatorCallbacks() override;
     std::shared_ptr<WindowPart> GetPartCallbacks(int part) override;
@@ -68,25 +73,6 @@ public:
     void Enable() override;  // TODO - called from XPluginEnable - review this in SDK and Avitab
     void Disable() override; // TODO - called from XPluginDisable - review this in SDK and Avitab
     void Stop() override;    // TODO - called from XPluginStop - review this in SDK and Avitab
-
-    // access to preferences
-    std::shared_ptr<Settings> GetPrefsManager() override;
-    
-    // location of the preferences and log files, as well as any temporary file
-    // and cached downloads
-    std::filesystem::path DataFilesPath() override;
-
-    // browsing start for the user's resources, eg charts, docs
-    std::filesystem::path UserResourcesPath() override;
-
-    // browsing start for any aircraft documents
-    std::filesystem::path AircraftResourcesPath() override;
-
-    // browsing start for flight plans / routes
-    std::filesystem::path FlightPlansPath() override;
-
-    // directory containing the current Navitab executable
-    std::filesystem::path NavitabPath() override;
 
     // ======================================================================
     // Implementation of Simulator2Core
@@ -113,7 +99,6 @@ public:
     void RunLater(std::function<void ()>) override;
 
 private:
-    std::filesystem::path FindDataFilesPath();
     void AsyncWorker();
 
 private:
@@ -122,18 +107,17 @@ private:
     const SimEngine                     simProduct;
 
     std::unique_ptr<logging::Logger>    LOG;
-    std::shared_ptr<Settings>        prefs;
+    std::shared_ptr<PathServices>       paths;
+    std::shared_ptr<Settings>           settings;
 
-    std::shared_ptr<WindowControls>      winCtrl;
+    std::shared_ptr<WindowControls>     winCtrl;
     std::shared_ptr<Toolbar>            toolbar;
     std::shared_ptr<Modebar>            modebar;
     std::shared_ptr<Doodler>            doodler;
     std::shared_ptr<Keypad>             keypad;
     std::shared_ptr<Canvas>             canvas;
 
-    std::filesystem::path               dataFilesPath;
-
-    SimStateData                      simState;
+    SimStateData                        simState;
     bool                                running;
     bool                                enabled;
 

@@ -54,6 +54,11 @@ WindowGLFW::WindowGLFW()
     winHeight(WIN_STD_HEIGHT),
     brightness(1.0f)
 {
+    glfwSetErrorCallback(GLFWERR);
+    if (!glfwInit()) {
+        throw StartupError("Couldn't initialize GLFW");
+    }
+
     for (auto i = 0; i < WindowPart::TOTAL_PARTS; ++i) {
         winParts[i].textureId = 0;
         winParts[i].active = 0;
@@ -63,11 +68,6 @@ WindowGLFW::WindowGLFW()
     winParts[WindowPart::MODEBAR].textureImage = std::make_unique<TextureBuffer>(MODEBAR_WIDTH, MODEBAR_HEIGHT);
     winParts[WindowPart::DOODLER].textureImage = std::make_unique<TextureBuffer>((WIN_MAX_WIDTH - MODEBAR_WIDTH), (WIN_MAX_HEIGHT - TOOLBAR_HEIGHT));
     winParts[WindowPart::KEYPAD].textureImage = std::make_unique<TextureBuffer>(WIN_MAX_WIDTH, KEYPAD_HEIGHT);
-
-    glfwSetErrorCallback(GLFWERR);
-    if (!glfwInit()) {
-        throw StartupError("Couldn't initialize GLFW");
-    }
 }
 
 WindowGLFW::~WindowGLFW()
@@ -79,13 +79,15 @@ WindowGLFW::~WindowGLFW()
 void WindowGLFW::Connect(std::shared_ptr<CoreServices> c)
 {
     core = c;
-    prefs = core->GetPrefsManager();
+
+    prefs = core->GetSettingsManager();
     // TODO - read window size preferences
     for (auto i = 0; i < WindowPart::TOTAL_PARTS; ++i) {
         winParts[i].client = core->GetPartCallbacks(i);
         winParts[i].client->SetPainter(shared_from_this());
     }
     CreateWindow();
+
     ResizeNotifyAll(winWidth, winHeight);
 }
 
@@ -129,25 +131,20 @@ int WindowGLFW::EventLoop(int maxLoops)
     return 0; // should return >0 during mouse movements, not sure if this will be useful though?
 }
 
+void WindowGLFW::ResizeNotifyAll(int w, int h)
+{
+    winParts[WindowPart::CANVAS].client->PostResize(w - MODEBAR_WIDTH, h - TOOLBAR_HEIGHT);
+    winParts[WindowPart::TOOLBAR].client->PostResize(w, TOOLBAR_HEIGHT);
+    winParts[WindowPart::MODEBAR].client->PostResize(MODEBAR_WIDTH, MODEBAR_HEIGHT);
+    winParts[WindowPart::DOODLER].client->PostResize(w - MODEBAR_WIDTH, h - TOOLBAR_HEIGHT);
+    winParts[WindowPart::KEYPAD].client->PostResize(w - MODEBAR_WIDTH, KEYPAD_HEIGHT);
+}
+
 void WindowGLFW::Brightness(int percent)
 {
     if (percent < 0) percent = 0;
     else if (percent > 100) percent = 100;
     brightness = 0.1f + (0.9f * percent / 100.0f);
-}
-
-void WindowGLFW::Paint(int part, const FrameBuffer* src, const std::vector<FrameRegion>& regions)
-{
-    // This function is called from the core thread.
-    const std::lock_guard<std::mutex> lock(imageMutex);
-    auto& wp = winParts[part];
-    wp.active = src && regions.size();
-    if (!wp.active) return;
-    auto& ti = wp.textureImage;
-    if ((ti->Width() != src->Width()) || (ti->Height() != src->Height())) {
-        ti->Resize(src->Width(), src->Height());
-    }
-    ti->CopyRegionsFrom(src, regions);
 }
 
 void WindowGLFW::CreateWindow()
@@ -207,6 +204,20 @@ void WindowGLFW::DestroyWindow()
     window = nullptr;
 }
 
+void WindowGLFW::Paint(int part, const FrameBuffer* src, const std::vector<FrameRegion>& regions)
+{
+    // This function is called from the core thread.
+    const std::lock_guard<std::mutex> lock(paintMutex);
+    auto& wp = winParts[part];
+    wp.active = src && regions.size();
+    if (!wp.active) return;
+    auto& ti = wp.textureImage;
+    if ((ti->Width() != src->Width()) || (ti->Height() != src->Height())) {
+        ti->Resize(src->Width(), src->Height());
+    }
+    ti->CopyRegionsFrom(src, regions);
+}
+
 void WindowGLFW::RenderFrame()
 {
     int fbw, fbh;
@@ -237,7 +248,7 @@ void WindowGLFW::RenderFrame()
 
 void WindowGLFW::RenderPart(int part, int left, int top, int right, int bottom)
 {
-    const std::lock_guard<std::mutex> lock(imageMutex);
+    const std::lock_guard<std::mutex> lock(paintMutex);
     if (!winParts[part].active) return;
     assert(winParts[part].textureImage);
 
@@ -263,15 +274,6 @@ void WindowGLFW::RenderPart(int part, int left, int top, int right, int bottom)
     glEnd();
     glDisable(GL_TEXTURE_2D);
 
-}
-
-void WindowGLFW::ResizeNotifyAll(int w, int h)
-{
-    winParts[WindowPart::CANVAS].client->PostResize(w - MODEBAR_WIDTH, h - TOOLBAR_HEIGHT);
-    winParts[WindowPart::TOOLBAR].client->PostResize(w, TOOLBAR_HEIGHT);
-    winParts[WindowPart::MODEBAR].client->PostResize(MODEBAR_WIDTH, MODEBAR_HEIGHT);
-    winParts[WindowPart::DOODLER].client->PostResize(w - MODEBAR_WIDTH, h - TOOLBAR_HEIGHT);
-    winParts[WindowPart::KEYPAD].client->PostResize(w - MODEBAR_WIDTH, KEYPAD_HEIGHT);
 }
 
 void WindowGLFW::onMouse(int button, int action, int flags)

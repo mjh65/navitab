@@ -76,17 +76,12 @@ protected:
     void ScreenToWindow(int& x, int& y);
 
 protected:
+    std::unique_ptr<logging::Logger> LOG;
     std::shared_ptr<CoreServices> core;
     std::shared_ptr<Settings> prefs;
-    std::unique_ptr<logging::Logger> LOG;
-    std::shared_ptr<WindowPart> parts[WindowPart::TOTAL_PARTS];
 
     XPLMWindowID winHandle;
     int winWidth, winHeight;
-
-private:
-    std::unique_ptr<TextureBuffer> partImages[WindowPart::TOTAL_PARTS];
-    std::mutex imageMutex;
 
 private:
     int winDrawWatchdog;
@@ -94,11 +89,19 @@ private:
     bool winVisible;
     float brightness;
 
-protected:
+private:
     // singleton data, initialised once and reused when switching modes
     static std::vector<int> xpTextureIds;
 
-};
+protected:
+    struct WinPart {
+        std::unique_ptr<TextureBuffer> textureImage;
+        std::shared_ptr<WindowPart> client;
+        bool active;
+    };
+    WinPart winParts[WindowPart::TOTAL_PARTS];
+    std::mutex paintMutex;
 
+};
 
 } // namespace navitab

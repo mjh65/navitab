@@ -57,7 +57,7 @@ void XPlaneSimulatorEnvoy::Connect(std::shared_ptr<CoreServices> c)
 {
     LOGI("Connect() called");
     core = c;
-    prefs = core->GetPrefsManager();
+    prefs = core->GetSettingsManager();
     coreSimCallbacks = core->GetSimulatorCallbacks();
 }
 

@@ -18,3 +18,21 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <ctime>
+#include "navitab/platform.h"
+
+namespace navitab {
+
+std::string LocalTime(const char *format)
+{
+    time_t now = time(nullptr);
+    tm* local = localtime(&now);
+
+    char buf[32];
+    strftime(buf, sizeof(buf), format, local);
+    return buf;
+}
+
+
+
+} // namespace navitab

@@ -48,7 +48,7 @@ MsfsSimulator::~MsfsSimulator()
 void MsfsSimulator::Connect(std::shared_ptr<CoreServices> c)
 {
     core = c;
-    prefs = core->GetPrefsManager();
+    prefs = core->GetSettingsManager();
     handler = core->GetSimulatorCallbacks();
     running = true;
     worker = std::make_unique<std::thread>([this]() { AsyncPollSimulator(); });

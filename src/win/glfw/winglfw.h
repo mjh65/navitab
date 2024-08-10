@@ -66,18 +66,11 @@ private:
     std::unique_ptr<logging::Logger> LOG;
     std::shared_ptr<CoreServices> core;
     std::shared_ptr<Settings> prefs;
-    //std::shared_ptr<WindowPart> parts[WindowPart::TOTAL_PARTS];
 
     GLFWwindow* window;
-    //GLuint textureNames[WindowPart::TOTAL_PARTS];
-
-    //std::unique_ptr<TextureBuffer> partImages[WindowPart::TOTAL_PARTS];
-    std::mutex imageMutex;
 
     int winResizePollTimer;
-    int winWidth;
-    int winHeight;
-
+    int winWidth, winHeight;
     float brightness;
 
 private:
@@ -88,6 +81,7 @@ private:
         bool active;
     };
     WinPart winParts[WindowPart::TOTAL_PARTS];
+    std::mutex paintMutex;
 };
 
 }

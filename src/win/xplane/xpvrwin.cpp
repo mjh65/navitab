@@ -117,7 +117,7 @@ void XPVRWindow::onDraw()
         }
     }
 
-    // TODO - still need to do the drawing stuff!
+    RenderContent();
 }
 
 // TODO - Avitab has code to capture the VR controller trigger and

@@ -46,7 +46,6 @@ MockSimulator::MockSimulator()
         d.otherPlanes[i].elevation = 100.0f + ((rand() % 100) * 100.0);
         d.otherPlanes[i].heading = (rand() % 360);
     }
-    d.zuluTime = rand() % (24 * 60 * 60);
     d.fps = 15;
     mockData[1] = mockData[0];
 }
@@ -58,7 +57,7 @@ MockSimulator::~MockSimulator()
 void MockSimulator::Connect(std::shared_ptr<CoreServices> c)
 {
     core = c;
-    prefs = core->GetPrefsManager();
+    prefs = core->GetSettingsManager();
     handler = core->GetSimulatorCallbacks();
     running = true;
     worker = std::make_unique<std::thread>([this]() { AsyncRunSimulator(); });
@@ -75,12 +74,19 @@ void MockSimulator::Disconnect()
 
 void MockSimulator::AsyncRunSimulator()
 {
+    auto start = std::chrono::steady_clock::now();
+    auto zuluStart = rand() % (24 * 60 * 60);
+    mockData[1].zuluTime = mockData[0].zuluTime = zuluStart;
+
     // TODO - move the planes around a bit, and get frame rate from window
     using namespace std::chrono_literals;
     while (running) {
         std::this_thread::sleep_for(50ms);
         handler->PostSimUpdates(mockData[tiktok ? 1 : 0]);
         tiktok = !tiktok;
+        auto now = std::chrono::steady_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - start);
+        mockData[tiktok].zuluTime = (zuluStart + elapsed.count()) % (24 * 60 * 60);
     }
 }
 

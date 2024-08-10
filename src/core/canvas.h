@@ -30,10 +30,10 @@
 
 namespace navitab {
 
-struct CanvasEvents : public Callback
+struct CanvasEvents : public DeferredJobRunner
 {
     void PostFoo() {
-        AsyncCall([this]() { onFoo(); });
+        RunLater([this]() { onFoo(); });
     }
 
 protected:
@@ -58,8 +58,8 @@ public:
     void onWheelEvent(int x, int y, int xdir, int ydir) override;
     void onKeyEvent(int code) override;
 
-    // Implementation of Callback
-    void AsyncCall(std::function<void ()> f) override { core->AsyncCall(f); }
+    // Implementation of DeferredJobRunner
+    void RunLater(std::function<void ()> f) override { core->RunLater(f); }
 
 private:
     const uint32_t backgroundPixels = 0xff00df00;

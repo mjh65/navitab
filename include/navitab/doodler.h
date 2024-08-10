@@ -22,7 +22,7 @@
 
 #include <memory>
 #include <functional>
-#include "navitab/callback.h"
+#include "navitab/deferred.h"
 #include "navitab/window.h"
 
 // The Doodler class represents the user's doodling area. This is a transparent
@@ -33,10 +33,10 @@ namespace navitab {
 
 struct Window;
 
-struct DoodlerEvents : public Callback
+struct Doodler2Core : public DeferredJobRunner
 {
     // The doodler doesn't really interact much with the rest of Navitab, so there's
-    // nothing in here. Perhaps the interface will disappear?
+    // nothing in here. But it is needed to extend the DeferredJobRunner.
 };
 
 class Doodler : public WindowPart

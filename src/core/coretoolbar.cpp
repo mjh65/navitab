@@ -23,7 +23,7 @@
 
 namespace navitab {
 
-CoreToolbar::CoreToolbar(std::shared_ptr<ToolbarEvents> c)
+CoreToolbar::CoreToolbar(std::shared_ptr<Toolbar2Core> c)
 :   LOG(std::make_unique<logging::Logger>("toolbar")),
     core(c)
 {
@@ -53,7 +53,7 @@ void CoreToolbar::onResize(int w, int)
     // if the toolbar is resized then the previous image is just abandoned
     // and a new one is created and scheduled for redrawing
     width = w; height = Window::TOOLBAR_HEIGHT;
-    image = std::make_unique<ImageRectangle>(width, height);
+    image = std::make_unique<FrameBuffer>(width, height);
     image->Clear(0xffd0d0d0);
     // this is temporary code during initial development
     for (int y = 0; y < Window::TOOLBAR_HEIGHT; ++y) {
@@ -66,8 +66,8 @@ void CoreToolbar::onResize(int w, int)
 
     // TODO - generate the basic toolbar image
 
-    dirtyBits.push_back(Region(0, 0, width, height));
-    AsyncCall([this]() { Redraw(); });
+    dirtyBits.push_back(FrameRegion(0, 0, width, height));
+    RunLater([this]() { Redraw(); });
 }
 
 void CoreToolbar::onMouseEvent(int x, int y, bool l, bool r)

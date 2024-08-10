@@ -32,7 +32,7 @@ namespace navitab {
 class CoreToolbar : public Toolbar
 {
 public:
-    CoreToolbar(std::shared_ptr<ToolbarEvents> core);
+    CoreToolbar(std::shared_ptr<Toolbar2Core> core);
     ~CoreToolbar();
 
     // APIs called from the Navitab core (sync call OK)
@@ -47,13 +47,13 @@ protected:
     void onWheelEvent(int x, int y, int xdir, int ydir) override {}
     void onKeyEvent(int code) override {}
 
-    // Implementation of Callback
-    void AsyncCall(std::function<void ()> f) override { core->AsyncCall(f); }
+    // Implementation of DeferredJobRunner
+    void RunLater(std::function<void ()> f) override { core->RunLater(f); }
 
 private:
     const uint32_t backgroundPixels = 0xffd0d0d0;
     std::unique_ptr<logging::Logger> LOG;
-    std::shared_ptr<ToolbarEvents>  core;
+    std::shared_ptr<Toolbar2Core>  core;
 
 };
 

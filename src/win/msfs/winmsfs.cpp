@@ -67,7 +67,7 @@ int WindowMSFS::EventLoop(int maxLoops)
     return 0;
 }
 
-void WindowMSFS::RefreshPart(int part, const ImageRectangle* src, const std::vector<Region>& regions)
+void WindowMSFS::Paint(int part, const FrameBuffer* src, const std::vector<FrameRegion>& regions)
 {
 #if 0
     assert(part == CANVAS);

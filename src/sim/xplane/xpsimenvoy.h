@@ -69,8 +69,8 @@ private:
 private:
     // access to Navitab core
     std::shared_ptr<CoreServices> core;
-    std::shared_ptr<Preferences> prefs;
-    std::shared_ptr<SimulatorEvents> coreSimCallbacks;
+    std::shared_ptr<Settings> prefs;
+    std::shared_ptr<Simulator2Core> coreSimCallbacks;
 
     // logging
     std::unique_ptr<logging::Logger> LOG;
@@ -99,7 +99,7 @@ private:
     XPLMDataRef zuluTimeDataRef;
     XPLMDataRef frameRateDataRef;
     std::vector<XPLMDataRef> aircraftPositionDataRefs;
-    FlightLoopData simState[2];
+    SimStateData simState[2];
     bool tiktok;
 
     // window manager

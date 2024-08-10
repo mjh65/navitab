@@ -32,11 +32,11 @@
 
 namespace navitab {
 
-class PrefsManager : public Preferences
+class SettingsManager : public Settings
 {
 public:
-    PrefsManager(std::filesystem::path prefsFile);
-    ~PrefsManager();
+    SettingsManager(std::filesystem::path settingsFile);
+    ~SettingsManager();
 
     const nlohmann::json& Get(const std::string key) override;
     void Put(const std::string key, nlohmann::json& value) override;
@@ -48,9 +48,9 @@ private:
     void save();
 
 private:
-    std::filesystem::path prefsFile;
-    std::shared_ptr<nlohmann::json> prefData;
     std::unique_ptr<logging::Logger> LOG;
+    std::filesystem::path settingsFilePath;
+    std::shared_ptr<nlohmann::json> settingsJson;
     bool saveAtExit;
     std::mutex stateMutex;
 

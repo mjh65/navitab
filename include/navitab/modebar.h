@@ -22,7 +22,7 @@
 
 #include <memory>
 #include <functional>
-#include "navitab/callback.h"
+#include "navitab/deferred.h"
 #include "navitab/window.h"
 
 // The Modebar class represents the mode/app chooser which is drawn down the
@@ -34,10 +34,10 @@ namespace navitab {
 
 struct Window;
 
-// The ModebarEvents interface is how the UI doodle pad implementation provides
-// events to the Navitab core.
+// The Modebar2Core interface is used by the UI's modebar to post updates to
+// the Navitab core.
 
-struct ModebarEvents : public Callback
+struct Modebar2Core : public DeferredJobRunner
 {
     // UI-triggered events notified to the Navitab core for further handling
 
@@ -54,7 +54,7 @@ struct ModebarEvents : public Callback
     };
 
     void PostModeSelect(Mode m) {
-        AsyncCall([this, m]() { onModeSelect(m); });
+        RunLater([this, m]() { onModeSelect(m); });
     }
 
 protected:

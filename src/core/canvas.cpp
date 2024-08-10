@@ -60,8 +60,8 @@ void Canvas::Update()
         }
     }
 #endif
-    dirtyBits.push_back(Region(0, 0, width, height));
-    core->AsyncCall([this]() { Redraw(); });
+    dirtyBits.push_back(FrameRegion(0, 0, width, height));
+    core->RunLater([this]() { Redraw(); });
 }
 
 void Canvas::onResize(int w, int h)
@@ -70,7 +70,7 @@ void Canvas::onResize(int w, int h)
     // If the canvas is resized then we create a new image and copy whatever fits
     // from the old one before dumping it.
 
-    auto ni = std::make_unique<ImageRectangle>(w, h);
+    auto ni = std::make_unique<FrameBuffer>(w, h);
     ni->Clear(backgroundPixels);
     if (image) {
         for (auto y = 0; y < std::min(h, height); ++y) {
@@ -82,8 +82,8 @@ void Canvas::onResize(int w, int h)
     }
     std::swap(image, ni);
     width = w; height = h;
-    dirtyBits.push_back(Region(0, 0, width, height));
-    AsyncCall([this]() { Redraw(); });
+    dirtyBits.push_back(FrameRegion(0, 0, width, height));
+    RunLater([this]() { Redraw(); });
 }
 
 void Canvas::onMouseEvent(int x, int y, bool l, bool r)

@@ -40,14 +40,14 @@ private:
 
 private:
     std::unique_ptr<logging::Logger> LOG;
-    std::shared_ptr<Preferences> prefs;
+    std::shared_ptr<Settings> prefs;
     std::shared_ptr<CoreServices> core;
-    std::shared_ptr<SimulatorEvents> handler;
+    std::shared_ptr<Simulator2Core> handler;
 
     bool running;
     std::unique_ptr<std::thread> worker;
 
-    FlightLoopData mockData[2];
+    SimStateData mockData[2];
     bool tiktok;
 };
 

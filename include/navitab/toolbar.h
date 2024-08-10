@@ -22,7 +22,7 @@
 
 #include <memory>
 #include <functional>
-#include "navitab/callback.h"
+#include "navitab/deferred.h"
 #include "navitab/window.h"
 
 // The Toolbar class represents the toolbar which is drawn across the top
@@ -34,10 +34,10 @@ namespace navitab {
 
 struct Window;
 
-// The ToolbarEvents interface is how the UI toolbar implementation signals
-// events to the Navitab core.
+// The Toolbar2Core interface is used by the UI's toolbar to send user tool
+// clicks to the Navitab core for the currently active screen.
 
-struct ToolbarEvents : public Callback
+struct Toolbar2Core : public DeferredJobRunner
 {
     // UI-triggered events notified to the Navitab core for further handling
 
@@ -53,7 +53,7 @@ struct ToolbarEvents : public Callback
     };
 
     void PostToolClick(Tool t) {
-        AsyncCall([this, t]() { onToolClick(t); });
+        RunLater([this, t]() { onToolClick(t); });
     }
 
 protected:

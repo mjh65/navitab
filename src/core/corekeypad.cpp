@@ -23,7 +23,7 @@
 
 namespace navitab {
 
-CoreKeypad::CoreKeypad(std::shared_ptr<KeypadEvents> c)
+CoreKeypad::CoreKeypad(std::shared_ptr<Keypad2Core> c)
 :   core(c),
     LOG(std::make_unique<logging::Logger>("keypad")),
     visible(false)
@@ -37,14 +37,14 @@ CoreKeypad::~CoreKeypad()
 void CoreKeypad::Show()
 {
     visible = true;
-    AsyncCall([this]() { onResize(width, height); });
+    RunLater([this]() { onResize(width, height); });
 }
 
 void CoreKeypad::Hide()
 {
     visible = false;
     image.reset();
-    AsyncCall([this]() { Redraw(); });
+    RunLater([this]() { Redraw(); });
 }
 
 void CoreKeypad::onResize(int w, int h)
@@ -52,10 +52,10 @@ void CoreKeypad::onResize(int w, int h)
     width = w; height = h;
     if (!visible) return;
 
-    image = std::make_unique<ImageRectangle>(width, height);
+    image = std::make_unique<FrameBuffer>(width, height);
     // TODO - generate the basic keypad image, depending on dimensions
 
-    AsyncCall([this]() { Redraw(); });
+    RunLater([this]() { Redraw(); });
 }
 
 void CoreKeypad::onMouseEvent(int x, int y, bool l, bool r)

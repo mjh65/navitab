@@ -30,7 +30,7 @@ namespace navitab {
 class TextureBuffer;
 
 class WindowMSFS : public std::enable_shared_from_this<WindowMSFS>,
-                   public Window, public PartPainter, public WindowControl
+                   public Window, public PartPainter, public WindowControls
 {
 public:
     WindowMSFS();
@@ -42,15 +42,15 @@ public:
     int EventLoop(int maxLoops) override;
 
     // Implementation of the PartPainter interface
-    void RefreshPart(int part, const ImageRectangle* src, const std::vector<Region>& regions) override;
+    void Paint(int part, const FrameBuffer* src, const std::vector<FrameRegion>& regions) override;
 
-    // Implementation of the WindowControl interface
+    // Implementation of the WindowControls interface
     void Brightness(int percent) override;
 
 private:
     std::unique_ptr<logging::Logger> LOG;
     std::shared_ptr<CoreServices> core;
-    std::shared_ptr<Preferences> prefs;
+    std::shared_ptr<Settings> prefs;
     std::shared_ptr<WindowPart> canvas;
 
     std::unique_ptr<TextureBuffer> canvasImage;

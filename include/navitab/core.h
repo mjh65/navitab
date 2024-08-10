@@ -30,9 +30,9 @@
 
 namespace navitab {
 
-struct SimulatorEvents;
+struct Simulator2Core;
 struct WindowPart;
-struct WindowControl;
+struct WindowControls;
 
 enum HostPlatform { WIN, LNX, MAC };
 enum AppClass { PLUGIN, DESKTOP, CONSOLE };
@@ -53,11 +53,11 @@ struct LogFatal : public Exception
     LogFatal(std::string e) : Exception(e) {}
 };
 
-// The Preferences class is a relatively small wrapper that can be used
-// by Navitab components to fetch (and update) preference data that is
-// stored between runs.
+// The Settings class is a relatively small wrapper that can be used by
+// Navitab components to fetch (and update) settings and user preference
+// data that should be persistent between launches.
 
-struct Preferences
+struct Settings
 {
     virtual const nlohmann::json& Get(const std::string key) = 0;
     virtual void Put(const std::string key, nlohmann::json& value) = 0;
@@ -74,17 +74,17 @@ struct CoreServices
     static std::shared_ptr<CoreServices> MakeNavitab(SimEngine s, AppClass c);
 
     // Get the interface to the preferences manager
-    virtual std::shared_ptr<Preferences> GetPrefsManager() = 0;
+    virtual std::shared_ptr<Settings> GetPrefsManager() = 0;
 
     // Get the interface for simulation-generated events that Navitab will handle
-    virtual std::shared_ptr<SimulatorEvents> GetSimulatorCallbacks() = 0;
+    virtual std::shared_ptr<Simulator2Core> GetSimulatorCallbacks() = 0;
 
     // Get the interfaces for UI-window-generated events that each of the window
     // parts will handle.
     virtual std::shared_ptr<WindowPart> GetPartCallbacks(int part) = 0;
 
     // Set the interface to the UI-window for window-level control
-    virtual void SetWindowControl(std::shared_ptr<WindowControl> w) = 0;
+    virtual void SetWindowControl(std::shared_ptr<WindowControls> w) = 0;
 
     // Startup and shutdown control - fine-grained enough to support all app classes.
     virtual void Start() = 0;

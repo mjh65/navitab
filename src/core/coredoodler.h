@@ -32,7 +32,7 @@ namespace navitab {
 class CoreDoodler : public Doodler
 {
 public:
-    CoreDoodler(std::shared_ptr<DoodlerEvents> core);
+    CoreDoodler(std::shared_ptr<Doodler2Core> core);
     ~CoreDoodler();
 
     // APIs called from the core
@@ -46,14 +46,14 @@ protected:
     void onWheelEvent(int x, int y, int xdir, int ydir) override {}
     void onKeyEvent(int code) override;
 
-    // Implementation of Callback
-    void AsyncCall(std::function<void ()> f) override { core->AsyncCall(f); }
+    // Implementation of DeferredJobRunner
+    void RunLater(std::function<void ()> f) override { core->RunLater(f); }
 
 private:
     const uint32_t backgroundPixels = 0x10000000;
     std::unique_ptr<logging::Logger> LOG;
-    std::shared_ptr<DoodlerEvents> core;
-    std::unique_ptr<ImageRectangle> oldDoodle;
+    std::shared_ptr<Doodler2Core> core;
+    std::unique_ptr<FrameBuffer> oldDoodle;
     bool enabled;
 
 };

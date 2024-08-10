@@ -20,7 +20,7 @@
 
 #include "navitab.h"
 #include "logmanager.h"
-#include "prefsmgr.h"
+#include "settingsmgr.h"
 #include <cstdio>
 #include <filesystem>
 #include <nlohmann/json.hpp>
@@ -82,7 +82,7 @@ Navitab::Navitab(SimEngine s, AppClass c)
     pfp += "_prefs.json";
 
     // load the preferences
-    prefs = std::make_shared<PrefsManager>(pfp);
+    prefs = std::make_shared<SettingsManager>(pfp);
 
     // configure the logging manager
     bool reloaded = false;
@@ -107,7 +107,7 @@ Navitab::~Navitab()
     LOGS("~Navitab() done");
 }
 
-std::shared_ptr<SimulatorEvents> Navitab::GetSimulatorCallbacks()
+std::shared_ptr<Simulator2Core> Navitab::GetSimulatorCallbacks()
 {
     return shared_from_this();
 }
@@ -124,7 +124,7 @@ std::shared_ptr<WindowPart> Navitab::GetPartCallbacks(int part)
     }
 }
 
-void Navitab::SetWindowControl(std::shared_ptr<WindowControl> w)
+void Navitab::SetWindowControl(std::shared_ptr<WindowControls> w)
 {
     winCtrl = w;
 }
@@ -213,13 +213,13 @@ void Navitab::Stop()
     // Need to review SDK docs and Avitab.
     if (running) {
         running = false;
-        AsyncCall([]() {});
+        RunLater([]() {});
         worker->join();
     }
     prefs.reset();
 }
 
-std::shared_ptr<Preferences> Navitab::GetPrefsManager()
+std::shared_ptr<Settings> Navitab::GetPrefsManager()
 {
     return prefs;
 }
@@ -259,7 +259,7 @@ std::filesystem::path Navitab::NavitabPath()
     return std::filesystem::path();
 }
 
-void Navitab::onSimFlightLoop(const FlightLoopData& data)
+void Navitab::onSimFlightLoop(const SimStateData& data)
 {
     auto prevZulu = simState.zuluTime;
     simState = data;
@@ -355,7 +355,7 @@ std::filesystem::path Navitab::FindDataFilesPath()
     throw StartupError(fmt::format("Unable to find or create directory for Navitab data files, before line {} in {}", __LINE__, __FILE__));
 }
 
-void Navitab::AsyncCall(std::function<void()> j)
+void Navitab::RunLater(std::function<void()> j)
 {
     {
         std::lock_guard<std::mutex> lock(qmutex);

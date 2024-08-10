@@ -25,16 +25,17 @@
 namespace navitab {
 
 /**
- * @brief Callback or event interfaces derive from this
- * @details AsyncCall() allows a method call to be wrapped in a 
- * lambda closure and scheduled for later execution on the Navitab core
- * thread, allowing the window and simulator threads to continue without
- * being blocked.
+ * @brief DeferredJobRunner classes have the ability to run a job later.
+ * @details RunLater() allows a method call to be wrapped in a 
+ * lambda closure and scheduled for later execution on the implementing
+ * classes thread. This can be used to avoid blocking of high-priority
+ * threads when delivering events (ie from window UI or simulator), or to
+ * split execution into smaller chunks for convenience.
  */
-struct Callback
+struct DeferredJobRunner
 {
-    // Callbacks are wrapped in AsyncCall() to avoid stalling the UI.
-    virtual void AsyncCall(std::function<void ()>) = 0;
+    // Callbacks are wrapped in RunLater() to avoid stalling the UI.
+    virtual void RunLater(std::function<void ()>) = 0;
 };
 
 

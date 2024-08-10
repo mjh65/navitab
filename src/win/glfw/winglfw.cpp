@@ -136,7 +136,7 @@ void WindowGLFW::Brightness(int percent)
     brightness = 0.1f + (0.9f * percent / 100.0f);
 }
 
-void WindowGLFW::RefreshPart(int part, const ImageRectangle* src, const std::vector<Region>& regions)
+void WindowGLFW::Paint(int part, const FrameBuffer* src, const std::vector<FrameRegion>& regions)
 {
     // This function is called from the core thread.
     const std::lock_guard<std::mutex> lock(imageMutex);

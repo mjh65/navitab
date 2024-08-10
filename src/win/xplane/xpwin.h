@@ -35,7 +35,7 @@ class TextureBuffer;
 // specialisations when the simulation enters and leaves VR mode.
 
 class XPlaneWindow : public std::enable_shared_from_this<XPlaneWindow>,
-                     public Window, public WindowControl, public PartPainter
+                     public Window, public WindowControls, public PartPainter
 {
 public:
     XPlaneWindow(const char *logId);
@@ -44,11 +44,11 @@ public:
     // Implementation of Window, 
     int EventLoop(int maxLoops) override { return 0; } // null implementation, not used
 
-    // Implementation of WindowControl, common to desktop and VR
+    // Implementation of WindowControls, common to desktop and VR
     void Brightness(int percent) override;
 
     // Implementation of PartPainter, common to desktop and VR
-    void RefreshPart(int part, const ImageRectangle* src, const std::vector<Region>& regions) override;
+    void Paint(int part, const FrameBuffer* src, const std::vector<FrameRegion>& regions) override;
 
     // XPlane addition requiring specific implementations for desktop and VR windows
     virtual void Create(std::shared_ptr<CoreServices> core);
@@ -77,7 +77,7 @@ protected:
 
 protected:
     std::shared_ptr<CoreServices> core;
-    std::shared_ptr<Preferences> prefs;
+    std::shared_ptr<Settings> prefs;
     std::unique_ptr<logging::Logger> LOG;
     std::shared_ptr<WindowPart> parts[WindowPart::TOTAL_PARTS];
 

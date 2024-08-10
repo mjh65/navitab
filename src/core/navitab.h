@@ -45,8 +45,8 @@ namespace navitab {
 
 class Navitab : public std::enable_shared_from_this<Navitab>,
                 public CoreServices,
-                public SimulatorEvents,
-                public ToolbarEvents, public ModebarEvents, public DoodlerEvents, public KeypadEvents, public CanvasEvents
+                public Simulator2Core,
+                public Toolbar2Core, public Modebar2Core, public Doodler2Core, public Keypad2Core, public CanvasEvents
 {
 public:
     // Constructing the Navitab object also does enough initialisation to
@@ -59,9 +59,9 @@ public:
     // Implementation of CoreServices
     
     // Interfaces used by simulator and UI window
-    std::shared_ptr<SimulatorEvents> GetSimulatorCallbacks() override;
+    std::shared_ptr<Simulator2Core> GetSimulatorCallbacks() override;
     std::shared_ptr<WindowPart> GetPartCallbacks(int part) override;
-    void SetWindowControl(std::shared_ptr<WindowControl> w) override;
+    void SetWindowControl(std::shared_ptr<WindowControls> w) override;
 
     // Startup and shutdown control - fine-grained enough to support all app classes.
     void Start() override;    // TODO - called from XPluginStart - review this in SDK and Avitab
@@ -70,7 +70,7 @@ public:
     void Stop() override;    // TODO - called from XPluginStop - review this in SDK and Avitab
 
     // access to preferences
-    std::shared_ptr<Preferences> GetPrefsManager() override;
+    std::shared_ptr<Settings> GetPrefsManager() override;
     
     // location of the preferences and log files, as well as any temporary file
     // and cached downloads
@@ -89,19 +89,19 @@ public:
     std::filesystem::path NavitabPath() override;
 
     // ======================================================================
-    // Implementation of SimulatorEvents
-    void onSimFlightLoop(const FlightLoopData& data) override;
+    // Implementation of Simulator2Core
+    void onSimFlightLoop(const SimStateData& data) override;
 
     // ======================================================================
-    // Implementation of ToolbarEvents
+    // Implementation of Toolbar2Core
     void onToolClick(Tool t) override;
 
     // ======================================================================
-    // Implementation of ModebarEvents
+    // Implementation of Modebar2Core
     void onModeSelect(Mode m) override;
 
     // ======================================================================
-    // Implementation of KeypadEvents
+    // Implementation of Keypad2Core
     void onKeypadEvent(int code) override;
 
     // ======================================================================
@@ -109,8 +109,8 @@ public:
     void onFoo() override {}
 
     // ======================================================================
-    // Implementation of Callback (via several other intermediate base classes)
-    void AsyncCall(std::function<void ()>) override;
+    // Implementation of DeferredJobRunner (via several other intermediate base classes)
+    void RunLater(std::function<void ()>) override;
 
 private:
     std::filesystem::path FindDataFilesPath();
@@ -122,9 +122,9 @@ private:
     const SimEngine                     simProduct;
 
     std::unique_ptr<logging::Logger>    LOG;
-    std::shared_ptr<Preferences>        prefs;
+    std::shared_ptr<Settings>        prefs;
 
-    std::shared_ptr<WindowControl>      winCtrl;
+    std::shared_ptr<WindowControls>      winCtrl;
     std::shared_ptr<Toolbar>            toolbar;
     std::shared_ptr<Modebar>            modebar;
     std::shared_ptr<Doodler>            doodler;
@@ -133,7 +133,7 @@ private:
 
     std::filesystem::path               dataFilesPath;
 
-    FlightLoopData                      simState;
+    SimStateData                      simState;
     bool                                running;
     bool                                enabled;
 

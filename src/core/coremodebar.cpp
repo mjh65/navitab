@@ -23,7 +23,7 @@
 
 namespace navitab {
 
-CoreModebar::CoreModebar(std::shared_ptr<ModebarEvents> c)
+CoreModebar::CoreModebar(std::shared_ptr<Modebar2Core> c)
 :   LOG(std::make_unique<logging::Logger>("modebar")),
     core(c)
 {
@@ -43,7 +43,7 @@ void CoreModebar::onResize(int, int)
     // if the modebar is resized then the previous image is just abandoned
     // and a new one is created and scheduled for redrawing
     width = Window::MODEBAR_WIDTH; height = Window::MODEBAR_HEIGHT;
-    image = std::make_unique<ImageRectangle>(width, height);
+    image = std::make_unique<FrameBuffer>(width, height);
     image->Clear(backgroundPixels);
     // this is temporary code during initial development
     for (int i = 1; i < 8; ++i) {
@@ -56,8 +56,8 @@ void CoreModebar::onResize(int, int)
 
     // TODO - generate the basic modebar image
 
-    dirtyBits.push_back(Region(0, 0, width, height));
-    AsyncCall([this]() { Redraw(); });
+    dirtyBits.push_back(FrameRegion(0, 0, width, height));
+    RunLater([this]() { Redraw(); });
 }
 
 void CoreModebar::onMouseEvent(int x, int y, bool l, bool r)

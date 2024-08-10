@@ -23,7 +23,7 @@
 #include <memory>
 #include <functional>
 #include <vector>
-#include "navitab/callback.h"
+#include "navitab/deferred.h"
 #include "navitab/navigation.h"
 
 /*
@@ -36,10 +36,10 @@
 namespace navitab {
 
 struct CoreServices;
-class Preferences;
+class Settings;
 struct Simulator;
 
-struct FlightLoopData
+struct SimStateData
 {
     AircraftPosition    myPlane;
     size_t              nOtherPlanes;
@@ -48,20 +48,20 @@ struct FlightLoopData
     int                 fps;
 };
 
-// The SimulatorEvents interface defines services that the simulator
+// The Simulator2Core interface defines services that the simulator
 // requires from the Navitab core. Calls to these services will generally
 // be from the simulator's thread and should do minimal work.
 
-struct SimulatorEvents : public Callback
+struct Simulator2Core : public DeferredJobRunner
 {
     // Called from the simulator on each flight loop, and provides updates
     // to simulation-derived data. Double-buffered in sim, but not mutex protected.
-    void PostSimUpdates(const FlightLoopData &data) {
-        AsyncCall([this, data]() { onSimFlightLoop(data); });
+    void PostSimUpdates(const SimStateData &data) {
+        RunLater([this, data]() { onSimFlightLoop(data); });
     }
 
 protected:
-    virtual void onSimFlightLoop(const FlightLoopData& data) = 0;
+    virtual void onSimFlightLoop(const SimStateData& data) = 0;
 
 };
 

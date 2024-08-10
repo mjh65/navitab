@@ -18,7 +18,7 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "prefsmgr.h"
+#include "settingsmgr.h"
 #include <nlohmann/json.hpp>
 #include <fmt/core.h>
 #include <fstream>
@@ -31,9 +31,9 @@ namespace navitab {
 
 static const int PREFS_VERSION = 1;
 
-PrefsManager::PrefsManager(std::filesystem::path pf)
-:   prefsFile(pf),
-    prefData(std::make_shared<json>()),
+SettingsManager::SettingsManager(std::filesystem::path pf)
+:   settingsFilePath(pf),
+    settingsJson(std::make_shared<json>()),
     LOG(std::make_unique<logging::Logger>("prefs")),
     saveAtExit(true)
 {
@@ -42,28 +42,28 @@ PrefsManager::PrefsManager(std::filesystem::path pf)
     upgrade();
 }
 
-PrefsManager::~PrefsManager()
+SettingsManager::~SettingsManager()
 {
     if (saveAtExit) save();
-    LOGS("~PrefsManager() done");
+    LOGS("~SettingsManager() done");
 }
 
-const nlohmann::json& PrefsManager::Get(const std::string key)
+const nlohmann::json& SettingsManager::Get(const std::string key)
 {
     std::lock_guard<std::mutex> lock(stateMutex);
     json::json_pointer k(key);
-    auto& v = (*prefData)[k];
+    auto& v = (*settingsJson)[k];
     return v;
 }
 
-void PrefsManager::Put(const std::string key, nlohmann::json& value)
+void SettingsManager::Put(const std::string key, nlohmann::json& value)
 {
     std::lock_guard<std::mutex> lock(stateMutex);
     json::json_pointer k(key);
-    (*prefData)[k] = value;
+    (*settingsJson)[k] = value;
 }
 
-void PrefsManager::init()
+void SettingsManager::init()
 {
     // these are the default preferences, ie anything that's not null, false, or zero.
     // anything in the real preferences file will override entries in here, and
@@ -88,16 +88,16 @@ void PrefsManager::init()
         }
     })";
 
-    *prefData = json::parse(jsonDefault);
+    *settingsJson = json::parse(jsonDefault);
 }
 
-void PrefsManager::load()
+void SettingsManager::load()
 {
     bool fileHasContent = false;
     json filedata;
     try {
         char x;
-        std::ifstream fin(prefsFile);
+        std::ifstream fin(settingsFilePath);
         if (fin >> x) {
             fileHasContent = true;
             fin.clear();
@@ -107,32 +107,32 @@ void PrefsManager::load()
     }
     catch (const std::exception& e) {
         if (fileHasContent) {
-            LOGW(fmt::format("Parsing error in preferences file {}", prefsFile.string()));
+            LOGW(fmt::format("Parsing error in preferences file {}", settingsFilePath.string()));
             LOGW(fmt::format("Default preferences will be used, and any updates will not be saved."));
             saveAtExit = false;
         } else {
-            LOGW(fmt::format("Non-existent or empty preferences file {}", prefsFile.string()));
+            LOGW(fmt::format("Non-existent or empty preferences file {}", settingsFilePath.string()));
             LOGW(fmt::format("Default preferences will be used and saved on exit."));
         }
         return;
     }
     // TODO - use flatten and unflatten to improve the overriding granularity
     for (const auto& i : filedata.items()) {
-        (*prefData)[i.key()] = i.value();
+        (*settingsJson)[i.key()] = i.value();
     }
-    LOGS(fmt::format("Loaded preferences from {}", prefsFile.string()));
+    LOGS(fmt::format("Loaded preferences from {}", settingsFilePath.string()));
 }
 
-void PrefsManager::upgrade()
+void SettingsManager::upgrade()
 {
 }
 
-void PrefsManager::save()
+void SettingsManager::save()
 {
     try {
         // flatten the preferences json and iterate through it to remove
         // any null values that might have crept in.
-        auto flatPrefs = (*prefData).flatten();
+        auto flatPrefs = (*settingsJson).flatten();
         auto i = flatPrefs.begin();
         while (i != flatPrefs.end()) {
             if (i.value().is_null()) {
@@ -142,13 +142,13 @@ void PrefsManager::save()
             }
         }
         // then rebuild the original structure and save it
-        std::ofstream fout(prefsFile);
+        std::ofstream fout(settingsFilePath);
         fout << std::setw(4) << flatPrefs.unflatten();
     }
     catch (const std::exception& e) {
-        LOGW(fmt::format("PrefsManager file {} could not be saved", prefsFile.string()));
+        LOGW(fmt::format("SettingsManager file {} could not be saved", settingsFilePath.string()));
     }
-    LOGS(fmt::format("Saved preferences to {}", prefsFile.string()));
+    LOGS(fmt::format("Saved preferences to {}", settingsFilePath.string()));
 }
 
 } // namespace navitab

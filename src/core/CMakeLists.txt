@@ -22,8 +22,8 @@ target_sources(navitab_core PRIVATE
     logger.cpp
     logmanager.cpp
     logmanager.h
-    prefsmgr.cpp
-    prefsmgr.h
+    settingsmgr.cpp
+    settingsmgr.h
     canvas.cpp
     canvas.h
     coretoolbar.cpp

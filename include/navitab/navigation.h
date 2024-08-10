@@ -20,8 +20,7 @@
 
 #pragma once
 
-// This header file defines abstract interfaces to the main components of
-// Navitab, and a single factory function to make the central core object.
+// This header file defines structures and classes related to navigation.
 
 namespace navitab {
 

@@ -22,25 +22,26 @@
 
 #include <memory>
 #include <functional>
-#include "navitab/callback.h"
+#include "navitab/deferred.h"
 #include "navitab/window.h"
 
-// The Keypad class represents an onscreen keyboard. This is a semi-transparent
-// overlay to the canvas that generates key codes in reponse to mouse-clicks.
-// The keypad can be displayed/hidden through the mode bar.
+// The Keypad class represents an onscreen keyboard. This is a translucent
+// overlay on the canvas that generates key codes in response to mouse-clicks.
+// The keypad can be displayed/hidden through the mode bar, or by the currently
+// running screen if it requires it.
 
 namespace navitab {
 
 struct Window;
 
-// The KeypadEvents interface is how the UI doodle pad implementation provides
-// events to the Navitab core.
+// The Keypad2Core interface is used by the UI keypad to send keyboard codes
+// to the Navitab core for the currently active screen.
 
-struct KeypadEvents : public Callback
+struct Keypad2Core : public DeferredJobRunner
 {
     // UI-triggered events notified to the Navitab core for further handling
     void PostKeypadEvent(int k) {
-        AsyncCall([this, k]() { onKeypadEvent(k); });
+        RunLater([this, k]() { onKeypadEvent(k); });
     }
 
 protected:
@@ -48,7 +49,7 @@ protected:
     virtual void onKeypadEvent(int code) = 0;
 };
 
-// The Keypad interface defines the services that the UI window provides to
+// The Keypad interface defines the services that the UI keypad provides to
 // the Navitab core.
 
 class Keypad : public WindowPart

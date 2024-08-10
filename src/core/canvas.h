@@ -22,6 +22,7 @@
 
 #include "navitab/window.h"
 #include "navitab/logger.h"
+#include "../lvglkit/toolkit.h"
 
  // The Toolbar class represents the toolbar which is drawn across the top
  // of the window. It is a fixed height, and displays some current status
@@ -44,13 +45,14 @@ protected:
 // The Canvas interface defines the services that this part of the UI window
 // provides to the Navitab core.
 
-class Canvas : public WindowPart
+class Canvas : public WindowPart, public lvglkit::Display::Updater
 {
 public:
-    Canvas(std::shared_ptr<CanvasEvents> core);
+    Canvas(std::shared_ptr<CanvasEvents> core, std::shared_ptr<lvglkit::Manager>);
     ~Canvas();
 
-    void Update();
+    // transient function during development, will be removed
+    void UpdateProtoDevelopment();
 
     // Implementation of WindowPart
     void onResize(int width, int height) override;
@@ -61,10 +63,15 @@ public:
     // Implementation of DeferredJobRunner
     void RunLater(std::function<void ()> f) override { core->RunLater(f); }
 
+    // Implementation of lvglkit::Display::Updater
+    void Update(navitab::FrameRegion r, uint32_t* pixels) override;
+
 private:
     const uint32_t backgroundPixels = 0xff00df00;
     std::unique_ptr<logging::Logger> LOG;
     std::shared_ptr<CanvasEvents> core;
+    std::shared_ptr<lvglkit::Manager> uiMgr;
+    std::shared_ptr<lvglkit::Display> uiDisplay;
 };
 
 } // namespace navitab

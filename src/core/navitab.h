@@ -42,6 +42,10 @@
 // instantiate exactly one of these, and destroy it on closure. The class
 // also implements the interface to the simulator.
 
+namespace lvglkit {
+    class Manager;
+}
+
 namespace navitab {
 
 class Navitab : public std::enable_shared_from_this<Navitab>,
@@ -116,6 +120,7 @@ private:
     std::shared_ptr<Doodler>            doodler;
     std::shared_ptr<Keypad>             keypad;
     std::shared_ptr<Canvas>             canvas;
+    std::shared_ptr<lvglkit::Manager>   uiMgr;
 
     SimStateData                        simState;
     bool                                running;

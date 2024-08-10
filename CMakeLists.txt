@@ -104,7 +104,7 @@ add_subdirectory(src)
 add_subdirectory(res)
 
 # Navitab applications, plugins and supporting tools are here
-add_subdirectory(apps)
+add_subdirectory(shells)
 
 # Testing only available if this is the main app
 # Emergency override MODERN_CMAKE_BUILD_TESTING provided as well

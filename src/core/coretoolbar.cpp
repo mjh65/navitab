@@ -23,10 +23,11 @@
 
 namespace navitab {
 
-CoreToolbar::CoreToolbar(std::shared_ptr<Toolbar2Core> c)
+CoreToolbar::CoreToolbar(std::shared_ptr<Toolbar2Core> c, std::shared_ptr<lvglkit::Manager> u)
 :   LOG(std::make_unique<logging::Logger>("toolbar")),
-    core(c)
+    core(c), uiMgr(u)
 {
+    uiDisplay = uiMgr->MakeDisplay();
 }
 
 CoreToolbar::~CoreToolbar()
@@ -50,9 +51,10 @@ void CoreToolbar::SetEnabledTools(int selectMask)
 
 void CoreToolbar::onResize(int w, int)
 {
+    width = w; height = Window::TOOLBAR_HEIGHT;
+
     // if the toolbar is resized then the previous image is just abandoned
     // and a new one is created and scheduled for redrawing
-    width = w; height = Window::TOOLBAR_HEIGHT;
     image = std::make_unique<FrameBuffer>(width, height);
     image->Clear(0xffd0d0d0);
     // this is temporary code during initial development
@@ -64,7 +66,8 @@ void CoreToolbar::onResize(int w, int)
         }
     }
 
-    // TODO - generate the basic toolbar image
+    // the toolbar uses LVGL to draw the text that's displayed across the top
+    uiDisplay->Resize(width, height, image->Row(0));
 
     dirtyBits.push_back(FrameRegion(0, 0, width, height));
     RunLater([this]() { Redraw(); });

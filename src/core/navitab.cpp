@@ -31,6 +31,7 @@
 #include "corekeypad.h"
 #include "canvas.h"
 #include "../platform/paths.h"
+#include "../lvglkit/toolkit.h"
 
 namespace navitab {
 
@@ -145,6 +146,9 @@ void Navitab::Start()
 
     worker = std::make_unique<std::thread>([this]() { AsyncWorker(); });
 
+    uiMgr = std::make_shared<lvglkit::Manager>();
+    assert(uiMgr);
+
     // Create the toolbar, modebar, doodler and keypad. Which implementation
     // depends on the combination of simulator and application type.
 
@@ -158,11 +162,11 @@ void Navitab::Start()
         }
     } else if (simProduct == XPLANE) {
         if (appClass == PLUGIN) {
-            toolbar = std::make_shared<CoreToolbar>(shared_from_this());
+            canvas = std::make_shared<Canvas>(shared_from_this(), uiMgr);
+            toolbar = std::make_shared<CoreToolbar>(shared_from_this(), uiMgr);
             modebar = std::make_shared<CoreModebar>(shared_from_this());
             doodler = std::make_shared<CoreDoodler>(shared_from_this());
             keypad = std::make_shared<CoreKeypad>(shared_from_this());
-            canvas = std::make_shared<Canvas>(shared_from_this());
         } else if (appClass == DESKTOP) {
             UNIMPLEMENTED("XPLANE:DESKTOP");
         } else if (appClass == CONSOLE) {
@@ -172,16 +176,16 @@ void Navitab::Start()
         if (appClass == PLUGIN) {
             UNIMPLEMENTED("MOCK:PLUGIN");
         } else if (appClass == DESKTOP) {
-            toolbar = std::make_shared<CoreToolbar>(shared_from_this());
+            canvas = std::make_shared<Canvas>(shared_from_this(), uiMgr);
+            toolbar = std::make_shared<CoreToolbar>(shared_from_this(), uiMgr);
             modebar = std::make_shared<CoreModebar>(shared_from_this());
             doodler = std::make_shared<CoreDoodler>(shared_from_this());
             keypad = std::make_shared<CoreKeypad>(shared_from_this());
-            canvas = std::make_shared<Canvas>(shared_from_this());
         } else if (appClass == CONSOLE) {
             UNIMPLEMENTED("MOCK:CONSOLE");
         }
     }
-
+    assert(canvas);
     assert(toolbar);
     assert(modebar);
     assert(doodler);
@@ -218,6 +222,12 @@ void Navitab::Stop()
         RunLater([]() {});
         worker->join();
     }
+    canvas.reset();
+    toolbar.reset();
+    modebar.reset();
+    doodler.reset();
+    keypad.reset();
+    uiMgr.reset();
     settings.reset();
 }
 
@@ -237,7 +247,7 @@ void Navitab::onSimFlightLoop(const SimStateData& data)
         LOGD(fmt::format("N:{},E:{}", simState.myPlane.latitude, simState.myPlane.longitude));
     }
 
-    canvas->Update();
+    canvas->UpdateProtoDevelopment();
 }
 
 void Navitab::onToolClick(Tool t)

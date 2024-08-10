@@ -23,18 +23,20 @@
 
 namespace navitab {
 
-Canvas::Canvas(std::shared_ptr<CanvasEvents> c)
+Canvas::Canvas(std::shared_ptr<CanvasEvents> c, std::shared_ptr<lvglkit::Manager> u)
 :   WindowPart(CANVAS),
     LOG(std::make_unique<logging::Logger>("canvas")),
-    core(c)
+    core(c), uiMgr(u)
 {
+    uiDisplay = uiMgr->MakeDisplay();
+    uiDisplay->SetUpdater(this);
 }
 
 Canvas::~Canvas()
 {
 }
 
-void Canvas::Update()
+void Canvas::UpdateProtoDevelopment()
 {
     // TODO - this is just here for development and testing. of course it will get
     // replaced eventually!
@@ -82,8 +84,23 @@ void Canvas::onResize(int w, int h)
     }
     std::swap(image, ni);
     width = w; height = h;
+
+    // The canvas image is created by the LVGL UI, so 
+    uiDisplay->Resize(w, h, image->Row(0));
+
     dirtyBits.push_back(FrameRegion(0, 0, width, height));
     RunLater([this]() { Redraw(); });
+}
+
+void Canvas::Update(navitab::FrameRegion r, uint32_t* pixels)
+{
+    // this is the update function called from the LVGL library
+    // TODO - as we're using LV_DISP_RENDER_MODE_DIRECT, there is probably not much to be done
+    // maybe just post the region to the dirtyBits and redraw?
+    UNIMPLEMENTED(__func__);
+    dirtyBits.push_back(r);
+    RunLater([this]() { Redraw(); });
+
 }
 
 void Canvas::onMouseEvent(int x, int y, bool l, bool r)

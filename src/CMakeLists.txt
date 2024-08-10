@@ -71,6 +71,9 @@ if(XPLANE_SDK)
         XPLM400 XPLM303 XPLM301 XPLM300 XPLM210 XPLM200
         APL=$<BOOL:${APPLE}> IBM=$<BOOL:${WIN32}> LIN=$<AND:$<BOOL:${UNIX}>,$<NOT:$<BOOL:${APPLE}>>>
     )
+    if(APPLE)
+        target_compile_definitions(navitab_sim_xp PRIVATE GL_SILENCE_DEPRECATION)
+    endif()
     target_link_libraries(navitab_sim_xp PRIVATE navitab_core)
 endif()
 

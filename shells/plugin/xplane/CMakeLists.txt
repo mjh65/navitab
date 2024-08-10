@@ -39,7 +39,7 @@ elseif(APPLE)
     target_link_options(xplane_plugin PRIVATE
         "-F${XPLANE_SDK}/Libraries/Mac"
         -framework XPLM
-        #-framework OpenGL
+        "-framework OpenGL"
     )
     target_link_libraries(xplane_plugin
         navitab_core

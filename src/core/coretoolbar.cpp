@@ -27,7 +27,7 @@ CoreToolbar::CoreToolbar(std::shared_ptr<Toolbar2Core> c, std::shared_ptr<lvglki
 :   LOG(std::make_unique<logging::Logger>("toolbar")),
     core(c), uiMgr(u)
 {
-    uiDisplay = uiMgr->MakeDisplay();
+    uiDisplay = uiMgr->MakeDisplay(this);
 }
 
 CoreToolbar::~CoreToolbar()
@@ -76,6 +76,16 @@ void CoreToolbar::onResize(int w, int)
 void CoreToolbar::onMouseEvent(int x, int y, bool l, bool r)
 {
     UNIMPLEMENTED(__func__);
+}
+
+void CoreToolbar::Update(navitab::FrameRegion r, uint32_t* pixels)
+{
+    // this is the update function called from the LVGL library
+    // TODO - as we're using LV_DISP_RENDER_MODE_DIRECT, there is probably not much to be done
+    // maybe just post the region to the dirtyBits and redraw?
+    UNIMPLEMENTED(__func__);
+    dirtyBits.push_back(r);
+    RunLater([this]() { Redraw(); });
 }
 
 } // namespace navitab

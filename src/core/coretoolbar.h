@@ -30,7 +30,7 @@ namespace navitab {
 // of the window. It regenerates an ImageRect whenever some part of it changes
 // and provides this to the window to draw.
     
-class CoreToolbar : public Toolbar
+class CoreToolbar : public Toolbar, public lvglkit::Display::Updater
 {
 public:
     CoreToolbar(std::shared_ptr<Toolbar2Core> core, std::shared_ptr<lvglkit::Manager>);
@@ -49,7 +49,10 @@ protected:
     void onKeyEvent(int code) override {}
 
     // Implementation of DeferredJobRunner
-    void RunLater(std::function<void ()> f) override { core->RunLater(f); }
+    void RunLater(std::function<void ()> f, void* s = nullptr) override { core->RunLater(f); }
+
+    // Implementation of lvglkit::Display::Updater
+    void Update(navitab::FrameRegion r, uint32_t* pixels) override;
 
 private:
     const uint32_t backgroundPixels = 0xffd0d0d0;

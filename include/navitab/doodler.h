@@ -33,7 +33,7 @@ namespace navitab {
 
 struct Window;
 
-struct Doodler2Core : public DeferredJobRunner
+struct Doodler2Core : public DeferredJobRunner<>
 {
     // The doodler doesn't really interact much with the rest of Navitab, so there's
     // nothing in here. But it is needed to extend the DeferredJobRunner.

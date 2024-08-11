@@ -31,7 +31,7 @@
 
 namespace navitab {
 
-struct CanvasEvents : public DeferredJobRunner
+struct CanvasEvents : public DeferredJobRunner<>
 {
     void PostFoo() {
         RunLater([this]() { onFoo(); });
@@ -61,7 +61,7 @@ public:
     void onKeyEvent(int code) override;
 
     // Implementation of DeferredJobRunner
-    void RunLater(std::function<void ()> f) override { core->RunLater(f); }
+    void RunLater(std::function<void ()> f, void* s = nullptr) override { core->RunLater(f); }
 
     // Implementation of lvglkit::Display::Updater
     void Update(navitab::FrameRegion r, uint32_t* pixels) override;

@@ -22,6 +22,7 @@
 
 #include "navitab/modebar.h"
 #include "navitab/logger.h"
+#include "../lvglkit/toolkit.h"
 
 namespace navitab {
 
@@ -29,10 +30,10 @@ namespace navitab {
 // of the window. It regenerates an ImageRect whenever some part of it changes
 // and provides this to the window to draw.
     
-class CoreModebar : public Modebar
+class CoreModebar : public Modebar, public lvglkit::Display::Updater
 {
 public:
-    CoreModebar(std::shared_ptr<Modebar2Core> core);
+    CoreModebar(std::shared_ptr<Modebar2Core> core, std::shared_ptr<lvglkit::Manager>);
     ~CoreModebar();
 
     // APIs called from the Navitab core
@@ -46,12 +47,17 @@ protected:
     void onKeyEvent(int code) override {}
 
     // Implementation of DeferredJobRunner
-    void RunLater(std::function<void ()> f) override { core->RunLater(f); }
+    void RunLater(std::function<void ()> f, void* s = nullptr) override { core->RunLater(f); }
+
+    // Implementation of lvglkit::Display::Updater
+    void Update(navitab::FrameRegion r, uint32_t* pixels) override;
 
 private:
     const uint32_t backgroundPixels = 0x400000ff;
     std::unique_ptr<logging::Logger> LOG;
     std::shared_ptr<Modebar2Core> core;
+    std::shared_ptr<lvglkit::Manager> uiMgr;
+    std::shared_ptr<lvglkit::Display> uiDisplay;
 
 };
 

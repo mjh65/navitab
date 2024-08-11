@@ -28,18 +28,19 @@ namespace lvglkit {
 class DisplayWrapper : public Display, protected RefCounter
 {
 public:
-    DisplayWrapper();
+    DisplayWrapper(Updater*);
     ~DisplayWrapper();
 
-    void FlushCallback(const lv_area_t* area, uint32_t* px);
-    void SetUpdater(Updater*) override;
     void Resize(int w, int h, uint32_t* buffer) override;
+    void DevTesting() override;
+
+    void FlushCallback(const lv_area_t* area, uint32_t* px);
 
 private:
+    Updater* const updater;
     lv_display_t* display;
     int width, height;
     uint32_t* buffer;
-    Updater* updater;
 };
 
 

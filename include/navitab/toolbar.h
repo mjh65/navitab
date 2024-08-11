@@ -37,7 +37,7 @@ struct Window;
 // The Toolbar2Core interface is used by the UI's toolbar to send user tool
 // clicks to the Navitab core for the currently active screen.
 
-struct Toolbar2Core : public DeferredJobRunner
+struct Toolbar2Core : public DeferredJobRunner<>
 {
     // UI-triggered events notified to the Navitab core for further handling
 

@@ -52,7 +52,7 @@ struct SimStateData
 // requires from the Navitab core. Calls to these services will generally
 // be from the simulator's thread and should do minimal work.
 
-struct Simulator2Core : public DeferredJobRunner
+struct Simulator2Core : public DeferredJobRunner<>
 {
     // Called from the simulator on each flight loop, and provides updates
     // to simulation-derived data. Double-buffered in sim, but not mutex protected.

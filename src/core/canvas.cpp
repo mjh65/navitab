@@ -28,8 +28,7 @@ Canvas::Canvas(std::shared_ptr<CanvasEvents> c, std::shared_ptr<lvglkit::Manager
     LOG(std::make_unique<logging::Logger>("canvas")),
     core(c), uiMgr(u)
 {
-    uiDisplay = uiMgr->MakeDisplay();
-    uiDisplay->SetUpdater(this);
+    uiDisplay = uiMgr->MakeDisplay(this);
 }
 
 Canvas::~Canvas()
@@ -41,6 +40,7 @@ void Canvas::UpdateProtoDevelopment()
     // TODO - this is just here for development and testing. of course it will get
     // replaced eventually!
     if (!image) return;
+    uiDisplay->DevTesting();
     // write random pixels
     for (int i = 0; i < 16; ++i) {
         auto y = rand() % height;
@@ -100,7 +100,6 @@ void Canvas::Update(navitab::FrameRegion r, uint32_t* pixels)
     UNIMPLEMENTED(__func__);
     dirtyBits.push_back(r);
     RunLater([this]() { Redraw(); });
-
 }
 
 void Canvas::onMouseEvent(int x, int y, bool l, bool r)

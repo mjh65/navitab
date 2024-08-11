@@ -51,6 +51,7 @@ namespace navitab {
 class Navitab : public std::enable_shared_from_this<Navitab>,
                 public CoreServices,
                 public Simulator2Core,
+                public DeferredJobRunner<int>,
                 public Toolbar2Core, public Modebar2Core, public Doodler2Core, public Keypad2Core, public CanvasEvents
 {
 public:
@@ -100,7 +101,8 @@ public:
 
     // ======================================================================
     // Implementation of DeferredJobRunner (via several other intermediate base classes)
-    void RunLater(std::function<void ()>) override;
+    void RunLater(std::function<void ()>, void* s = nullptr) override;
+    void RunLater(std::function<void ()>, int* s = nullptr) override;
 
 private:
     void AsyncWorker();

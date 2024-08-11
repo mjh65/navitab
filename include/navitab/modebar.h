@@ -37,7 +37,7 @@ struct Window;
 // The Modebar2Core interface is used by the UI's modebar to post updates to
 // the Navitab core.
 
-struct Modebar2Core : public DeferredJobRunner
+struct Modebar2Core : public DeferredJobRunner<>
 {
     // UI-triggered events notified to the Navitab core for further handling
 

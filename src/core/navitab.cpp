@@ -146,7 +146,7 @@ void Navitab::Start()
 
     worker = std::make_unique<std::thread>([this]() { AsyncWorker(); });
 
-    uiMgr = std::make_shared<lvglkit::Manager>();
+    uiMgr = std::make_shared<lvglkit::Manager>(std::static_pointer_cast<DeferredJobRunner<int>>(shared_from_this()));
     assert(uiMgr);
 
     // Create the toolbar, modebar, doodler and keypad. Which implementation
@@ -164,7 +164,7 @@ void Navitab::Start()
         if (appClass == PLUGIN) {
             canvas = std::make_shared<Canvas>(shared_from_this(), uiMgr);
             toolbar = std::make_shared<CoreToolbar>(shared_from_this(), uiMgr);
-            modebar = std::make_shared<CoreModebar>(shared_from_this());
+            modebar = std::make_shared<CoreModebar>(shared_from_this(), uiMgr);
             doodler = std::make_shared<CoreDoodler>(shared_from_this());
             keypad = std::make_shared<CoreKeypad>(shared_from_this());
         } else if (appClass == DESKTOP) {
@@ -178,7 +178,7 @@ void Navitab::Start()
         } else if (appClass == DESKTOP) {
             canvas = std::make_shared<Canvas>(shared_from_this(), uiMgr);
             toolbar = std::make_shared<CoreToolbar>(shared_from_this(), uiMgr);
-            modebar = std::make_shared<CoreModebar>(shared_from_this());
+            modebar = std::make_shared<CoreModebar>(shared_from_this(), uiMgr);
             doodler = std::make_shared<CoreDoodler>(shared_from_this());
             keypad = std::make_shared<CoreKeypad>(shared_from_this());
         } else if (appClass == CONSOLE) {
@@ -226,13 +226,16 @@ void Navitab::Stop()
     settings.reset();
     if (running) {
         running = false;
-        RunLater([]() {}); // trigger the work loop with a null job
+        int a;
+        RunLater([]() {}, &a); // trigger the work loop with a null job
         worker->join();
     }
 }
 
 void Navitab::onSimFlightLoop(const SimStateData& data)
 {
+    if (!enabled) return;
+
     auto prevZulu = simState.zuluTime;
     simState = data;
 
@@ -245,9 +248,13 @@ void Navitab::onSimFlightLoop(const SimStateData& data)
         toolbar->SetFrameRate(simState.fps);
         LOGD(fmt::format("Z:{}:{}:{}, FPS:{}", h, m, s, simState.fps));
         LOGD(fmt::format("N:{},E:{}", simState.myPlane.latitude, simState.myPlane.longitude));
+
+        // test code only - change the background in the canvas via LVGL
+
+
     }
 
-    canvas->UpdateProtoDevelopment();
+    canvas->UpdateProtoDevelopment(); // TODO - remove this once we have LVGL installed
 }
 
 void Navitab::onToolClick(Tool t)
@@ -265,7 +272,16 @@ void Navitab::onKeypadEvent(int code)
     UNIMPLEMENTED(__func__);
 }
 
-void Navitab::RunLater(std::function<void()> j)
+void Navitab::RunLater(std::function<void()> j, void*)
+{
+    {
+        std::lock_guard<std::mutex> lock(qmutex);
+        jobs.push(j);
+    }
+    qsync.notify_one();
+}
+
+void Navitab::RunLater(std::function<void()> j, int*)
 {
     {
         std::lock_guard<std::mutex> lock(qmutex);

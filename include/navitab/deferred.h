@@ -32,10 +32,11 @@ namespace navitab {
  * threads when delivering events (ie from window UI or simulator), or to
  * split execution into smaller chunks for convenience.
  */
+template<class SIGNATURE = void>
 struct DeferredJobRunner
 {
     // Callbacks are wrapped in RunLater() to avoid stalling the UI.
-    virtual void RunLater(std::function<void ()>) = 0;
+    virtual void RunLater(std::function<void ()>, SIGNATURE*s = nullptr) = 0;
 };
 
 

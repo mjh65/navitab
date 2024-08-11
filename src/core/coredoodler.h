@@ -47,7 +47,7 @@ protected:
     void onKeyEvent(int code) override;
 
     // Implementation of DeferredJobRunner
-    void RunLater(std::function<void ()> f) override { core->RunLater(f); }
+    void RunLater(std::function<void ()> f, void* s = nullptr) override { core->RunLater(f); }
 
 private:
     const uint32_t backgroundPixels = 0x10000000;

@@ -139,7 +139,7 @@ private:
 // Each window part (toolbar, modebar, canvas, doodler, keypad) implements
 // this interface so that the window manager can pass on UI events of interest.
 
-class WindowPart : public DeferredJobRunner
+class WindowPart : public DeferredJobRunner<>
 {
 public:
     enum {

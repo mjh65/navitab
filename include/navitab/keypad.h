@@ -37,7 +37,7 @@ struct Window;
 // The Keypad2Core interface is used by the UI keypad to send keyboard codes
 // to the Navitab core for the currently active screen.
 
-struct Keypad2Core : public DeferredJobRunner
+struct Keypad2Core : public DeferredJobRunner<>
 {
     // UI-triggered events notified to the Navitab core for further handling
     void PostKeypadEvent(int k) {

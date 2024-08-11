@@ -23,10 +23,11 @@
 
 namespace navitab {
 
-CoreModebar::CoreModebar(std::shared_ptr<Modebar2Core> c)
+CoreModebar::CoreModebar(std::shared_ptr<Modebar2Core> c, std::shared_ptr<lvglkit::Manager> u)
 :   LOG(std::make_unique<logging::Logger>("modebar")),
-    core(c)
+    core(c), uiMgr(u)
 {
+    uiDisplay = uiMgr->MakeDisplay(this);
 }
 
 CoreModebar::~CoreModebar()
@@ -63,6 +64,16 @@ void CoreModebar::onResize(int, int)
 void CoreModebar::onMouseEvent(int x, int y, bool l, bool r)
 {
     UNIMPLEMENTED(__func__);
+}
+
+void CoreModebar::Update(navitab::FrameRegion r, uint32_t* pixels)
+{
+    // this is the update function called from the LVGL library
+    // TODO - as we're using LV_DISP_RENDER_MODE_DIRECT, there is probably not much to be done
+    // maybe just post the region to the dirtyBits and redraw?
+    UNIMPLEMENTED(__func__);
+    dirtyBits.push_back(r);
+    RunLater([this]() { Redraw(); });
 }
 
 } // namespace navitab

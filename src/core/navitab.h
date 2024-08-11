@@ -64,8 +64,8 @@ public:
     // Implementation of CoreServices
     
     // access to platform and settings
-    std::shared_ptr<PathServices> GetPathService() { return paths; }
-    std::shared_ptr<Settings> GetSettingsManager() { return settings; }
+    std::shared_ptr<PathServices> GetPathService() override { return paths; }
+    std::shared_ptr<Settings> GetSettingsManager() override { return settings; }
 
     // Interfaces used by simulator and UI window
     std::shared_ptr<Simulator2Core> GetSimulatorCallbacks() override;

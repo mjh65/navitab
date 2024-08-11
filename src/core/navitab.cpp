@@ -217,11 +217,6 @@ void Navitab::Stop()
     // This is called during X-Plane plugin stop
     // Avitab also calls curl_global_cleanup(), so we need to not forget that 
     // Need to review SDK docs and Avitab.
-    if (running) {
-        running = false;
-        RunLater([]() {});
-        worker->join();
-    }
     canvas.reset();
     toolbar.reset();
     modebar.reset();
@@ -229,6 +224,11 @@ void Navitab::Stop()
     keypad.reset();
     uiMgr.reset();
     settings.reset();
+    if (running) {
+        running = false;
+        RunLater([]() {}); // trigger the work loop with a null job
+        worker->join();
+    }
 }
 
 void Navitab::onSimFlightLoop(const SimStateData& data)

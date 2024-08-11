@@ -71,7 +71,7 @@ struct WindowControls
 struct Window
 {
     enum {
-        TOOLBAR_HEIGHT = 32,
+        TOOLBAR_HEIGHT = 24,
         MODEBAR_WIDTH = 40,
         MODEBAR_HEIGHT = MODEBAR_WIDTH * 8, // 8 mode selectors
         KEYPAD_HEIGHT = 200,

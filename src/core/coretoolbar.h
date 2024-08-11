@@ -63,8 +63,7 @@ private:
     std::shared_ptr<Toolbar2Core>  core;
     std::shared_ptr<lvglkit::Manager> uiMgr;
     std::shared_ptr<lvglkit::Display> uiDisplay;
-    lv_obj_t* label;
-    std::string currentInfo;
+    lv_obj_t* statusInfoText;
 
 };
 

@@ -27,7 +27,7 @@ namespace navitab {
 CoreToolbar::CoreToolbar(std::shared_ptr<Toolbar2Core> c, std::shared_ptr<lvglkit::Manager> u)
 :   LOG(std::make_unique<logging::Logger>("toolbar")),
     core(c), uiMgr(u),
-    label(0)
+    statusInfoText(0)
 {
     uiDisplay = uiMgr->MakeDisplay(this);
 }
@@ -38,7 +38,7 @@ CoreToolbar::~CoreToolbar()
 
 void CoreToolbar::SetStausInfo(std::string s)
 {
-    lv_label_set_text(label, s.c_str());
+    lv_label_set_text(statusInfoText, s.c_str());
 }
 
 void CoreToolbar::SetEnabledTools(int selectMask)
@@ -55,7 +55,7 @@ void CoreToolbar::onResize(int w, int)
     // widgets are created (using raw LVGL API - no wrappers!)
     image = std::make_unique<FrameBuffer>(width, height);
     uiDisplay->Resize(width, height, image->Row(0));
-    if (!label) {
+    if (!statusInfoText) {
         CreateWidgets();
     }
 }
@@ -77,14 +77,34 @@ void CoreToolbar::CreateWidgets()
 {
     lv_display_set_default(uiDisplay->GetHandleLVGL());
 
-    /*Change the active screen's background color*/
+    // Change the background colour
     lv_obj_set_style_bg_color(lv_screen_active(), lv_color_hex(backgroundPixels), LV_PART_MAIN);
 
-    /*Create a white label, set its text and align it to the center*/
-    label = lv_label_create(lv_screen_active());
-    lv_label_set_text(label, "Hello world");
+    // Create the status info text widget
+    statusInfoText = lv_label_create(lv_screen_active());
+    lv_label_set_text(statusInfoText, "Hello world");
     lv_obj_set_style_text_color(lv_screen_active(), lv_color_hex(0xffffff), LV_PART_MAIN);
-    lv_obj_align(label, LV_ALIGN_LEFT_MID, 10, 0);
+    lv_obj_align(statusInfoText, LV_ALIGN_LEFT_MID, 6, 0);
+
+    // Create the toolbar image buttons
+    // TODO create our own images - will be reused in MSFS panel
+    // TODO use the LVGL alignment grid
+    lv_obj_t* img1 = lv_image_create(lv_screen_active());
+    lv_image_set_src(img1, LV_SYMBOL_OK);
+    lv_obj_align(img1, LV_ALIGN_RIGHT_MID, -6, 0);
+
+    lv_obj_t* img2 = lv_image_create(lv_screen_active());
+    lv_image_set_src(img2, LV_SYMBOL_CLOSE);
+    lv_obj_align(img2, LV_ALIGN_RIGHT_MID, -30, 0);
+
+    lv_obj_t* img3 = lv_image_create(lv_screen_active());
+    lv_image_set_src(img3, LV_SYMBOL_PLUS);
+    lv_obj_align(img3, LV_ALIGN_RIGHT_MID, -54, 0);
+
+    lv_obj_t* img4 = lv_image_create(lv_screen_active());
+    lv_image_set_src(img4, LV_SYMBOL_MINUS);
+    lv_obj_align(img4, LV_ALIGN_RIGHT_MID, -78, 0);
+
 }
 
 } // namespace navitab

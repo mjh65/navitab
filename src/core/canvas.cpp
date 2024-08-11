@@ -40,7 +40,6 @@ void Canvas::UpdateProtoDevelopment()
     // TODO - this is just here for development and testing. of course it will get
     // replaced eventually!
     if (!image) return;
-    uiDisplay->DevTesting();
     // write random pixels
     for (int i = 0; i < 16; ++i) {
         auto y = rand() % height;

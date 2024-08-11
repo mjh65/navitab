@@ -236,22 +236,20 @@ void Navitab::onSimFlightLoop(const SimStateData& data)
 {
     if (!enabled) return;
 
-    auto prevZulu = simState.zuluTime;
     simState = data;
-
-    // only update the toolbar display each second (TODO: use wallclock for this, in case sim pause stops ZT incrementing)
-    if (simState.zuluTime != prevZulu) {
+    auto now = navitab::LocalTime("%H:%M:%S");
+    if (toolbarStatus.find(now) != 0) {
+        // local time has changed, so recreate the toolbarStatus string
+        toolbarStatus = now;
         int s = simState.zuluTime;
         int h = s / (60 * 60); s -= (h * 60 * 60);
         int m = s / 60; s -= (m * 60);
-        toolbar->SetSimZuluTime(h, m, s);
-        toolbar->SetFrameRate(simState.fps);
+        toolbarStatus += fmt::format(" | {:02}:{:02}:{:02}Z", h, m, s);
+        toolbarStatus += fmt::format(" | {}fps", simState.fps);
+        toolbarStatus += fmt::format(" | {:+.3f},{:+.3f}", simState.myPlane.latitude, simState.myPlane.longitude);
+        toolbar->SetStausInfo(toolbarStatus);
         LOGD(fmt::format("Z:{}:{}:{}, FPS:{}", h, m, s, simState.fps));
         LOGD(fmt::format("N:{},E:{}", simState.myPlane.latitude, simState.myPlane.longitude));
-
-        // test code only - change the background in the canvas via LVGL
-
-
     }
 
     canvas->UpdateProtoDevelopment(); // TODO - remove this once we have LVGL installed
@@ -283,11 +281,8 @@ void Navitab::RunLater(std::function<void()> j, void*)
 
 void Navitab::RunLater(std::function<void()> j, int*)
 {
-    {
-        std::lock_guard<std::mutex> lock(qmutex);
-        jobs.push(j);
-    }
-    qsync.notify_one();
+    void* x = nullptr;
+    RunLater(j,x);
 }
 
 void Navitab::AsyncWorker()

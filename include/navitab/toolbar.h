@@ -71,8 +71,7 @@ public:
     virtual ~Toolbar() = default;
 
     // APIs called from the Navitab core
-    virtual void SetFrameRate(int fps) = 0;
-    virtual void SetSimZuluTime(int h, int m, int s) = 0;
+    virtual void SetStausInfo(std::string s) = 0;
     virtual void SetEnabledTools(int selectMask) = 0;
 };
 

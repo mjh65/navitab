@@ -18,6 +18,7 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <fmt/core.h>
 #include "coretoolbar.h"
 #include "navitab.h"
 
@@ -25,7 +26,8 @@ namespace navitab {
 
 CoreToolbar::CoreToolbar(std::shared_ptr<Toolbar2Core> c, std::shared_ptr<lvglkit::Manager> u)
 :   LOG(std::make_unique<logging::Logger>("toolbar")),
-    core(c), uiMgr(u)
+    core(c), uiMgr(u),
+    label(0)
 {
     uiDisplay = uiMgr->MakeDisplay(this);
 }
@@ -34,14 +36,9 @@ CoreToolbar::~CoreToolbar()
 {
 }
 
-void CoreToolbar::SetSimZuluTime(int h, int m, int s)
+void CoreToolbar::SetStausInfo(std::string s)
 {
-    UNIMPLEMENTED(__func__);
-}
-
-void CoreToolbar::SetFrameRate(int fps)
-{
-    UNIMPLEMENTED(__func__);
+    lv_label_set_text(label, s.c_str());
 }
 
 void CoreToolbar::SetEnabledTools(int selectMask)
@@ -53,24 +50,14 @@ void CoreToolbar::onResize(int w, int)
 {
     width = w; height = Window::TOOLBAR_HEIGHT;
 
-    // if the toolbar is resized then the previous image is just abandoned
-    // and a new one is created and scheduled for redrawing
+    // If the toolbar is resized then the previous image is just abandoned
+    // and a new one is created. On the first resize notification the UI
+    // widgets are created (using raw LVGL API - no wrappers!)
     image = std::make_unique<FrameBuffer>(width, height);
-    image->Clear(0xffd0d0d0);
-    // this is temporary code during initial development
-    for (int y = 0; y < Window::TOOLBAR_HEIGHT; ++y) {
-        auto r = image->Row(y);
-        for (int i = 1; i < 10; ++i) {
-            auto x = (width - (i * Window::TOOLBAR_HEIGHT));
-            *(r + x) = 0xff00ff00;
-        }
-    }
-
-    // the toolbar uses LVGL to draw the text that's displayed across the top
     uiDisplay->Resize(width, height, image->Row(0));
-
-    dirtyBits.push_back(FrameRegion(0, 0, width, height));
-    RunLater([this]() { Redraw(); });
+    if (!label) {
+        CreateWidgets();
+    }
 }
 
 void CoreToolbar::onMouseEvent(int x, int y, bool l, bool r)
@@ -81,11 +68,23 @@ void CoreToolbar::onMouseEvent(int x, int y, bool l, bool r)
 void CoreToolbar::Update(navitab::FrameRegion r, uint32_t* pixels)
 {
     // this is the update function called from the LVGL library
-    // TODO - as we're using LV_DISP_RENDER_MODE_DIRECT, there is probably not much to be done
-    // maybe just post the region to the dirtyBits and redraw?
     UNIMPLEMENTED(__func__);
     dirtyBits.push_back(r);
     RunLater([this]() { Redraw(); });
+}
+
+void CoreToolbar::CreateWidgets()
+{
+    lv_display_set_default(uiDisplay->GetHandleLVGL());
+
+    /*Change the active screen's background color*/
+    lv_obj_set_style_bg_color(lv_screen_active(), lv_color_hex(backgroundPixels), LV_PART_MAIN);
+
+    /*Create a white label, set its text and align it to the center*/
+    label = lv_label_create(lv_screen_active());
+    lv_label_set_text(label, "Hello world");
+    lv_obj_set_style_text_color(lv_screen_active(), lv_color_hex(0xffffff), LV_PART_MAIN);
+    lv_obj_align(label, LV_ALIGN_LEFT_MID, 10, 0);
 }
 
 } // namespace navitab

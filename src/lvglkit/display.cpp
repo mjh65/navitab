@@ -70,22 +70,4 @@ void DisplayWrapper::Resize(int w, int h, uint32_t* buffer)
     lv_display_set_buffers(display, buffer, nullptr, w * h * sizeof(uint32_t), LV_DISP_RENDER_MODE_DIRECT);
 }
 
-void DisplayWrapper::DevTesting()
-{
-    static bool done = false;
-    if (done) return;
-    done = true;
-
-    lv_display_set_default(display);
-
-    /*Change the active screen's background color*/
-    lv_obj_set_style_bg_color(lv_screen_active(), lv_color_hex(0xff00df90), LV_PART_MAIN);
-
-    /*Create a white label, set its text and align it to the center*/
-    lv_obj_t* label = lv_label_create(lv_screen_active());
-    lv_label_set_text(label, "Hello world");
-    lv_obj_set_style_text_color(lv_screen_active(), lv_color_hex(0xffffff), LV_PART_MAIN);
-    lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
-}
-
 } // namespace lvglkit

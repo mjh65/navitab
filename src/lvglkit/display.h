@@ -32,7 +32,7 @@ public:
     ~DisplayWrapper();
 
     void Resize(int w, int h, uint32_t* buffer) override;
-    void DevTesting() override;
+    lv_display_t* GetHandleLVGL() override { return display; }
 
     void FlushCallback(const lv_area_t* area, uint32_t* px);
 

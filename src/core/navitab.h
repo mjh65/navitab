@@ -124,9 +124,10 @@ private:
     std::shared_ptr<Canvas>             canvas;
     std::shared_ptr<lvglkit::Manager>   uiMgr;
 
-    SimStateData                        simState;
     bool                                running;
     bool                                enabled;
+    SimStateData                        simState;
+    std::string                         toolbarStatus;
 
     std::unique_ptr<std::thread>        worker;
     std::queue<std::function<void()>>   jobs;

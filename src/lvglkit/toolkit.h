@@ -24,6 +24,7 @@
 #include <functional>
 #include <thread>
 #include <mutex>
+#include <lvgl.h>
 #include "navitab/deferred.h"
 
 namespace navitab {
@@ -41,7 +42,7 @@ public:
         virtual void Update(navitab::FrameRegion r, uint32_t* pixels) = 0;
     };
     virtual void Resize(int w, int h, uint32_t* buffer) = 0;
-    virtual void DevTesting() = 0;
+    virtual lv_display_t* GetHandleLVGL() = 0;
 };
 
 // RefCounter is used to ensure all LVGL resources have been deleted before

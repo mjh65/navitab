@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include <lvgl.h>
 #include "navitab/toolbar.h"
 #include "navitab/logger.h"
 #include "../lvglkit/toolkit.h"
@@ -37,8 +38,7 @@ public:
     ~CoreToolbar();
 
     // APIs called from the Navitab core (sync call OK)
-    void SetSimZuluTime(int h, int m, int s) override;
-    void SetFrameRate(int fps) override;
+    void SetStausInfo(std::string s) override;
     void SetEnabledTools(int selectMask) override;
 
 protected:
@@ -55,11 +55,16 @@ protected:
     void Update(navitab::FrameRegion r, uint32_t* pixels) override;
 
 private:
+    void CreateWidgets();
+
+private:
     const uint32_t backgroundPixels = 0xffd0d0d0;
     std::unique_ptr<logging::Logger> LOG;
     std::shared_ptr<Toolbar2Core>  core;
     std::shared_ptr<lvglkit::Manager> uiMgr;
     std::shared_ptr<lvglkit::Display> uiDisplay;
+    lv_obj_t* label;
+    std::string currentInfo;
 
 };
 

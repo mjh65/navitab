@@ -58,12 +58,12 @@ private:
     void CreateWidgets();
 
 private:
-    const uint32_t backgroundPixels = 0xffd0d0d0;
+    const uint32_t backgroundPixels = 0xff909090;
     std::unique_ptr<logging::Logger> LOG;
     std::shared_ptr<Toolbar2Core>  core;
     std::shared_ptr<lvglkit::Manager> uiMgr;
     std::shared_ptr<lvglkit::Display> uiDisplay;
-    lv_obj_t* statusInfoText;
+    lv_obj_t* lvhStatusInfo;
 
 };
 

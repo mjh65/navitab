@@ -27,7 +27,7 @@ namespace navitab {
 CoreToolbar::CoreToolbar(std::shared_ptr<Toolbar2Core> c, std::shared_ptr<lvglkit::Manager> u)
 :   LOG(std::make_unique<logging::Logger>("toolbar")),
     core(c), uiMgr(u),
-    statusInfoText(0)
+    lvhStatusInfo(0)
 {
     uiDisplay = uiMgr->MakeDisplay(this);
 }
@@ -38,7 +38,8 @@ CoreToolbar::~CoreToolbar()
 
 void CoreToolbar::SetStausInfo(std::string s)
 {
-    lv_label_set_text(statusInfoText, s.c_str());
+    LOGD(fmt::format("CoreToolbar::SetStausInfo({})", s));
+    lv_label_set_text(lvhStatusInfo, s.c_str());
 }
 
 void CoreToolbar::SetEnabledTools(int selectMask)
@@ -46,8 +47,9 @@ void CoreToolbar::SetEnabledTools(int selectMask)
     UNIMPLEMENTED(__func__);
 }
 
-void CoreToolbar::onResize(int w, int)
+void CoreToolbar::onResize(int w, int h)
 {
+    LOGD(fmt::format("CoreToolbar::onResize({},{})", w, h));
     width = w; height = Window::TOOLBAR_HEIGHT;
 
     // If the toolbar is resized then the previous image is just abandoned
@@ -55,9 +57,11 @@ void CoreToolbar::onResize(int w, int)
     // widgets are created (using raw LVGL API - no wrappers!)
     image = std::make_unique<FrameBuffer>(width, height);
     uiDisplay->Resize(width, height, image->Row(0));
-    if (!statusInfoText) {
+    if (!lvhStatusInfo) {
         CreateWidgets();
     }
+    lv_display_set_default(uiDisplay->GetHandleLVGL());
+    lv_obj_invalidate(lv_screen_active());
 }
 
 void CoreToolbar::onMouseEvent(int x, int y, bool l, bool r)
@@ -68,7 +72,7 @@ void CoreToolbar::onMouseEvent(int x, int y, bool l, bool r)
 void CoreToolbar::Update(navitab::FrameRegion r, uint32_t* pixels)
 {
     // this is the update function called from the LVGL library
-    UNIMPLEMENTED(__func__);
+    LOGD(fmt::format("CoreToolbar::Update({},{}->{},{})", r.left, r.top, r.right, r.bottom));
     dirtyBits.push_back(r);
     RunLater([this]() { Redraw(); });
 }
@@ -81,10 +85,10 @@ void CoreToolbar::CreateWidgets()
     lv_obj_set_style_bg_color(lv_screen_active(), lv_color_hex(backgroundPixels), LV_PART_MAIN);
 
     // Create the status info text widget
-    statusInfoText = lv_label_create(lv_screen_active());
-    lv_label_set_text(statusInfoText, "Hello world");
+    lvhStatusInfo = lv_label_create(lv_screen_active());
+    lv_label_set_text(lvhStatusInfo, "Hello world");
     lv_obj_set_style_text_color(lv_screen_active(), lv_color_hex(0xffffff), LV_PART_MAIN);
-    lv_obj_align(statusInfoText, LV_ALIGN_LEFT_MID, 6, 0);
+    lv_obj_align(lvhStatusInfo, LV_ALIGN_LEFT_MID, 6, 0);
 
     // Create the toolbar image buttons
     // TODO create our own images - will be reused in MSFS panel

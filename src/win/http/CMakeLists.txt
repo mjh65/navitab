@@ -16,18 +16,11 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# Console server for MSFS InGame panel
+# Any [abstract] interfaces that are used by the different executables
+# are found in NAVITAB_API_DIR. All other headers that are internal to
+# the Navitab core system are referenced using relative paths from the
+# including file.
 
-add_executable(navitab_igps)
-
-target_sources(navitab_igps PRIVATE
-    main.cpp
+target_sources(navitab_win_http PRIVATE
+    winhttp.cpp
 )
-
-target_link_libraries(navitab_igps
-    navitab_core
-    navitab_sim_msfs
-    navitab_win_http
-)
-
-install(TARGETS navitab_igps DESTINATION navitab/mjh65-ingamepanels-navitab/server)

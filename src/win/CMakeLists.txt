@@ -21,9 +21,7 @@ target_sources(navitab_core PRIVATE
 )
 
 add_subdirectory(glfw)
+add_subdirectory(http)
 if(XPLANE_SDK)
     add_subdirectory(xplane)
-endif()
-if(MSFS_SDK)
-    add_subdirectory(msfs)
 endif()

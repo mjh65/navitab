@@ -58,7 +58,7 @@ public:
     // Constructing the Navitab object also does enough initialisation to
     // get the logging working. Any errors during this phase are likely to
     // be unrecoverable and will cause a StartupError exception to be thrown.
-    Navitab(SimEngine s, AppClass c);
+    Navitab(SimEngine s, WinServer w);
     virtual ~Navitab();
 
     // ======================================================================
@@ -109,7 +109,7 @@ private:
 
 private:
     const HostPlatform                  hostPlatform;
-    const AppClass                      appClass;
+    const WinServer                     winServer;
     const SimEngine                     simProduct;
 
     std::unique_ptr<logging::Logger>    LOG;

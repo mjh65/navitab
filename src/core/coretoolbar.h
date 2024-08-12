@@ -28,8 +28,8 @@
 namespace navitab {
 
 // The CoreToolbar class implements the toolbar which is drawn across the top
-// of the window. It regenerates an ImageRect whenever some part of it changes
-// and provides this to the window to draw.
+// of the window. The toolbar displays some current status text and a number of
+// selectable tools, which trigger related actions on the current screen.
     
 class CoreToolbar : public Toolbar, public lvglkit::Display::Updater
 {

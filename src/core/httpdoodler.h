@@ -20,44 +20,40 @@
 
 #pragma once
 
-#include "navitab/modebar.h"
+#include "navitab/doodler.h"
 #include "navitab/logger.h"
-#include "../lvglkit/toolkit.h"
 
 namespace navitab {
 
-// The CoreModebar class implements the modebar which is drawn down the left
-// of the window. The modebar is used to select which screen the user wishes
-// to display.
+// The HttpDoodler class implements the doodler drawing area which can be activated
+// to allow the user to draw or annotate on top of the canvas. In the HTTP windowing
+// system, the doodler is implemented in the HTML web page, so this class is responsible
+// for interacting with the web page via the HTTP window server.
     
-class CoreModebar : public Modebar, public lvglkit::Display::Updater
+class HttpDoodler : public Doodler
 {
 public:
-    CoreModebar(std::shared_ptr<Modebar2Core> core, std::shared_ptr<lvglkit::Manager>);
-    ~CoreModebar();
+    HttpDoodler(std::shared_ptr<Doodler2Core> core);
+    ~HttpDoodler();
 
-    // APIs called from the Navitab core
-    void SetHighlighted(int selectMask) override;
+    // APIs called from the core
+    void Enable() override;
+    void Disable() override;
 
 protected:
     // Implementation of WindowPart
-    void onResize(int w, int h) override;
-    void onMouseEvent(int x, int y, bool l, bool r) override;
+    void onResize(int w, int h) override {}
+    void onMouseEvent(int x, int y, bool l, bool r) override {}
     void onWheelEvent(int x, int y, int xdir, int ydir) override {}
     void onKeyEvent(int code) override {}
 
     // Implementation of DeferredJobRunner
     void RunLater(std::function<void ()> f, void* s = nullptr) override { core->RunLater(f); }
 
-    // Implementation of lvglkit::Display::Updater
-    void Update(navitab::FrameRegion r, uint32_t* pixels) override;
-
 private:
-    const uint32_t backgroundPixels = 0x400000ff;
     std::unique_ptr<logging::Logger> LOG;
-    std::shared_ptr<Modebar2Core> core;
-    std::shared_ptr<lvglkit::Manager> uiMgr;
-    std::shared_ptr<lvglkit::Display> uiDisplay;
+    std::shared_ptr<Doodler2Core> core;
+    bool enabled;
 
 };
 

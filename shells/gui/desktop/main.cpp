@@ -41,7 +41,7 @@ int main(int arg, char** argv)
     try {
         // try to initialise logging and preferences - raises exception if fails
         LOG = std::make_unique<logging::Logger>("main");
-        nvt = navitab::CoreServices::MakeNavitab(navitab::SimEngine::MOCK, navitab::AppClass::DESKTOP);
+        nvt = navitab::CoreServices::MakeNavitab(navitab::SimEngine::MOCK, navitab::WinServer::DESKTOP);
     }
     catch (navitab::StartupError& e) {
         std::cerr << "Navitab startup exception: " << e.What() << std::endl;

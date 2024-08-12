@@ -59,6 +59,17 @@ target_link_libraries(navitab_win_glfw PRIVATE
     glfw
 )
 
+# The http window library provides an HTTP web server to stream images to a browser.
+# The browser may be a desktop app, or the MSFS built-in used for in-game panels.
+add_library(navitab_win_http)
+target_include_directories(navitab_win_http PRIVATE
+    "${NAVITAB_API_DIR}"
+    "${PROJECT_BINARY_DIR}"
+)
+target_link_libraries(navitab_win_http PRIVATE
+    navitab_core
+)
+
 if(XPLANE_SDK)
     # The XPlane library provides interfacing to XPlane for both simulator and window interfaces.
     add_library(navitab_sim_xp)

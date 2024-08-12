@@ -46,7 +46,7 @@ PLUGIN_API int XPluginStart(char* outName, char* outSignature, char* outDescript
         // try to initialise logging and preferences - raises exception if fails
         LOG = std::make_unique<logging::Logger>("plugin");
         // construct the Navitab core, this will do enough to get the preferences
-        nvt = navitab::CoreServices::MakeNavitab(navitab::SimEngine::XPLANE, navitab::AppClass::PLUGIN);
+        nvt = navitab::CoreServices::MakeNavitab(navitab::SimEngine::XPLANE, navitab::WinServer::PLUGIN);
     }
     catch (const std::exception& e) {
         strncpy(outDescription, e.what(), 255);

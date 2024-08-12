@@ -29,18 +29,22 @@
 #include "coremodebar.h"
 #include "coredoodler.h"
 #include "corekeypad.h"
+#include "httptoolbar.h"
+#include "httpmodebar.h"
+#include "httpdoodler.h"
+#include "httpkeypad.h"
 #include "canvas.h"
 #include "../platform/paths.h"
 #include "../lvglkit/toolkit.h"
 
 namespace navitab {
 
-std::shared_ptr<CoreServices> CoreServices::MakeNavitab(SimEngine s, AppClass c)
+std::shared_ptr<CoreServices> CoreServices::MakeNavitab(SimEngine s, WinServer w)
 {
     static bool done = false;
     if (done) return nullptr;
     done = true;
-    return std::make_shared<Navitab>(s,c);
+    return std::make_shared<Navitab>(s,w);
 }
 
 
@@ -53,10 +57,10 @@ static HostPlatform host = HostPlatform::MAC;
 #endif
 
 
-Navitab::Navitab(SimEngine s, AppClass c)
+Navitab::Navitab(SimEngine s, WinServer w)
 :   hostPlatform(host),
     simProduct(s),
-    appClass(c),
+    winServer(w),
     LOG(std::make_unique<logging::Logger>("navitab")),
     running(false),
     enabled(false)
@@ -70,15 +74,15 @@ Navitab::Navitab(SimEngine s, AppClass c)
     // create the log and preferences file names - they have the same format
     auto lfp = paths->DataFilesPath();
     lfp /= "navitab";
-    switch (appClass) {
+    switch (winServer) {
     case PLUGIN: lfp += "_p"; break;
     case DESKTOP: lfp += "_d"; break;
-    case CONSOLE: lfp += "_c"; break;
+    case HTTP: lfp += "_w"; break;
     }
     switch (simProduct) {
     case MSFS: lfp += "_m"; break;
     case XPLANE: lfp += "_x"; break;
-    case MOCK: break;
+    case MOCK: lfp += "_k"; break;
     }
     auto pfp = lfp;
     lfp += "_log.txt";
@@ -99,7 +103,7 @@ Navitab::Navitab(SimEngine s, AppClass c)
     catch (...) {}
 
     auto lm = logging::LogManager::GetLogManager();
-    lm->Configure(appClass == CONSOLE, lfp, reloaded, settings->Get("/logging"));
+    lm->Configure(winServer == HTTP, lfp, reloaded, settings->Get("/logging"));
 }
 
 Navitab::~Navitab()
@@ -150,41 +154,22 @@ void Navitab::Start()
     assert(uiMgr);
 
     // Create the toolbar, modebar, doodler and keypad. Which implementation
-    // depends on the combination of simulator and application type.
+    // depends on the type of the window server.
 
-    if (simProduct == MSFS) {
-        if (appClass == PLUGIN) {
-            UNIMPLEMENTED("MSFS:PLUGIN");
-        } else if (appClass == DESKTOP) {
-            UNIMPLEMENTED("MSFS:DESKTOP");
-        } else if (appClass == CONSOLE) {
-            UNIMPLEMENTED("MSFS:CONSOLE");
-        }
-    } else if (simProduct == XPLANE) {
-        if (appClass == PLUGIN) {
-            canvas = std::make_shared<Canvas>(shared_from_this(), uiMgr);
-            toolbar = std::make_shared<CoreToolbar>(shared_from_this(), uiMgr);
-            modebar = std::make_shared<CoreModebar>(shared_from_this(), uiMgr);
-            doodler = std::make_shared<CoreDoodler>(shared_from_this());
-            keypad = std::make_shared<CoreKeypad>(shared_from_this());
-        } else if (appClass == DESKTOP) {
-            UNIMPLEMENTED("XPLANE:DESKTOP");
-        } else if (appClass == CONSOLE) {
-            UNIMPLEMENTED("XPLANE:CONSOLE");
-        }
-    } else if (simProduct == MOCK) {
-        if (appClass == PLUGIN) {
-            UNIMPLEMENTED("MOCK:PLUGIN");
-        } else if (appClass == DESKTOP) {
-            canvas = std::make_shared<Canvas>(shared_from_this(), uiMgr);
-            toolbar = std::make_shared<CoreToolbar>(shared_from_this(), uiMgr);
-            modebar = std::make_shared<CoreModebar>(shared_from_this(), uiMgr);
-            doodler = std::make_shared<CoreDoodler>(shared_from_this());
-            keypad = std::make_shared<CoreKeypad>(shared_from_this());
-        } else if (appClass == CONSOLE) {
-            UNIMPLEMENTED("MOCK:CONSOLE");
-        }
+    if (winServer == HTTP) {
+        canvas = std::make_shared<Canvas>(shared_from_this(), uiMgr);
+        toolbar = std::make_shared<HttpToolbar>(shared_from_this());
+        modebar = std::make_shared<HttpModebar>(shared_from_this());
+        doodler = std::make_shared<HttpDoodler>(shared_from_this());
+        keypad = std::make_shared<HttpKeypad>(shared_from_this());
+    } else {
+        canvas = std::make_shared<Canvas>(shared_from_this(), uiMgr);
+        toolbar = std::make_shared<CoreToolbar>(shared_from_this(), uiMgr);
+        modebar = std::make_shared<CoreModebar>(shared_from_this(), uiMgr);
+        doodler = std::make_shared<CoreDoodler>(shared_from_this());
+        keypad = std::make_shared<CoreKeypad>(shared_from_this());
     }
+
     assert(canvas);
     assert(toolbar);
     assert(modebar);

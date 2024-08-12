@@ -34,6 +34,14 @@ target_sources(navitab_core PRIVATE
     coredoodler.h
     corekeypad.cpp
     corekeypad.h
+    httptoolbar.cpp
+    httptoolbar.h
+    httpmodebar.cpp
+    httpmodebar.h
+    httpdoodler.cpp
+    httpdoodler.h
+    httpkeypad.cpp
+    httpkeypad.h
 )
 
 add_dependencies(navitab_core navitab_svg_headers)

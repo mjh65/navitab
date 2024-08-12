@@ -25,9 +25,8 @@
 
 namespace navitab {
 
-// The CoreToolbar class implements the toolbar which is drawn across the top
-// of the window. It regenerates an ImageRect whenever some part of it changes
-// and provides this to the window to draw.
+// The CoreKeypad class implements the keypad which can be enabled or disabled by the
+// user or by the screen currently in use if keyboard input is required.
     
 class CoreKeypad : public Keypad
 {

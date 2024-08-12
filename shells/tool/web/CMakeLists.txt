@@ -16,11 +16,18 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# Any [abstract] interfaces that are used by the different executables
-# are found in NAVITAB_API_DIR. All other headers that are internal to
-# the Navitab core system are referenced using relative paths from the
-# including file.
+# Console server for MSFS InGame panel
 
-target_sources(navitab_sim_msfs PRIVATE
-    winmsfs.cpp
+add_executable(navitab_http)
+
+target_sources(navitab_http PRIVATE
+    main.cpp
 )
+
+target_link_libraries(navitab_http
+    navitab_core
+    navitab_sim_mock
+    navitab_win_http
+)
+
+install(TARGETS navitab_http DESTINATION navitab/tools)

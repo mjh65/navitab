@@ -27,14 +27,12 @@
 
 namespace navitab {
 
-class TextureBuffer;
-
-class WindowMSFS : public std::enable_shared_from_this<WindowMSFS>,
+class WindowHTTP : public std::enable_shared_from_this<WindowHTTP>,
                    public Window, public PartPainter, public WindowControls
 {
 public:
-    WindowMSFS();
-    ~WindowMSFS();
+    WindowHTTP();
+    ~WindowHTTP();
 
     // Implementation of the Window interface
     void Connect(std::shared_ptr<CoreServices> core) override;
@@ -52,9 +50,6 @@ private:
     std::shared_ptr<CoreServices> core;
     std::shared_ptr<Settings> prefs;
     std::shared_ptr<WindowPart> canvas;
-
-    std::unique_ptr<TextureBuffer> canvasImage;
-    std::mutex imageMutex;
 
     int winWidth;
     int winHeight;

@@ -21,18 +21,17 @@
 #include <cassert>
 #include <memory>
 #include <fmt/core.h>
-#include "winmsfs.h"
-#include "../texbuffer.h"
+#include "winhttp.h"
 #include "navitab/core.h"
 
 std::shared_ptr<navitab::Window> navitab::Window::Factory()
 {
-    return std::make_shared<navitab::WindowMSFS>();
+    return std::make_shared<navitab::WindowHTTP>();
 }
 
 namespace navitab {
 
-WindowMSFS::WindowMSFS()
+WindowHTTP::WindowHTTP()
 :   LOG(std::make_unique<logging::Logger>("winmsfs")),
     winWidth(WIN_STD_WIDTH),
     winHeight(WIN_STD_HEIGHT),
@@ -40,11 +39,11 @@ WindowMSFS::WindowMSFS()
 {
 }
 
-WindowMSFS::~WindowMSFS()
+WindowHTTP::~WindowHTTP()
 {
 }
 
-void WindowMSFS::Connect(std::shared_ptr<CoreServices> c)
+void WindowHTTP::Connect(std::shared_ptr<CoreServices> c)
 {
     core = c;
     prefs = core->GetSettingsManager();
@@ -53,7 +52,7 @@ void WindowMSFS::Connect(std::shared_ptr<CoreServices> c)
     // TODO - start simple web server
 }
 
-void WindowMSFS::Disconnect()
+void WindowHTTP::Disconnect()
 {
     // TODO - shutdown web server
     canvas.reset();
@@ -61,13 +60,13 @@ void WindowMSFS::Disconnect()
     core.reset();
 }
 
-int WindowMSFS::EventLoop(int maxLoops)
+int WindowHTTP::EventLoop(int maxLoops)
 {
     // TODO - deal with events received from the panel via the web server
     return 0;
 }
 
-void WindowMSFS::Paint(int part, const FrameBuffer* src, const std::vector<FrameRegion>& regions)
+void WindowHTTP::Paint(int part, const FrameBuffer* src, const std::vector<FrameRegion>& regions)
 {
 #if 0
     assert(part == CANVAS);
@@ -81,7 +80,7 @@ void WindowMSFS::Paint(int part, const FrameBuffer* src, const std::vector<Frame
 #endif
 }
 
-void WindowMSFS::Brightness(int percent)
+void WindowHTTP::Brightness(int percent)
 {
     UNIMPLEMENTED(__func__);
 }

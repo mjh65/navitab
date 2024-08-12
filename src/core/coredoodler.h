@@ -25,9 +25,8 @@
 
 namespace navitab {
 
-// The CoreToolbar class implements the toolbar which is drawn across the top
-// of the window. It regenerates an ImageRect whenever some part of it changes
-// and provides this to the window to draw.
+// The CoreDoodler class implements the doodler drawing area which can be activated
+// to allow the user to draw or annotate on top of the canvas. 
     
 class CoreDoodler : public Doodler
 {

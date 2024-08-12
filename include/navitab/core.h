@@ -36,7 +36,8 @@ struct WindowPart;
 struct WindowControls;
 
 enum HostPlatform { WIN, LNX, MAC };
-enum AppClass { PLUGIN, DESKTOP, CONSOLE };
+//enum AppClass { PLUGIN, DESKTOP, CONSOLE };
+enum WinServer { PLUGIN, DESKTOP, HTTP };
 enum SimEngine { MOCK, MSFS, XPLANE };
 
 struct Exception : public std::exception
@@ -72,7 +73,7 @@ struct CoreServices
 {
     // The executable / plugin's main() function should call the factory to create
     // exactly one instance of the Navitab core, and then destroy it on closure.
-    static std::shared_ptr<CoreServices> MakeNavitab(SimEngine s, AppClass c);
+    static std::shared_ptr<CoreServices> MakeNavitab(SimEngine s, WinServer w);
 
     // Get the interface to the preferences manager
     virtual std::shared_ptr<Settings> GetSettingsManager() = 0;

@@ -27,6 +27,9 @@
 
 namespace navitab {
 
+class PanelServer;
+class TextureBuffer;
+
 class WindowHTTP : public std::enable_shared_from_this<WindowHTTP>,
                    public Window, public PartPainter, public WindowControls
 {
@@ -45,11 +48,17 @@ public:
     // Implementation of the WindowControls interface
     void Brightness(int percent) override;
 
+    // encode a BMP image of the canvas for the http client
+    unsigned encodeBMP(std::vector<unsigned char> &png);
+    
 private:
     std::unique_ptr<logging::Logger> LOG;
     std::shared_ptr<CoreServices> core;
     std::shared_ptr<Settings> prefs;
     std::shared_ptr<WindowPart> canvas;
+    std::unique_ptr<TextureBuffer> image;
+    std::unique_ptr<PanelServer> server;
+    std::mutex paintMutex;
 
     int winWidth;
     int winHeight;

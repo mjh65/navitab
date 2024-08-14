@@ -23,4 +23,9 @@
 
 target_sources(navitab_win_http PRIVATE
     winhttp.cpp
+    winhttp.h
+    imageserver.cpp
+    imageserver.h
+    protocol.cpp
+    protocol.h
 )

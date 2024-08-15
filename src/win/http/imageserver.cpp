@@ -82,7 +82,7 @@ int PanelServer::start(int port)
 {
     stop(); // stop old instance (if any)
 
-    LOGS("Starting MSFS-PanelServer");
+    LOGS("Starting WinHTTP image server");
 
     struct addrinfo *result = nullptr;
     struct addrinfo hints;
@@ -165,21 +165,12 @@ void PanelServer::listenLoop()
         }
 
         if (FD_ISSET(STDIN_FILENO, &readSet)) {
-            std::string message;
-            getline(std::cin, message);
-            std::lock_guard<std::mutex> lock(keyMutex);
-            for (auto c: message) {
-                keys.push(c);
-            }
-            keys.push('\n');
-            if (std::cin.eof()) {
-                keys.push(0);
-            }
+            processStdin();
         }
     }
 
     closesocket(httpService);
-    LOGS("Shutdown MSFS-PanelServer");
+    LOGS("Shutdown WinHTTP image server");
 }
 
 void PanelServer::connectionLoop()
@@ -192,20 +183,20 @@ void PanelServer::connectionLoop()
         while (serverKeepAlive) {
             fd_set readSet;
             FD_ZERO(&readSet);
+            FD_SET(STDIN_FILENO, &readSet);
             FD_SET(panelSocket, &readSet);
             int fdMax = panelSocket;
 
             timeval timeout{};
             timeout.tv_sec = 1;
             auto sr = select(fdMax + 1, &readSet, nullptr, nullptr, &timeout);
-            LOGD(fmt::format("select() returned {}", sr));
             if (sr < 0) {
+                LOGD(fmt::format("select() returned {}", sr));
                 LOGD(fmt::format("Last error was {}", lastError()));
                 keepConnection = false;
                 break;
             }
             if (FD_ISSET(panelSocket, &readSet)) {
-                LOGD("panelSocket is ready");
                 auto n = recv(panelSocket, reqBuffer.get(), REQ_BUFFER_SIZE, 0);
                 LOGD(fmt::format("recv() returned {}", n));
                 if (n <= 0) {
@@ -216,6 +207,9 @@ void PanelServer::connectionLoop()
                     keepConnection = processRequest(req.get());
                     break;
                 }
+            }
+            if (FD_ISSET(STDIN_FILENO, &readSet)) {
+                processStdin();
             }
         }
     }
@@ -303,6 +297,20 @@ bool PanelServer::processRequest(HttpReq *req)
 
     // return false if the connection should be held open
     return keepAlive;
+}
+
+void PanelServer::processStdin()
+{
+    std::string message;
+    getline(std::cin, message);
+    std::lock_guard<std::mutex> lock(keyMutex);
+    for (auto c: message) {
+        keys.push(c);
+    }
+    keys.push('\n');
+    if (std::cin.eof()) {
+        keys.push(0);
+    }
 }
 
 int PanelServer::key()

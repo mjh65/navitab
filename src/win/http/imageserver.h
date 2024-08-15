@@ -48,6 +48,7 @@ private:
     void listenLoop();
     void connectionLoop();
     bool processRequest(HttpReq *req); // return true if the connection should be held open
+    void processStdin();
 
 private:
     std::unique_ptr<logging::Logger> LOG;

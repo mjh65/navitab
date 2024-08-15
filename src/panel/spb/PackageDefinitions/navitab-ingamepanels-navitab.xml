@@ -1,0 +1,22 @@
+<AssetPackage Name="navitab-ingamepanels-navitab" Version="0.1.6">
+	<ItemSettings>
+		<ContentType>SPB</nContentType>
+		<Title>navitab-ingamepanels-navitab</Title>
+		<Manufacturer></Manufacturer>
+		<Creator>Navitab</Creator>
+	</ItemSettings>
+	<Flags>
+		<VisibleInStore>false</VisibleInStore>
+		<CanBeReferenced>false</CanBeReferenced>
+	</Flags>
+	<AssetGroups>
+		<AssetGroup Name="navitab-ingamepanels-navitab">
+			<Type>SPB</Type>
+			<Flags>
+				<FSXCompatibility>false</FSXCompatibility>
+			</Flags>
+			<AssetDir>PackageSources\</AssetDir>
+			<OutputDir>Build\</OutputDir>
+		</AssetGroup>
+	</AssetGroups>
+</AssetPackage>

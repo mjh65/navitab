@@ -22,8 +22,10 @@
 #include <memory>
 #include <atomic>
 #include <thread>
+#include <mutex>
 #include <string>
 #include <map>
+#include <queue>
 #include <functional>
 #include "navitab/logger.h"
 
@@ -39,6 +41,8 @@ public:
 
     int start(int port); // returns 0=ok, -1=port-busy, -2=general-failure
     void stop();
+
+    int key();
 
 private:
     void listenLoop();
@@ -60,6 +64,8 @@ private:
     const int REQ_BUFFER_SIZE = 4096;
     std::unique_ptr<char[]> reqBuffer;
     std::vector<char> respBuffer;
+    std::queue<int> keys;
+    std::mutex keyMutex;
 };
 
 } // namespace navitab

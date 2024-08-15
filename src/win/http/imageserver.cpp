@@ -25,6 +25,7 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <iostream>
 #include <sstream>
 #include <fmt/core.h>
 #include "winhttp.h"
@@ -147,6 +148,7 @@ void PanelServer::listenLoop()
 
     while (serverKeepAlive) {
         FD_ZERO(&readSet);
+        FD_SET(STDIN_FILENO, &readSet);
         FD_SET(httpService, &readSet);
         int fdMax = httpService;
 
@@ -160,6 +162,19 @@ void PanelServer::listenLoop()
             connectionLoop();
             closesocket(panelSocket);
             panelSocket = INVALID_SOCKET;
+        }
+
+        if (FD_ISSET(STDIN_FILENO, &readSet)) {
+            std::string message;
+            getline(std::cin, message);
+            std::lock_guard<std::mutex> lock(keyMutex);
+            for (auto c: message) {
+                keys.push(c);
+            }
+            keys.push('\n');
+            if (std::cin.eof()) {
+                keys.push(0);
+            }
         }
     }
 
@@ -290,5 +305,13 @@ bool PanelServer::processRequest(HttpReq *req)
     return keepAlive;
 }
 
+int PanelServer::key()
+{
+    std::lock_guard<std::mutex> lock(keyMutex);
+    if (keys.empty()) return -1;
+    auto k = keys.front();
+    keys.pop();
+    return k;
+}
 
 } // namespace navitab

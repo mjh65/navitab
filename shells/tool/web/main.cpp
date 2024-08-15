@@ -25,6 +25,8 @@
 
 #include <memory>
 #include <iostream>
+#include <thread>
+#include <chrono>
 #include <fmt/core.h>
 #include "navitab/core.h"
 #include "navitab/simulator.h"
@@ -69,6 +71,8 @@ int main(int arg, char** argv)
         int pending = 0;
         while (pending >= 0) {
             pending = win->EventLoop();
+            using namespace std::chrono_literals;
+            std::this_thread::sleep_for(50ms);
         }
 
         LOGS("Event loop finished, disabling and stopping");

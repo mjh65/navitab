@@ -78,6 +78,12 @@ void WindowHTTP::Disconnect()
 int WindowHTTP::EventLoop(int maxLoops)
 {
     // TODO - deal with events received from the panel via the web server
+    auto k = server->key();
+    if (k == 0) {
+        return -1;
+    }
+    // TODO - perhaps implement some kind of command interface here?
+
     return 0;
 }
 

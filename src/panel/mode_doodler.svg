@@ -1,0 +1,7 @@
+<svg height="320" width="320" xmlns="http://www.w3.org/2000/svg">
+  <path d="M210,60 A36,36,0,1,1,260,110" style="fill:red;stroke:black;stroke-width:10"/>
+  <polygon points="64,214 40,280 106,256" style="fill:white;stroke:black;stroke-width:10"/>
+  <polygon points="210,60 260,110 115,255 65,205" style="fill:yellow;stroke:black;stroke-width:10"/>
+  <line x1="210" y1="95" x2="100" y2="205" style="stroke:black;stroke-width:5"/>
+  <line x1="225" y1="110" x2="115" y2="220" style="stroke:black;stroke-width:5"/>
+</svg>

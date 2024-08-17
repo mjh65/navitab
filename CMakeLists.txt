@@ -92,6 +92,7 @@ endif()
 # core libraries are kept in the src directory (and referenced using relative
 # paths).
 set(NAVITAB_API_DIR "${CMAKE_CURRENT_LIST_DIR}/include")
+set(NAVITAB_RES_DIR "${CMAKE_CURRENT_LIST_DIR}/res")
 
 # This custom tool is used to compile SVG icons and is declared at this outer
 # level as it is referenced in the resources sub-tree below.

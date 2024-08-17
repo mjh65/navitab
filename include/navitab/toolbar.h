@@ -21,6 +21,7 @@
 #pragma once
 
 #include <memory>
+#include <string>
 #include <functional>
 #include "navitab/deferred.h"
 #include "navitab/window.h"

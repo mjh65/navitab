@@ -27,7 +27,11 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #endif
+#if !defined(_MSC_VER)
 #include <unistd.h>
+#else
+const int STDIN_FILENO = 0;
+#endif
 #include <iostream>
 #include <sstream>
 #include <fmt/core.h>
@@ -41,18 +45,23 @@ namespace navitab {
 #if !defined(_WIN32)
 const int SOCKET_ERROR = -1;
 const int SD_BOTH = SHUT_RDWR;
-#endif
+
+inline int closesocket(int s)
+{
+    return close(s);
+}
 
 inline int lastError()
 {
     return errno;
-    // return WSAGetLastError();
 }
-
-inline int closesocket(int s) // disable for windows
+#else
+inline int lastError()
 {
-    return close(s);
+    return WSAGetLastError();
 }
+#endif
+
 
 
 
@@ -74,7 +83,7 @@ void PanelServer::stop()
     serverKeepAlive = false;
     if (panelSocket != INVALID_SOCKET) {
         shutdown(panelSocket, SD_BOTH);
-        close(panelSocket); // was closesocket for windows
+        closesocket(panelSocket);
     }
     if (serverThread) {
         serverThread->join();

@@ -19,11 +19,14 @@
  */
 
 #include "imageserver.h"
-//#include <Windows.h>
-//#include <WS2tcpip.h>
+#if defined(_WIN32)
+#include <Windows.h>
+#include <WS2tcpip.h>
+#else
 #include <sys/socket.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#endif
 #include <unistd.h>
 #include <iostream>
 #include <sstream>
@@ -35,9 +38,10 @@ namespace navitab {
 
 
 // these were added to support linux but keep the windows source code largely unchanged
-
+#if !defined(_WIN32)
 const int SOCKET_ERROR = -1;
 const int SD_BOTH = SHUT_RDWR;
+#endif
 
 inline int lastError()
 {

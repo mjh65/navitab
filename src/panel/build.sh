@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# TODO - A bash shell script is not a portable way to do this for all IDEs.
+# Probably need a windows batch file!
+
 # script to build and package the MSFS ingame panel
 # requires a number of tools not easily available from windows cmd files
 
@@ -49,7 +52,7 @@ done
 
 #
 
-pkgname=navitab-ingamepanels-navitab
+pkgname=mjh65-ingamepanels-navitab
 basedir="$(dirname "$(readlink -fm "${BASH_SOURCE[0]}")")"
 workdir="$(mktemp -p . -d -t workXXXX)"
 pkgdir="${installdir}/${pkgname}"

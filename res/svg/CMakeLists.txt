@@ -26,8 +26,32 @@ set(SVGC_SOURCES
     # This style of encoding allows specification of the generated bitmap
     # width and height in the pseudo source file name. The actual SVG source
     # file name is everything before the final 2 extensions!
-    sample.svg.64.64
-    sample.svg.32.32
+    mode_about.svg.40.40
+    mode_airport.svg.40.40
+    mode_about.svg.40.40
+    mode_airport.svg.40.40
+    mode_docs.svg.40.40
+    mode_doodler.svg.40.40
+    mode_keypad.svg.40.24
+    mode_map.svg.40.40
+    mode_route.svg.40.40
+    mode_settings.svg.40.40
+    tool_bottom.svg.24.24
+    tool_cancel.svg.24.24
+    tool_centre.svg.24.24
+    tool_cog.svg.24.24
+    tool_down.svg.24.24
+    tool_first.svg.24.24
+    tool_last.svg.24.24
+    tool_left.svg.24.24
+    tool_right.svg.24.24
+    tool_rotateleft.svg.24.24
+    tool_rotateright.svg.24.24
+    tool_stop.svg.24.24
+    tool_top.svg.24.24
+    tool_up.svg.24.24
+    tool_zoomin.svg.24.24
+    tool_zoomout.svg.24.24
 )
 
 set(SVG_TARGETS)

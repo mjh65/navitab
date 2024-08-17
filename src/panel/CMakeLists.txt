@@ -1,37 +1,40 @@
 if(WIN32 AND DEFINED ENV{MSFS_SDK})
+
 add_custom_command(
     OUTPUT
-        navitab-ingamepanels-navitab/html_ui/icons/toolbar/ICON_TOOLBAR_AVITAB_PANEL.svg
-        navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/NavitabPanel.css
-        navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/NavitabPanel.html
-        navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/NavitabPanel.js
-        navitab-ingamepanels-navitab/html_ui/Textures/Menu/toolbar/ICON_TOOLBAR_AVITAB_PANEL.svg
-        navitab-ingamepanels-navitab/InGamePanels/navitab-ingamepanels-navitab.spb
-        navitab-ingamepanels-navitab/layout.json
-        navitab-ingamepanels-navitab/manifest.json
+    mjh65-ingamepanels-navitab/html_ui/icons/toolbar/ICON_TOOLBAR_NAVITAB_PANEL.svg
+    mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/NavitabPanel.css
+    mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/NavitabPanel.html
+    mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/NavitabPanel.js
+    mjh65-ingamepanels-navitab/html_ui/Textures/Menu/toolbar/ICON_TOOLBAR_NAVITAB_PANEL.svg
+    mjh65-ingamepanels-navitab/InGamePanels/mjh65-ingamepanels-navitab.spb
+    mjh65-ingamepanels-navitab/layout.json
+    mjh65-ingamepanels-navitab/manifest.json
     COMMAND
-        ${CMAKE_CURRENT_LIST_DIR}/build.sh
+    ${CMAKE_CURRENT_LIST_DIR}/build.sh
     DEPENDS
-        ${CMAKE_CURRENT_LIST_DIR}/build.sh
-        ${CMAKE_CURRENT_LIST_DIR}/html_ui/icons/toolbar/ICON_TOOLBAR_AVITAB_PANEL.svg
-        ${CMAKE_CURRENT_LIST_DIR}/html_ui/InGamePanels/NavitabPanel/NavitabPanel.css
-        ${CMAKE_CURRENT_LIST_DIR}/html_ui/InGamePanels/NavitabPanel/NavitabPanel.html
-        ${CMAKE_CURRENT_LIST_DIR}/html_ui/InGamePanels/NavitabPanel/NavitabPanel.js
-        ${CMAKE_CURRENT_LIST_DIR}/spb/navitab-ingamepanels-navitab.xml
-        ${CMAKE_CURRENT_LIST_DIR}/spb/PackageDefinitions/navitab-ingamepanels-navitab.xml
-        ${CMAKE_CURRENT_LIST_DIR}/spb/PackageSources/navitab-ingamepanels-navitab.xml
+    ${CMAKE_CURRENT_LIST_DIR}/build.sh
+    ${CMAKE_CURRENT_LIST_DIR}/html_ui/icons/toolbar/ICON_TOOLBAR_NAVITAB_PANEL.svg
+    ${CMAKE_CURRENT_LIST_DIR}/html_ui/InGamePanels/NavitabPanel/NavitabPanel.css
+    ${CMAKE_CURRENT_LIST_DIR}/html_ui/InGamePanels/NavitabPanel/NavitabPanel.html
+    ${CMAKE_CURRENT_LIST_DIR}/html_ui/InGamePanels/NavitabPanel/NavitabPanel.js
+    ${CMAKE_CURRENT_LIST_DIR}/spb/mjh65-ingamepanels-navitab.xml
+    ${CMAKE_CURRENT_LIST_DIR}/spb/PackageDefinitions/mjh65-ingamepanels-navitab.xml
+    ${CMAKE_CURRENT_LIST_DIR}/spb/PackageSources/mjh65-ingamepanels-navitab.xml
 )
 
 add_custom_target(
-    Navitab-IngamePanel ALL
+    navitab_ingamepanel ALL
     DEPENDS
-        navitab-ingamepanels-navitab/html_ui/icons/toolbar/ICON_TOOLBAR_AVITAB_PANEL.svg
-        navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/NavitabPanel.css
-        navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/NavitabPanel.html
-        navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/NavitabPanel.js
-        navitab-ingamepanels-navitab/html_ui/Textures/Menu/toolbar/ICON_TOOLBAR_AVITAB_PANEL.svg
-        navitab-ingamepanels-navitab/InGamePanels/navitab-ingamepanels-navitab.spb
-        navitab-ingamepanels-navitab/layout.json
-        navitab-ingamepanels-navitab/manifest.json
+    mjh65-ingamepanels-navitab/html_ui/icons/toolbar/ICON_TOOLBAR_NAVITAB_PANEL.svg
+    mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/NavitabPanel.css
+    mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/NavitabPanel.html
+    mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/NavitabPanel.js
+    mjh65-ingamepanels-navitab/html_ui/Textures/Menu/toolbar/ICON_TOOLBAR_NAVITAB_PANEL.svg
+    mjh65-ingamepanels-navitab/InGamePanels/mjh65-ingamepanels-navitab.spb
+    mjh65-ingamepanels-navitab/layout.json
+    mjh65-ingamepanels-navitab/manifest.json
 )
 endif()
+
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab DESTINATION navitab)

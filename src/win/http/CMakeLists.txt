@@ -29,3 +29,7 @@ target_sources(navitab_win_http PRIVATE
     protocol.cpp
     protocol.h
 )
+
+if(WIN32)
+    target_link_libraries(navitab_win_http PUBLIC ws2_32)
+endif()

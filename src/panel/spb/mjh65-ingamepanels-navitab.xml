@@ -1,0 +1,7 @@
+<Project Version="2" Name="mjh65-ingamepanels-navitab" FolderName="Packages">
+	<OutputDirectory>.</OutputDirectory>
+	<TemporaryOutputDirectory>_Temp</TemporaryOutputDirectory>
+	<Packages>
+		<Package>PackageDefinitions\mjh65-ingamepanels-navitab.xml</Package>
+	</Packages>
+</Project>

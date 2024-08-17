@@ -18,7 +18,9 @@
 
 #pragma once
 
-//#include <WinSock2.h>
+#if defined(_WIN32)
+#include <WinSock2.h>
+#endif
 #include <memory>
 #include <atomic>
 #include <thread>
@@ -53,12 +55,13 @@ private:
 private:
     std::unique_ptr<logging::Logger> LOG;
     WindowHTTP *const owner;
+#if defined(_WIN32)
+    SOCKET httpService = INVALID_SOCKET;
+    SOCKET panelSocket = INVALID_SOCKET;
+#else
     const int INVALID_SOCKET = -1;
     int httpService = INVALID_SOCKET;
     int panelSocket = INVALID_SOCKET;
-#if 0 // original windows code
-    //SOCKET httpService = INVALID_SOCKET;
-    //SOCKET panelSocket = INVALID_SOCKET;
 #endif
     std::atomic_bool serverKeepAlive { false };
     std::unique_ptr<std::thread> serverThread;

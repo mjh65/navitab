@@ -16,6 +16,91 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+# The same html/css/js sources are used for the MSFS panel and for a local
+# web server for testing. The sources are passed through the C pre-processor
+# before use in order to tailor the files to the target environment.
+
+function(generate_html_sources panel_out_var htdocs_out_var)
+    set(panel_out)
+    set(htdocs_out)
+    foreach(in_f ${ARGN})
+        message(STATUS "Generating from input ${in_f}")
+        file(RELATIVE_PATH rpi ${CMAKE_CURRENT_LIST_DIR} ${in_f})
+        get_filename_component(rpo "${rpi}" NAME_WLE)
+        message(STATUS "Relative path is ${rpo}")
+        # Custom rules for MSFS panel variants
+        set(out_pf "${CMAKE_CURRENT_BINARY_DIR}/panel/${rpo}")
+        file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/panel")
+        add_custom_command(OUTPUT ${out_pf}
+            COMMAND "${CMAKE_C_COMPILER}" -o ${out_pf} -E -P ${in_f}
+            MAIN_DEPENDENCY ${in_f}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+            COMMENT "Creating panel source ${out_pf}"
+            VERBATIM
+        )
+        list(APPEND panel_out ${out_pf})
+        # Custom rules for local htdocs variants
+        set(out_hf "${CMAKE_CURRENT_BINARY_DIR}/htdocs/${rpo}")
+        file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/htdocs")
+        add_custom_command(OUTPUT ${out_hf}
+            COMMAND "${CMAKE_C_COMPILER}" -D NAVITAB_MOCK_WWW=1 -E -P -o ${out_hf} ${in_f}
+            MAIN_DEPENDENCY ${in_f}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+            COMMENT "Creating panel source ${out_hf}"
+            VERBATIM
+        )
+        list(APPEND htdocs_out ${out_hf})
+    endforeach()
+    set(${panel_out_var} "${panel_out}" PARENT_SCOPE)
+    set(${htdocs_out_var} "${htdocs_out}" PARENT_SCOPE)
+endfunction()
+
+# This generates tailored html/css/js files for the MSFS panel and htdocs environments.
+generate_html_sources(PANEL_HTML_INPUTS HTDOCS_HTML_INPUTS
+    "${CMAKE_CURRENT_LIST_DIR}/html/NavitabPanel.css.hpp"
+    "${CMAKE_CURRENT_LIST_DIR}/html/NavitabPanel.html.hpp"
+    "${CMAKE_CURRENT_LIST_DIR}/html/NavitabPanel.js.hpp"
+)
+
+# These are the SVG icons/images used in both MSFS panel and htdocs environments.
+set(PANEL_SVG_INPUTS
+    "${NAVITAB_RES_DIR}/svg/mode_about.svg"
+    "${NAVITAB_RES_DIR}/svg/mode_airport.svg"
+    "${NAVITAB_RES_DIR}/svg/mode_docs.svg"
+    "${NAVITAB_RES_DIR}/svg/mode_doodler.svg"
+    "${NAVITAB_RES_DIR}/svg/mode_keypad.svg"
+    "${NAVITAB_RES_DIR}/svg/mode_map.svg"
+    "${NAVITAB_RES_DIR}/svg/mode_route.svg"
+    "${NAVITAB_RES_DIR}/svg/mode_settings.svg"
+    "${NAVITAB_RES_DIR}/svg/tool_bottom.svg"
+    "${NAVITAB_RES_DIR}/svg/tool_cancel.svg"
+    "${NAVITAB_RES_DIR}/svg/tool_centre.svg"
+    "${NAVITAB_RES_DIR}/svg/tool_cog.svg"
+    "${NAVITAB_RES_DIR}/svg/tool_down.svg"
+    "${NAVITAB_RES_DIR}/svg/tool_first.svg"
+    "${NAVITAB_RES_DIR}/svg/tool_last.svg"
+    "${NAVITAB_RES_DIR}/svg/tool_left.svg"
+    "${NAVITAB_RES_DIR}/svg/tool_right.svg"
+    "${NAVITAB_RES_DIR}/svg/tool_rotateleft.svg"
+    "${NAVITAB_RES_DIR}/svg/tool_rotateright.svg"
+    "${NAVITAB_RES_DIR}/svg/tool_stop.svg"
+    "${NAVITAB_RES_DIR}/svg/tool_top.svg"
+    "${NAVITAB_RES_DIR}/svg/tool_up.svg"
+    "${NAVITAB_RES_DIR}/svg/tool_zoomin.svg"
+    "${NAVITAB_RES_DIR}/svg/tool_zoomout.svg"
+)
+
+add_custom_target(
+    navitab_htdocs ALL
+    DEPENDS ${HTDOCS_HTML_INPUTS} ${PANEL_SVG_INPUTS}
+)
+
+# This builds a web-server htdocs environment.
+install(FILES "${CMAKE_CURRENT_LIST_DIR}/html/index.html" DESTINATION navitab/htdocs)
+install(FILES ${HTDOCS_HTML_INPUTS} DESTINATION navitab/htdocs)
+install(FILES ${PANEL_SVG_INPUTS} DESTINATION navitab/htdocs)
+
+# This section for the MSFS panel is only enabled on Windows and if the SDK is installed.
 if(WIN32 AND DEFINED ENV{MSFS_SDK})
 
 set(PANEL_OUTPUTS
@@ -59,41 +144,14 @@ set(PANEL_SPB_INPUTS
     "${CMAKE_CURRENT_LIST_DIR}/spb/PackageSources/mjh65-ingamepanels-navitab.xml"
 )
 
-set(PANEL_HTML_INPUTS
-    "${CMAKE_CURRENT_LIST_DIR}/html/NavitabPanel.css"
-    "${CMAKE_CURRENT_LIST_DIR}/html/NavitabPanel.html"
-    "${CMAKE_CURRENT_LIST_DIR}/html/NavitabPanel.js"
-)
+#set(PANEL_HTML_INPUTS
+#    "${CMAKE_CURRENT_LIST_DIR}/html/NavitabPanel.css"
+#    "${CMAKE_CURRENT_LIST_DIR}/html/NavitabPanel.html"
+#    "${CMAKE_CURRENT_LIST_DIR}/html/NavitabPanel.js"
+#)
 
 set(PANEL_ICON_INPUT
     "${CMAKE_CURRENT_LIST_DIR}/svg/ICON_TOOLBAR_NAVITAB_PANEL.svg"
-)
-
-set(PANEL_SVG_INPUTS
-    "${NAVITAB_RES_DIR}/svg/mode_about.svg"
-    "${NAVITAB_RES_DIR}/svg/mode_airport.svg"
-    "${NAVITAB_RES_DIR}/svg/mode_docs.svg"
-    "${NAVITAB_RES_DIR}/svg/mode_doodler.svg"
-    "${NAVITAB_RES_DIR}/svg/mode_keypad.svg"
-    "${NAVITAB_RES_DIR}/svg/mode_map.svg"
-    "${NAVITAB_RES_DIR}/svg/mode_route.svg"
-    "${NAVITAB_RES_DIR}/svg/mode_settings.svg"
-    "${NAVITAB_RES_DIR}/svg/tool_bottom.svg"
-    "${NAVITAB_RES_DIR}/svg/tool_cancel.svg"
-    "${NAVITAB_RES_DIR}/svg/tool_centre.svg"
-    "${NAVITAB_RES_DIR}/svg/tool_cog.svg"
-    "${NAVITAB_RES_DIR}/svg/tool_down.svg"
-    "${NAVITAB_RES_DIR}/svg/tool_first.svg"
-    "${NAVITAB_RES_DIR}/svg/tool_last.svg"
-    "${NAVITAB_RES_DIR}/svg/tool_left.svg"
-    "${NAVITAB_RES_DIR}/svg/tool_right.svg"
-    "${NAVITAB_RES_DIR}/svg/tool_rotateleft.svg"
-    "${NAVITAB_RES_DIR}/svg/tool_rotateright.svg"
-    "${NAVITAB_RES_DIR}/svg/tool_stop.svg"
-    "${NAVITAB_RES_DIR}/svg/tool_top.svg"
-    "${NAVITAB_RES_DIR}/svg/tool_up.svg"
-    "${NAVITAB_RES_DIR}/svg/tool_zoomin.svg"
-    "${NAVITAB_RES_DIR}/svg/tool_zoomout.svg"
 )
 
 add_custom_command(
@@ -114,3 +172,4 @@ install(FILES ${PANEL_ICON_INPUT} DESTINATION navitab/mjh65-ingamepanels-navitab
 install(FILES ${PANEL_SVG_INPUTS} DESTINATION navitab/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel)
 
 endif()
+

@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include <cassert>
 #include <memory>
 #include <functional>
 #include <vector>
@@ -73,7 +74,7 @@ struct Window
     enum {
         TOOLBAR_HEIGHT = 24,
         MODEBAR_WIDTH = 40,
-        MODEBAR_HEIGHT = MODEBAR_WIDTH * 8, // 8 mode selectors
+        MODEBAR_HEIGHT = MODEBAR_WIDTH * 7 + 24, // 8 mode selectors, one smaller!
         KEYPAD_HEIGHT = 200,
         WIN_MIN_WIDTH = 400,
         WIN_STD_WIDTH = 800,
@@ -124,6 +125,8 @@ public:
     void Clear(uint32_t px) { std::fill(data.begin(), data.end(), px); }
     int Width() const { return width; }
     int Height() const { return height; }
+
+    void PaintIcon(int x, int y, const uint32_t *pix, int w, int h);
 
     uint32_t* Row(int r) { return &data[r * width]; }
     std::vector<uint32_t>::iterator PixAt(int y, int x) { return data.begin() + (y * width + x); }
@@ -206,5 +209,21 @@ protected:
     std::vector<FrameRegion> dirtyBits;
 
 };
+
+inline void FrameBuffer::PaintIcon(int x, int y, const uint32_t *pix, int w, int h)
+{
+    assert(x >= 0);
+    assert(y >= 0);
+    assert((x + w) <= width);
+    assert((y + h) <= height);
+
+    for (int iy = 0; iy < h; ++iy) {
+        uint32_t *d = &data[((y + iy) * width) + x];
+        const uint32_t *s = pix + iy * w;
+        memcpy(d, s, w * sizeof(uint32_t));
+    }
+}
+
+
 
 } // namespace navitab

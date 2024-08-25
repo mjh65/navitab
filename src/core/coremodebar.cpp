@@ -20,6 +20,14 @@
 
 #include "coremodebar.h"
 #include "navitab.h"
+#include "svg/mode_about_40x40.h"
+#include "svg/mode_map_40x40.h"
+#include "svg/mode_route_40x40.h"
+#include "svg/mode_airport_40x40.h"
+#include "svg/mode_docs_40x40.h"
+#include "svg/mode_settings_40x40.h"
+#include "svg/mode_doodler_40x40.h"
+#include "svg/mode_keypad_40x24.h"
 
 namespace navitab {
 
@@ -45,17 +53,23 @@ void CoreModebar::onResize(int, int)
     // and a new one is created and scheduled for redrawing
     width = Window::MODEBAR_WIDTH; height = Window::MODEBAR_HEIGHT;
     image = std::make_unique<FrameBuffer>(width, height);
-    image->Clear(backgroundPixels);
-    // this is temporary code during initial development
-    for (int i = 1; i < 8; ++i) {
-        int y = i * (Window::MODEBAR_HEIGHT / 8);
-        auto r = image->Row(y);
-        for (int x = 0; x < Window::MODEBAR_WIDTH; ++x) {
-            *(r + x) = 0x400000ff;
-        }
-    }
+    //image->Clear(backgroundPixels);
 
-    // TODO - generate the basic modebar image
+    // generate the basic modebar image
+    const uint32_t* icons[] = {
+        mode_about_40x40,
+        mode_map_40x40,
+        mode_route_40x40,
+        mode_airport_40x40,
+        mode_docs_40x40,
+        mode_settings_40x40,
+        mode_doodler_40x40
+    };
+    for (int i = 0; i < 7; ++i) {
+        int y = i * 40;
+        image->PaintIcon(0, i*40, icons[i], 40, 40);
+    }
+    image->PaintIcon(0, 7 * 40, mode_keypad_40x24, 40, 24);
 
     dirtyBits.push_back(FrameRegion(0, 0, width, height));
     RunLater([this]() { Redraw(); });

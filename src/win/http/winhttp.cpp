@@ -54,7 +54,6 @@ void WindowHTTP::Connect(std::shared_ptr<CoreServices> c)
     canvas = core->GetPartCallbacks(WindowPart::CANVAS);
     canvas->SetPainter(shared_from_this());
     canvas->PostResize(winWidth - MODEBAR_WIDTH, winHeight - TOOLBAR_HEIGHT);
-    // TODO WSAStartup here for windows
     int port = 26730; // base port
     while (server->start(port)) {
         if (++port >= 26750) break;
@@ -69,7 +68,6 @@ void WindowHTTP::Connect(std::shared_ptr<CoreServices> c)
 void WindowHTTP::Disconnect()
 {
     server->stop();
-    // TODO WSACleanup here for windows
     canvas.reset();
     prefs.reset();
     core.reset();

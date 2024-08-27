@@ -40,7 +40,6 @@ const int STDIN_FILENO = 0;
 
 namespace navitab {
 
-
 // these were added to support linux but keep the windows source code largely unchanged
 #if !defined(_WIN32)
 const int SOCKET_ERROR = -1;
@@ -61,10 +60,6 @@ inline int lastError()
     return WSAGetLastError();
 }
 #endif
-
-
-
-
 
 PanelServer::PanelServer(WindowHTTP *o)
 :   LOG(std::make_unique<logging::Logger>("winhttp")),

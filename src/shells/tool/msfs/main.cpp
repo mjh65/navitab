@@ -23,6 +23,9 @@
  // and if all is successful emulates an event loop that either runs a script
  // or just does random stuff.
 
+#if defined(_WIN32)
+#include <WinSock2.h>
+#endif
 #include <memory>
 #include <iostream>
 #include <fmt/core.h>
@@ -56,6 +59,12 @@ int main(int arg, char** argv)
     // can be reported through the logging interface.
     LOGS("Early init completed, starting and enabling");
     try {
+#if defined(_WIN32)
+        WSADATA wsaData;
+        if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+            LOGF(fmt::format("Panel server: WSAStartup failed with error {}", WSAGetLastError()));
+        }
+#endif
         nvt->Start();
 
         sim = navitab::Simulator::Factory();
@@ -81,6 +90,9 @@ int main(int arg, char** argv)
 
         nvt->Stop();
         nvt.reset();
+#if defined(_WIN32)
+        WSACleanup();
+#endif
     }
     catch (navitab::Exception& e) {
         LOGF(fmt::format("Navitab exception: {}", e.What()));

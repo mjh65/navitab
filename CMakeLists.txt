@@ -18,11 +18,11 @@
 
 # Works with 3.23 and tested through 3.29
 cmake_minimum_required(VERSION 3.23...3.29)
-message(${CMAKE_VERSION})
 
 # Stuff that might affect the way the project command works
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "Minimum macOS version" FORCE)
 set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build architectures for mac OS X" FORCE)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "Navitab requires static libraries")
 
 # Project name and a few useful settings. Other commands can pick up the results
 project(Navitab
@@ -40,7 +40,6 @@ endif()
 # Optionally set things like CMAKE_CXX_STANDARD here
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-set(BUILD_SHARED_LIBS OFF)
 
 # Let's ensure -std=c++xx instead of -std=g++xx
 set(CMAKE_CXX_EXTENSIONS OFF)

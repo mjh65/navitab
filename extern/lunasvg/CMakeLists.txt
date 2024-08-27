@@ -20,6 +20,6 @@
 
 message(STATUS "Fetching lunasvg")
 FetchContent_Declare(lunasvg
-    URL "https://github.com/sammycage/lunasvg/archive/refs/tags/v2.4.0.zip"
+    URL "https://github.com/sammycage/lunasvg/archive/refs/tags/v2.4.1.zip"
 )
 FetchContent_MakeAvailable(lunasvg)

@@ -42,7 +42,7 @@ public:
     ~XPlaneWindow();
 
     // Implementation of Window, 
-    int EventLoop(int maxLoops) override { return 0; } // null implementation, not used
+    void EventLoop() override { } // null implementation, not used
 
     // Implementation of WindowControls, common to desktop and VR
     void Brightness(int percent) override;

@@ -24,7 +24,8 @@
 #include "winhttp.h"
 #include "navitab/core.h"
 #include "../texbuffer.h"
-#include "imageserver.h"
+#include "htmlserver.h"
+#include "cmdhandler.h"
 
 std::shared_ptr<navitab::Window> navitab::Window::Factory()
 {
@@ -37,10 +38,12 @@ WindowHTTP::WindowHTTP()
 :   LOG(std::make_unique<logging::Logger>("winhttp")),
     winWidth(WIN_STD_WIDTH),
     winHeight(WIN_STD_HEIGHT),
-    brightness(1.0f)
+    brightness(1.0f),
+    running(true)
 {
-    server = std::make_unique<PanelServer>(this);
+    server = std::make_unique<HtmlServer>(this);
     image = std::make_unique<TextureBuffer>(WIN_MAX_WIDTH, (WIN_MAX_HEIGHT - TOOLBAR_HEIGHT));
+    commands = std::make_unique< CommandHandler>(this);
 }
 
 WindowHTTP::~WindowHTTP()
@@ -73,16 +76,19 @@ void WindowHTTP::Disconnect()
     core.reset();
 }
 
-int WindowHTTP::EventLoop(int maxLoops)
+void WindowHTTP::EventLoop()
 {
-    // TODO - deal with events received from the panel via the web server
-    auto k = server->key();
-    if (k == 0) {
-        return -1;
-    }
-    // TODO - perhaps implement some kind of command interface here?
+    while (1) {
+        std::unique_lock<std::mutex> lock(qmutex);
+        qsync.wait(lock, [this]() { return !running || !jobs.empty(); });
+        if (!running) break;
+        auto job = jobs.front();
+        jobs.pop();
+        lock.unlock();
 
-    return 0;
+        // run the job
+        job();
+    }
 }
 
 void WindowHTTP::Paint(int part, const FrameBuffer* src, const std::vector<FrameRegion>& regions)
@@ -102,7 +108,16 @@ void WindowHTTP::Brightness(int percent)
     UNIMPLEMENTED(__func__);
 }
 
-unsigned WindowHTTP::encodeBMP(std::vector<unsigned char> &bmp)
+void WindowHTTP::RunLater(std::function<void()> j, void*)
+{
+    {
+        std::lock_guard<std::mutex> lock(qmutex);
+        jobs.push(j);
+    }
+    qsync.notify_one();
+}
+
+unsigned WindowHTTP::EncodeBMP(std::vector<unsigned char> &bmp)
 {
     std::lock_guard<std::mutex> lock(paintMutex);
     uint32_t w = image->Width();

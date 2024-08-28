@@ -21,17 +21,23 @@
 #pragma once
 
 #include <memory>
+#include <functional>
+#include <queue>
 #include <mutex>
+#include <condition_variable>
+#include <thread>
 #include "navitab/window.h"
+#include "navitab/deferred.h"
 #include "navitab/logger.h"
 
 namespace navitab {
 
-class PanelServer;
+class HtmlServer;
 class TextureBuffer;
+class CommandHandler;
 
 class WindowHTTP : public std::enable_shared_from_this<WindowHTTP>,
-                   public Window, public PartPainter, public WindowControls
+                   public Window, public PartPainter, public WindowControls, protected DeferredJobRunner<>
 {
 public:
     WindowHTTP();
@@ -40,7 +46,7 @@ public:
     // Implementation of the Window interface
     void Connect(std::shared_ptr<CoreServices> core) override;
     void Disconnect() override;
-    int EventLoop(int maxLoops) override;
+    void EventLoop() override;
 
     // Implementation of the PartPainter interface
     void Paint(int part, const FrameBuffer* src, const std::vector<FrameRegion>& regions) override;
@@ -48,22 +54,36 @@ public:
     // Implementation of the WindowControls interface
     void Brightness(int percent) override;
 
-    // encode a BMP image of the canvas for the http client
-    unsigned encodeBMP(std::vector<unsigned char> &png);
+    // Encode a BMP image of the canvas for the http client
+    unsigned EncodeBMP(std::vector<unsigned char> &png);
     
+    // Command handler has finished
+    void Finish() { RunLater([this]() {onFinish(); }); }
+
+protected:
+    // Implementation of DeferredJobRunner
+    void RunLater(std::function<void()>, void* s = nullptr) override;
+    void onFinish() { running = false; }
+
 private:
     std::unique_ptr<logging::Logger> LOG;
     std::shared_ptr<CoreServices> core;
     std::shared_ptr<Settings> prefs;
     std::shared_ptr<WindowPart> canvas;
     std::unique_ptr<TextureBuffer> image;
-    std::unique_ptr<PanelServer> server;
+    std::unique_ptr<HtmlServer> server;
+    std::unique_ptr<CommandHandler> commands;
     std::mutex paintMutex;
 
     int winWidth;
     int winHeight;
 
     float brightness;
+
+    bool                                running;
+    std::queue<std::function<void()>>   jobs;
+    std::condition_variable             qsync;
+    std::mutex                          qmutex;
 };
 
 }

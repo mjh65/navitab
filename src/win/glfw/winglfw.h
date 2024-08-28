@@ -41,7 +41,7 @@ public:
     // Implementation of the Window interface
     void Connect(std::shared_ptr<CoreServices> core) override;
     void Disconnect() override;
-    int EventLoop(int maxLoops) override;
+    void EventLoop() override;
 
     // Implementation of the PartPainter interface
     void Paint(int part, const FrameBuffer* src, const std::vector<FrameRegion>& regions) override;

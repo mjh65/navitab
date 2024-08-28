@@ -102,33 +102,33 @@ void WindowGLFW::Disconnect()
     core.reset();
 }
 
-int WindowGLFW::EventLoop(int maxLoops)
+void WindowGLFW::EventLoop()
 {
-    if (glfwWindowShouldClose(window)) {
-        return -1;
-    }
-
-    // check the window position and size. don't need to do this every frame, to keep the overheads down
-    if (++winResizePollTimer > 30) {
-        winResizePollTimer = 0;
-        int w, h;
-        glfwGetWindowSize(window, &w, &h);
-        if ((w != winWidth) || (h != winHeight)) {
-            winWidth = w; winHeight = h;
-            ResizeNotifyAll(w, h);
+    while (1) {
+        if (glfwWindowShouldClose(window)) {
+            return;
         }
+
+        // check the window position and size. don't need to do this every frame, to keep the overheads down
+        if (++winResizePollTimer > 30) {
+            winResizePollTimer = 0;
+            int w, h;
+            glfwGetWindowSize(window, &w, &h);
+            if ((w != winWidth) || (h != winHeight)) {
+                winWidth = w; winHeight = h;
+                ResizeNotifyAll(w, h);
+            }
+        }
+
+        RenderFrame();
+
+        glfwPollEvents();
+        // TODO - generate button down events on first press
+        // TODO - generate mouse movements when either button is active
+        // TODO - generate button up events on release
+        // TODO - scroll wheel handling
+        // TODO - check key events and forward useful stuff
     }
-
-    RenderFrame();
-
-    glfwPollEvents();
-    // TODO - generate button down events on first press
-    // TODO - generate mouse movements when either button is active
-    // TODO - generate button up events on release
-    // TODO - scroll wheel handling
-    // TODO - check key events and forward useful stuff
-
-    return 0; // should return >0 during mouse movements, not sure if this will be useful though?
 }
 
 void WindowGLFW::ResizeNotifyAll(int w, int h)

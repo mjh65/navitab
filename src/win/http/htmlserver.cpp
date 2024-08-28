@@ -18,7 +18,7 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "imageserver.h"
+#include "htmlserver.h"
 #if defined(_WIN32)
 #include <Windows.h>
 #include <WS2tcpip.h>
@@ -28,9 +28,7 @@
 #include <arpa/inet.h>
 #endif
 #if !defined(_MSC_VER)
-#include <unistd.h>
-#else
-const int STDIN_FILENO = 0;
+#include <unistd.h> // check required
 #endif
 #include <iostream>
 #include <sstream>
@@ -61,19 +59,19 @@ inline int lastError()
 }
 #endif
 
-PanelServer::PanelServer(WindowHTTP *o)
+HtmlServer::HtmlServer(WindowHTTP *o)
 :   LOG(std::make_unique<logging::Logger>("winhttp")),
     owner(o)
 {
     reqBuffer = std::make_unique<char[]>(REQ_BUFFER_SIZE);
 }
 
-PanelServer::~PanelServer()
+HtmlServer::~HtmlServer()
 {
     stop();
 }
 
-void PanelServer::stop()
+void HtmlServer::stop()
 {
     serverKeepAlive = false;
     if (panelSocket != INVALID_SOCKET) {
@@ -86,7 +84,7 @@ void PanelServer::stop()
     }
 }
 
-int PanelServer::start(int port)
+int HtmlServer::start(int port)
 {
     stop(); // stop old instance (if any)
 
@@ -139,12 +137,12 @@ int PanelServer::start(int port)
     }
 
     serverKeepAlive = true;
-    serverThread = std::make_unique<std::thread>(&PanelServer::listenLoop, this);
+    serverThread = std::make_unique<std::thread>(&HtmlServer::listenLoop, this);
 
     return 0;
 }
 
-void PanelServer::listenLoop()
+void HtmlServer::listenLoop()
 {
     sockaddr_in clientAddr {};
     socklen_t clientLen = sizeof(clientAddr);
@@ -156,7 +154,6 @@ void PanelServer::listenLoop()
 
     while (serverKeepAlive) {
         FD_ZERO(&readSet);
-        FD_SET(STDIN_FILENO, &readSet);
         FD_SET(httpService, &readSet);
         int fdMax = httpService;
 
@@ -171,17 +168,13 @@ void PanelServer::listenLoop()
             closesocket(panelSocket);
             panelSocket = INVALID_SOCKET;
         }
-
-        if (FD_ISSET(STDIN_FILENO, &readSet)) {
-            processStdin();
-        }
     }
 
     closesocket(httpService);
     LOGS("Shutdown WinHTTP image server");
 }
 
-void PanelServer::connectionLoop()
+void HtmlServer::connectionLoop()
 {
     LOGD("Client has connected ...");
 
@@ -191,7 +184,6 @@ void PanelServer::connectionLoop()
         while (serverKeepAlive) {
             fd_set readSet;
             FD_ZERO(&readSet);
-            FD_SET(STDIN_FILENO, &readSet);
             FD_SET(panelSocket, &readSet);
             int fdMax = panelSocket;
 
@@ -216,9 +208,6 @@ void PanelServer::connectionLoop()
                     break;
                 }
             }
-            if (FD_ISSET(STDIN_FILENO, &readSet)) {
-                processStdin();
-            }
         }
     }
 
@@ -228,7 +217,7 @@ void PanelServer::connectionLoop()
     LOGD("Client disconnected");
 }
 
-bool PanelServer::processRequest(HttpReq *req)
+bool HtmlServer::processRequest(HttpReq *req)
 {
     bool keepAlive = false;
     auto opcode = req->getUrl().substr(1,1);
@@ -280,7 +269,7 @@ bool PanelServer::processRequest(HttpReq *req)
             // request for frame
             header << "200 OK\r\n";
             header << "Content-Type: image/bmp\r\n";
-            owner->encodeBMP(content);
+            owner->EncodeBMP(content);
         } else if (opcode == "m") {
             header << "200 OK\r\n";
             header << "Content-Type: text/plain\r\n";
@@ -305,29 +294,6 @@ bool PanelServer::processRequest(HttpReq *req)
 
     // return false if the connection should be held open
     return keepAlive;
-}
-
-void PanelServer::processStdin()
-{
-    std::string message;
-    getline(std::cin, message);
-    std::lock_guard<std::mutex> lock(keyMutex);
-    for (auto c: message) {
-        keys.push(c);
-    }
-    keys.push('\n');
-    if (std::cin.eof()) {
-        keys.push(0);
-    }
-}
-
-int PanelServer::key()
-{
-    std::lock_guard<std::mutex> lock(keyMutex);
-    if (keys.empty()) return -1;
-    auto k = keys.front();
-    keys.pop();
-    return k;
 }
 
 } // namespace navitab

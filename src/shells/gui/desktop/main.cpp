@@ -65,14 +65,9 @@ int main(int arg, char** argv)
         nvt->Enable();
 
         LOGS("Starting event loop");
-
-        int pending = 0;
-        while (pending >= 0) {
-            pending = win->EventLoop();
-        }
+        win->EventLoop();
 
         LOGS("Event loop finished, disabling and stopping");
-
         nvt->Disable();
         win->Disconnect();
         win.reset();

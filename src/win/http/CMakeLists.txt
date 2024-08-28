@@ -24,10 +24,12 @@
 target_sources(navitab_win_http PRIVATE
     winhttp.cpp
     winhttp.h
-    imageserver.cpp
-    imageserver.h
+    htmlserver.cpp
+    htmlserver.h
     protocol.cpp
     protocol.h
+    cmdhandler.cpp
+    cmdhandler.h
 )
 
 if(WIN32)

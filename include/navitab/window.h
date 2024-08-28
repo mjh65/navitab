@@ -96,9 +96,8 @@ struct Window
     virtual void Connect(std::shared_ptr<CoreServices> core) = 0;
     virtual void Disconnect() = 0;
 
-    // Run some iterations of the event loop
-    // returns the number of events in the queue, or -1 if finished
-    virtual int EventLoop(int maxLoops = 1) = 0;
+    // Run the event loop and return when the window is closed.
+    virtual void EventLoop() = 0;
 
     virtual ~Window() = default;
 };

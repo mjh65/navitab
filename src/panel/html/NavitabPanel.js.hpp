@@ -25,9 +25,11 @@ class NavitabHttp {
         this.lastTrafficTime = Date.now() + 5000;
         this.trafficLoading = false;
         this.trafficReady = false;
+#ifdef NAVITAB_MSFS_PANEL
         let listener = RegisterViewListener('JS_LISTENER_MAPS', () => {
-            listener.trigger('JS_BIND_BINGMAP', 'avitab' + Date.now(), false);
+            listener.trigger('JS_BIND_BINGMAP', 'navitab' + Date.now(), false);
         });
+#endif
     }
     onResponse(resp) {
         //console.log("onResponse " + resp.responseText);
@@ -102,6 +104,8 @@ class NavitabHttp {
         // called on each animation frame callback
         const now = Date.now();
 
+#ifdef NAVITAB_MSFS_PANEL
+        // TODO - move this into the server via the SDK plugin
         // get our position every 0.5 seconds
         if (((now - this.lastPositionTime) > 500)) {
             this.lastPositionTime = now;
@@ -113,6 +117,7 @@ class NavitabHttp {
             this.lastTrafficTime = now;
             this.trafficRequest();
         }
+#endif
 
         // may want to throttle this back, currently loads images as fast as responses allow
         if ((this.imageReady == false) && (this.imageLoading == false)) {
@@ -128,9 +133,22 @@ class NavitabHttp {
     }
 }
 
+#ifdef NAVITAB_MOCK_WWW
+class TemplateElement extends HTMLElement {
+    constructor() {
+        super(...arguments);
+    }
+    connectedCallback() {
+    }
+    disconnectedCallback() {
+    }
+}
+#endif
+
 class NavitabElement extends TemplateElement {
     constructor() {
         super(...arguments);
+        console.log('NavitabElement::NavitabElement()');
         this.panelActive = false;
         this.ingameUi = null;
         this.borderElement = null;
@@ -141,7 +159,7 @@ class NavitabElement extends TemplateElement {
         this.mouseDown = false;
     }
     connectedCallback() {
-        //console.log('connectedCallback()');
+        console.log('NavitabElement::connectedCallback()');
         super.connectedCallback();
 
         var self = this;
@@ -153,7 +171,7 @@ class NavitabElement extends TemplateElement {
 
         if (this.ingameUi) {
             this.ingameUi.addEventListener("panelActive", (e) => {
-                //console.log('panelActive');
+                console.log('NavitabElement::panelActive');
                 self.panelActive = true;
                 let updateLoop = () => {
                     if (window["IsDestroying"] === true) {
@@ -169,7 +187,7 @@ class NavitabElement extends TemplateElement {
                 requestAnimationFrame(updateLoop);
             });
             this.ingameUi.addEventListener("panelInactive", (e) => {
-                //console.log('panelInactive');
+                console.log('NavitabElement::panelInactive');
                 self.panelActive = false;
             });
             this.ingameUi.addEventListener("OnResize", this.onPanelResized.bind(this));
@@ -195,6 +213,7 @@ class NavitabElement extends TemplateElement {
         }
     }
     disconnectedCallback() {
+        console.log('NavitabElement::disconnectedCallback()');
         super.disconnectedCallback();
     }
     onPanelResized() {
@@ -224,7 +243,7 @@ class NavitabElement extends TemplateElement {
         ctx.stroke();
         ctx.font = "36px Arial";
         ctx.fillStyle = "black";
-        ctx.fillText("!no response from Navitab-msfs-igps.exe!", 70, 350);
+        ctx.fillText("!no response from Navitab panel server!", 70, 350);
     }
 
     flightLoop() {
@@ -236,5 +255,21 @@ class NavitabElement extends TemplateElement {
         }
     }
 }
+#ifdef NAVITAB_MSFS_PANEL
+// this call is too early for the generic htdocs version, see the html
 window.customElements.define("aviators-tablet", NavitabElement);
 checkAutoload();
+#endif
+#ifdef NAVITAB_MOCK_WWW
+function startPanel() {
+    console.log("START PANEL");
+    window.customElements.define("aviators-tablet", NavitabElement);
+    let ui = document.querySelector('ingame-ui');
+    window.addEventListener("unload", () => {
+            const inactive = new Event("panelInactive");
+            ui.dispatchEvent(inactive);
+        });
+    const active = new Event("panelActive");
+    ui.dispatchEvent(active);
+}
+#endif

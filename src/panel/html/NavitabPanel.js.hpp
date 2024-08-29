@@ -165,7 +165,7 @@ class NavitabElement extends TemplateElement {
         var self = this;
         this.ingameUi = this.querySelector('ingame-ui');
         this.borderElement = document.getElementById("NavitabDisplay");
-        this.canvas = document.getElementById("NavitabCanvas");
+        this.canvas = document.getElementById("Canvas");
         this.imageBuffer = document.getElementById("ImageBuffer");
         this.http = new NavitabHttp(this.imageBuffer);
 

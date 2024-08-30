@@ -1,4 +1,3 @@
-
 var NavitabIsLoaded = false;
 document.addEventListener('beforeunload', function () {
     NavitabIsLoaded = false;
@@ -113,7 +112,7 @@ class NavitabElement extends TemplateElement {
         if (Date.now() > this.resizePending) {
             console.log("Resize pending");
 
-            this.resizePending = Date.now() + 100000; // will fire but not for a long time!
+            this.resizePending = Date.now() + 100000; // will fire again, but not for a long time!
         }
         let res = this.http.update();
         if (res[1]) {

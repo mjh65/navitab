@@ -60,9 +60,9 @@
                     <img id="ModeKeypad" src="mode_keypad.svg" alt="Keypad" width="40px" height="24px">
                 </div>
                 <canvas id="Canvas"></canvas>
-                <div id="ScratchArea">
-                    <img id="ImageBuffer"></img>
-                </div>
+            </div>
+            <div id="ScratchArea">
+                <img id="ImageBuffer"></img>
             </div>
         </ingame-ui>
     </aviators-tablet>

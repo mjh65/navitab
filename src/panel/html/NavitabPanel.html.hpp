@@ -16,6 +16,10 @@
     <link rel="import" href="/templates/ingameUi/ingameUi.html" />
     <link rel="import" href="/templates/ingameUiHeader/ingameUiHeader.html" />
 #endif
+#ifdef NAVITAB_MOCK_WWW
+    <link rel="icon" href="favicon.svg" type="image/svg+xml"/>
+#endif
+    <script type="text/javascript" src="NavitabProtocol.js"></script>
     <script type="text/javascript" src="NavitabPanel.js"></script>
 </head>
 <body id="Navitab" class="border-box">
@@ -55,9 +59,7 @@
                     <img id="ModeDoodler" src="mode_doodler.svg" alt="Doodler" width="40px" height="40px">
                     <img id="ModeKeypad" src="mode_keypad.svg" alt="Keypad" width="40px" height="24px">
                 </div>
-                <div id="CanvasPart">
-                    <canvas id="Canvas"></canvas>
-                </div>
+                <canvas id="Canvas"></canvas>
                 <div id="ScratchArea">
                     <img id="ImageBuffer"></img>
                 </div>

@@ -50,7 +50,7 @@ private:
     void extractQueryStrings();
 
 private:
-    std::unique_ptr<logging::Logger> LOG; // TODO - perhaps just use ref to imageserver log for efficiency
+    std::unique_ptr<logging::Logger> LOG; // TODO - perhaps just use ref to htmlserver log for efficiency
     int feedState = kMethod;
     std::string working;
     std::string method;

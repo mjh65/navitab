@@ -38,7 +38,7 @@
 
 namespace navitab {
 
-// these were added to support linux but keep the windows source code largely unchanged
+// these are added to aid with winsock/bsd portability
 #if !defined(_WIN32)
 const int SOCKET_ERROR = -1;
 const int SD_BOTH = SHUT_RDWR;
@@ -59,11 +59,13 @@ inline int lastError()
 }
 #endif
 
+const int REQ_BUFFER_SIZE = 4096;
+
 HtmlServer::HtmlServer(WindowHTTP *o)
 :   LOG(std::make_unique<logging::Logger>("winhttp")),
     owner(o)
 {
-    reqBuffer = std::make_unique<char[]>(REQ_BUFFER_SIZE);
+    reqBuffer.resize(REQ_BUFFER_SIZE);
 }
 
 HtmlServer::~HtmlServer()
@@ -74,14 +76,15 @@ HtmlServer::~HtmlServer()
 void HtmlServer::stop()
 {
     serverKeepAlive = false;
-    if (panelSocket != INVALID_SOCKET) {
-        shutdown(panelSocket, SD_BOTH);
-        closesocket(panelSocket);
-    }
     if (serverThread) {
         serverThread->join();
         serverThread.reset();
     }
+    for (auto& i: panelSockets) {
+        shutdown(i.first, SD_BOTH);
+        closesocket(i.first);
+    }
+    panelSockets.clear();
 }
 
 int HtmlServer::start(int port)
@@ -96,7 +99,6 @@ int HtmlServer::start(int port)
     std::ostringstream pstr;
     pstr << port;
 
-    //ZeroMemory(&hints, sizeof(hints));
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
@@ -137,12 +139,12 @@ int HtmlServer::start(int port)
     }
 
     serverKeepAlive = true;
-    serverThread = std::make_unique<std::thread>(&HtmlServer::listenLoop, this);
+    serverThread = std::make_unique<std::thread>(&HtmlServer::serverLoop, this);
 
     return 0;
 }
 
-void HtmlServer::listenLoop()
+void HtmlServer::serverLoop()
 {
     sockaddr_in clientAddr {};
     socklen_t clientLen = sizeof(clientAddr);
@@ -150,74 +152,60 @@ void HtmlServer::listenLoop()
     fd_set readSet;
 
     timeval timeout{};
-    timeout.tv_usec = 1000 * 500;
+    timeout.tv_sec = 1;
 
     while (serverKeepAlive) {
         FD_ZERO(&readSet);
         FD_SET(httpService, &readSet);
         int fdMax = httpService;
+        for (auto& i: panelSockets) {
+            FD_SET(i.first, &readSet);
+            fdMax = std::max(fdMax, i.first);
+        }
 
-        if (select(fdMax + 1, &readSet, nullptr, nullptr, &timeout) < 0) {
+        auto sr = select(fdMax + 1, &readSet, nullptr, nullptr, &timeout);
+        if (sr < 0) {
+            LOGD(fmt::format("select() returned {}", sr));
+            LOGD(fmt::format("Last error was {}", lastError()));
             break;
         }
 
         if (FD_ISSET(httpService, &readSet)) {
-            LOGD("Accepting winhttp client");
-            panelSocket = accept(httpService, (sockaddr *) &clientAddr, &clientLen);
-            connectionLoop();
-            closesocket(panelSocket);
-            panelSocket = INVALID_SOCKET;
+            auto ps = accept(httpService, (sockaddr *) &clientAddr, &clientLen);
+            panelSockets[ps] = std::make_unique<HttpReq>();
+            LOGD(fmt::format("Accepted winhttp client on {}", ps));
+        }
+
+        std::map<SOCKET, int> toBeClosed;
+        for (auto& i: panelSockets) {
+            if (FD_ISSET(i.first, &readSet)) {
+                auto n = recv(i.first, reqBuffer.data(), REQ_BUFFER_SIZE, 0);
+                LOGD(fmt::format("recv({}) returned {}", i.first, n));
+                if (n <= 0) {
+                    toBeClosed[i.first] = 1;
+                }
+                if (i.second->feedData(reqBuffer.data(), (int)n)) {
+                    auto keepAlive = processRequest(i.first, i.second.get());
+                    LOGD(fmt::format("request on {} handled, keepAlive={}", i.first, keepAlive));
+                    if (!keepAlive) toBeClosed[i.first] = 1;
+                }
+            }
+        }
+
+        for (auto& i: toBeClosed) {
+            LOGD(fmt::format("Closing {} after completion or receive error", i.first));
+            panelSockets.erase(i.first);
+            (void)shutdown(i.first, SD_BOTH);
+            closesocket(i.first);
         }
     }
 
     closesocket(httpService);
+    httpService = INVALID_SOCKET;
     LOGS("Shutdown WinHTTP image server");
 }
 
-void HtmlServer::connectionLoop()
-{
-    LOGD("Client has connected ...");
-
-    bool keepConnection = true;
-    while (serverKeepAlive && keepConnection) {
-        auto req = std::make_unique<HttpReq>();
-        while (serverKeepAlive) {
-            fd_set readSet;
-            FD_ZERO(&readSet);
-            FD_SET(panelSocket, &readSet);
-            int fdMax = panelSocket;
-
-            timeval timeout{};
-            timeout.tv_sec = 1;
-            auto sr = select(fdMax + 1, &readSet, nullptr, nullptr, &timeout);
-            if (sr < 0) {
-                LOGD(fmt::format("select() returned {}", sr));
-                LOGD(fmt::format("Last error was {}", lastError()));
-                keepConnection = false;
-                break;
-            }
-            if (FD_ISSET(panelSocket, &readSet)) {
-                auto n = recv(panelSocket, reqBuffer.get(), REQ_BUFFER_SIZE, 0);
-                LOGD(fmt::format("recv() returned {}", n));
-                if (n <= 0) {
-                    keepConnection = false;
-                    break;
-                }
-                if (req->feedData(reqBuffer.get(), (int)n)) {
-                    keepConnection = processRequest(req.get());
-                    break;
-                }
-            }
-        }
-    }
-
-    // cleanup
-    (void)shutdown(panelSocket, SD_BOTH);
-    closesocket(panelSocket);
-    LOGD("Client disconnected");
-}
-
-bool HtmlServer::processRequest(HttpReq *req)
+bool HtmlServer::processRequest(SOCKET s, HttpReq *req)
 {
     bool keepAlive = false;
     auto opcode = req->getUrl().substr(1,1);
@@ -266,7 +254,7 @@ bool HtmlServer::processRequest(HttpReq *req)
         }
 
         if (opcode == "i") {
-            // request for frame
+            // request for latest canvas image
             header << "200 OK\r\n";
             header << "Content-Type: image/bmp\r\n";
             owner->EncodeBMP(content);
@@ -305,8 +293,8 @@ bool HtmlServer::processRequest(HttpReq *req)
     if (!keepAlive) { header << "Connection: close\r\n"; }
     header << "\r\n";
 
-    (void)send(panelSocket, header.str().c_str(), header.str().length(), 0);
-    (void)send(panelSocket, reinterpret_cast<char *>(content.data()), content.size(), 0);
+    (void)send(s, header.str().c_str(), header.str().length(), 0);
+    (void)send(s, reinterpret_cast<char *>(content.data()), content.size(), 0);
 
     // return false if the connection should be held open
     return keepAlive;

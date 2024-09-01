@@ -33,6 +33,12 @@
 #include <functional>
 #include "navitab/logger.h"
 
+// these are added to aid with winsock/bsd portability
+#if !defined(_WIN32)
+#define SOCKET int
+const SOCKET INVALID_SOCKET = -1;
+#endif
+
 namespace navitab {
 
 class WindowHTTP;
@@ -50,25 +56,17 @@ public:
     int key();
 
 private:
-    void listenLoop();
-    void connectionLoop();
-    bool processRequest(HttpReq *req); // return true if the connection should be held open
+    void serverLoop();
+    bool processRequest(SOCKET s, HttpReq *req); // return true if the connection should be held open
 
 private:
     std::unique_ptr<logging::Logger> LOG;
     WindowHTTP *const owner;
-#if defined(_WIN32)
     SOCKET httpService = INVALID_SOCKET;
-    SOCKET panelSocket = INVALID_SOCKET;
-#else
-    const int INVALID_SOCKET = -1;
-    int httpService = INVALID_SOCKET;
-    int panelSocket = INVALID_SOCKET;
-#endif
+    std::map<SOCKET, std::unique_ptr<HttpReq>> panelSockets;
     std::atomic_bool serverKeepAlive { false };
     std::unique_ptr<std::thread> serverThread;
-    const int REQ_BUFFER_SIZE = 4096;
-    std::unique_ptr<char[]> reqBuffer;
+    std::vector<char> reqBuffer;
     std::vector<char> respBuffer;
 };
 

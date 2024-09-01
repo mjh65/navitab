@@ -24,7 +24,7 @@
 namespace navitab {
 
 HttpReq::HttpReq()
-:   LOG(std::make_unique<logging::Logger>("winhttp"))
+:   LOG(std::make_unique<logging::Logger>("httpreq"))
 {
 }
 
@@ -50,7 +50,7 @@ bool HttpReq::feedData(char *fragment, int n)
             feedHeader(fragment, n);
             break;
         case kComplete:
-            LOGW("Ignoring (unexpected) message body in http request");
+            LOGI("Ignoring (unexpected) message body in http request");
             return true;
         case kError:
             LOGW("Ignoring rest of http request after error");

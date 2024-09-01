@@ -26,8 +26,8 @@ target_sources(navitab_win_http PRIVATE
     winhttp.h
     htmlserver.cpp
     htmlserver.h
-    protocol.cpp
-    protocol.h
+    httpreq.cpp
+    httpreq.h
     cmdhandler.cpp
     cmdhandler.h
 )

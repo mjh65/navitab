@@ -19,7 +19,7 @@
  */
 
 #include <fmt/core.h>
-#include "protocol.h"
+#include "httpreq.h"
 
 namespace navitab {
 

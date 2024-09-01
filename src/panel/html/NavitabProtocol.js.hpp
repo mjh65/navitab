@@ -104,7 +104,6 @@ class NavitabProtocol {
             newImg.onerror = function() {
                 console.log("Image error");
                 self.imageLoading = false;
-                self.lastResponseTime = Date.now();
 
             }
             newImg.src = url;

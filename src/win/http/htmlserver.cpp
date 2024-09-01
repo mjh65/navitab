@@ -34,7 +34,7 @@
 #include <sstream>
 #include <fmt/core.h>
 #include "winhttp.h"
-#include "protocol.h"
+#include "httpreq.h"
 
 namespace navitab {
 

@@ -57,6 +57,7 @@ class NavitabElement extends TemplateElement {
         this.statusElem = document.getElementById("ToolbarStatus");
         this.statusText = new NavitabStatus();
         this.canvas = document.getElementById("Canvas");
+        this.noServerSrc = this.canvas.src;
         this.server = new NavitabProtocol();
 
         if (this.ingameUi) {
@@ -126,14 +127,16 @@ class NavitabElement extends TemplateElement {
                     this.canvas.src = url;
                 }
             }
-        } else if (Date.now() > this.pingPending) {
+        }
+        else if (Date.now() > this.pingPending) {
+            this.canvas.src = this.noServerSrc;
             this.statusElem.textContent = "Waiting for connection to Navitab panel server";
             let port = this.serverPort + 1;
             if ((port < 26730) || (port >= 26750)) {
                 port = 26730;
             }
             this.serverPort = port;
-            this.pingPending = Date.now() + 500;
+            this.pingPending = Date.now() + 250; // should find the port within 5s
             this.resizePending = Date.now();
             this.server.ping(port);
         }

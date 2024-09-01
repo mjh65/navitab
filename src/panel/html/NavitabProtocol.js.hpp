@@ -20,23 +20,13 @@
 #endif
 
 class NavitabProtocol {
-    constructor(i) {
-        this.imageBuffer = i;
+    constructor() {
         this.reqId = 1;
         this.portNum = 0;
         this.lastResponseTime = 0;
         this.lastUpdateTime = 0;
         this.imageLoading = false;
-        this.imageReady = false;
-        this.imageBuffer.addEventListener("load", () => {
-            this.imageReady = true;
-            this.imageLoading = false;
-            this.lastResponseTime = Date.now();
-        });
-        this.imageBuffer.addEventListener("error", () => {
-            this.imageLoading = false;
-            this.lastResponseTime = Date.now();
-        });
+        this.lastUrl = "favicon.svg";
 #ifdef NAVITAB_MSFS_PANEL
         let listener = RegisterViewListener('JS_LISTENER_MAPS', () => {
             listener.trigger('JS_BIND_BINGMAP', 'navitab' + Date.now(), false);
@@ -99,22 +89,27 @@ class NavitabProtocol {
         xhttp.open("GET", url);
         xhttp.send();
     }
-    hasImageReady() {
-        // called from main panel class on each animation frame callback.
-        // returns true if an image is waiting, false otherwise
-        // starts loading the next image as soon as the current one is consumed.
-        // may want to throttle this back, currently loads images as fast as responses allow
-        let ready = this.imageReady;
-        this.imageReady = false;
-
-        if (!ready && (this.imageLoading == false)) {
+    canvasUrl() {
+        if (!this.imageLoading) {
+            var self = this;
+            var newImg = new Image;
             this.imageLoading = true;
-            let url = "http://127.0.0.1:" + this.portNum + "/i?t=" + (this.reqId++);
-            this.imageBuffer.src = url;
-            console.log("Loading next image from %s", url);
-        }
+            let url = "http://127.0.0.1:" + this.portNum + "/i" + (this.reqId++);
+            newImg.onload = function() {
+                console.log("Image loaded");
+                self.imageLoading = false;
+                self.lastResponseTime = Date.now();
+                self.lastUrl = this.src;
+            }
+            newImg.onerror = function() {
+                console.log("Image error");
+                self.imageLoading = false;
+                self.lastResponseTime = Date.now();
 
-        return ready;
+            }
+            newImg.src = url;
+        }
+        return this.lastUrl;
     }
     isConnected() {
         let lastRespDelta = Date.now() - this.lastResponseTime;

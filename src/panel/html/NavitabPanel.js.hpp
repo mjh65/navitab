@@ -41,7 +41,6 @@ class NavitabElement extends TemplateElement {
         this.ingameUi = null;
         this.statusElem = null;
         this.canvas = null;
-        this.imageBuffer = null;
         this.server = null;
         this.serverPort = 0;
         this.mouseDown = false;
@@ -58,8 +57,7 @@ class NavitabElement extends TemplateElement {
         this.statusElem = document.getElementById("ToolbarStatus");
         this.statusText = new NavitabStatus();
         this.canvas = document.getElementById("Canvas");
-        this.imageBuffer = document.getElementById("ImageBuffer");
-        this.server = new NavitabProtocol(this.imageBuffer);
+        this.server = new NavitabProtocol();
 
         if (this.ingameUi) {
             this.ingameUi.addEventListener("panelActive", (e) => {
@@ -110,10 +108,6 @@ class NavitabElement extends TemplateElement {
         console.log('NavitabElement::disconnectedCallback()');
         super.disconnectedCallback();
     }
-    updateCanvas() {
-        let ctx = this.canvas.getContext("2d");
-        ctx.drawImage(this.imageBuffer, 0, 0);
-    }
 
     flightLoop() {
         if (this.server.isConnected()) {
@@ -126,8 +120,11 @@ class NavitabElement extends TemplateElement {
                 this.server.setCanvasSize(rect.width, rect.height);
                 this.resizePending = Date.now() + 100000; // will fire again, but not for a long time!
             }
-            else if (this.server.hasImageReady()) {
-                this.updateCanvas();
+            else {
+                let url = this.server.canvasUrl();
+                if (this.canvas.src != url) {
+                    this.canvas.src = url;
+                }
             }
         } else if (Date.now() > this.pingPending) {
             this.statusElem.textContent = "Waiting for connection to Navitab panel server";

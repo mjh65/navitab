@@ -55,11 +55,3 @@ navitab-element #Canvas {
     width: 100%;
     height: calc(100% - 24px);
 }
-navitab-element #ScratchArea {
-    display: none;
-    width: 100%;
-    height: 0%;
-}
-navitab-element #ImageBuffer {
-    display: none;
-}

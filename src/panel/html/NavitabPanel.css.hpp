@@ -1,4 +1,8 @@
-﻿aviators-tablet #NavitabPanel {
+﻿body {
+    margin: 0;
+    padding: 0;
+}
+navitab-element #NavitabPanel {
     width: 100%;
     height: 100%;
     min-width: 400px;
@@ -7,13 +11,13 @@
     max-height: 700px;
     display: flex;
 }
-aviators-tablet #AllParts {
+navitab-element #AllParts {
     position: relative;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     background-color: DarkKhaki;
 }
-aviators-tablet #ToolbarPart {
+navitab-element #ToolbarPart {
     position: absolute;
     left: 0px;
     top: 0px;
@@ -21,12 +25,13 @@ aviators-tablet #ToolbarPart {
     height: 24px;
     background-color: Chartreuse;
 }
-aviators-tablet #ToolbarStatus {
+navitab-element #ToolbarStatus {
     position: absolute;
     left: 4px;
     top: 4px;
+    color: red;
 }
-aviators-tablet #ToolbarTools {
+navitab-element #ToolbarTools {
     position: absolute;
     right: 4px;
     top: 0px;
@@ -34,7 +39,7 @@ aviators-tablet #ToolbarTools {
     background-color: Chartreuse;
     z-index: 1;
 }
-aviators-tablet #ModebarPart {
+navitab-element #ModebarPart {
     position: absolute;
     left: 0px;
     top: 24px;
@@ -43,18 +48,18 @@ aviators-tablet #ModebarPart {
     background: rgba(255, 255, 255, 0.2);
     z-index: 1;
 }
-aviators-tablet #Canvas {
+navitab-element #Canvas {
     position: absolute;
     left: 0px;
     top: 24px;
     width: 100%;
     height: calc(100% - 24px);
 }
-aviators-tablet #ScratchArea {
+navitab-element #ScratchArea {
     display: none;
     width: 100%;
     height: 0%;
 }
-aviators-tablet #ImageBuffer {
+navitab-element #ImageBuffer {
     display: none;
 }

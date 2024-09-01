@@ -23,12 +23,12 @@
     <script type="text/javascript" src="NavitabPanel.js"></script>
 </head>
 <body id="Navitab" class="border-box">
-    <aviators-tablet>
+    <navitab-element>
         <ingame-ui id="NavitabPanel" panel-id="PANEL_NAVITAB" class="ingameUiFrame panelInvisible" title="Navitab" content-fit="true">
             <div id="AllParts">
                 <div id="ToolbarPart">
-                    <div id="ToolbarStatus">
-                        <code>13:23:52 | 17fps | 17:42:33Z | -3.324,56.197</code>
+                    <div id="ToolbarRect">
+                        <code id="ToolbarStatus">13:23:52 | 17fps | 17:42:33Z | -3.324,56.197</code>
                     </div>
                     <div id="ToolbarTools">
                         <img id="ToolCentre" src="tool_centre.svg" alt="Centre" width="24px" height="24px">
@@ -65,7 +65,7 @@
                 <img id="ImageBuffer"></img>
             </div>
         </ingame-ui>
-    </aviators-tablet>
+    </navitab-element>
 #ifdef NAVITAB_MOCK_WWW
     <script> (function() { startPanel(); })(); </script>
 #endif

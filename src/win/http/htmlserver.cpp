@@ -265,11 +265,27 @@ bool HtmlServer::processRequest(HttpReq *req)
             //owner->updateTraffic(traffic);
         }
 
-        if (opcode == "f") {
+        if (opcode == "i") {
             // request for frame
             header << "200 OK\r\n";
             header << "Content-Type: image/bmp\r\n";
             owner->EncodeBMP(content);
+        } else if (opcode == "p") {
+            // ping
+            header << "200 OK\r\n";
+            header << "Content-Type: text/plain\r\n";
+            header << "Access-Control-Allow-Origin: *\r\n";
+            std::string reply("PONG");
+            content.resize(reply.size());
+            std::copy(reply.begin(), reply.end(), content.begin());
+        } else if (opcode == "r") {
+            // resize
+            header << "200 OK\r\n";
+            header << "Content-Type: text/plain\r\n";
+            header << "Access-Control-Allow-Origin: *\r\n";
+            std::string reply("OKEY-DOKEY"); // TODO - replace this with status info
+            content.resize(reply.size());
+            std::copy(reply.begin(), reply.end(), content.begin());
         } else if (opcode == "m") {
             header << "200 OK\r\n";
             header << "Content-Type: text/plain\r\n";

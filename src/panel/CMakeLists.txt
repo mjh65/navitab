@@ -75,6 +75,7 @@ generate_html_sources(PANEL_HTML_INPUTS HTDOCS_HTML_INPUTS
 
 # These are the SVG icons/images used in both MSFS panel and htdocs environments.
 set(PANEL_SVG_INPUTS
+    "${NAVITAB_RES_DIR}/svg/favicon.svg"
     "${NAVITAB_RES_DIR}/svg/mode_about.svg"
     "${NAVITAB_RES_DIR}/svg/mode_airport.svg"
     "${NAVITAB_RES_DIR}/svg/mode_docs.svg"
@@ -108,7 +109,6 @@ add_custom_target(
 
 # This builds a web-server htdocs environment.
 install(FILES "${CMAKE_CURRENT_LIST_DIR}/html/index.html" DESTINATION navitab/htdocs)
-install(FILES "${CMAKE_CURRENT_LIST_DIR}/svg/ICON_TOOLBAR_NAVITAB_PANEL.svg" DESTINATION navitab/htdocs RENAME favicon.svg)
 install(FILES ${HTDOCS_HTML_INPUTS} DESTINATION navitab/htdocs)
 install(FILES ${PANEL_SVG_INPUTS} DESTINATION navitab/htdocs)
 

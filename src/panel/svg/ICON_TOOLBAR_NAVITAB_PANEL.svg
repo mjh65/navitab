@@ -2,7 +2,9 @@
     <title>ICON_TOOLBAR_NAVITAB_PANEL</title>
     <g id="HIGHLIGHT">
       <g>
-        <path d="M40,150 L60,170 L60,80 L160,180 L160,60 L170,60 L150,20 L130,60 L140,60 L140,132 L40,32 Z"/>
+        <path d="M60,136 L76,154 L76,92 L140,150
+                 L140,70 L150,70 L132,40 L114,70 L124,70
+                 L124,114 L60,52 Z"/>
       </g>
     </g>
 </svg>

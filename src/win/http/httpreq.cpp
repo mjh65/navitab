@@ -178,6 +178,7 @@ bool HttpReq::keepAlive() const
     }
     return false;
 }
+
 bool HttpReq::getQueryString(const char *q, std::string &val)
 {
     bool exists = false;

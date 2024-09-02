@@ -62,7 +62,7 @@ inline int lastError()
 const int REQ_BUFFER_SIZE = 4096;
 
 HtmlServer::HtmlServer(WindowHTTP *o)
-:   LOG(std::make_unique<logging::Logger>("winhttp")),
+:   LOG(std::make_unique<logging::Logger>("htmlsvr")),
     owner(o)
 {
     reqBuffer.resize(REQ_BUFFER_SIZE);
@@ -157,7 +157,7 @@ void HtmlServer::serverLoop()
     while (serverKeepAlive) {
         FD_ZERO(&readSet);
         FD_SET(httpService, &readSet);
-        int fdMax = httpService;
+        SOCKET fdMax = httpService;
         for (auto& i: panelSockets) {
             FD_SET(i.first, &readSet);
             fdMax = std::max(fdMax, i.first);
@@ -180,14 +180,16 @@ void HtmlServer::serverLoop()
         for (auto& i: panelSockets) {
             if (FD_ISSET(i.first, &readSet)) {
                 auto n = recv(i.first, reqBuffer.data(), REQ_BUFFER_SIZE, 0);
-                LOGD(fmt::format("recv({}) returned {}", i.first, n));
                 if (n <= 0) {
                     toBeClosed[i.first] = 1;
                 }
                 if (i.second->feedData(reqBuffer.data(), (int)n)) {
                     auto keepAlive = processRequest(i.first, i.second.get());
-                    LOGD(fmt::format("request on {} handled, keepAlive={}", i.first, keepAlive));
-                    if (!keepAlive) toBeClosed[i.first] = 1;
+                    if (keepAlive) {
+                        panelSockets[i.first] = std::make_unique<HttpReq>();
+                    } else {
+                        toBeClosed[i.first] = 1;
+                    }
                 }
             }
         }
@@ -215,18 +217,22 @@ bool HtmlServer::processRequest(SOCKET s, HttpReq *req)
     if (req->hasError()) {
         header << "404 NOT FOUND\r\n";
         header << "Content-Type: text/plain\r\n";
-        std::string reply("AviTab: error");
+        std::string reply("Navitab: error");
         content.resize(reply.size());
         std::copy(reply.begin(), reply.end(), content.begin());
     } else {
         keepAlive = req->keepAlive();
 
-        // if provided, get aircraft position and send this into the avitab engine
-        std::string longitude, latitude, altitude, heading;
-        if (req->getQueryString("lt",latitude) && req->getQueryString("ln",longitude) && req->getQueryString("al",altitude) && req->getQueryString("hg",heading)) {
-            LOGD(fmt::format("Got position: {},{},{},{}", latitude, longitude, altitude, heading));
-            //owner->updateAircraftLocation(std::stof(longitude), std::stof(latitude), std::stof(altitude), std::stof(heading));
-        }
+        // Protocol supports the following events and query strings
+        // RESIZE:  /r  w= h=
+        // MODE:    /a  q=
+        // TOOL:    /t  q=
+        // MOUSE:   /m  x= y= b= wu wd
+        // KEY:     /k  c=
+        // STATUS:  /s
+        // IMAGE:   /i
+
+        if (opcode != "i") LOGD(fmt::format("Opcode '{}'", opcode));
 
         // if provided, get mouse or wheel information and send it to the driver
         std::string mx, my;
@@ -235,50 +241,37 @@ bool HtmlServer::processRequest(SOCKET s, HttpReq *req)
 
             if (req->getQueryString("mb",button)) {
                 LOGD(fmt::format("Got mouse state: {} {} {}", mx, my, button));
-                //owner->updateMouseState(std::stoi(mx), std::stoi(my), std::stoi(button));
+                owner->mouseEvent(std::stoi(mx), std::stoi(my), std::stoi(button));
             }
             auto wheelUp = req->getQueryString("wu",wheel);
             auto wheelDown = req->getQueryString("wd",wheel);
             if (wheelUp || wheelDown) {
                 LOGD(fmt::format("Got wheel event: {}", wheelUp ? "up" : "down"));
-                //owner->updateMousePosition(std::stoi(mx), std::stoi(my));
-                //owner->updateWheelState(wheelUp);
+                owner->wheelEvent(std::stoi(mx), std::stoi(my), wheelUp ? 1 : -1);
             }
         }
 
-        // if provided, get other aircraft information and pass it to the environment
-        std::string traffic;
-        if (req->getQueryString("tr",traffic)) {
-            LOGD(fmt::format("Got traffic information: %s", traffic.c_str()));
-            //owner->updateTraffic(traffic);
+        // handle panel resizing
+        std::string w, h;
+        if (req->getQueryString("w",w) && req->getQueryString("h",h) && opcode == "r") {
+            LOGD(fmt::format("Got resize: {} x {}", w, h));
+            owner->panelResize(std::stoi(w), std::stoi(h));
         }
 
+        // TODO - handle mode/app selection (a)
+        // TODO - handle tool selection (t)
+
         if (opcode == "i") {
-            // request for latest canvas image
+            // request for latest canvas image, response is a BMP image
             header << "200 OK\r\n";
             header << "Content-Type: image/bmp\r\n";
             owner->EncodeBMP(content);
-        } else if (opcode == "p") {
-            // ping
+        } else if (std::string("ratmks").find(opcode) != std::string::npos) {
+            // all other known opcodes will respond with the current status
             header << "200 OK\r\n";
             header << "Content-Type: text/plain\r\n";
             header << "Access-Control-Allow-Origin: *\r\n";
-            std::string reply("PONG");
-            content.resize(reply.size());
-            std::copy(reply.begin(), reply.end(), content.begin());
-        } else if (opcode == "r") {
-            // resize
-            header << "200 OK\r\n";
-            header << "Content-Type: text/plain\r\n";
-            header << "Access-Control-Allow-Origin: *\r\n";
-            std::string reply("OKEY-DOKEY"); // TODO - replace this with status info
-            content.resize(reply.size());
-            std::copy(reply.begin(), reply.end(), content.begin());
-        } else if (opcode == "m") {
-            header << "200 OK\r\n";
-            header << "Content-Type: text/plain\r\n";
-            header << "Access-Control-Allow-Origin: *\r\n";
-            std::string reply("OKEY-DOKEY");
+            std::string reply = owner->EncodeStatus();
             content.resize(reply.size());
             std::copy(reply.begin(), reply.end(), content.begin());
         } else {

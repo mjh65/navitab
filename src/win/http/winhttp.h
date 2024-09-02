@@ -56,7 +56,14 @@ public:
 
     // Encode a BMP image of the canvas for the http client
     unsigned EncodeBMP(std::vector<unsigned char> &png);
-    
+
+    // Encode the status string for the panel
+    std::string EncodeStatus();
+
+    void mouseEvent(int x, int y, int b);
+    void wheelEvent(int x, int y, int d);
+    void panelResize(int w, int h);
+
     // Command handler has finished
     void Finish() { RunLater([this]() {onFinish(); }); }
 

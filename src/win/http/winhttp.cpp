@@ -56,7 +56,7 @@ void WindowHTTP::Connect(std::shared_ptr<CoreServices> c)
     prefs = core->GetSettingsManager();
     canvas = core->GetPartCallbacks(WindowPart::CANVAS);
     canvas->SetPainter(shared_from_this());
-    canvas->PostResize(winWidth - MODEBAR_WIDTH, winHeight - TOOLBAR_HEIGHT);
+    canvas->PostResize(winWidth, winHeight - TOOLBAR_HEIGHT);
     int port = 26730; // base port
     while (server->start(port)) {
         if (++port >= 26750) break;
@@ -157,6 +157,30 @@ unsigned WindowHTTP::EncodeBMP(std::vector<unsigned char> &bmp)
     memcpy(bmp.data() + 14 + 40, image->Data(), n);
     
     return 0;
+}
+
+std::string WindowHTTP::EncodeStatus()
+{
+    // TODO - we need to encode the aircraft location, zulu time, and fps
+    return "-3324,56197,58000,18";
+}
+
+void WindowHTTP::mouseEvent(int x, int y, int b)
+{
+    canvas->PostMouseEvent(x, y, b, false);
+}
+
+void WindowHTTP::wheelEvent(int x, int y, int d)
+{
+    canvas->PostWheelEvent(x, y, 0, d);
+}
+
+void WindowHTTP::panelResize(int w, int h)
+{
+    w = std::max(std::min(w, (int)WIN_MAX_WIDTH), (int)WIN_MIN_WIDTH);
+    h = std::max(std::min(h, (int)(WIN_MAX_HEIGHT - TOOLBAR_HEIGHT)), (int)WIN_MIN_HEIGHT);
+    LOGS(fmt::format("Resizing to {} x {}", w, h));
+    canvas->PostResize(w, h);
 }
 
 } // namespace navitab

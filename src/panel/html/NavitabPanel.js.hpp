@@ -45,7 +45,7 @@ class NavitabElement extends TemplateElement {
         this.serverPort = 0;
         this.mouseDown = false;
         this.resizePending = Date.now();
-        this.pingPending = Date.now();
+        this.nextStatus = Date.now();
     }
     connectedCallback() {
         // this is when the panel is connected to the simulation,
@@ -71,7 +71,11 @@ class NavitabElement extends TemplateElement {
                     if (!NavitabIsLoaded) {
                         return;
                     }
-                    this.flightLoop();
+                    if (this.server.isConnected()) {
+                        this.flightLoop();
+                    } else {
+                        this.findServer();
+                    }
                     requestAnimationFrame(updateLoop);
                 };
                 NavitabIsLoaded = true;
@@ -111,24 +115,32 @@ class NavitabElement extends TemplateElement {
     }
 
     flightLoop() {
-        if (this.server.isConnected()) {
-            this.statusElem.textContent = this.statusText.format();
-            if (Date.now() > this.resizePending) {
-                const rect = this.canvas.parentNode.getBoundingClientRect();
-                console.log("Resize pending %d x %d", rect.width, rect.height);
-                this.canvas.width = rect.width;
-                this.canvas.height = rect.height;
-                this.server.setCanvasSize(rect.width, rect.height);
-                this.resizePending = Date.now() + 100000; // will fire again, but not for a long time!
-            }
-            else {
-                let url = this.server.canvasUrl();
-                if (this.canvas.src != url) {
-                    this.canvas.src = url;
-                }
-            }
+        // do these in priority order
+        if (Date.now() > this.nextStatus) {
+            this.statusElem.textContent = this.statusText.format(); // TODO - make this part of the onResponse callback
+            this.server.getStatus(this.serverPort);
+            this.nextStatus = Date.now() + 1000;
+            return;
         }
-        else if (Date.now() > this.pingPending) {
+
+        if (Date.now() > this.resizePending) {
+            const rect = this.canvas.parentNode.getBoundingClientRect();
+            console.log("Resize pending %d x %d", rect.width, rect.height);
+            this.canvas.width = rect.width;
+            this.canvas.height = rect.height;
+            this.server.setCanvasSize(rect.width, rect.height);
+            this.resizePending = Date.now() + 100000; // will fire again, but not for a long time!
+            return;
+        }
+
+        let url = this.server.canvasUrl();
+        if (this.canvas.src != url) {
+            this.canvas.src = url;
+        }
+    }
+
+    findServer() {
+        if (Date.now() > this.nextStatus) {
             this.canvas.src = this.noServerSrc;
             this.statusElem.textContent = "Waiting for connection to Navitab panel server";
             let port = this.serverPort + 1;
@@ -136,12 +148,13 @@ class NavitabElement extends TemplateElement {
                 port = 26730;
             }
             this.serverPort = port;
-            this.pingPending = Date.now() + 250; // should find the port within 5s
+            this.nextStatus = Date.now() + 250; // should find the port within 5s
             this.resizePending = Date.now();
-            this.server.ping(port);
+            this.server.getStatus(port);
         }
     }
 }
+
 #ifdef NAVITAB_MSFS_PANEL
 // this call is too early for the generic htdocs version, see the html
 window.customElements.define("navitab-element", NavitabElement);

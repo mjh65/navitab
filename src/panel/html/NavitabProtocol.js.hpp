@@ -2,7 +2,6 @@
 // NavitabProtocol class deals with communications with the panel server.
 // The protocol uses http GET requests with various URL tags to represent
 // different reported events. These are:
-// PING:    /p
 // RESIZE:  /r  w= h=
 // MODE:    /a  q=
 // TOOL:    /t  q=
@@ -38,14 +37,14 @@ class NavitabProtocol {
         this.lastResponseTime = Date.now();
         // TODO - extract server status info from resp.responseText
     }
-    ping(p) {
-        console.log("Sending ping to port %d", p);
+    getStatus(p) {
+        console.log("Requesting status on port %d", p);
         var self = this;
         let xhttp = new XMLHttpRequest();
-        let url = "http://127.0.0.1:" + p + "/p?t=" + (this.reqId++);
+        let url = "http://127.0.0.1:" + p + "/s?t=" + (this.reqId++);
         xhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
-                console.log("Ping response on port %d", p);
+                console.log("Status response on port %d", p);
                 self.portNum = p;
                 self.onResponse(this);
             }
@@ -96,13 +95,13 @@ class NavitabProtocol {
             this.imageLoading = true;
             let url = "http://127.0.0.1:" + this.portNum + "/i" + (this.reqId++);
             newImg.onload = function() {
-                console.log("Image loaded");
+                //console.log("Image loaded");
                 self.imageLoading = false;
                 self.lastResponseTime = Date.now();
                 self.lastUrl = this.src;
             }
             newImg.onerror = function() {
-                console.log("Image error");
+                //console.log("Image error");
                 self.imageLoading = false;
 
             }

@@ -63,7 +63,7 @@ Navitab::Navitab(SimEngine s, WinServer w)
     winServer(w),
     LOG(std::make_unique<logging::Logger>("navitab")),
     running(false),
-    enabled(false)
+    activated(false)
 {
     // Early initialisation needs to do enough to get the preferences loaded
     // and the log file created. Everything else can wait! Any failures are
@@ -109,7 +109,7 @@ Navitab::Navitab(SimEngine s, WinServer w)
 Navitab::~Navitab()
 {
     // in case these were not called properly by the app
-    Disable();
+    Deactivate();
     Stop();
     LOGS("~Navitab() done");
 }
@@ -179,21 +179,19 @@ void Navitab::Start()
     // curl_global_init(CURL_GLOBAL_ALL); TODO: activate this later
 }
 
-void Navitab::Enable()
+void Navitab::Activate()
 {
-    // This is called during X-Plane plugin enable, and probably does a bit more
-    // Need to review SDK docs and Avitab.
-    if (!enabled) {
-        enabled = true;
+    if (!activated) {
+        activated = true;
     }
 }
 
-void Navitab::Disable()
+void Navitab::Deactivate()
 {
-    // This is called during X-Plane plugin disable
-    // Need to review SDK docs and Avitab.
-    if (enabled) {
-        enabled = false;
+    if (activated) {
+        activated = false;
+
+
     }
 }
 
@@ -219,7 +217,7 @@ void Navitab::Stop()
 
 void Navitab::onSimFlightLoop(const SimStateData& data)
 {
-    if (!enabled) return;
+    if (!activated) return;
 
     simState = data;
     auto now = navitab::LocalTime("%H:%M:%S");

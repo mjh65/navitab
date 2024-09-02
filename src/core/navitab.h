@@ -75,8 +75,8 @@ public:
 
     // Startup and shutdown control - fine-grained enough to support all app classes.
     void Start() override;    // TODO - called from XPluginStart - review this in SDK and Avitab
-    void Enable() override;  // TODO - called from XPluginEnable - review this in SDK and Avitab
-    void Disable() override; // TODO - called from XPluginDisable - review this in SDK and Avitab
+    void Activate() override;  // TODO - called from XPluginEnable - review this in SDK and Avitab
+    void Deactivate() override; // TODO - called from XPluginDisable - review this in SDK and Avitab
     void Stop() override;    // TODO - called from XPluginStop - review this in SDK and Avitab
 
     // ======================================================================
@@ -125,7 +125,7 @@ private:
     std::shared_ptr<lvglkit::Manager>   uiMgr;
 
     bool                                running;
-    bool                                enabled;
+    bool                                activated;
     SimStateData                        simState;
     std::string                         toolbarStatus;
 

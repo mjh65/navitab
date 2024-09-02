@@ -64,6 +64,12 @@ struct WindowControls
 {
     // Adjust the brightness of the display
     virtual void Brightness(int percent) = 0;
+
+    // Provide interfaces to the window parts (if implemented by the UI window)
+    virtual std::shared_ptr<Toolbar> GetToolbar() { assert(0); return nullptr; }
+    virtual std::shared_ptr<Modebar> GetModebar() { assert(0); return nullptr; }
+    virtual std::shared_ptr<Doodler> GetDoodler() { assert(0); return nullptr; }
+    virtual std::shared_ptr<Keypad> GetKeypad() { assert(0); return nullptr; }
 };
 
 // The Window interface defines the services that the UI window provides
@@ -174,17 +180,17 @@ public:
 
 protected:
     // Called at start, and then whenever the window part is resized.
-    virtual void onResize(int width, int height) = 0;
+    virtual void onResize(int width, int height) { assert(0); }
 
     // Called when a mouse event occurs. Includes movement while a button is down.
     // Position coordinates are relative to canvas top-left.
-    virtual void onMouseEvent(int x, int y, bool l, bool r) = 0;
+    virtual void onMouseEvent(int x, int y, bool l, bool r) { assert(0); }
 
     // Called when scroll wheel events occur.
-    virtual void onWheelEvent(int x, int y, int xdir, int ydir) = 0;
+    virtual void onWheelEvent(int x, int y, int xdir, int ydir) { assert(0); }
 
     // Called when key events occur.
-    virtual void onKeyEvent(int code) = 0;
+    virtual void onKeyEvent(int code) { assert(0); }
 
 protected:
     WindowPart(int id) : partId(id) { }

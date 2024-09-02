@@ -87,7 +87,7 @@ PLUGIN_API int XPluginEnable(void)
     try {
         // at enable, hook up the XPlane liaison with the Navitab core
         sim->Enable();
-        nvt->Enable();
+        nvt->Activate();
         LOGS("XPluginEnable: enable completed");
     }
     catch (const std::exception& e) {
@@ -125,7 +125,7 @@ PLUGIN_API void XPluginDisable(void)
     assert(LOG);
     try {
         sim->Disable();
-        nvt->Disable();
+        nvt->Deactivate();
         LOGS("XPluginDisable: disable completed");
     }
     catch (const std::exception& e) {

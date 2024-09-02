@@ -27,6 +27,10 @@
 #include <condition_variable>
 #include <thread>
 #include "navitab/window.h"
+#include "navitab/toolbar.h"
+#include "navitab/modebar.h"
+#include "navitab/doodler.h"
+#include "navitab/keypad.h"
 #include "navitab/deferred.h"
 #include "navitab/logger.h"
 
@@ -37,7 +41,9 @@ class TextureBuffer;
 class CommandHandler;
 
 class WindowHTTP : public std::enable_shared_from_this<WindowHTTP>,
-                   public Window, public PartPainter, public WindowControls, protected DeferredJobRunner<>
+                   public Window, public PartPainter, public WindowControls,
+                   public Toolbar, public Modebar, public Doodler, public Keypad,
+                   protected DeferredJobRunner<int>
 {
 public:
     WindowHTTP();
@@ -53,6 +59,25 @@ public:
 
     // Implementation of the WindowControls interface
     void Brightness(int percent) override;
+    std::shared_ptr<Toolbar> GetToolbar() override { return shared_from_this(); }
+    std::shared_ptr<Modebar> GetModebar() override { return shared_from_this(); }
+    std::shared_ptr<Doodler> GetDoodler() override { return shared_from_this(); }
+    std::shared_ptr<Keypad> GetKeypad() override { return shared_from_this(); }
+
+    // Implementation of the Toolbar interface
+    void SetStausInfo(std::string s) override;
+    void SetEnabledTools(int selectMask) override;
+
+    // Implementation of the Modebar interface
+    void SetHighlighted(int selectMask) override;
+
+    // Implementation of the Doodler interface
+    void Enable() override;
+    void Disable() override;
+
+    // Implementation of the Keypad interface
+    void Show() override;
+    void Hide() override;
 
     // Encode a BMP image of the canvas for the http client
     unsigned EncodeBMP(std::vector<unsigned char> &png);
@@ -65,11 +90,14 @@ public:
     void panelResize(int w, int h);
 
     // Command handler has finished
-    void Finish() { RunLater([this]() {onFinish(); }); }
+    void Finish() { RunLater([this]() {onFinish();}, (void *)nullptr); }
 
 protected:
-    // Implementation of DeferredJobRunner
-    void RunLater(std::function<void()>, void* s = nullptr) override;
+    // ======================================================================
+    // Implementation of DeferredJobRunner (via several other intermediate base classes)
+    void RunLater(std::function<void ()>, void* s = nullptr) override;
+    void RunLater(std::function<void ()>, int* s = nullptr) override;
+
     void onFinish() { running = false; }
 
 private:

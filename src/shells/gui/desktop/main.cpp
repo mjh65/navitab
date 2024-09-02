@@ -62,13 +62,13 @@ int main(int arg, char** argv)
         sim->Connect(nvt);
         win = navitab::Window::Factory();
         win->Connect(nvt);
-        nvt->Enable();
+        nvt->Activate();
 
         LOGS("Starting event loop");
         win->EventLoop();
 
         LOGS("Event loop finished, disabling and stopping");
-        nvt->Disable();
+        nvt->Deactivate();
         win->Disconnect();
         win.reset();
         sim->Disconnect();

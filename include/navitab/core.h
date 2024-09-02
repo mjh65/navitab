@@ -93,8 +93,8 @@ struct CoreServices
 
     // Startup and shutdown control - fine-grained enough to support all app classes.
     virtual void Start() = 0;
-    virtual void Enable() = 0;
-    virtual void Disable() = 0;
+    virtual void Activate() = 0;
+    virtual void Deactivate() = 0;
     virtual void Stop() = 0;
 
     virtual ~CoreServices() = default;

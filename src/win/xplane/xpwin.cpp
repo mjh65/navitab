@@ -101,7 +101,7 @@ void XPlaneWindow::CheckVitalSigns()
 void XPlaneWindow::Connect(std::shared_ptr<CoreServices> c)
 {
     core = c;
-
+    core->SetWindowControl(shared_from_this());
     prefs = core->GetSettingsManager();
     auto& xwdp = prefs->Get("/xplane/window");
     try {

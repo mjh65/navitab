@@ -53,6 +53,7 @@ WindowHTTP::~WindowHTTP()
 void WindowHTTP::Connect(std::shared_ptr<CoreServices> c)
 {
     core = c;
+    core->SetWindowControl(shared_from_this());
     prefs = core->GetSettingsManager();
     canvas = core->GetPartCallbacks(WindowPart::CANVAS);
     canvas->SetPainter(shared_from_this());
@@ -108,6 +109,41 @@ void WindowHTTP::Brightness(int percent)
     UNIMPLEMENTED(__func__);
 }
 
+void WindowHTTP::SetStausInfo(std::string s)
+{
+    UNIMPLEMENTED(__func__);
+}
+
+void WindowHTTP::SetEnabledTools(int selectMask)
+{
+    UNIMPLEMENTED(__func__);
+}
+
+void WindowHTTP::SetHighlighted(int selectMask)
+{
+    UNIMPLEMENTED(__func__);
+}
+
+void WindowHTTP::Enable()
+{
+    UNIMPLEMENTED(__func__);
+}
+
+void WindowHTTP::Disable()
+{
+    UNIMPLEMENTED(__func__);
+}
+
+void WindowHTTP::Show()
+{
+    UNIMPLEMENTED(__func__);
+}
+
+void WindowHTTP::Hide()
+{
+    UNIMPLEMENTED(__func__);
+}
+
 void WindowHTTP::RunLater(std::function<void()> j, void*)
 {
     {
@@ -115,6 +151,12 @@ void WindowHTTP::RunLater(std::function<void()> j, void*)
         jobs.push(j);
     }
     qsync.notify_one();
+}
+
+void WindowHTTP::RunLater(std::function<void()> j, int*)
+{
+    void* x = nullptr;
+    RunLater(j,x);
 }
 
 unsigned WindowHTTP::EncodeBMP(std::vector<unsigned char> &bmp)

@@ -28,7 +28,7 @@
             <div id="AllParts">
                 <div id="ToolbarPart">
                     <div id="ToolbarRect">
-                        <code id="ToolbarStatus">13:23:52 | 17fps | 17:42:33Z | -3.324,56.197</code>
+                        <code id="ToolbarStatus">13:23:52 | 17fps | 17:42:33Z | 56.197,-3.324</code>
                     </div>
                     <div id="ToolbarTools">
                         <img id="ToolCentre" src="tool_centre.svg" alt="Centre" width="24px" height="24px">
@@ -59,7 +59,7 @@
                     <img id="ModeDoodler" src="mode_doodler.svg" alt="Doodler" width="40px" height="40px">
                     <img id="ModeKeypad" src="mode_keypad.svg" alt="Keypad" width="40px" height="24px">
                 </div>
-                <canvas id="Canvas"/>
+                <canvas id="Canvas"></canvas>
             </div>
         </ingame-ui>
     </navitab-element>

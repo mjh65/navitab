@@ -10,6 +10,8 @@ document.addEventListener('beforeunload', function () {
 }, false);
 
 #ifdef NAVITAB_MOCK_WWW
+// TemplateElement is an MSFS class which we need to provide for inheritance purposes
+// TODO - or do we? why not just conditionally compile the inheritance declaration of NavitabElement??
 class TemplateElement extends HTMLElement {
     constructor() {
         super(...arguments);
@@ -21,18 +23,20 @@ class TemplateElement extends HTMLElement {
 }
 #endif
 
+// NavitabStatus holds the latest status and commands from the server
 class NavitabStatus {
     constructor() {
-        this.wallClock = 0;
+        this.wallClock = "13:23:52";
         this.fps = 18;
-        this.zuluClock = 0;
-        this.longitude = 0;
-        this.latitude = 0;
+        this.zuluClock = "17:42:33";
+        this.longitude = -3.324;
+        this.latitude = 56.197;
     }
     format() {
-        return "13:23:52 | 17fps | 17:42:33Z | -3.324,56.197";
+        return this.wallClock + " | " + this.fps + " | " + this.zuluClock + " | " + this.longitude + "," + this.latitude;
     }
 }
+
 
 class NavitabElement extends TemplateElement {
     constructor() {
@@ -45,10 +49,10 @@ class NavitabElement extends TemplateElement {
         this.currentImage = null;
         this.connected = true;
         this.mouseDown = false;
-        this.statusText = new NavitabStatus();
+        this.status = new NavitabStatus();
         this.server = new NavitabProtocol();
         this.finder = new PortFinder(26730, 20);
-        this.resizePending = Date.now();
+        this.resizePending = 0;
         this.nextStatus = Date.now() + 1000;
     }
     connectedCallback() {
@@ -112,28 +116,34 @@ class NavitabElement extends TemplateElement {
         super.disconnectedCallback();
     }
     checkResizeCanvas() {
-        if (Date.now() > this.resizePending) {
+        if (this.resizePending && (Date.now() > this.resizePending)) {
             const rect = this.canvas.parentNode.getBoundingClientRect();
-            if ((this.canvas.width != rect.width) || (this.canvas.height != rect.height)) {
-                this.canvas.width = rect.width;
-                this.canvas.height = rect.height;
-                this.server.setCanvasSize(rect.width, rect.height);
+            const w = rect.width;
+            const h = rect.height;
+            if ((this.canvas.width != w) || (this.canvas.height != h)) {
+                console.log("Canvas has been resized to %d x %d", w, h);
+                this.canvas.width = w;
+                this.canvas.height = h;
             }
-            this.resizePending = Date.now() + 100000;
+            this.server.reportCanvasSize(w, h);
+            this.resizePending = 0;
         }
     }
     drawCanvas(i) {
+        //console.log("Latest image size is %d x %d", i.width, i.height);
         let ctx = this.canvas.getContext("2d");
         ctx.drawImage(i, 0, 0, i.width, i.height, 0, 0, this.canvas.width, this.canvas.height);
         this.currentImage = i;
+        if (this.connected && ((this.canvas.width != i.width) || (this.canvas.height != i.height)) && !this.resizePending) {
+            this.resizePending = Date.now() + 500;
+        }
     }
     flightLoop() {
         if (Date.now() > this.nextStatus) {
-            this.statusElem.textContent = this.statusText.format(); // TODO - make this part of the onResponse callback
+            this.statusElem.textContent = this.status.format(); // TODO - make this part of the onResponse callback
             if (!this.server.getStatus()) {
                 console.log("Connection to panel server has been lost");
                 this.connected = false;
-                this.server.setPort(0);
                 this.finder.linkDown();
                 this.statusElem.textContent = "Waiting for connection to Navitab panel server";
             }

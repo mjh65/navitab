@@ -1,4 +1,3 @@
-#if 0
 // NavitabProtocol class deals with communications with the panel server.
 // The protocol uses http GET requests with various URL tags to represent
 // different reported events. These are:
@@ -18,13 +17,11 @@
 // Status is requested after 1s of no previous request (could code it in an extra fake line of image?)
 // Other TODOs:
 // When starting: issue resize to check connection and try other port options if no response.
-#endif
-
 class NavitabProtocol {
     constructor() {
         this.portNum = 0;
         this.reqId = 1;
-        this.pendingReqs = 0;
+        this.failedLoads = 0;
         this.logo = new Image();
         this.logo.src = "favicon.svg";
         this.currentImage = this.logo;
@@ -37,12 +34,15 @@ class NavitabProtocol {
     makeImageLoader() {
         let i = new Image();
         let self = this;
+        i.setAttribute('crossOrigin','anonymous');
         i.onload = function() {
-            --self.pendingReqs;
+            self.failedLoads = 0;
             self.currentImage = this;
             self.imageLoading = false;
         }
         i.onerror = function() {
+            console.log("Image loader failure");
+            ++self.failedLoads;
             self.imageLoading = false;
         }
         return i;
@@ -50,25 +50,30 @@ class NavitabProtocol {
     // set the server's port number
     setPort(p) {
         this.portNum = p;
-        this.pendingReqs = 0;
+        this.failedLoads = 0;
+        this.imageLoading = false;
     }
     // decide if the connection has been lost (server died or shutdown)
     isConnected() {
         if (!this.portNum) return false;
-        let active = (this.pendingReqs < 4);
-        if (!active && this.imageLoading) {
-            this.imageLoading = false;
-            this.currentImage = this.logo;
+        let active = (this.failedLoads < 4);
+        if (!active) {
+            if (this.portNum || this.imageLoading) {
+                this.setPort(0);
+                this.currentImage = this.logo;
+            }
         }
         return active;
     }
     // deal with responses from event and other requests sent
     onResponse(resp) {
-        if (this.readyState == 1) {
-            ++this.pendingReqs;
-        } else if (this.readyState == 4 && this.status == 200) {
-            --this.pendingReqs;
-            // TODO - need to extract the status data and feed into the panel
+        if (resp.readyState == 4) {
+            if (resp.status == 200) {
+                this.failedLoads = 0;
+                // TODO extract status info from headers and pass to panel class
+            } else {
+                ++this.failedLoads;
+            }
         }
     }
     // generic send request function
@@ -80,6 +85,7 @@ class NavitabProtocol {
             self.onResponse(this);
         };
         xhttp.open("GET", url);
+        xhttp.timeout = 1000;
         xhttp.send();
         return this.isConnected();
     }
@@ -96,7 +102,8 @@ class NavitabProtocol {
         this.sendRequest("http://127.0.0.1:" + this.portNum + "/m?t=" + (this.reqId++) + "&mx=" + x + "&my=" + y + ((d<0) ? "&wu" : "&wd"));
     }
     // report resizing of the panel
-    setCanvasSize(w,h) {
+    reportCanvasSize(w,h) {
+        console.log("Sending canvas size %d x %d", w, h);
         this.sendRequest("http://127.0.0.1:" + this.portNum + "/r?t=" + (this.reqId++) + "&w=" + w + "&h=" + h);
     }
     // return the most recently acquired image (or the logo if the server connection was lost)
@@ -104,7 +111,6 @@ class NavitabProtocol {
         if (this.portNum && !this.imageLoading) {
             let url = "http://127.0.0.1:" + this.portNum + "/i" + (this.reqId++);
             this.imageLoading = true;
-            ++this.pendingReqs;
             if (this.currentImage === this.imageLoader0) {
                 this.imageLoader1.src = url;
             } else {
@@ -152,5 +158,6 @@ class PortFinder {
             this.nextPort = port;
             this.nextPoll = Date.now() + 250;
         }
+        return 0;
     }
 }

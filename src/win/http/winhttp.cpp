@@ -23,6 +23,7 @@
 #include <fmt/core.h>
 #include "winhttp.h"
 #include "navitab/core.h"
+#include "navitab/platform.h"
 #include "../texbuffer.h"
 #include "htmlserver.h"
 #include "cmdhandler.h"
@@ -176,8 +177,8 @@ unsigned WindowHTTP::EncodeBMP(std::vector<unsigned char> &bmp)
         0x00, 0x00,                 // res2
         0x36, 0x00, 0x00, 0x00,     // offset of pixel map
         0x28, 0x00, 0x00, 0x00,     // length of DIB header
-        0x20, 0x03, 0x00, 0x00,     // width in pixels (800)
-        0xe0, 0x01, 0x00, 0x00,     // height in pixels (480)
+        0x20, 0x03, 0x00, 0x00,     // width in pixels
+        0xe0, 0x01, 0x00, 0x00,     // height in pixels
         0x01, 0x00,                 // # colour planes (1)
         0x20, 0x00,                 // # bits per pixel (32)
         0x00, 0x00, 0x00, 0x00,     // compression method
@@ -190,10 +191,10 @@ unsigned WindowHTTP::EncodeBMP(std::vector<unsigned char> &bmp)
     
     // copy header template and then overwrite width, height and derived fields
     memcpy(bmp.data(), hdr, sizeof(hdr));
-    *(reinterpret_cast<uint32_t *>(&bmp[2])) = bmpLength;
-    *(reinterpret_cast<uint32_t *>(&bmp[18])) = w;
-    *(reinterpret_cast<uint32_t *>(&bmp[22])) = h;
-    *(reinterpret_cast<uint32_t *>(&bmp[34])) = n;
+    *(reinterpret_cast<uint32_t *>(&bmp[2])) = bmpLength;   // file length
+    *(reinterpret_cast<uint32_t *>(&bmp[18])) = w;          // width in pixels
+    *(reinterpret_cast<uint32_t *>(&bmp[22])) = h;          // height in pixels
+    *(reinterpret_cast<uint32_t *>(&bmp[34])) = n;          // image size in bytes
 
     // copy the pixel data
     memcpy(bmp.data() + 14 + 40, image->Data(), n);

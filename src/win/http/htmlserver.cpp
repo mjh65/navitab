@@ -265,6 +265,7 @@ bool HtmlServer::processRequest(SOCKET s, HttpReq *req)
             // request for latest canvas image, response is a BMP image
             header << "200 OK\r\n";
             header << "Content-Type: image/bmp\r\n";
+            header << "Access-Control-Allow-Origin: *\r\n";
             owner->EncodeBMP(content);
         } else if (std::string("ratmks").find(opcode) != std::string::npos) {
             // all other known opcodes will respond with the current status

@@ -229,17 +229,17 @@ bool HtmlServer::processRequest(SOCKET s, HttpReq *req)
         // TOOL:    /t  q=
         // MOUSE:   /m  x= y= b= wu wd
         // KEY:     /k  c=
-        // STATUS:  /s
+        // PING:    /p
         // IMAGE:   /i
 
         if (opcode != "i") LOGD(fmt::format("Opcode '{}'", opcode));
 
         // if provided, get mouse or wheel information and send it to the driver
         std::string mx, my;
-        if (req->getQueryString("mx",mx) && req->getQueryString("my",my)) {
+        if (req->getQueryString("x",mx) && req->getQueryString("y",my)) {
             std::string button, wheel;
 
-            if (req->getQueryString("mb",button)) {
+            if (req->getQueryString("b",button)) {
                 LOGD(fmt::format("Got mouse state: {} {} {}", mx, my, button));
                 owner->mouseEvent(std::stoi(mx), std::stoi(my), std::stoi(button));
             }
@@ -266,8 +266,10 @@ bool HtmlServer::processRequest(SOCKET s, HttpReq *req)
             header << "200 OK\r\n";
             header << "Content-Type: image/bmp\r\n";
             header << "Access-Control-Allow-Origin: *\r\n";
+            header << "Access-Control-Expose-Headers: Navitab-Status\r\n";
+            header << "Navitab-Status: " << owner->EncodeStatus() << "\r\n";
             owner->EncodeBMP(content);
-        } else if (std::string("ratmks").find(opcode) != std::string::npos) {
+        } else if (std::string("ratmkp").find(opcode) != std::string::npos) {
             // all other known opcodes will respond with the current status
             header << "200 OK\r\n";
             header << "Content-Type: text/plain\r\n";

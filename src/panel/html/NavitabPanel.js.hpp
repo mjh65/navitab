@@ -1,8 +1,6 @@
-#if 0
 // NavitabElement class is the custom HTMLElement derivative for the Navitab panel.
 // It is responsible for the top-level Navitab UI, including mode(app) selection,
 // tool clicks, and passing on mouse events to the panel server.
-#endif
 
 var NavitabIsLoaded = false;
 document.addEventListener('beforeunload', function () {
@@ -27,13 +25,27 @@ class TemplateElement extends HTMLElement {
 class NavitabStatus {
     constructor() {
         this.wallClock = "13:23:52";
-        this.fps = 18;
+        this.fps = "18";
         this.zuluClock = "17:42:33";
-        this.longitude = -3.324;
-        this.latitude = 56.197;
+        this.longitude = "-3.324";
+        this.latitude = "56.197";
+        this.nextUpdate = Date.now();
+    }
+    update(cs) {
+        if (Date.now() > this.nextUpdate) {
+            const d = new Date();
+            this.wallClock = d.toTimeString().substr(0,8);
+            this.zuluClock = cs.substr(0,2) + ":" + cs.substr(2,2) + ":" + cs.substr(4,2);
+            this.fps = cs.substr(6,2);
+            const lg = (parseInt(cs.substr(8,6)) / 1000) - 180;
+            this.longitude = lg.toFixed(3);
+            const lt = (parseInt(cs.substr(14,6)) / 1000) - 90;
+            this.latitude = lt.toFixed(3);
+            this.nextUpdate = Date.now() + 1000;
+        }
     }
     format() {
-        return this.wallClock + " | " + this.fps + " | " + this.zuluClock + " | " + this.longitude + "," + this.latitude;
+        return this.wallClock + " | " + this.fps + "fps | " + this.zuluClock + "Z | " + this.longitude + "," + this.latitude;
     }
 }
 
@@ -46,14 +58,12 @@ class NavitabElement extends TemplateElement {
         this.statusElem = null;
         this.canvas = null;
         this.server = null;
-        this.currentImage = null;
         this.connected = true;
         this.mouseDown = false;
         this.status = new NavitabStatus();
         this.server = new NavitabProtocol();
         this.finder = new PortFinder(26730, 20);
         this.resizePending = 0;
-        this.nextStatus = Date.now() + 1000;
     }
     connectedCallback() {
         // this is when the panel is connected to the simulation,
@@ -63,7 +73,9 @@ class NavitabElement extends TemplateElement {
         var self = this;
         this.ingameUi = this.querySelector('ingame-ui');
         this.statusElem = document.getElementById("ToolbarStatus");
+        this.statusElem.textContent = "Waiting for connection to Navitab panel server";
         this.canvas = document.getElementById("Canvas");
+        this.server.setCanvas(this.canvas);
         if (this.ingameUi) {
             this.ingameUi.addEventListener("panelActive", (e) => {
                 //console.log('NavitabElement::panelActive');
@@ -129,42 +141,27 @@ class NavitabElement extends TemplateElement {
             this.resizePending = 0;
         }
     }
-    drawCanvas(i) {
-        //console.log("Latest image size is %d x %d", i.width, i.height);
-        let ctx = this.canvas.getContext("2d");
-        ctx.drawImage(i, 0, 0, i.width, i.height, 0, 0, this.canvas.width, this.canvas.height);
-        this.currentImage = i;
-        if (this.connected && ((this.canvas.width != i.width) || (this.canvas.height != i.height)) && !this.resizePending) {
-            this.resizePending = Date.now() + 500;
-        }
-    }
     flightLoop() {
-        if (Date.now() > this.nextStatus) {
-            this.statusElem.textContent = this.status.format(); // TODO - make this part of the onResponse callback
-            if (!this.server.getStatus()) {
-                console.log("Connection to panel server has been lost");
-                this.connected = false;
-                this.finder.linkDown();
-                this.statusElem.textContent = "Waiting for connection to Navitab panel server";
-            }
-            this.nextStatus = Date.now() + 1000;
-            return;
-        }
-        let latest = this.server.getLatestImage();
-        if (latest && (latest !== this.currentImage)) {
-            this.drawCanvas(latest);
+        const cs = this.server.pollServer();
+        if (cs) {
+            this.status.update(cs);
+            this.statusElem.textContent = this.status.format();
+        } else {
+            console.log("Connection to panel server has been lost");
+            this.connected = false;
+            this.finder.linkDown();
+            // TODO show the not-connected overlay
+            this.statusElem.textContent = "Waiting for connection to Navitab panel server";
         }
     }
     findServer() {
-        let p = this.finder.getPortNumber();
+        const p = this.finder.getPortNumber();
         if (p) {
             console.log("Connected to panel server on port %d", p);
             this.connected = true;
             this.server.setPort(p);
-            this.nextStatus = Date.now();
+            // TODO hide the not-connected overlay
             this.resizePending = Date.now();
-        } else {
-            this.drawCanvas(this.server.getLatestImage());       
         }
     }
 }

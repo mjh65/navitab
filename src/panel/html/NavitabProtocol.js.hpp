@@ -2,14 +2,13 @@
 // The protocol uses http GET requests with various URL tags to represent
 // different reported events. These are:
 // RESIZE:  /r  w= h=
-// MODE:    /a  q=
-// TOOL:    /t  q=
+// MODE:    /a  p=
+// TOOL:    /t  p=
 // MOUSE:   /m  x= y= b= wu wd
 // KEY:     /k  c=
-// STATUS:  /s
 // PING:    /p
 // IMAGE:   /i
-// All of these also have a ?t= parameter to increment a timestamp.
+// All of these also have a ?t= parameter to avoid caching.
 // Resize, mode, tool, mouse, key are all sent when triggered.
 // Resize, mode, tool, mouse, key, status all return the current status in the response(or see image idea below)
 // Ping is used to detect the server
@@ -22,36 +21,18 @@ class NavitabProtocol {
         this.portNum = 0;
         this.reqId = 1;
         this.failedLoads = 0;
-        this.logo = new Image();
-        this.logo.src = "favicon.svg";
-        this.currentImage = this.logo;
+        this.canvas = null;
         this.imageLoading = false;
-        // we use two image buffers for background loading
-        this.imageLoader0 = this.makeImageLoader();
-        this.imageLoader1 = this.makeImageLoader();
+        this.codedStatus = "17432518176676146197";
     }
-    // create a new image buffer, and assign callbacks
-    makeImageLoader() {
-        let i = new Image();
-        let self = this;
-        i.setAttribute('crossOrigin','anonymous');
-        i.onload = function() {
-            self.failedLoads = 0;
-            self.currentImage = this;
-            self.imageLoading = false;
-        }
-        i.onerror = function() {
-            console.log("Image loader failure");
-            ++self.failedLoads;
-            self.imageLoading = false;
-        }
-        return i;
+    setCanvas(c) {
+        this.canvas = c;
     }
     // set the server's port number
     setPort(p) {
         this.portNum = p;
-        this.failedLoads = 0;
         this.imageLoading = false;
+        this.failedLoads = 0;
     }
     // decide if the connection has been lost (server died or shutdown)
     isConnected() {
@@ -60,64 +41,67 @@ class NavitabProtocol {
         if (!active) {
             if (this.portNum || this.imageLoading) {
                 this.setPort(0);
-                this.currentImage = this.logo;
             }
         }
         return active;
-    }
-    // deal with responses from event and other requests sent
-    onResponse(resp) {
-        if (resp.readyState == 4) {
-            if (resp.status == 200) {
-                this.failedLoads = 0;
-                // TODO extract status info from headers and pass to panel class
-            } else {
-                ++this.failedLoads;
-            }
-        }
     }
     // generic send request function
     sendRequest(url) {
         if (!this.portNum) return false;
         var self = this;
         let xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-            self.onResponse(this);
-        };
         xhttp.open("GET", url);
         xhttp.timeout = 1000;
         xhttp.send();
         return this.isConnected();
     }
-    // get an updated status string
-    getStatus() {
-        return this.sendRequest("http://127.0.0.1:" + this.portNum + "/s?t=" + (this.reqId++));
-    }
     // report some mouse action over the canvas
     mouseEvent(x,y,b) {
-        this.sendRequest("http://127.0.0.1:" + this.portNum + "/m?t=" + (this.reqId++) + "&mx=" + x + "&my=" + y + "&mb=" + b);
+        this.sendRequest("http://127.0.0.1:" + this.portNum + "/m?t=" + (this.reqId++) + "&x=" + x + "&y=" + y + "&b=" + b);
     }
     // report scroll wheel movements
     wheelEvent(x,y,d) {
-        this.sendRequest("http://127.0.0.1:" + this.portNum + "/m?t=" + (this.reqId++) + "&mx=" + x + "&my=" + y + ((d<0) ? "&wu" : "&wd"));
+        this.sendRequest("http://127.0.0.1:" + this.portNum + "/m?t=" + (this.reqId++) + "&x=" + x + "&y=" + y + ((d<0) ? "&wu" : "&wd"));
     }
     // report resizing of the panel
     reportCanvasSize(w,h) {
         console.log("Sending canvas size %d x %d", w, h);
         this.sendRequest("http://127.0.0.1:" + this.portNum + "/r?t=" + (this.reqId++) + "&w=" + w + "&h=" + h);
     }
-    // return the most recently acquired image (or the logo if the server connection was lost)
-    getLatestImage() {
-        if (this.portNum && !this.imageLoading) {
-            let url = "http://127.0.0.1:" + this.portNum + "/i" + (this.reqId++);
-            this.imageLoading = true;
-            if (this.currentImage === this.imageLoader0) {
-                this.imageLoader1.src = url;
+    imageResponse(resp) {
+        if (resp.readyState == 4) {
+            if (resp.status == 200) {
+                this.failedLoads = 0;
+                const sh = resp.getResponseHeader("navitab-status");
+                if (sh) this.codedStatus = sh;
+                let bitmappromise = createImageBitmap(resp.response);
+                bitmappromise.then(bitmap => {
+                    this.canvas.getContext('2d').drawImage(bitmap, 0, 0);
+                    this.imageLoading = false;
+                });
             } else {
-                this.imageLoader0.src = url;
+                ++this.failedLoads;
+                this.imageLoading = false;
             }
         }
-        return this.currentImage;
+    }
+    // get the next update from the server: an image for the canvas, and a status code
+    pollServer() {
+        if (!this.isConnected()) return "";
+        if (!this.imageLoading) {
+            this.imageLoading = true;
+            let self = this;
+            let xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                self.imageResponse(this);
+            };
+            let url = "http://127.0.0.1:" + this.portNum + "/i" + (this.reqId++);
+            xhttp.open("GET", url);
+            xhttp.timeout = 1000;
+            xhttp.responseType = "blob";
+            xhttp.send();
+        }
+        return this.codedStatus;
     }
 }
 
@@ -139,7 +123,7 @@ class PortFinder {
         if (Date.now() > this.nextPoll) {
             var self = this;
             let xhttp = new XMLHttpRequest();
-            let url = "http://127.0.0.1:" + this.nextPort + "/s?q=" + (this.reqId++) + "&p=" + this.nextPort;
+            let url = "http://127.0.0.1:" + this.nextPort + "/p?t=" + (this.reqId++) + "&p=" + this.nextPort;
             xhttp.onreadystatechange = function() {
                 if (this.readyState == 2) {
                     let u = this.responseURL;

@@ -205,7 +205,16 @@ unsigned WindowHTTP::EncodeBMP(std::vector<unsigned char> &bmp)
 std::string WindowHTTP::EncodeStatus()
 {
     // TODO - we need to encode the aircraft location, zulu time, and fps
-    return "-3324,56197,58000,18";
+
+    // some temporary code to vary the status info until everything is hooked up
+    static int zthd = rand() % 24;
+    static int ztmd = rand() % 60;
+    static int ztsd = rand() % 60;
+    auto zth = (std::stoi(navitab::LocalTime("%H")) + zthd) % 24;
+    auto ztm = (std::stoi(navitab::LocalTime("%M")) + ztmd) % 60;
+    auto zts = (std::stoi(navitab::LocalTime("%S")) + ztsd) % 60;
+    auto zt = fmt::format("{:02d}{:02d}{:02d}", zth, ztm, zts);
+    return zt + "25176676146197";
 }
 
 void WindowHTTP::mouseEvent(int x, int y, int b)

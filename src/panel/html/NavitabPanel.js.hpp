@@ -7,20 +7,6 @@ document.addEventListener('beforeunload', function () {
     NavitabIsLoaded = false;
 }, false);
 
-#ifdef NAVITAB_MOCK_WWW
-// TemplateElement is an MSFS class which we need to provide for inheritance purposes
-// TODO - or do we? why not just conditionally compile the inheritance declaration of NavitabElement??
-class TemplateElement extends HTMLElement {
-    constructor() {
-        super(...arguments);
-    }
-    connectedCallback() {
-    }
-    disconnectedCallback() {
-    }
-}
-#endif
-
 // NavitabStatus holds the latest status and commands from the server
 class NavitabStatus {
     constructor() {
@@ -49,6 +35,11 @@ class NavitabStatus {
     }
 }
 
+#ifdef NAVITAB_MOCK_WWW
+// TemplateElement is an MSFS class which is derived from HTMLElement
+// We can just skip a generation for non-MSFS purposes
+#define TemplateElement HTMLElement
+#endif
 
 class NavitabElement extends TemplateElement {
     constructor() {
@@ -57,7 +48,7 @@ class NavitabElement extends TemplateElement {
         this.ingameUi = null;
         this.statusElem = null;
         this.canvas = null;
-        this.server = null;
+        this.noServerImage = null;
         this.connected = true;
         this.mouseDown = false;
         this.status = new NavitabStatus();
@@ -68,7 +59,9 @@ class NavitabElement extends TemplateElement {
     connectedCallback() {
         // this is when the panel is connected to the simulation,
         // nothing to do with the panel server!
+#ifdef NAVITAB_MSFS_PANEL
         super.connectedCallback();
+#endif
 
         var self = this;
         this.ingameUi = this.querySelector('ingame-ui');
@@ -76,6 +69,7 @@ class NavitabElement extends TemplateElement {
         this.statusElem.textContent = "Waiting for connection to Navitab panel server";
         this.canvas = document.getElementById("Canvas");
         this.server.setCanvas(this.canvas);
+        this.noServerImage = document.getElementById("NoServer");
         if (this.ingameUi) {
             this.ingameUi.addEventListener("panelActive", (e) => {
                 //console.log('NavitabElement::panelActive');
@@ -124,9 +118,11 @@ class NavitabElement extends TemplateElement {
             });
         }
     }
+#ifdef NAVITAB_MSFS_PANEL
     disconnectedCallback() {
         super.disconnectedCallback();
     }
+#endif
     checkResizeCanvas() {
         if (this.resizePending && (Date.now() > this.resizePending)) {
             const rect = this.canvas.parentNode.getBoundingClientRect();
@@ -150,7 +146,7 @@ class NavitabElement extends TemplateElement {
             console.log("Connection to panel server has been lost");
             this.connected = false;
             this.finder.linkDown();
-            // TODO show the not-connected overlay
+            this.noServerImage.style.display = "block";
             this.statusElem.textContent = "Waiting for connection to Navitab panel server";
         }
     }
@@ -160,7 +156,7 @@ class NavitabElement extends TemplateElement {
             console.log("Connected to panel server on port %d", p);
             this.connected = true;
             this.server.setPort(p);
-            // TODO hide the not-connected overlay
+            this.noServerImage.style.display = "none";
             this.resizePending = Date.now();
         }
     }

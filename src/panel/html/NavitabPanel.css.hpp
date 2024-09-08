@@ -48,7 +48,7 @@ navitab-element #ModebarPart {
     background: rgba(255, 255, 255, 0.2);
     z-index: 1;
 }
-navitab-element #Canvas {
+navitab-element .imageArea {
     position: absolute;
     left: 0px;
     top: 24px;

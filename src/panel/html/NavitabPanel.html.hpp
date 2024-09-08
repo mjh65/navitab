@@ -59,7 +59,8 @@
                     <img id="ModeDoodler" src="mode_doodler.svg" alt="Doodler" width="40px" height="40px">
                     <img id="ModeKeypad" src="mode_keypad.svg" alt="Keypad" width="40px" height="24px">
                 </div>
-                <canvas id="Canvas"></canvas>
+                <canvas id="Canvas" class="imageArea"></canvas>
+                <img id="NoServer" class="imageArea" src="favicon.svg" alt="No server">
             </div>
         </ingame-ui>
     </navitab-element>

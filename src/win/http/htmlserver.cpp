@@ -224,42 +224,50 @@ bool HtmlServer::processRequest(SOCKET s, HttpReq *req)
         keepAlive = req->keepAlive();
 
         // Protocol supports the following events and query strings
-        // RESIZE:  /r  w= h=
-        // MODE:    /a  q=
-        // TOOL:    /t  q=
-        // MOUSE:   /m  x= y= b= wu wd
-        // KEY:     /k  c=
+        // RESIZE:  /e  w= h=
+        // MODE:    /e  m=
+        // TOOL:    /e  t=
+        // MOUSE:   /e  x= y= b= wu wd
+        // KEY:     /e  k=
         // PING:    /p
         // IMAGE:   /i
 
-        if (opcode != "i") LOGD(fmt::format("Opcode '{}'", opcode));
-
-        // if provided, get mouse or wheel information and send it to the driver
-        std::string mx, my;
-        if (req->getQueryString("x",mx) && req->getQueryString("y",my)) {
-            std::string button, wheel;
-
-            if (req->getQueryString("b",button)) {
-                LOGD(fmt::format("Got mouse state: {} {} {}", mx, my, button));
-                owner->mouseEvent(std::stoi(mx), std::stoi(my), std::stoi(button));
+        // If an event is being reported then extract the query strings to decide which
+        // one, and hence how to handle it.
+        if (opcode == "e") {
+            // x and y query strings relate to mouse or mouse-wheel events
+            std::string mx, my;
+            if (req->getQueryString("x",mx) && req->getQueryString("y",my)) {
+                std::string button, wheel;
+                if (req->getQueryString("b",button)) {
+                    LOGD(fmt::format("Got mouse state: {} {} {}", mx, my, button));
+                    owner->mouseEvent(std::stoi(mx), std::stoi(my), std::stoi(button));
+                }
+                auto wheelUp = req->getQueryString("wu",wheel);
+                auto wheelDown = req->getQueryString("wd",wheel);
+                if (wheelUp || wheelDown) {
+                    LOGD(fmt::format("Got wheel event: {}", wheelUp ? "up" : "down"));
+                    owner->wheelEvent(std::stoi(mx), std::stoi(my), wheelUp ? 1 : -1);
+                }
             }
-            auto wheelUp = req->getQueryString("wu",wheel);
-            auto wheelDown = req->getQueryString("wd",wheel);
-            if (wheelUp || wheelDown) {
-                LOGD(fmt::format("Got wheel event: {}", wheelUp ? "up" : "down"));
-                owner->wheelEvent(std::stoi(mx), std::stoi(my), wheelUp ? 1 : -1);
+
+            // handle panel resizing, indicated by w and h query strings
+            std::string w, h;
+            if (req->getQueryString("w",w) && req->getQueryString("h",h)) {
+                LOGD(fmt::format("Got resize: {} x {}", w, h));
+                owner->panelResize(std::stoi(w), std::stoi(h));
+            }
+
+            // handle icon clicks to select mode or trigger tool
+            std::string mode, tool;
+            if (req->getQueryString("m",mode)) {
+                LOGD(fmt::format("Got mode select: {}", mode));
+                owner->modeSelect(std::stoi(mode));
+            } else if (req->getQueryString("t",tool)) {
+                LOGD(fmt::format("Got tool click: {}", tool));
+                owner->toolClick(std::stoi(tool));
             }
         }
-
-        // handle panel resizing
-        std::string w, h;
-        if (req->getQueryString("w",w) && req->getQueryString("h",h) && opcode == "r") {
-            LOGD(fmt::format("Got resize: {} x {}", w, h));
-            owner->panelResize(std::stoi(w), std::stoi(h));
-        }
-
-        // TODO - handle mode/app selection (a)
-        // TODO - handle tool selection (t)
 
         if (opcode == "i") {
             // request for latest canvas image, response is a BMP image
@@ -269,18 +277,18 @@ bool HtmlServer::processRequest(SOCKET s, HttpReq *req)
             header << "Access-Control-Expose-Headers: Navitab-Status\r\n";
             header << "Navitab-Status: " << owner->EncodeStatus() << owner->EncodeControls() << "\r\n";
             owner->EncodeBMP(content);
-        } else if (std::string("ratmkp").find(opcode) != std::string::npos) {
-            // all other known opcodes will respond with the current status
+        } else if ((opcode == "e") || (opcode == "p")) {
+            // event and ping opcodes send a basic response
             header << "200 OK\r\n";
             header << "Content-Type: text/plain\r\n";
             header << "Access-Control-Allow-Origin: *\r\n";
-            std::string reply = owner->EncodeStatus();
+            std::string reply("Navitab: OK");
             content.resize(reply.size());
             std::copy(reply.begin(), reply.end(), content.begin());
         } else {
             header << "404 NOT FOUND\r\n";
             header << "Content-Type: text/plain\r\n";
-            std::string reply("Naviab: unknown opcode");
+            std::string reply("Navitab: unknown opcode");
             content.resize(reply.size());
             std::copy(reply.begin(), reply.end(), content.begin());
         }

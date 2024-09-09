@@ -1,14 +1,14 @@
 // NavitabProtocol class deals with communications with the panel server.
 // The protocol uses http GET requests with various URL tags to represent
 // different reported events. These are:
-// RESIZE:  /r  w= h=
-// MODE:    /a  p=
-// TOOL:    /t  p=
-// MOUSE:   /m  x= y= b= wu wd
-// KEY:     /k  c=
+// RESIZE:  /e  w= h=
+// MODE:    /e  m=
+// TOOL:    /e  t=
+// MOUSE:   /e  x= y= b= wu wd
+// KEY:     /e  k=
 // PING:    /p
 // IMAGE:   /i
-// All of these also have a ?t= parameter to avoid caching.
+// All of these also have a ?z= parameter to avoid caching.
 // Resize, mode, tool, mouse, key are all sent when triggered.
 // Resize, mode, tool, mouse, key, status all return the current status in the response(or see image idea below)
 // Ping is used to detect the server
@@ -57,17 +57,26 @@ class NavitabProtocol {
     }
     // report some mouse action over the canvas
     mouseEvent(x,y,b) {
-        this.sendRequest("http://127.0.0.1:" + this.portNum + "/m?t=" + (this.reqId++) + "&x=" + x + "&y=" + y + "&b=" + b);
+        this.sendRequest("http://127.0.0.1:" + this.portNum + "/e?z=" + (this.reqId++) + "&x=" + x + "&y=" + y + "&b=" + b);
     }
     // report scroll wheel movements
     wheelEvent(x,y,d) {
-        this.sendRequest("http://127.0.0.1:" + this.portNum + "/m?t=" + (this.reqId++) + "&x=" + x + "&y=" + y + ((d<0) ? "&wu" : "&wd"));
+        this.sendRequest("http://127.0.0.1:" + this.portNum + "/e?z=" + (this.reqId++) + "&x=" + x + "&y=" + y + ((d<0) ? "&wu" : "&wd"));
     }
     // report resizing of the panel
     reportCanvasSize(w,h) {
         console.log("Sending canvas size %d x %d", w, h);
-        this.sendRequest("http://127.0.0.1:" + this.portNum + "/r?t=" + (this.reqId++) + "&w=" + w + "&h=" + h);
+        this.sendRequest("http://127.0.0.1:" + this.portNum + "/e?z=" + (this.reqId++) + "&w=" + w + "&h=" + h);
     }
+    // report click on a mode icon
+    reportModeClick(m) {
+        this.sendRequest("http://127.0.0.1:" + this.portNum + "/e?z=" + (this.reqId++) + "&m=" + m);
+    }
+    // report click on a tool icon
+    reportToolClick(t) {
+        this.sendRequest("http://127.0.0.1:" + this.portNum + "/e?z=" + (this.reqId++) + "&t=" + t);
+    }
+    // callback when image request gets a response
     imageResponse(resp) {
         if (resp.readyState == 4) {
             if (resp.status == 200) {
@@ -123,7 +132,7 @@ class PortFinder {
         if (Date.now() > this.nextPoll) {
             var self = this;
             let xhttp = new XMLHttpRequest();
-            let url = "http://127.0.0.1:" + this.nextPort + "/p?t=" + (this.reqId++) + "&p=" + this.nextPort;
+            let url = "http://127.0.0.1:" + this.nextPort + "/p?z=" + (this.reqId++) + "&p=" + this.nextPort;
             xhttp.onreadystatechange = function() {
                 if (this.readyState == 2) {
                     let u = this.responseURL;

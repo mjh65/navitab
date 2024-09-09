@@ -89,6 +89,8 @@ public:
     void mouseEvent(int x, int y, int b);
     void wheelEvent(int x, int y, int d);
     void panelResize(int w, int h);
+    void modeSelect(int m);
+    void toolClick(int t);
 
     // Command handler has finished
     void Finish() { RunLater([this]() {onFinish();}, (void *)nullptr); }

@@ -225,7 +225,7 @@ std::string WindowHTTP::EncodeControls()
     std::string cs;
     auto t = navitab::LocalTime("%S");
     if (t[1] == nextModeChange) {
-        cs += fmt::format("M{}", rand() % 6);
+        cs += fmt::format("M{}{}", rand() % 6, rand() % 4);
         nextModeChange += (nextModeChange < '3') ? 7 : -3;
     }
     if (t[1] == nextToolChange) {
@@ -252,6 +252,16 @@ void WindowHTTP::panelResize(int w, int h)
     h = std::max(std::min(h, (int)(WIN_MAX_HEIGHT - TOOLBAR_HEIGHT)), (int)WIN_MIN_HEIGHT);
     LOGS(fmt::format("Resizing to {} x {}", w, h));
     canvas->PostResize(w, h);
+}
+
+void WindowHTTP::modeSelect(int m)
+{
+    UNIMPLEMENTED(__func__);
+}
+
+void WindowHTTP::toolClick(int t)
+{
+    UNIMPLEMENTED(__func__);
 }
 
 } // namespace navitab

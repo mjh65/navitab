@@ -51,7 +51,7 @@ navitab-element #ModebarPart {
     z-index: 1;
 }
 navitab-element .nMode:hover {
-    background-color: white;
+    background-color: gray;
 }
 navitab-element .imageArea {
     position: absolute;

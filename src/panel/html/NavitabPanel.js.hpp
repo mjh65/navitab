@@ -116,6 +116,18 @@ class NavitabElement extends TemplateElement {
                 this.server.wheelEvent(e.offsetX, e.offsetY, e.deltaY);
             });
         }
+        let msimgs = document.getElementsByClassName("nMode");
+        for (let i=0; i<msimgs.length; i++) {
+            msimgs[i].addEventListener("click", () => {
+                this.modeClick(msimgs[i].id[0]);
+            });
+        }
+        let teimgs = document.getElementsByClassName("nTool");
+        for (let i=0; i<teimgs.length; i++) {
+            teimgs[i].addEventListener("click", () => {
+                this.toolClick(msimgs[i].id.substr(0,2));
+            });
+        }
     }
 #ifdef NAVITAB_MSFS_PANEL
     disconnectedCallback() {
@@ -136,12 +148,21 @@ class NavitabElement extends TemplateElement {
             this.resizePending = 0;
         }
     }
+    modeClick(m) {
+        this.server.reportModeClick(m);
+    }
+    toolClick(t) {
+        this.server.reportToolClick(t);
+    }
     modeSelect(ms) {
-        console.log("modeSelect(%s)", ms);
         let msimgs = document.getElementsByClassName("nMode");
         for (let i=0; i<msimgs.length; i++) {
             const j = msimgs[i].id[0];
-            msimgs[i].style.backgroundColor = (ms == j) ? "green" : "";
+            let bg = "";
+            if (j == ms[0]) bg = "green";
+            if ((j==6) && (ms[1] & 1)) bg = "green"; // doodler toggled
+            if ((j==7) && (ms[1] & 2)) bg = "green"; // keypad toggled
+            msimgs[i].style.backgroundColor = bg;
         }
     }
     toolsEnable(te) {
@@ -161,8 +182,8 @@ class NavitabElement extends TemplateElement {
             let tmsel = cs.substr(20);
             while (tmsel) {
                 if (tmsel.charAt(0) == "M") {
-                    this.modeSelect(tmsel.substr(1,1));
-                    tmsel = tmsel.substr(2);
+                    this.modeSelect(tmsel.substr(1,2));
+                    tmsel = tmsel.substr(3);
                 } else if (tmsel.charAt(0) == "T") {
                     this.toolsEnable(tmsel.substr(1,8));
                     tmsel = tmsel.substr(9);

@@ -36,8 +36,10 @@ navitab-element #ToolbarTools {
     right: 4px;
     top: 0px;
     height: 24px;
-    background-color: Chartreuse;
     z-index: 1;
+}
+navitab-element .nTool:hover {
+    background-color: white;
 }
 navitab-element #ModebarPart {
     position: absolute;
@@ -47,6 +49,9 @@ navitab-element #ModebarPart {
     margin: 0px;
     background: rgba(255, 255, 255, 0.2);
     z-index: 1;
+}
+navitab-element .nMode:hover {
+    background-color: white;
 }
 navitab-element .imageArea {
     position: absolute;

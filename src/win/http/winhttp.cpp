@@ -217,6 +217,25 @@ std::string WindowHTTP::EncodeStatus()
     return zt + "25176676146197";
 }
 
+std::string WindowHTTP::EncodeControls()
+{
+    // some temporary code to vary control settings until everything is hooked up
+    static char nextModeChange = '0' + (rand() % 10);
+    static char nextToolChange = '0' + (rand() % 10);
+    std::string cs;
+    auto t = navitab::LocalTime("%S");
+    if (t[1] == nextModeChange) {
+        cs += fmt::format("M{}", rand() % 6);
+        nextModeChange += (nextModeChange < '3') ? 7 : -3;
+    }
+    if (t[1] == nextToolChange) {
+        uint32_t te = ((rand() % 0x100) << 16) + (rand() % 0x10000);
+        cs += fmt::format("T{:08d}", te);
+        nextToolChange += (nextToolChange < '5') ? 5 : -5;
+    }
+    return cs;
+}
+
 void WindowHTTP::mouseEvent(int x, int y, int b)
 {
     canvas->PostMouseEvent(x, y, b, false);

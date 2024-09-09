@@ -7,14 +7,14 @@ document.addEventListener('beforeunload', function () {
     NavitabIsLoaded = false;
 }, false);
 
-// NavitabStatus holds the latest status and commands from the server
+// NavitabStatus holds the latest status from the server
 class NavitabStatus {
     constructor() {
-        this.wallClock = "13:23:52";
-        this.fps = "18";
-        this.zuluClock = "17:42:33";
-        this.longitude = "-3.324";
-        this.latitude = "56.197";
+        this.wallClock = "00:00:00";
+        this.fps = "00";
+        this.zuluClock = "00:00:00";
+        this.longitude = "0.000";
+        this.latitude = "0.000";
         this.nextUpdate = Date.now();
     }
     update(cs) {
@@ -28,10 +28,9 @@ class NavitabStatus {
             const lt = (parseInt(cs.substr(14,6)) / 1000) - 90;
             this.latitude = lt.toFixed(3);
             this.nextUpdate = Date.now() + 1000;
+            return this.wallClock + " | " + this.fps + "fps | " + this.zuluClock + "Z | " + this.longitude + "," + this.latitude;
         }
-    }
-    format() {
-        return this.wallClock + " | " + this.fps + "fps | " + this.zuluClock + "Z | " + this.longitude + "," + this.latitude;
+        return "";
     }
 }
 
@@ -137,11 +136,40 @@ class NavitabElement extends TemplateElement {
             this.resizePending = 0;
         }
     }
+    modeSelect(ms) {
+        console.log("modeSelect(%s)", ms);
+        let msimgs = document.getElementsByClassName("nMode");
+        for (let i=0; i<msimgs.length; i++) {
+            const j = msimgs[i].id[0];
+            msimgs[i].style.backgroundColor = (ms == j) ? "green" : "";
+        }
+    }
+    toolsEnable(te) {
+        let mask = parseInt(te);
+        let teimgs = document.getElementsByClassName("nTool");
+        for (let i=0; i<teimgs.length; i++) {
+            const j = parseInt(teimgs[i].id.substr(0,2));
+            const k = mask >> j;
+            teimgs[i].style.display = (k & 1) ? "" : "none";
+        }
+    }
     flightLoop() {
         const cs = this.server.pollServer();
         if (cs) {
-            this.status.update(cs);
-            this.statusElem.textContent = this.status.format();
+            const st = this.status.update(cs);
+            if (st) this.statusElem.textContent = st;
+            let tmsel = cs.substr(20);
+            while (tmsel) {
+                if (tmsel.charAt(0) == "M") {
+                    this.modeSelect(tmsel.substr(1,1));
+                    tmsel = tmsel.substr(2);
+                } else if (tmsel.charAt(0) == "T") {
+                    this.toolsEnable(tmsel.substr(1,8));
+                    tmsel = tmsel.substr(9);
+                } else {
+                    tmsel = "";
+                }
+            }
         } else {
             console.log("Connection to panel server has been lost");
             this.connected = false;

@@ -79,11 +79,12 @@ public:
     void Show() override;
     void Hide() override;
 
-    // Encode a BMP image of the canvas for the http client
+    // Encode a BMP image of the canvas for the panel
     unsigned EncodeBMP(std::vector<unsigned char> &png);
-
-    // Encode the status string for the panel
+    // Encode the status for the panel
     std::string EncodeStatus();
+    // Encode the controls settings for the panel
+    std::string EncodeControls();
 
     void mouseEvent(int x, int y, int b);
     void wheelEvent(int x, int y, int d);

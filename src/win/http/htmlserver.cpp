@@ -267,7 +267,7 @@ bool HtmlServer::processRequest(SOCKET s, HttpReq *req)
             header << "Content-Type: image/bmp\r\n";
             header << "Access-Control-Allow-Origin: *\r\n";
             header << "Access-Control-Expose-Headers: Navitab-Status\r\n";
-            header << "Navitab-Status: " << owner->EncodeStatus() << "\r\n";
+            header << "Navitab-Status: " << owner->EncodeStatus() << owner->EncodeControls() << "\r\n";
             owner->EncodeBMP(content);
         } else if (std::string("ratmkp").find(opcode) != std::string::npos) {
             // all other known opcodes will respond with the current status

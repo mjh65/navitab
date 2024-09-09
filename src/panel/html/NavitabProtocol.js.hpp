@@ -72,7 +72,7 @@ class NavitabProtocol {
         if (resp.readyState == 4) {
             if (resp.status == 200) {
                 this.failedLoads = 0;
-                const sh = resp.getResponseHeader("navitab-status");
+                const sh = resp.getResponseHeader("Navitab-Status");
                 if (sh) this.codedStatus = sh;
                 let bitmappromise = createImageBitmap(resp.response);
                 bitmappromise.then(bitmap => {

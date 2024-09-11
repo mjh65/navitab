@@ -174,6 +174,21 @@ class NavitabElement extends TemplateElement {
             teimgs[i].style.display = (k & 1) ? "" : "none";
         }
     }
+    lostServer() {
+        console.log("Connection to panel server has been lost");
+        this.connected = false;
+        this.finder.linkDown();
+        this.statusElem.textContent = "Waiting for connection to Navitab panel server";
+        let teimgs = document.getElementsByClassName("nTool");
+        for (let i=0; i<teimgs.length; i++) {
+            teimgs[i].style.display = "none";
+        }
+        let msimgs = document.getElementsByClassName("nMode");
+        for (let i=0; i<msimgs.length; i++) {
+            msimgs[i].style.backgroundColor = "";
+        }
+        this.noServerImage.style.display = "block";
+    }
     flightLoop() {
         const cs = this.server.pollServer();
         if (cs) {
@@ -192,11 +207,7 @@ class NavitabElement extends TemplateElement {
                 }
             }
         } else {
-            console.log("Connection to panel server has been lost");
-            this.connected = false;
-            this.finder.linkDown();
-            this.noServerImage.style.display = "block";
-            this.statusElem.textContent = "Waiting for connection to Navitab panel server";
+            this.lostServer();
         }
     }
     findServer() {

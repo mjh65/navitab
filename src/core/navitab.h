@@ -70,7 +70,16 @@ public:
 
     // Interfaces used by simulator and UI window
     std::shared_ptr<Simulator2Core> GetSimulatorCallbacks() override;
-    std::shared_ptr<WindowPart> GetPartCallbacks(int part) override;
+    std::shared_ptr<Toolbar2Core> SetToolbar(std::shared_ptr<Toolbar> t) override;
+    std::shared_ptr<Modebar2Core> SetModebar(std::shared_ptr<Modebar> m) override;
+    std::shared_ptr<Doodler2Core> SetDoodler(std::shared_ptr<Doodler> d) override;
+    std::shared_ptr<Keypad2Core> SetKeypad(std::shared_ptr<Keypad> k) override;
+    //std::shared_ptr<WindowPart> GetWindowPart(int part) override;
+    std::shared_ptr<WindowPart> GetToolbar() override;
+    std::shared_ptr<WindowPart> GetModebar() override;
+    std::shared_ptr<WindowPart> GetDoodler() override;
+    std::shared_ptr<WindowPart> GetKeypad() override;
+    std::shared_ptr<WindowPart> GetCanvas() override;
     void SetWindowControl(std::shared_ptr<WindowControls> w) override;
 
     // Startup and shutdown control - fine-grained enough to support all app classes.

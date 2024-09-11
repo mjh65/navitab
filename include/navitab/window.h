@@ -64,12 +64,6 @@ struct WindowControls
 {
     // Adjust the brightness of the display
     virtual void Brightness(int percent) = 0;
-
-    // Provide interfaces to the window parts (if implemented by the UI window)
-    virtual std::shared_ptr<Toolbar> GetToolbar() { assert(0); return nullptr; }
-    virtual std::shared_ptr<Modebar> GetModebar() { assert(0); return nullptr; }
-    virtual std::shared_ptr<Doodler> GetDoodler() { assert(0); return nullptr; }
-    virtual std::shared_ptr<Keypad> GetKeypad() { assert(0); return nullptr; }
 };
 
 // The Window interface defines the services that the UI window provides

@@ -113,10 +113,17 @@ void XPlaneWindow::Connect(std::shared_ptr<CoreServices> c)
     winWidth = std::min(std::max(winWidth, (int)WIN_MIN_WIDTH), (int)WIN_MAX_WIDTH);
     winHeight = std::min(std::max(winHeight, (int)WIN_MIN_HEIGHT), (int)WIN_MAX_HEIGHT);
 
-    for (auto i = 0; i < WindowPart::TOTAL_PARTS; ++i) {
-        winParts[i].client = core->GetPartCallbacks(i);
-        winParts[i].client->SetPainter(shared_from_this());
-    }
+    winParts[WindowPart::TOOLBAR].client = core->GetToolbar();
+    winParts[WindowPart::TOOLBAR].client->SetPainter(shared_from_this());
+    winParts[WindowPart::MODEBAR].client = core->GetModebar();
+    winParts[WindowPart::MODEBAR].client->SetPainter(shared_from_this());
+    winParts[WindowPart::DOODLER].client = core->GetDoodler();
+    winParts[WindowPart::DOODLER].client->SetPainter(shared_from_this());
+    winParts[WindowPart::KEYPAD].client = core->GetKeypad();
+    winParts[WindowPart::KEYPAD].client->SetPainter(shared_from_this());
+    winParts[WindowPart::CANVAS].client = core->GetCanvas();
+    winParts[WindowPart::CANVAS].client->SetPainter(shared_from_this());
+
     ResizeNotifyAll(winWidth, winHeight);
 }
 

@@ -29,10 +29,6 @@
 #include "coremodebar.h"
 #include "coredoodler.h"
 #include "corekeypad.h"
-#include "httptoolbar.h"
-#include "httpmodebar.h"
-#include "httpdoodler.h"
-#include "httpkeypad.h"
 #include "canvas.h"
 #include "../platform/paths.h"
 #include "../lvglkit/toolkit.h"
@@ -119,16 +115,67 @@ std::shared_ptr<Simulator2Core> Navitab::GetSimulatorCallbacks()
     return shared_from_this();
 }
 
-std::shared_ptr<WindowPart> Navitab::GetPartCallbacks(int part)
+std::shared_ptr<Toolbar2Core> Navitab::SetToolbar(std::shared_ptr<Toolbar> t)
 {
-    switch (part) {
-    case WindowPart::TOOLBAR: assert(toolbar); return toolbar;
-    case WindowPart::MODEBAR: assert(modebar); return modebar;
-    case WindowPart::DOODLER: assert(doodler); return doodler;
-    case WindowPart::KEYPAD: assert(keypad); return keypad;
-    case WindowPart::CANVAS: assert(canvas); return canvas;
-    default: assert(0); return nullptr;
-    }
+    assert(!toolbar);
+    toolbar = t;
+    return shared_from_this();
+}
+
+std::shared_ptr<Modebar2Core> Navitab::SetModebar(std::shared_ptr<Modebar> m)
+{
+    assert(!modebar);
+    modebar = m;
+    return shared_from_this();
+}
+
+std::shared_ptr<Doodler2Core> Navitab::SetDoodler(std::shared_ptr<Doodler> d)
+{
+    assert(!doodler);
+    doodler = d;
+    return shared_from_this();
+}
+
+std::shared_ptr<Keypad2Core> Navitab::SetKeypad(std::shared_ptr<Keypad> k)
+{
+    assert(!keypad);
+    keypad = k;
+    return shared_from_this();
+}
+
+std::shared_ptr<WindowPart> Navitab::GetToolbar()
+{
+    if (!toolbar) toolbar = std::make_shared<CoreToolbar>(shared_from_this(), uiMgr);
+    assert(toolbar);
+    return toolbar;
+}
+
+std::shared_ptr<WindowPart> Navitab::GetModebar()
+{
+    if (!modebar) modebar = std::make_shared<CoreModebar>(shared_from_this(), uiMgr);
+    assert(modebar);
+    return modebar;
+}
+
+std::shared_ptr<WindowPart> Navitab::GetDoodler()
+{
+    if (!doodler) doodler = std::make_shared<CoreDoodler>(shared_from_this());
+    assert(doodler);
+    return doodler;
+}
+
+std::shared_ptr<WindowPart> Navitab::GetKeypad()
+{
+    if (!keypad) keypad = std::make_shared<CoreKeypad>(shared_from_this());
+    assert(keypad);
+    return keypad;
+}
+
+std::shared_ptr<WindowPart> Navitab::GetCanvas()
+{
+    if (!canvas) canvas = std::make_shared<Canvas>(shared_from_this(), uiMgr);
+    assert(canvas);
+    return canvas;
 }
 
 void Navitab::SetWindowControl(std::shared_ptr<WindowControls> w)
@@ -152,29 +199,6 @@ void Navitab::Start()
 
     uiMgr = std::make_shared<lvglkit::Manager>(std::static_pointer_cast<DeferredJobRunner<int>>(shared_from_this()));
     assert(uiMgr);
-
-    // Create the toolbar, modebar, doodler and keypad. Which implementation
-    // depends on the type of the window server.
-
-    if (winServer == HTTP) {
-        canvas = std::make_shared<Canvas>(shared_from_this(), uiMgr);
-        toolbar = std::make_shared<HttpToolbar>(shared_from_this());
-        modebar = std::make_shared<HttpModebar>(shared_from_this());
-        doodler = std::make_shared<HttpDoodler>(shared_from_this());
-        keypad = std::make_shared<HttpKeypad>(shared_from_this());
-    } else {
-        canvas = std::make_shared<Canvas>(shared_from_this(), uiMgr);
-        toolbar = std::make_shared<CoreToolbar>(shared_from_this(), uiMgr);
-        modebar = std::make_shared<CoreModebar>(shared_from_this(), uiMgr);
-        doodler = std::make_shared<CoreDoodler>(shared_from_this());
-        keypad = std::make_shared<CoreKeypad>(shared_from_this());
-    }
-
-    assert(canvas);
-    assert(toolbar);
-    assert(modebar);
-    assert(doodler);
-    assert(keypad);
 
     // curl_global_init(CURL_GLOBAL_ALL); TODO: activate this later
 }

@@ -59,10 +59,6 @@ public:
 
     // Implementation of the WindowControls interface
     void Brightness(int percent) override;
-    std::shared_ptr<Toolbar> GetToolbar() override { return shared_from_this(); }
-    std::shared_ptr<Modebar> GetModebar() override { return shared_from_this(); }
-    std::shared_ptr<Doodler> GetDoodler() override { return shared_from_this(); }
-    std::shared_ptr<Keypad> GetKeypad() override { return shared_from_this(); }
 
     // Implementation of the Toolbar interface
     void SetStausInfo(std::string s) override;
@@ -108,6 +104,10 @@ private:
     std::shared_ptr<CoreServices> core;
     std::shared_ptr<Settings> prefs;
     std::shared_ptr<WindowPart> canvas;
+    std::shared_ptr<Toolbar2Core> toolbarClient;
+    std::shared_ptr<Modebar2Core> modebarClient;
+    std::shared_ptr<Doodler2Core> doodlerClient;
+    std::shared_ptr<Keypad2Core> keypadClient;
     std::unique_ptr<TextureBuffer> image;
     std::unique_ptr<HtmlServer> server;
     std::unique_ptr<CommandHandler> commands;

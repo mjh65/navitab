@@ -50,7 +50,7 @@ LogManager::LogManager()
     std::string fileRel("src/core/logmanager.cpp");
     auto p = filePP.find(fileRel);
     if (p != std::string::npos) {
-        srcFilePrefixLength = p;
+        srcFilePrefixLength = (int)p;
     }
 }
 

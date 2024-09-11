@@ -33,10 +33,17 @@ namespace navitab {
 struct PathServices;
 struct Simulator2Core;
 struct WindowPart;
+class Toolbar;
+class Toolbar2Core;
+class Modebar;
+class Modebar2Core;
+class Doodler;
+class Doodler2Core;
+class Keypad;
+class Keypad2Core;
 struct WindowControls;
 
 enum HostPlatform { WIN, LNX, MAC };
-//enum AppClass { PLUGIN, DESKTOP, CONSOLE };
 enum WinServer { PLUGIN, DESKTOP, HTTP };
 enum SimEngine { MOCK, MSFS, XPLANE };
 
@@ -84,9 +91,22 @@ struct CoreServices
     // Get the interface for simulation-generated events that Navitab will handle
     virtual std::shared_ptr<Simulator2Core> GetSimulatorCallbacks() = 0;
 
-    // Get the interfaces for UI-window-generated events that each of the window
-    // parts will handle.
-    virtual std::shared_ptr<WindowPart> GetPartCallbacks(int part) = 0;
+    // Register window parts for the core to interface with. This is used by the
+    // http variant of the window manager which implements high-level versions of
+    // the toolbar, modebar, doodler, and keypad.
+    virtual std::shared_ptr<Toolbar2Core> SetToolbar(std::shared_ptr<Toolbar> t) = 0;
+    virtual std::shared_ptr<Modebar2Core> SetModebar(std::shared_ptr<Modebar> m) = 0;
+    virtual std::shared_ptr<Doodler2Core> SetDoodler(std::shared_ptr<Doodler> d) = 0;
+    virtual std::shared_ptr<Keypad2Core> SetKeypad(std::shared_ptr<Keypad> k) = 0;
+
+    // Get the window part for sending UI-window-generated events. All parts (toolbar,
+    // modebar, doodler, keypad, canvas) have the same interface, so one function fits all.
+    //virtual std::shared_ptr<WindowPart> GetWindowPart(int part) = 0;
+    virtual std::shared_ptr<WindowPart> GetToolbar() = 0;
+    virtual std::shared_ptr<WindowPart> GetModebar() = 0;
+    virtual std::shared_ptr<WindowPart> GetDoodler() = 0;
+    virtual std::shared_ptr<WindowPart> GetKeypad() = 0;
+    virtual std::shared_ptr<WindowPart> GetCanvas() = 0;
 
     // Set the interface to the UI-window for window-level control
     virtual void SetWindowControl(std::shared_ptr<WindowControls> w) = 0;

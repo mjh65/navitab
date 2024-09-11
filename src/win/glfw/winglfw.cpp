@@ -82,10 +82,18 @@ void WindowGLFW::Connect(std::shared_ptr<CoreServices> c)
     core->SetWindowControl(shared_from_this());
     prefs = core->GetSettingsManager();
     // TODO - read window size preferences
-    for (auto i = 0; i < WindowPart::TOTAL_PARTS; ++i) {
-        winParts[i].client = core->GetPartCallbacks(i);
-        winParts[i].client->SetPainter(shared_from_this());
-    }
+
+    winParts[WindowPart::TOOLBAR].client = core->GetToolbar();
+    winParts[WindowPart::TOOLBAR].client->SetPainter(shared_from_this());
+    winParts[WindowPart::MODEBAR].client = core->GetModebar();
+    winParts[WindowPart::MODEBAR].client->SetPainter(shared_from_this());
+    winParts[WindowPart::DOODLER].client = core->GetDoodler();
+    winParts[WindowPart::DOODLER].client->SetPainter(shared_from_this());
+    winParts[WindowPart::KEYPAD].client = core->GetKeypad();
+    winParts[WindowPart::KEYPAD].client->SetPainter(shared_from_this());
+    winParts[WindowPart::CANVAS].client = core->GetCanvas();
+    winParts[WindowPart::CANVAS].client->SetPainter(shared_from_this());
+
     CreateWindow();
 
     ResizeNotifyAll(winWidth, winHeight);

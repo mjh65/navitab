@@ -56,7 +56,11 @@ void WindowHTTP::Connect(std::shared_ptr<CoreServices> c)
     core = c;
     core->SetWindowControl(shared_from_this());
     prefs = core->GetSettingsManager();
-    canvas = core->GetPartCallbacks(WindowPart::CANVAS);
+    toolbarClient = core->SetToolbar(shared_from_this());
+    modebarClient = core->SetModebar(shared_from_this());
+    doodlerClient = core->SetDoodler(shared_from_this());
+    keypadClient = core->SetKeypad(shared_from_this());
+    canvas = core->GetCanvas();
     canvas->SetPainter(shared_from_this());
     canvas->PostResize(winWidth, winHeight - TOOLBAR_HEIGHT);
     int port = 26730; // base port
@@ -74,6 +78,10 @@ void WindowHTTP::Disconnect()
 {
     server->stop();
     canvas.reset();
+    keypadClient.reset();
+    doodlerClient.reset();
+    modebarClient.reset();
+    toolbarClient.reset();
     prefs.reset();
     core.reset();
 }

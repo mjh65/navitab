@@ -36,10 +36,21 @@ CoreToolbar::~CoreToolbar()
 {
 }
 
-void CoreToolbar::SetStausInfo(std::string s)
+void CoreToolbar::SetStausInfo(int zt, int fps, const Location& loc)
 {
-    LOGD(fmt::format("CoreToolbar::SetStausInfo({})", s));
-    lv_label_set_text(lvhStatusInfo, s.c_str());
+    auto now = navitab::LocalTime("%H:%M:%S");
+    if (statusText.find(now) != 0) {
+        // local time has changed, so recreate the toolbarStatus string
+        statusText = now;
+        statusText += fmt::format(" | {}fps", fps);
+        int s = zt;
+        int h = s / (60 * 60); s -= (h * 60 * 60);
+        int m = s / 60; s -= (m * 60);
+        statusText += fmt::format(" | {:02}:{:02}:{:02}Z", h, m, s);
+        statusText += fmt::format(" | {:+.3f},{:+.3f}", loc.latitude, loc.longitude);
+        LOGD(fmt::format("CoreToolbar::SetStausInfo({})", statusText));
+        lv_label_set_text(lvhStatusInfo, statusText.c_str());
+    }
 }
 
 void CoreToolbar::SetEnabledTools(int selectMask)

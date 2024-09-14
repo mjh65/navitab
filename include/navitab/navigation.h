@@ -28,10 +28,17 @@ enum {
     MAX_OTHER_AIRCRAFT = 32
 };
 
+struct Location
+{
+    float latitude;         // -90 .. 90
+    float longitude;        // -180 .. 180
+    double mercatorX();     // -1.0 .. 1.0
+    double mercatorY();     // -1.0 .. 1.0
+};
+
 struct AircraftPosition
 {
-    float latitude;     // -90 .. 90
-    float longitude;    // -180 .. 180
+    Location loc;
     float elevation;    // metres above sea-level
     float heading;      // 0 .. 360, true heading
 };

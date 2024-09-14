@@ -304,19 +304,19 @@ float XPlaneSimulatorEnvoy::onFlightLoop(float elapsedSinceLastCall, float elaps
     fld.nOtherPlanes = std::min(active - 1, (int)MAX_OTHER_AIRCRAFT);
 
     auto dri = aircraftPositionDataRefs.begin();
-    fld.myPlane.latitude = XPLMGetDataf(*dri++);
-    fld.myPlane.longitude = XPLMGetDataf(*dri++);
+    fld.myPlane.loc.latitude = XPLMGetDataf(*dri++);
+    fld.myPlane.loc.longitude = XPLMGetDataf(*dri++);
     fld.myPlane.elevation = XPLMGetDataf(*dri++);
     fld.myPlane.heading = XPLMGetDataf(*dri++);
     for (int p = 0; p < MAX_OTHER_AIRCRAFT; ++p) {
         if (p < fld.nOtherPlanes) {
-            fld.otherPlanes[p].latitude = XPLMGetDataf(*dri++);
-            fld.otherPlanes[p].longitude = XPLMGetDataf(*dri++);
+            fld.otherPlanes[p].loc.latitude = XPLMGetDataf(*dri++);
+            fld.otherPlanes[p].loc.longitude = XPLMGetDataf(*dri++);
             fld.otherPlanes[p].elevation = XPLMGetDataf(*dri++);
             fld.otherPlanes[p].heading = XPLMGetDataf(*dri++);
         } else {
-            fld.otherPlanes[p].latitude = 0.0f;
-            fld.otherPlanes[p].longitude = 0.0f;
+            fld.otherPlanes[p].loc.latitude = 0.0f;
+            fld.otherPlanes[p].loc.longitude = 0.0f;
             fld.otherPlanes[p].elevation = -1000.0f;
             fld.otherPlanes[p].heading = 0.0f;
         }

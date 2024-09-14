@@ -118,9 +118,11 @@ void WindowHTTP::Brightness(int percent)
     UNIMPLEMENTED(__func__);
 }
 
-void WindowHTTP::SetStausInfo(std::string s)
+void WindowHTTP::SetStausInfo(int zt, int f, const Location& l)
 {
-    UNIMPLEMENTED(__func__);
+    zuluTime = zt;
+    fps = f;
+    loc = l;
 }
 
 void WindowHTTP::SetEnabledTools(int selectMask)
@@ -212,17 +214,12 @@ unsigned WindowHTTP::EncodeBMP(std::vector<unsigned char> &bmp)
 
 std::string WindowHTTP::EncodeStatus()
 {
-    // TODO - we need to encode the aircraft location, zulu time, and fps
-
-    // some temporary code to vary the status info until everything is hooked up
-    static int zthd = rand() % 24;
-    static int ztmd = rand() % 60;
-    static int ztsd = rand() % 60;
-    auto zth = (std::stoi(navitab::LocalTime("%H")) + zthd) % 24;
-    auto ztm = (std::stoi(navitab::LocalTime("%M")) + ztmd) % 60;
-    auto zts = (std::stoi(navitab::LocalTime("%S")) + ztsd) % 60;
-    auto zt = fmt::format("{:02d}{:02d}{:02d}", zth, ztm, zts);
-    return zt + "25176676146197";
+    int zth = zuluTime / (60 * 60);
+    int ztm = (zuluTime / 60) % 60;
+    int zts = zuluTime % 60;
+    int ew = (long)((loc.longitude + 180) * 1000);
+    int ns = (long)((loc.latitude + 90) * 1000);
+    return fmt::format("{:02d}{:02d}{:02d}{:02d}{:06d}{:06d}", zth, ztm, zts, fps, ew, ns);
 }
 
 std::string WindowHTTP::EncodeControls()

@@ -34,6 +34,7 @@
 namespace navitab {
 
 struct Window;
+struct Location;
 
 // The Toolbar2Core interface is used by the UI's toolbar to send user tool
 // clicks to the Navitab core for the currently active screen.
@@ -72,7 +73,7 @@ public:
     virtual ~Toolbar() = default;
 
     // APIs called from the Navitab core
-    virtual void SetStausInfo(std::string s) = 0;
+    virtual void SetStausInfo(int zt, int fps, const Location& l) = 0;
     virtual void SetEnabledTools(int selectMask) = 0;
 };
 

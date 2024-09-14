@@ -38,7 +38,7 @@ public:
     ~CoreToolbar();
 
     // APIs called from the Navitab core (sync call OK)
-    void SetStausInfo(std::string s) override;
+    void SetStausInfo(int zt, int fps, const Location& l) override;
     void SetEnabledTools(int selectMask) override;
 
 protected:
@@ -64,6 +64,7 @@ private:
     std::shared_ptr<lvglkit::Manager> uiMgr;
     std::shared_ptr<lvglkit::Display> uiDisplay;
     lv_obj_t* lvhStatusInfo;
+    std::string statusText;
 
 };
 

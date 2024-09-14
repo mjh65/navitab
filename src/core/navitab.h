@@ -136,7 +136,6 @@ private:
     bool                                running;
     bool                                activated;
     SimStateData                        simState;
-    std::string                         toolbarStatus;
 
     std::unique_ptr<std::thread>        worker;
     std::queue<std::function<void()>>   jobs;

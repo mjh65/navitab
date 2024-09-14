@@ -35,14 +35,14 @@ MockSimulator::MockSimulator()
     tiktok(false)
 {
     auto& d = mockData[0];
-    d.myPlane.latitude = 55.974728f;
-    d.myPlane.longitude = -3.970579f;
+    d.myPlane.loc.latitude = 55.974728f;
+    d.myPlane.loc.longitude = -3.970579f;
     d.myPlane.elevation = 100.0f;
     d.myPlane.heading = 290.0f;
     d.nOtherPlanes = MAX_OTHER_AIRCRAFT;
     for (auto i = 0; i < MAX_OTHER_AIRCRAFT; ++i) {
-        d.otherPlanes[i].latitude = 55.0f + ((rand() % 2000) / 1000.0f);
-        d.otherPlanes[i].longitude = -3.0f - ((rand() % 2000) / 1000.0f);
+        d.otherPlanes[i].loc.latitude = 55.0f + ((rand() % 2000) / 1000.0f);
+        d.otherPlanes[i].loc.longitude = -3.0f - ((rand() % 2000) / 1000.0f);
         d.otherPlanes[i].elevation = 100.0f + ((rand() % 100) * 100.0);
         d.otherPlanes[i].heading = (rand() % 360);
     }

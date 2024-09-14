@@ -27,6 +27,7 @@
 #include <condition_variable>
 #include <thread>
 #include "navitab/window.h"
+#include "navitab/navigation.h"
 #include "navitab/toolbar.h"
 #include "navitab/modebar.h"
 #include "navitab/doodler.h"
@@ -61,7 +62,7 @@ public:
     void Brightness(int percent) override;
 
     // Implementation of the Toolbar interface
-    void SetStausInfo(std::string s) override;
+    void SetStausInfo(int zt, int fps, const Location& loc) override;
     void SetEnabledTools(int selectMask) override;
 
     // Implementation of the Modebar interface
@@ -117,6 +118,9 @@ private:
     int winHeight;
 
     float brightness;
+    int zuluTime;
+    int fps;
+    Location loc;
 
     bool                                running;
     std::queue<std::function<void()>>   jobs;

@@ -135,22 +135,22 @@ void WindowHTTP::SetHighlighted(int selectMask)
     UNIMPLEMENTED(__func__);
 }
 
-void WindowHTTP::Enable()
+void WindowHTTP::EnableDoodler()
 {
     UNIMPLEMENTED(__func__);
 }
 
-void WindowHTTP::Disable()
+void WindowHTTP::DisableDoodler()
 {
     UNIMPLEMENTED(__func__);
 }
 
-void WindowHTTP::Show()
+void WindowHTTP::ShowKeypad()
 {
     UNIMPLEMENTED(__func__);
 }
 
-void WindowHTTP::Hide()
+void WindowHTTP::HideKeypad()
 {
     UNIMPLEMENTED(__func__);
 }

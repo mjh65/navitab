@@ -34,13 +34,13 @@ CoreKeypad::~CoreKeypad()
 {
 }
 
-void CoreKeypad::Show()
+void CoreKeypad::ShowKeypad()
 {
     visible = true;
     RunLater([this]() { onResize(width, height); });
 }
 
-void CoreKeypad::Hide()
+void CoreKeypad::HideKeypad()
 {
     visible = false;
     image.reset();

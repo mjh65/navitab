@@ -46,8 +46,8 @@ public:
     virtual ~Doodler() = default;
 
     // API calls from Navitab core (these will be triggered from the Modebar click handler)
-    virtual void Enable() = 0;
-    virtual void Disable() = 0;
+    virtual void EnableDoodler() = 0;
+    virtual void DisableDoodler() = 0;
 };
 
 } // namespace navitab

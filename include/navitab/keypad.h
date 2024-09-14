@@ -59,8 +59,8 @@ public:
     virtual ~Keypad() = default;
 
     // APIs called from the Navitab core (sync call is OK)
-    virtual void Show() = 0;
-    virtual void Hide() = 0;
+    virtual void ShowKeypad() = 0;
+    virtual void HideKeypad() = 0;
     // TBD: other stuff, like setting any multi-character keys (nearest airports etc)
 
 };

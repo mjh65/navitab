@@ -35,8 +35,8 @@ public:
     ~CoreDoodler();
 
     // APIs called from the core
-    void Enable() override;
-    void Disable() override;
+    void EnableDoodler() override;
+    void DisableDoodler() override;
 
 protected:
     // Implementation of WindowPart

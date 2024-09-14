@@ -34,7 +34,7 @@ CoreDoodler::~CoreDoodler()
 {
 }
 
-void CoreDoodler::Enable()
+void CoreDoodler::EnableDoodler()
 {
     if (!enabled) {
         if (oldDoodle) std::swap(image, oldDoodle);
@@ -43,7 +43,7 @@ void CoreDoodler::Enable()
     }
 }
 
-void CoreDoodler::Disable()
+void CoreDoodler::DisableDoodler()
 {
     if (enabled) {
         std::swap(image, oldDoodle);

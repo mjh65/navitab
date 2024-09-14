@@ -35,8 +35,8 @@ public:
     ~CoreKeypad();
 
     // APIs called from the application/plugin
-    void Show() override;
-    void Hide() override;
+    void ShowKeypad() override;
+    void HideKeypad() override;
 
 protected:
     // Implementation of WindowPart

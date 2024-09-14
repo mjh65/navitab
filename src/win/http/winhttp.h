@@ -69,12 +69,12 @@ public:
     void SetHighlighted(int selectMask) override;
 
     // Implementation of the Doodler interface
-    void Enable() override;
-    void Disable() override;
+    void EnableDoodler() override;
+    void DisableDoodler() override;
 
     // Implementation of the Keypad interface
-    void Show() override;
-    void Hide() override;
+    void ShowKeypad() override;
+    void HideKeypad() override;
 
     // Encode a BMP image of the canvas for the panel
     unsigned EncodeBMP(std::vector<unsigned char> &png);

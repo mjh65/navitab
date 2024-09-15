@@ -21,10 +21,11 @@
 #pragma once
 
 #include <memory>
+#include <lvgl.h>
 #include "navitab/logger.h"
 
 namespace lvglkit {
-class Manager;
+class Display;
 }
 
 namespace navitab {
@@ -34,17 +35,26 @@ class CoreServices;
 class App
 {
 public:
-    App(const char *name, std::shared_ptr<CoreServices> core, std::shared_ptr<lvglkit::Manager> gui);
-    virtual ~App() = default;
+    App(const char *name, std::shared_ptr<CoreServices> core);
+    virtual ~App();
 
-    virtual void Activate() = 0;
-    virtual void Deactivate() = 0;
+    void Activate(std::shared_ptr<lvglkit::Display> display);
+    void Deactivate();
+
+protected:
+    virtual void Assemble() = 0;
+    virtual void Demolish() = 0;
+
+    // switch the LVGL screen to make it active
+    void Show();
 
 protected:
     std::unique_ptr<logging::Logger> LOG;
     std::shared_ptr<CoreServices> core;
-    std::shared_ptr<lvglkit::Manager> gui;
+    std::shared_ptr<lvglkit::Display> display;
 
+    // every app will have an LVGL screen as its root widget
+    lv_obj_t * root;
 };
 
 } // namespace navitab

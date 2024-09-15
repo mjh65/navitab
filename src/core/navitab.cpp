@@ -204,14 +204,13 @@ void Navitab::Start()
     worker = std::make_unique<std::thread>([this]() { AsyncWorker(); });
 
     uiMgr = std::make_shared<lvglkit::Manager>(std::static_pointer_cast<DeferredJobRunner<int>>(shared_from_this()));
-    assert(uiMgr);
 
-    aboutApp = std::make_shared<AboutApp>(shared_from_this(), uiMgr);
-    mapApp = std::make_shared<MapApp>(shared_from_this(), uiMgr);
-    airportApp = std::make_shared<AirportApp>(shared_from_this(), uiMgr);
-    routeApp = std::make_shared<RouteApp>(shared_from_this(), uiMgr);
-    readerApp = std::make_shared<ReaderApp>(shared_from_this(), uiMgr);
-    settingsApp = std::make_shared<SettingsApp>(shared_from_this(), uiMgr);
+    aboutApp = std::make_shared<AboutApp>(shared_from_this());
+    mapApp = std::make_shared<MapApp>(shared_from_this());
+    airportApp = std::make_shared<AirportApp>(shared_from_this());
+    routeApp = std::make_shared<RouteApp>(shared_from_this());
+    readerApp = std::make_shared<ReaderApp>(shared_from_this());
+    settingsApp = std::make_shared<SettingsApp>(shared_from_this());
     activeApp = aboutApp; // TODO - add setting for startup app
 
     // curl_global_init(CURL_GLOBAL_ALL); TODO: activate this later
@@ -222,7 +221,7 @@ void Navitab::Activate()
     if (!activated) {
         activated = true;
         assert(canvas);
-        activeApp->Activate();
+        activeApp->Activate(canvas->Display());
     }
 }
 

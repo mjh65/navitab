@@ -36,6 +36,8 @@ public:
 
     void FlushCallback(const lv_area_t* area, uint32_t* px);
 
+    void Select() const override { lv_disp_set_default(display); }
+
 private:
     Updater* const updater;
     lv_display_t* display;

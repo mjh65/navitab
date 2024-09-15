@@ -28,10 +28,11 @@ namespace navitab {
 class MapApp : public App
 {
 public:
-    MapApp(std::shared_ptr<CoreServices> core, std::shared_ptr<lvglkit::Manager> gui);
+    MapApp(std::shared_ptr<CoreServices> core);
 
-    void Activate() override;
-    void Deactivate() override;
+protected:
+    void Assemble() override;
+    void Demolish() override;
 
 private:
 

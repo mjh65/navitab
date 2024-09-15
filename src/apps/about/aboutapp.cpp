@@ -22,17 +22,17 @@
 
 namespace navitab {
 
-AboutApp::AboutApp(std::shared_ptr<CoreServices> core, std::shared_ptr<lvglkit::Manager> gui)
-:   App("about", core, gui)
+AboutApp::AboutApp(std::shared_ptr<CoreServices> core)
+:   App("about", core)
 {
 }
 
-void AboutApp::Activate()
+void AboutApp::Assemble()
 {
     UNIMPLEMENTED(__func__);
 }
 
-void AboutApp::Deactivate()
+void AboutApp::Demolish()
 {
     UNIMPLEMENTED(__func__);
 }

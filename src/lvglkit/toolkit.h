@@ -43,6 +43,8 @@ public:
     };
     virtual void Resize(int w, int h, uint32_t* buffer) = 0;
     virtual lv_display_t* GetHandleLVGL() = 0;
+
+    virtual void Select() const = 0;
 };
 
 // RefCounter is used to ensure all LVGL resources have been deleted before

@@ -22,17 +22,17 @@
 
 namespace navitab {
 
-SettingsApp::SettingsApp(std::shared_ptr<CoreServices> core, std::shared_ptr<lvglkit::Manager> gui)
-:   App("stgsapp", core, gui)
+SettingsApp::SettingsApp(std::shared_ptr<CoreServices> core)
+:   App("stgsapp", core)
 {
 }
 
-void SettingsApp::Activate()
+void SettingsApp::Assemble()
 {
     UNIMPLEMENTED(__func__);
 }
 
-void SettingsApp::Deactivate()
+void SettingsApp::Demolish()
 {
     UNIMPLEMENTED(__func__);
 }

@@ -19,14 +19,44 @@
  */
 
 #include "app.h"
+#include "../lvglkit/display.h"
 
 namespace navitab {
 
-App::App(const char *name, std::shared_ptr<CoreServices> c, std::shared_ptr<lvglkit::Manager> g)
+App::App(const char *name, std::shared_ptr<CoreServices> c)
 :   LOG(std::make_unique<logging::Logger>(name)),
     core(c),
-    gui(g)
+    root(nullptr)
 {
+}
+
+App::~App()
+{
+    Deactivate();
+    lv_obj_del(root);
+    root = nullptr;
+}
+
+void App::Activate(std::shared_ptr<lvglkit::Display> d)
+{
+    display = d;
+    if (!root) {
+        display->Select();
+        root = lv_obj_create(nullptr);
+        Assemble();
+    }
+    Show();
+}
+
+void App::Deactivate()
+{
+    Demolish();
+}
+
+void App::Show()
+{
+    display->Select();
+    lv_scr_load(root);
 }
 
 } // namespace navitab

@@ -66,6 +66,8 @@ public:
     // Implementation of lvglkit::Display::Updater
     void Update(navitab::FrameRegion r, uint32_t* pixels) override;
 
+    std::shared_ptr<lvglkit::Display> Display() const { return uiDisplay; }
+
 private:
     const uint32_t backgroundPixels = 0xff00df00;
     std::unique_ptr<logging::Logger> LOG;

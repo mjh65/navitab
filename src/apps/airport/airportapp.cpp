@@ -22,17 +22,17 @@
 
 namespace navitab {
 
-AirportApp::AirportApp(std::shared_ptr<CoreServices> core, std::shared_ptr<lvglkit::Manager> gui)
-:   App("aprtapp", core, gui)
+AirportApp::AirportApp(std::shared_ptr<CoreServices> core)
+:   App("aprtapp", core)
 {
 }
 
-void AirportApp::Activate()
+void AirportApp::Assemble()
 {
     UNIMPLEMENTED(__func__);
 }
 
-void AirportApp::Deactivate()
+void AirportApp::Demolish()
 {
     UNIMPLEMENTED(__func__);
 }

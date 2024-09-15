@@ -22,17 +22,17 @@
 
 namespace navitab {
 
-RouteApp::RouteApp(std::shared_ptr<CoreServices> core, std::shared_ptr<lvglkit::Manager> gui)
-:   App("routeapp", core, gui)
+RouteApp::RouteApp(std::shared_ptr<CoreServices> core)
+:   App("routeapp", core)
 {
 }
 
-void RouteApp::Activate()
+void RouteApp::Assemble()
 {
     UNIMPLEMENTED(__func__);
 }
 
-void RouteApp::Deactivate()
+void RouteApp::Demolish()
 {
     UNIMPLEMENTED(__func__);
 }

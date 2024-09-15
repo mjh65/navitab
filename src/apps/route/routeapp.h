@@ -28,10 +28,11 @@ namespace navitab {
 class RouteApp : public App
 {
 public:
-    RouteApp(std::shared_ptr<CoreServices> core, std::shared_ptr<lvglkit::Manager> gui);
+    RouteApp(std::shared_ptr<CoreServices> core);
 
-    void Activate() override;
-    void Deactivate() override;
+protected:
+    void Assemble() override;
+    void Demolish() override;
 
 private:
 

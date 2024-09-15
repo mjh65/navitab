@@ -22,17 +22,17 @@
 
 namespace navitab {
 
-MapApp::MapApp(std::shared_ptr<CoreServices> core, std::shared_ptr<lvglkit::Manager> gui)
-:   App("mapapp", core, gui)
+MapApp::MapApp(std::shared_ptr<CoreServices> core)
+:   App("mapapp", core)
 {
 }
 
-void MapApp::Activate()
+void MapApp::Assemble()
 {
     UNIMPLEMENTED(__func__);
 }
 
-void MapApp::Deactivate()
+void MapApp::Demolish()
 {
     UNIMPLEMENTED(__func__);
 }

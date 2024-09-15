@@ -22,6 +22,19 @@
 
 namespace navitab {
 
+ReaderApp::ReaderApp(std::shared_ptr<CoreServices> core, std::shared_ptr<lvglkit::Manager> gui)
+:   App("rdrapp", core, gui)
+{
+}
 
+void ReaderApp::Activate()
+{
+    UNIMPLEMENTED(__func__);
+}
+
+void ReaderApp::Deactivate()
+{
+    UNIMPLEMENTED(__func__);
+}
 
 } // namespace navitab

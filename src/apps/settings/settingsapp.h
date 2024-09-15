@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include <memory>
 #include "../app.h"
 
 namespace navitab {
@@ -27,6 +28,12 @@ namespace navitab {
 class SettingsApp : public App
 {
 public:
+    SettingsApp(std::shared_ptr<CoreServices> core, std::shared_ptr<lvglkit::Manager> gui);
+
+    void Activate() override;
+    void Deactivate() override;
+
+private:
 
 };
 

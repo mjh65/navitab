@@ -48,6 +48,14 @@ namespace lvglkit {
 
 namespace navitab {
 
+class App;
+class AboutApp;
+class MapApp;
+class AirportApp;
+class RouteApp;
+class ReaderApp;
+class SettingsApp;
+
 class Navitab : public std::enable_shared_from_this<Navitab>,
                 public CoreServices,
                 public Simulator2Core,
@@ -132,6 +140,14 @@ private:
     std::shared_ptr<Keypad>             keypad;
     std::shared_ptr<Canvas>             canvas;
     std::shared_ptr<lvglkit::Manager>   uiMgr;
+
+    std::shared_ptr<AboutApp>           aboutApp;
+    std::shared_ptr<MapApp>             mapApp;
+    std::shared_ptr<AirportApp>         airportApp;
+    std::shared_ptr<RouteApp>           routeApp;
+    std::shared_ptr<ReaderApp>          readerApp;
+    std::shared_ptr<SettingsApp>        settingsApp;
+    std::shared_ptr<App>                activeApp;
 
     bool                                running;
     bool                                activated;

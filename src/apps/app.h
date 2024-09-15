@@ -20,11 +20,30 @@
 
 #pragma once
 
+#include <memory>
+#include "navitab/logger.h"
+
+namespace lvglkit {
+class Manager;
+}
+
 namespace navitab {
+
+class CoreServices;
 
 class App
 {
 public:
+    App(const char *name, std::shared_ptr<CoreServices> core, std::shared_ptr<lvglkit::Manager> gui);
+    virtual ~App() = default;
+
+    virtual void Activate() = 0;
+    virtual void Deactivate() = 0;
+
+protected:
+    std::unique_ptr<logging::Logger> LOG;
+    std::shared_ptr<CoreServices> core;
+    std::shared_ptr<lvglkit::Manager> gui;
 
 };
 

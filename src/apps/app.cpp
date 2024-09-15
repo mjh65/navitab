@@ -22,6 +22,11 @@
 
 namespace navitab {
 
-
+App::App(const char *name, std::shared_ptr<CoreServices> c, std::shared_ptr<lvglkit::Manager> g)
+:   LOG(std::make_unique<logging::Logger>(name)),
+    core(c),
+    gui(g)
+{
+}
 
 } // namespace navitab

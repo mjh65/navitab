@@ -17,4 +17,13 @@
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 target_sources(navitab_core PRIVATE
+    app.cpp
+    app.h
 )
+
+add_subdirectory(about)
+add_subdirectory(map)
+add_subdirectory(airport)
+add_subdirectory(route)
+add_subdirectory(reader)
+add_subdirectory(settings)

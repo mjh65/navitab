@@ -17,4 +17,6 @@
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 target_sources(navitab_core PRIVATE
+    aboutapp.cpp
+    aboutapp.h
 )

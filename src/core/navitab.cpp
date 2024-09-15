@@ -30,6 +30,12 @@
 #include "coredoodler.h"
 #include "corekeypad.h"
 #include "canvas.h"
+#include "../apps/about/aboutapp.h"
+#include "../apps/map/mapapp.h"
+#include "../apps/airport/airportapp.h"
+#include "../apps/route/routeapp.h"
+#include "../apps/reader/readerapp.h"
+#include "../apps/settings/settingsapp.h"
 #include "../platform/paths.h"
 #include "../lvglkit/toolkit.h"
 

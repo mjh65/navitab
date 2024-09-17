@@ -217,8 +217,8 @@ std::string WindowHTTP::EncodeStatus()
     int zth = zuluTime / (60 * 60);
     int ztm = (zuluTime / 60) % 60;
     int zts = zuluTime % 60;
-    int ew = (long)((loc.longitude + 180) * 1000);
-    int ns = (long)((loc.latitude + 90) * 1000);
+    int ew = (int)((loc.longitude + 180) * 1000);
+    int ns = (int)((loc.latitude + 90) * 1000);
     return fmt::format("{:02d}{:02d}{:02d}{:02d}{:06d}{:06d}", zth, ztm, zts, fps, ew, ns);
 }
 

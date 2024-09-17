@@ -23,7 +23,7 @@
 
 namespace navitab {
 
-Canvas::Canvas(std::shared_ptr<CanvasEvents> c, std::shared_ptr<lvglkit::Manager> u)
+Canvas::Canvas(std::shared_ptr<Canvas2Core> c, std::shared_ptr<lvglkit::Manager> u)
 :   WindowPart(CANVAS),
     LOG(std::make_unique<logging::Logger>("canvas")),
     core(c), uiMgr(u)
@@ -84,8 +84,13 @@ void Canvas::onResize(int w, int h)
     std::swap(image, ni);
     width = w; height = h;
 
-    // The canvas image is created by the LVGL UI, so 
+    // The canvas image is created by the LVGL UI. Resize the display associated with the canvas.
     uiDisplay->Resize(w, h, image->Row(0));
+
+    // On first resize the old image (now in ni) will be null
+    if (!ni) {
+        core->StartApps();
+    }
 
     dirtyBits.push_back(FrameRegion(0, 0, width, height));
     RunLater([this]() { Redraw(); });

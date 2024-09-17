@@ -221,7 +221,7 @@ void Navitab::Activate()
     if (!activated) {
         activated = true;
         assert(canvas);
-        activeApp->Activate(canvas->Display());
+        //activeApp->Activate(canvas->Display());
     }
 }
 
@@ -268,6 +268,13 @@ void Navitab::onSimFlightLoop(const SimStateData& data)
     toolbar->SetStausInfo(data.zuluTime, data.fps, data.myPlane.loc);
 
     canvas->UpdateProtoDevelopment(); // TODO - remove this once we have LVGL installed
+}
+
+void Navitab::StartApps()
+{
+    activeApp->Activate(canvas->Display());
+    modebar->SetHighlighted(0x1); // TODO - should match the launch app from the settings.
+    toolbar->SetEnabledTools(0x1); // TODO - get this from the app
 }
 
 void Navitab::onToolClick(Tool t)

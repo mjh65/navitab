@@ -32,9 +32,10 @@ App::App(const char *name, std::shared_ptr<CoreServices> c)
 
 App::~App()
 {
-    Deactivate();
-    lv_obj_del(root);
-    root = nullptr;
+    if (root) {
+        lv_obj_del(root);
+        root = nullptr;
+    }
 }
 
 void App::Activate(std::shared_ptr<lvglkit::Display> d)

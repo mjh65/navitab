@@ -24,15 +24,16 @@
 #include "navitab/logger.h"
 #include "../lvglkit/toolkit.h"
 
- // The Toolbar class represents the toolbar which is drawn across the top
- // of the window. It is a fixed height, and displays some current status
- // information on the left hand side, and some tool action icons from the
- // right hand side which trigger behaviours in the currently active mode/app.
+ // The Canvas represents the area of the display where the in-panel apps draw
+ // their UIs. These UIs are built using the LVGL toolkit, and the Canvas implements
+ // the driver interface required by LVGL.
 
 namespace navitab {
 
-struct CanvasEvents : public DeferredJobRunner<>
+struct Canvas2Core : public DeferredJobRunner<>
 {
+    virtual void StartApps() = 0;
+
     void PostFoo() {
         RunLater([this]() { onFoo(); });
     }
@@ -48,7 +49,7 @@ protected:
 class Canvas : public WindowPart, public lvglkit::Display::Updater
 {
 public:
-    Canvas(std::shared_ptr<CanvasEvents> core, std::shared_ptr<lvglkit::Manager>);
+    Canvas(std::shared_ptr<Canvas2Core> core, std::shared_ptr<lvglkit::Manager>);
     ~Canvas();
 
     // transient function during development, will be removed
@@ -71,7 +72,7 @@ public:
 private:
     const uint32_t backgroundPixels = 0xff00df00;
     std::unique_ptr<logging::Logger> LOG;
-    std::shared_ptr<CanvasEvents> core;
+    std::shared_ptr<Canvas2Core> core;
     std::shared_ptr<lvglkit::Manager> uiMgr;
     std::shared_ptr<lvglkit::Display> uiDisplay;
 };

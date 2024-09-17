@@ -60,7 +60,7 @@ class Navitab : public std::enable_shared_from_this<Navitab>,
                 public CoreServices,
                 public Simulator2Core,
                 public DeferredJobRunner<int>,
-                public Toolbar2Core, public Modebar2Core, public Doodler2Core, public Keypad2Core, public CanvasEvents
+                public Toolbar2Core, public Modebar2Core, public Doodler2Core, public Keypad2Core, public Canvas2Core
 {
 public:
     // Constructing the Navitab object also does enough initialisation to
@@ -113,7 +113,8 @@ public:
     void onKeypadEvent(int code) override;
 
     // ======================================================================
-    // Implementation of CanvasEvents
+    // Implementation of Canvas2Core
+    void StartApps() override;
     void onFoo() override {}
 
     // ======================================================================

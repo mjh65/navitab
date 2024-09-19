@@ -125,7 +125,7 @@ public:
     int Width() const { return width; }
     int Height() const { return height; }
 
-    void PaintIcon(int x, int y, const uint32_t *pix, int w, int h);
+    void PaintIcon(int x, int y, const uint32_t *pix, int w, int h, uint32_t bg = 0);
 
     uint32_t* Row(int r) { return &data[r * width]; }
     std::vector<uint32_t>::iterator PixAt(int y, int x) { return data.begin() + (y * width + x); }
@@ -209,7 +209,7 @@ protected:
 
 };
 
-inline void FrameBuffer::PaintIcon(int x, int y, const uint32_t *pix, int w, int h)
+inline void FrameBuffer::PaintIcon(int x, int y, const uint32_t *pix, int w, int h, uint32_t bg)
 {
     assert(x >= 0);
     assert(y >= 0);
@@ -219,7 +219,14 @@ inline void FrameBuffer::PaintIcon(int x, int y, const uint32_t *pix, int w, int
     for (int iy = 0; iy < h; ++iy) {
         uint32_t *d = &data[((y + iy) * width) + x];
         const uint32_t *s = pix + iy * w;
-        memcpy(d, s, w * sizeof(uint32_t));
+        if (bg == 0) {
+            memcpy(d, s, w * sizeof(uint32_t));
+        } else {
+            for (int k = 0; k < w; ++k) {
+                uint32_t p = *s++;
+                *d++ = (p == 0) ? bg : p;
+            }
+        }
     }
 }
 

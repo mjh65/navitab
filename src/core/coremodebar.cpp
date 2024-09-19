@@ -33,7 +33,8 @@ namespace navitab {
 
 CoreModebar::CoreModebar(std::shared_ptr<Modebar2Core> c, std::shared_ptr<lvglkit::Manager> u)
 :   LOG(std::make_unique<logging::Logger>("modebar")),
-    core(c), uiMgr(u)
+    core(c), uiMgr(u),
+    highlightMask(0)
 {
     uiDisplay = uiMgr->MakeDisplay(this);
 }
@@ -44,7 +45,12 @@ CoreModebar::~CoreModebar()
 
 void CoreModebar::SetHighlighted(int selectMask)
 {
-    UNIMPLEMENTED(__func__);
+    if (selectMask != highlightMask) {
+        if (image) {
+            RedrawIcons(selectMask | highlightMask, selectMask);
+        }
+        highlightMask = selectMask;
+    }
 }
 
 void CoreModebar::onResize(int, int)
@@ -53,26 +59,8 @@ void CoreModebar::onResize(int, int)
     // and a new one is created and scheduled for redrawing
     width = Window::MODEBAR_WIDTH; height = Window::MODEBAR_HEIGHT;
     image = std::make_unique<FrameBuffer>(width, height);
-    //image->Clear(backgroundPixels);
 
-    // generate the basic modebar image
-    const uint32_t* icons[] = {
-        mode_about_40x40,
-        mode_map_40x40,
-        mode_route_40x40,
-        mode_airport_40x40,
-        mode_docs_40x40,
-        mode_settings_40x40,
-        mode_doodler_40x40
-    };
-    for (int i = 0; i < 7; ++i) {
-        int y = i * 40;
-        image->PaintIcon(0, i*40, icons[i], 40, 40);
-    }
-    image->PaintIcon(0, 7 * 40, mode_keypad_40x24, 40, 24);
-
-    dirtyBits.push_back(FrameRegion(0, 0, width, height));
-    RunLater([this]() { Redraw(); });
+    RedrawIcons(~0, highlightMask);
 }
 
 void CoreModebar::onMouseEvent(int x, int y, bool l, bool r)
@@ -85,8 +73,35 @@ void CoreModebar::Update(navitab::FrameRegion r, uint32_t* pixels)
     // this is the update function called from the LVGL library
     // TODO - as we're using LV_DISP_RENDER_MODE_DIRECT, there is probably not much to be done
     // maybe just post the region to the dirtyBits and redraw?
-    UNIMPLEMENTED(__func__);
     dirtyBits.push_back(r);
+    RunLater([this]() { Redraw(); });
+}
+
+void CoreModebar::RedrawIcons(int drawMask, int selectMask)
+{
+    // generate the basic modebar image
+    const uint32_t* icons[] = {
+        mode_about_40x40,
+        mode_map_40x40,
+        mode_route_40x40,
+        mode_airport_40x40,
+        mode_docs_40x40,
+        mode_settings_40x40,
+        mode_doodler_40x40
+    };
+    for (int i = 0; i < 7; ++i) {
+        if (drawMask & (1 << i)) {
+            int y = i * 40;
+            uint32_t bgcol = (selectMask & (1 << i)) ? 0x4000cc00 : 0;
+            image->PaintIcon(0, i*40, icons[i], 40, 40, bgcol);
+        }
+    }
+    if (drawMask & (1 << 7)) {
+        uint32_t bgcol = (selectMask & (1 << 7)) ? 0x4000cc00 : 0;
+        image->PaintIcon(0, 7 * 40, mode_keypad_40x24, 40, 24, bgcol);
+    }
+
+    dirtyBits.push_back(FrameRegion(0, 0, width, height));
     RunLater([this]() { Redraw(); });
 }
 

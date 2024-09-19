@@ -53,11 +53,14 @@ protected:
     void Update(navitab::FrameRegion r, uint32_t* pixels) override;
 
 private:
-    const uint32_t backgroundPixels = 0x400000ff;
+    void RedrawIcons(int drawMask, int selectMask);
+
+private:
     std::unique_ptr<logging::Logger> LOG;
     std::shared_ptr<Modebar2Core> core;
     std::shared_ptr<lvglkit::Manager> uiMgr;
     std::shared_ptr<lvglkit::Display> uiDisplay;
+    int highlightMask;
 
 };
 

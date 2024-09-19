@@ -67,28 +67,17 @@ void Canvas::UpdateProtoDevelopment()
 
 void Canvas::onResize(int w, int h)
 {
-    // During initial testing we're just generating random data.
-    // If the canvas is resized then we create a new image and copy whatever fits
-    // from the old one before dumping it.
+    bool firstTime = (!image);
 
-    auto ni = std::make_unique<FrameBuffer>(w, h);
-    ni->Clear(backgroundPixels);
-    if (image) {
-        for (auto y = 0; y < std::min(h, height); ++y) {
-            auto sr = image->PixAt(y, 0);
-            auto dr = ni->PixAt(y, 0);
-            auto nx = std::min(w, width);
-            std::copy(sr, sr + nx, dr);
-        }
-    }
-    std::swap(image, ni);
+    // On resizing we just create a new image buffer
+    image = std::make_unique<FrameBuffer>(w, h);
     width = w; height = h;
 
-    // The canvas image is created by the LVGL UI. Resize the display associated with the canvas.
+    // The canvas is drawn by the LVGL UI. Resize the display associated with the canvas.
     uiDisplay->Resize(w, h, image->Row(0));
 
-    // On first resize the old image (now in ni) will be null
-    if (!ni) {
+    // On first resize the navitab apps need to be started
+    if (firstTime) {
         core->StartApps();
     }
 

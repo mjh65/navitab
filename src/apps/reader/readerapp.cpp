@@ -29,7 +29,9 @@ ReaderApp::ReaderApp(std::shared_ptr<CoreServices> core)
 
 void ReaderApp::Assemble()
 {
-    UNIMPLEMENTED(__func__);
+    lv_obj_t * label = lv_label_create(root);
+    lv_label_set_text(label, "Document Reader\nTBD");
+    lv_obj_center(label);
 }
 
 void ReaderApp::Demolish()

@@ -29,7 +29,9 @@ MapApp::MapApp(std::shared_ptr<CoreServices> core)
 
 void MapApp::Assemble()
 {
-    UNIMPLEMENTED(__func__);
+    lv_obj_t * label = lv_label_create(root);
+    lv_label_set_text(label, "Map\nTBD");
+    lv_obj_center(label);
 }
 
 void MapApp::Demolish()

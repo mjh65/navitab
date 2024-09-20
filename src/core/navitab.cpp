@@ -238,6 +238,11 @@ void Navitab::Stop()
     // This is called during X-Plane plugin stop
     // Avitab also calls curl_global_cleanup(), so we need to not forget that 
     // Need to review SDK docs and Avitab.
+    canvas.reset();
+    toolbar.reset();
+    modebar.reset();
+    doodler.reset();
+    keypad.reset();
     activeApp.reset();
     aboutApp.reset();
     mapApp.reset();
@@ -245,11 +250,6 @@ void Navitab::Stop()
     routeApp.reset();
     readerApp.reset();
     settingsApp.reset();
-    canvas.reset();
-    toolbar.reset();
-    modebar.reset();
-    doodler.reset();
-    keypad.reset();
     uiMgr.reset();
     settings.reset();
     if (running) {

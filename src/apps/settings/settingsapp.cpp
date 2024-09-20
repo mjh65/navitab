@@ -29,7 +29,9 @@ SettingsApp::SettingsApp(std::shared_ptr<CoreServices> core)
 
 void SettingsApp::Assemble()
 {
-    UNIMPLEMENTED(__func__);
+    lv_obj_t * label = lv_label_create(root);
+    lv_label_set_text(label, "Navitab Settings\nTBD");
+    lv_obj_center(label);
 }
 
 void SettingsApp::Demolish()

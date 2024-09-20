@@ -71,7 +71,7 @@ void CoreToolbar::onResize(int w, int h)
     if (!lvhStatusInfo) {
         CreateWidgets();
     }
-    lv_display_set_default(uiDisplay->GetHandleLVGL());
+    uiDisplay->Select();
     lv_obj_invalidate(lv_screen_active());
 }
 
@@ -90,7 +90,7 @@ void CoreToolbar::Update(navitab::FrameRegion r, uint32_t* pixels)
 
 void CoreToolbar::CreateWidgets()
 {
-    lv_display_set_default(uiDisplay->GetHandleLVGL());
+    uiDisplay->Select();
 
     // Change the background colour
     lv_obj_set_style_bg_color(lv_screen_active(), lv_color_hex(backgroundPixels), LV_PART_MAIN);

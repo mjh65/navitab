@@ -29,7 +29,9 @@ AboutApp::AboutApp(std::shared_ptr<CoreServices> core)
 
 void AboutApp::Assemble()
 {
-    UNIMPLEMENTED(__func__);
+    lv_obj_t * label = lv_label_create(root);
+    lv_label_set_text(label, "About Navitab\nTBD");
+    lv_obj_center(label);
 }
 
 void AboutApp::Demolish()

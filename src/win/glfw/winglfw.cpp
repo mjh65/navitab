@@ -52,7 +52,9 @@ WindowGLFW::WindowGLFW()
     winResizePollTimer(0),
     winWidth(WIN_STD_WIDTH),
     winHeight(WIN_STD_HEIGHT),
-    brightness(1.0f)
+    brightness(1.0f),
+    mouse({0,0,0}),
+    activeWinPart(nullptr)
 {
     glfwSetErrorCallback(GLFWERR);
     if (!glfwInit()) {
@@ -61,13 +63,19 @@ WindowGLFW::WindowGLFW()
 
     for (auto i = 0; i < WindowPart::TOTAL_PARTS; ++i) {
         winParts[i].textureId = 0;
+        winParts[i].top = winParts[i].left = 0;
         winParts[i].active = 0;
     }
     winParts[WindowPart::CANVAS].textureImage = std::make_unique<TextureBuffer>(WIN_MAX_WIDTH, (WIN_MAX_HEIGHT - TOOLBAR_HEIGHT));
+    winParts[WindowPart::CANVAS].top = TOOLBAR_HEIGHT;
     winParts[WindowPart::TOOLBAR].textureImage = std::make_unique<TextureBuffer>(WIN_MAX_WIDTH, TOOLBAR_HEIGHT);
     winParts[WindowPart::MODEBAR].textureImage = std::make_unique<TextureBuffer>(MODEBAR_WIDTH, MODEBAR_HEIGHT);
+    winParts[WindowPart::MODEBAR].top = TOOLBAR_HEIGHT;
     winParts[WindowPart::DOODLER].textureImage = std::make_unique<TextureBuffer>((WIN_MAX_WIDTH - MODEBAR_WIDTH), (WIN_MAX_HEIGHT - TOOLBAR_HEIGHT));
+    winParts[WindowPart::DOODLER].top = TOOLBAR_HEIGHT;
     winParts[WindowPart::KEYPAD].textureImage = std::make_unique<TextureBuffer>(WIN_MAX_WIDTH, KEYPAD_HEIGHT);
+    winParts[WindowPart::KEYPAD].top = winHeight - KEYPAD_HEIGHT;
+    winParts[WindowPart::KEYPAD].left = MODEBAR_WIDTH;
 }
 
 WindowGLFW::~WindowGLFW()
@@ -131,16 +139,37 @@ void WindowGLFW::EventLoop()
         RenderFrame();
 
         glfwPollEvents();
-        // TODO - generate button down events on first press
-        // TODO - generate mouse movements when either button is active
-        // TODO - generate button up events on release
+
+        if (!mouseEvents.empty()) {
+            MouseState m1 = mouseEvents.front();
+            mouseEvents.pop_front();
+            if (m1.b && !mouse.b) {
+                activeWinPart = LocateWinPart(m1.x, m1.y);
+                activeWinPart->client->PostMouseEvent(m1.x - activeWinPart->left, m1.y - activeWinPart->top, true, false);
+            } else if (!m1.b && mouse.b) {
+                activeWinPart->client->PostMouseEvent(m1.x - activeWinPart->left, m1.y - activeWinPart->top, false, false);
+                activeWinPart = nullptr;
+            }
+            mouse = m1;
+        } else if (mouse.b) {
+            double x, y;
+            glfwGetCursorPos(window, &x, &y);
+            mouse.x = int(floor(x));
+            mouse.y = int(floor(y));
+            assert(activeWinPart);
+            activeWinPart->client->PostMouseEvent(mouse.x - activeWinPart->left, mouse.y - activeWinPart->top, true, false);
+        }
+
         // TODO - scroll wheel handling
+
         // TODO - check key events and forward useful stuff
     }
 }
 
 void WindowGLFW::ResizeNotifyAll(int w, int h)
 {
+    winParts[WindowPart::KEYPAD].top = h - KEYPAD_HEIGHT;
+
     winParts[WindowPart::CANVAS].client->PostResize(w - MODEBAR_WIDTH, h - TOOLBAR_HEIGHT);
     winParts[WindowPart::TOOLBAR].client->PostResize(w, TOOLBAR_HEIGHT);
     winParts[WindowPart::MODEBAR].client->PostResize(MODEBAR_WIDTH, MODEBAR_HEIGHT);
@@ -172,15 +201,6 @@ void WindowGLFW::CreateWindow()
 
     // event callbacks to feed into Navitab core
     glfwSetWindowUserPointer(window, this);
-#if 0 // TODO - probably not needed, we'll just poll the pointer position when the buttons are down
-    glfwSetCursorPosCallback(window, [](GLFWwindow* wnd, double x, double y) {
-        WindowGLFW* us = reinterpret_cast<WindowGLFW*>(glfwGetWindowUserPointer(wnd));
-        int w, h;
-        glfwGetWindowSize(wnd, &w, &h);
-        //us->mouseX = x / w * us->width();
-        //us->mouseY = y / h * us->height();
-        });
-#endif
     glfwSetMouseButtonCallback(window, [](GLFWwindow* wnd, int button, int action, int flags) {
         reinterpret_cast<WindowGLFW*>(glfwGetWindowUserPointer(wnd))->onMouse(button, action, flags);
     });
@@ -242,7 +262,7 @@ void WindowGLFW::RenderFrame()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
 
-    // order is important!
+    // !rendering order is important!
     RenderPart(WindowPart::CANVAS, 0, TOOLBAR_HEIGHT, winWidth, winHeight);
     RenderPart(WindowPart::TOOLBAR, 0, 0, winWidth, TOOLBAR_HEIGHT);
     RenderPart(WindowPart::MODEBAR, 0, TOOLBAR_HEIGHT, MODEBAR_WIDTH, TOOLBAR_HEIGHT + MODEBAR_HEIGHT);
@@ -286,22 +306,44 @@ void WindowGLFW::RenderPart(int part, int left, int top, int right, int bottom)
 
 void WindowGLFW::onMouse(int button, int action, int flags)
 {
-    UNIMPLEMENTED(__func__);
+    if (button != GLFW_MOUSE_BUTTON_LEFT) return; // only left button events are of interest
+    double x, y;
+    glfwGetCursorPos(window, &x, &y);
+
+    MouseState m { int(floor(x)), int(floor(y)), (action == GLFW_PRESS) };
+    mouseEvents.push_back(m);
 }
 
 void WindowGLFW::onScrollWheel(double x, double y)
 {
-    UNIMPLEMENTED(__func__);
+    UNIMPLEMENTED(__func__ + fmt::format("({},{})", x, y));
 }
 
 void WindowGLFW::onKey(int key, int scanCode, int action, int mods)
 {
-    UNIMPLEMENTED(__func__);
+    UNIMPLEMENTED(__func__ + fmt::format("({},{},{},{})", key, scanCode, action, mods));
 }
 
 void WindowGLFW::onChar(unsigned int c)
 {
-    UNIMPLEMENTED(__func__);
+    UNIMPLEMENTED(__func__ + fmt::format("({})", c));
+}
+
+WindowGLFW::WinPart *WindowGLFW::LocateWinPart(int x, int y)
+{
+    if (y < TOOLBAR_HEIGHT) {
+        return &winParts[WindowPart::TOOLBAR];
+    }
+    if ((x < MODEBAR_WIDTH) && (y < (TOOLBAR_HEIGHT + MODEBAR_HEIGHT))) {
+        return &winParts[WindowPart::MODEBAR];
+    }
+    if (winParts[WindowPart::KEYPAD].active && (y >= (winHeight - KEYPAD_HEIGHT))) {
+        return &winParts[WindowPart::KEYPAD];
+    }
+    if (winParts[WindowPart::DOODLER].active) {
+        return &winParts[WindowPart::DOODLER];
+    }
+    return &winParts[WindowPart::CANVAS];
 }
 
 } // namespace navitab

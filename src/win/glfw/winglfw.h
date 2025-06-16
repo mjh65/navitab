@@ -21,6 +21,7 @@
 #pragma once
 
 #include <memory>
+#include <list>
 #include <vector>
 #include <mutex>
 #include <GLFW/glfw3.h>
@@ -79,9 +80,24 @@ private:
         std::unique_ptr<TextureBuffer> textureImage;
         std::shared_ptr<WindowPart> client;
         bool active;
+        int top, left;
     };
+
     WinPart winParts[WindowPart::TOTAL_PARTS];
     std::mutex paintMutex;
+
+private:
+    WinPart *LocateWinPart(int x, int y);
+
+private:
+    struct MouseState {
+        int x, y;
+        int b;
+    };
+    MouseState mouse;
+    std::list<MouseState> mouseEvents;
+    WinPart *activeWinPart;
+
 };
 
 }

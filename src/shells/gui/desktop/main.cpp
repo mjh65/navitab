@@ -25,6 +25,8 @@
 
 #include <memory>
 #include <iostream>
+#include <thread>
+#include <chrono>
 #include <fmt/core.h>
 #include "navitab/core.h"
 #include "navitab/simulator.h"
@@ -34,6 +36,9 @@
 
 int main(int arg, char** argv)
 {
+#if defined(NAVITAB_MACOSX) && !defined(NDEBUG)
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+#endif
     std::unique_ptr<logging::Logger> LOG;
     std::shared_ptr<navitab::CoreServices> nvt;
     std::shared_ptr<navitab::Simulator> sim;

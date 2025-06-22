@@ -54,6 +54,7 @@ protected:
 
 private:
     void RedrawIcons(int drawMask, int selectMask);
+    Modebar2Core::Mode GetModeUnderMouse(int x, int y);
 
 private:
     std::unique_ptr<logging::Logger> LOG;
@@ -62,6 +63,14 @@ private:
     std::shared_ptr<lvglkit::Display> uiDisplay;
     int highlightMask;
 
+    Modebar2Core::Mode mouseDownItem;
+    Modebar2Core::Mode mouseOverItem;
+
+private:
+    const int kNumSquareItems = 7;
+    const int kItemWidth = 40;
+    const int kItemHeight = 40;
+    const int kKeypadHeight = 24;
 };
 
 } // namespace navitab

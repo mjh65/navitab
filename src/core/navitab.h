@@ -106,7 +106,9 @@ public:
 
     // ======================================================================
     // Implementation of Modebar2Core
-    void onModeSelect(Mode m) override;
+    void onAppSelect(Mode m) override;
+    void onDoodlerToggle() override;
+    void onKeypadToggle() override;
 
     // ======================================================================
     // Implementation of Keypad2Core
@@ -124,6 +126,9 @@ public:
 
 private:
     void AsyncWorker();
+    
+private:
+    std::shared_ptr<App> FindApp(Mode m);
 
 private:
     const HostPlatform                  hostPlatform;

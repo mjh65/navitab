@@ -43,6 +43,7 @@ struct Modebar2Core : public DeferredJobRunner<>
 
     enum Mode {
         // maybe we don't need these as bitmaskable?
+        NONE        = 0,
         ABOUT_HELP  = 0b1,
         MAP         = 0b10,
         AIRPORT     = 0b100,
@@ -53,13 +54,23 @@ struct Modebar2Core : public DeferredJobRunner<>
         KEYPAD      = 0b10000000
     };
 
-    void PostModeSelect(Mode m) {
-        RunLater([this, m]() { onModeSelect(m); });
+    void PostAppSelect(Mode m) {
+        RunLater([this, m]() { onAppSelect(m); });
+    }
+    void PostDoodlerToggle() {
+        RunLater([this]() { onDoodlerToggle(); });
+    }
+    void PostKeypadToggle() {
+        RunLater([this]() { onKeypadToggle(); });
     }
 
 protected:
-    // Called when a mode icon is clicked
-    virtual void onModeSelect(Mode) = 0;
+    // Called when an app icon is clicked in the mode bar
+    virtual void onAppSelect(Mode) = 0;
+    // Called when the doodler icon is toggled in the mode bar
+    virtual void onDoodlerToggle() = 0;
+    // Called when the keypad is toggled in the mode bar
+    virtual void onKeypadToggle() = 0;
 };
 
 // The Modebar interface defines the services that the UI window provides to

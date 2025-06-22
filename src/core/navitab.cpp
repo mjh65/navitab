@@ -273,8 +273,8 @@ void Navitab::onSimFlightLoop(const SimStateData& data)
 void Navitab::StartApps()
 {
     activeApp->Activate(canvas->Display());
-    modebar->SetHighlighted(0x1); // TODO - should match the launch app from the settings.
-    toolbar->SetEnabledTools(0x1); // TODO - get this from the app
+    modebar->SetHighlighted(0x1); // TODO - get the launch app from the settings, and use this.
+    toolbar->SetEnabledTools(0x1); // TODO - get this from the launch app
 }
 
 void Navitab::onToolClick(Tool t)
@@ -282,7 +282,23 @@ void Navitab::onToolClick(Tool t)
     UNIMPLEMENTED(__func__);
 }
 
-void Navitab::onModeSelect(Mode m)
+void Navitab::onAppSelect(Mode m)
+{
+    auto a = FindApp(m);
+    if (a != activeApp) {
+        activeApp->Deactivate();
+        activeApp = a;
+        activeApp->Activate(canvas->Display());
+        modebar->SetHighlighted(m);
+    }
+}
+
+void Navitab::onDoodlerToggle()
+{
+    UNIMPLEMENTED(__func__);
+}
+
+void Navitab::onKeypadToggle()
 {
     UNIMPLEMENTED(__func__);
 }
@@ -320,6 +336,20 @@ void Navitab::AsyncWorker()
         // run the job
         job();
     }
+}
+
+std::shared_ptr<App> Navitab::FindApp(Mode m)
+{
+    switch (m) {
+        case ABOUT_HELP: return aboutApp;
+        case MAP: return mapApp;
+        case AIRPORT: return airportApp;
+        case ROUTE: return routeApp;
+        case DOC_VIEWER: return readerApp;
+        case SETTINGS: return settingsApp;
+        default: break;
+    }
+    return nullptr;
 }
 
 } // namespace navitab

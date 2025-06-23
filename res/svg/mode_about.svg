@@ -1,7 +1,5 @@
- <svg height="320" width="320" xmlns="http://www.w3.org/2000/svg">
-  <path id="lineAC" d="M60,170 A100,100,0,0,1,260,170" style="stoke:none;fill:none;"/>
-  <text style="fill:blue;font-size:48px;font-family:sans-serif;">
-    <textPath href="#lineAC" startOffset="10">About Navitab</textPath>
-  </text>
-   <text x="80" y="295" style="fill:blue;font-size:250px;font-family:sans-serif;">?</text>
+<svg height="320" width="320" xmlns="http://www.w3.org/2000/svg">
+  <path d="M80,110 A80,70,0,1,1,160,180 L160,220" style="fill:none;stroke:black;stroke-width:30px"/>
+  <circle cx="80" cy="110" r="15" style="fill:black;stroke:none"/>
+  <circle cx="160" cy="260" r="20" style="fill:black;stroke:none"/>
 </svg>

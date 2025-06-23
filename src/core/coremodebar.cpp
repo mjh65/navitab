@@ -105,8 +105,8 @@ void CoreModebar::RedrawIcons(int drawMask, int selectMask)
     const uint32_t* icons[] = {
         mode_about_40x40,
         mode_map_40x40,
-        mode_route_40x40,
         mode_airport_40x40,
+        mode_route_40x40,
         mode_docs_40x40,
         mode_settings_40x40,
         mode_doodler_40x40

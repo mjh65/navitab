@@ -86,6 +86,7 @@ public:
     // APIs called from the Navitab core
     virtual void SetStausInfo(int zt, int fps, const Location& l) = 0;
     virtual void SetActiveTools(int selectMask) = 0;
+    virtual void SetRepeatingTools(int selectMask) = 0;
 };
 
 } // namespace navitab

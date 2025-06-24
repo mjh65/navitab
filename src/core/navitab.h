@@ -99,7 +99,7 @@ public:
 
     // ======================================================================
     // Implementation of AppServices
-    void EnableTools(int toolMask) override;
+    void EnableTools(int toolMask, int repeatMask) override;
 
     // ======================================================================
     // Implementation of Simulator2Core

@@ -90,7 +90,6 @@ void Canvas::Update(navitab::FrameRegion r, uint32_t* pixels)
     // this is the update function called from the LVGL library
     // TODO - as we're using LV_DISP_RENDER_MODE_DIRECT, there is probably not much to be done
     // maybe just post the region to the dirtyBits and redraw?
-    UNIMPLEMENTED(__func__);
     dirtyBits.push_back(r);
     RunLater([this]() { Redraw(); });
 }

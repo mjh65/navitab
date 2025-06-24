@@ -18,6 +18,7 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <fmt/core.h>
 #include "aboutapp.h"
 #include "navitab/core.h"
 #include "navitab/toolbar.h"
@@ -27,6 +28,12 @@ namespace navitab {
 AboutApp::AboutApp(std::shared_ptr<AppServices> core)
 :   App("about", core)
 {
+    activeToolsMask = 
+        (1 << ClickableTool::DOWN) |
+        (1 << ClickableTool::UP);
+    repeatingToolsMask = 
+        (1 << ClickableTool::DOWN) |
+        (1 << ClickableTool::UP);
 }
 
 void AboutApp::Assemble()
@@ -41,10 +48,9 @@ void AboutApp::Demolish()
     UNIMPLEMENTED(__func__);
 }
 
-void AboutApp::Show()
+void AboutApp::ToolClick(ClickableTool t)
 {
-    App::Show();
-    core->EnableTools(0);
+    UNIMPLEMENTED(__func__ + fmt::format("({})", (int)t));
 }
 
 } // namespace navitab

@@ -47,9 +47,11 @@ CoreToolbar::CoreToolbar(std::shared_ptr<Toolbar2Core> c, std::shared_ptr<lvglki
 :   LOG(std::make_unique<logging::Logger>("toolbar")),
     core(c), uiMgr(u),
     lvhStatusInfo(0),
-    numActiveTools(0),
     activeToolsMask(0),
-    pendingToolsMask(0)
+    pendingToolsMask(0),
+    repeatingToolsMask(0),
+    pushedToolIdx(-1),
+    longPressed(false)
 {
     uiDisplay = uiMgr->MakeDisplay(this);
 }
@@ -82,11 +84,16 @@ void CoreToolbar::SetActiveTools(int selectMask)
     Update(FrameRegion(0, 0, width, height), nullptr);
 }
 
+void CoreToolbar::SetRepeatingTools(int selectMask)
+{
+    repeatingToolsMask = selectMask;
+}
+
 void CoreToolbar::RepaintTools(int statusTextWidth)
 {
     // no need to repaint if there's been no change in the active tools
     // and the status text does not encroach on the tool icons
-    bool overlap = (width - 24 * numActiveTools) < statusTextWidth;
+    bool overlap = (width - Window::TOOL_ICON_WIDTH * activeToolIds.size()) < statusTextWidth;
     if ((activeToolsMask == pendingToolsMask) && !overlap) return;
 
     const uint32_t* icons[] = {
@@ -109,27 +116,26 @@ void CoreToolbar::RepaintTools(int statusTextWidth)
         tool_up_24x24,
         tool_top_24x24
     };
-    int numPendingTools = numActiveTools = 0;
+    unsigned numPendingTools = 0;
+    unsigned numActiveTools = (int)activeToolIds.size();
+    activeToolIds.clear();
     int x = width;
     for (int i = 0; i < kNumTools; ++i) {
         if (pendingToolsMask & (1 << i)) {
             ++numPendingTools;
-            x -= 24;
-            if (x >= 0) image->PaintIcon(x, 0, icons[i], 24, 24, backgroundPixels);
-        }
-        if (activeToolsMask & (1 << i)) {
-            ++numActiveTools;
+            activeToolIds.push_back(i);
+            x -= Window::TOOL_ICON_WIDTH;
+            if (x >= 0) image->PaintIcon(x, 0, icons[i], Window::TOOL_ICON_WIDTH, Window::TOOLBAR_HEIGHT, backgroundPixels);
         }
     }
     while (numActiveTools > numPendingTools) {
         --numActiveTools;
-        x -= 24;
-        if (x >= 0) image->PaintIcon(x, 0, tool_null_24x24, 24, 24, backgroundPixels);
+        x -= Window::TOOL_ICON_WIDTH;
+        if (x >= 0) image->PaintIcon(x, 0, tool_null_24x24, Window::TOOL_ICON_WIDTH, Window::TOOLBAR_HEIGHT, backgroundPixels);
     }
     activeToolsMask = pendingToolsMask;
-    numActiveTools = numPendingTools;
-    if (x < 0) x = 0;
 
+    if (x < 0) x = 0;
     dirtyBits.push_back(FrameRegion(x, 0, width, height));
 }
 
@@ -153,7 +159,39 @@ void CoreToolbar::onResize(int w, int h)
 
 void CoreToolbar::onMouseEvent(int x, int y, bool l, bool r)
 {
-    UNIMPLEMENTED(__func__ + fmt::format("({},{},{},{})", x, y, l, r));
+    // ignore mouse events that are not over the tool icons
+    if ((y < 0) || (y >= Window::TOOLBAR_HEIGHT)) return;
+    if ((x < (width - Window::TOOL_ICON_WIDTH * activeToolIds.size())) || (x >= width)) return;
+    
+    int toolIdx = (width - x) / Window::TOOL_ICON_WIDTH;
+    assert(toolIdx < activeToolIds.size());
+    int tool = activeToolIds[toolIdx];
+    if (l) {
+        std::chrono::time_point tn = std::chrono::steady_clock::now();
+        if (pushedToolIdx < 0) {
+            pushedToolIdx = toolIdx;
+            longPressed = false;
+            nextRepeatTime = tn + std::chrono::milliseconds(1000);
+        } else if (toolIdx == pushedToolIdx) {
+            if (tn > nextRepeatTime) {
+                if (!longPressed) {
+                    longPressed = true;
+                    core->PostToolClick((ClickableTool)tool);
+                } else {
+                    if (repeatingToolsMask & (1 << tool)) {
+                        core->PostToolClick((ClickableTool)tool);
+                    }
+                }
+                nextRepeatTime = tn + std::chrono::milliseconds(500);
+            }
+        }
+    } else {
+        if ((toolIdx == pushedToolIdx) && !longPressed) {
+            core->PostToolClick((ClickableTool)tool);
+        }
+        pushedToolIdx = -1;
+        longPressed = false;
+    }
 }
 
 void CoreToolbar::Update(navitab::FrameRegion r, uint32_t* pixels)

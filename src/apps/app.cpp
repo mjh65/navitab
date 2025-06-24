@@ -20,6 +20,7 @@
 
 #include "app.h"
 #include "../lvglkit/display.h"
+#include "navitab/core.h"
 
 namespace navitab {
 
@@ -27,7 +28,8 @@ App::App(const char *name, std::shared_ptr<AppServices> c)
 :   LOG(std::make_unique<logging::Logger>(name)),
     core(c),
     root(nullptr),
-    defaultToolMask(0)
+    activeToolsMask(0),
+    repeatingToolsMask(0)
 {
 }
 
@@ -59,6 +61,7 @@ void App::Show()
 {
     display->Select();
     lv_scr_load(root);
+    core->EnableTools(activeToolsMask, repeatingToolsMask);
 }
 
 } // namespace navitab

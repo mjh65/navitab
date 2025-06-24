@@ -73,8 +73,11 @@ struct Window
 {
     enum {
         TOOLBAR_HEIGHT = 24,
+        TOOL_ICON_WIDTH = 24,
         MODEBAR_WIDTH = 40,
-        MODEBAR_HEIGHT = MODEBAR_WIDTH * 7 + 24, // 8 mode selectors, one smaller!
+        MODE_ICON_HEIGHT = 40,
+        KEYPAD_ICON_HEIGHT = 24,
+        MODEBAR_HEIGHT = MODE_ICON_HEIGHT * 7 + KEYPAD_ICON_HEIGHT, // 8 mode selectors, one smaller!
         KEYPAD_HEIGHT = 200,
         WIN_MIN_WIDTH = 400,
         WIN_STD_WIDTH = 800,

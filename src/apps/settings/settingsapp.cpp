@@ -18,6 +18,7 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <fmt/core.h>
 #include "settingsapp.h"
 #include "navitab/core.h"
 #include "navitab/toolbar.h"
@@ -27,9 +28,14 @@ namespace navitab {
 SettingsApp::SettingsApp(std::shared_ptr<AppServices> core)
 :   App("stgsapp", core)
 {
-    defaultToolMask = 
+    activeToolsMask = 
         (1 << ClickableTool::AFFIRM) |
         (1 << ClickableTool::CANCEL) |
+        (1 << ClickableTool::RIGHT) |
+        (1 << ClickableTool::LEFT) |
+        (1 << ClickableTool::DOWN) |
+        (1 << ClickableTool::UP);
+    repeatingToolsMask = 
         (1 << ClickableTool::RIGHT) |
         (1 << ClickableTool::LEFT) |
         (1 << ClickableTool::DOWN) |
@@ -48,10 +54,9 @@ void SettingsApp::Demolish()
     UNIMPLEMENTED(__func__);
 }
 
-void SettingsApp::Show()
+void SettingsApp::ToolClick(ClickableTool t)
 {
-    App::Show();
-    core->EnableTools(defaultToolMask);
+    UNIMPLEMENTED(__func__ + fmt::format("({})", (int)t));
 }
 
 } // namespace navitab

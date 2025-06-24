@@ -40,6 +40,7 @@ public:
     // APIs called from the Navitab core (sync call OK)
     void SetStausInfo(int zt, int fps, const Location& l) override;
     void SetActiveTools(int selectMask) override;
+    void SetRepeatingTools(int selectMask) override;
 
 protected:
     // Implementation of WindowPart
@@ -66,9 +67,13 @@ private:
     std::shared_ptr<lvglkit::Display> uiDisplay;
     lv_obj_t* lvhStatusInfo;
     std::string statusText;
-    int numActiveTools;
+    std::vector<int> activeToolIds;
     int activeToolsMask;
     int pendingToolsMask;
+    int repeatingToolsMask;
+    int pushedToolIdx;
+    bool longPressed;
+    std::chrono::time_point<std::chrono::steady_clock> nextRepeatTime;
 };
 
 } // namespace navitab

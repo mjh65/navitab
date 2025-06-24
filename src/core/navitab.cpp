@@ -281,14 +281,16 @@ void Navitab::StartApps()
     modebar->SetHighlighted(0x1); // TODO - get the launch app from the settings, and use this.
 }
 
-void Navitab::EnableTools(int toolMask)
+void Navitab::EnableTools(int toolMask, int repeatMask)
 {
     toolbar->SetActiveTools(toolMask);
+    toolbar->SetRepeatingTools(repeatMask);
 }
 
 void Navitab::onToolClick(ClickableTool t)
 {
-    UNIMPLEMENTED(__func__ + fmt::format("({})", (int)t));
+    if (!activeApp) return;
+    activeApp->ToolClick(t);
 }
 
 void Navitab::onAppSelect(Mode m)

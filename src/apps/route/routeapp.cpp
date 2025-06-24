@@ -18,6 +18,7 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <fmt/core.h>
 #include "routeapp.h"
 #include "navitab/core.h"
 #include "navitab/toolbar.h"
@@ -27,7 +28,7 @@ namespace navitab {
 RouteApp::RouteApp(std::shared_ptr<AppServices> core)
 :   App("routeapp", core)
 {
-    defaultToolMask = 
+    activeToolsMask = 
         (1 << ClickableTool::MENU) |
         (1 << ClickableTool::AFFIRM) |
         (1 << ClickableTool::STOP) |
@@ -36,6 +37,9 @@ RouteApp::RouteApp(std::shared_ptr<AppServices> core)
         (1 << ClickableTool::RIGHT) |
         (1 << ClickableTool::LEFT) |
         (1 << ClickableTool::FIRST);
+    repeatingToolsMask = 
+        (1 << ClickableTool::RIGHT) |
+        (1 << ClickableTool::LEFT);
 }
 
 void RouteApp::Assemble()
@@ -50,10 +54,9 @@ void RouteApp::Demolish()
     UNIMPLEMENTED(__func__);
 }
 
-void RouteApp::Show()
+void RouteApp::ToolClick(ClickableTool t)
 {
-    App::Show();
-    core->EnableTools(defaultToolMask);
+    UNIMPLEMENTED(__func__ + fmt::format("({})", (int)t));
 }
 
 } // namespace navitab

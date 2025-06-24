@@ -23,6 +23,7 @@
 #include <memory>
 #include <lvgl.h>
 #include "navitab/logger.h"
+#include "navitab/toolbar.h"
 
 namespace lvglkit {
 class Display;
@@ -40,13 +41,15 @@ public:
 
     void Activate(std::shared_ptr<lvglkit::Display> display);
     void Deactivate();
+    
+    virtual void ToolClick(ClickableTool t) = 0;
 
 protected:
     virtual void Assemble() = 0;
     virtual void Demolish() = 0;
 
     // switch the LVGL screen to make it active
-    virtual void Show();
+    void Show();
 
 protected:
     std::unique_ptr<logging::Logger> LOG;
@@ -56,8 +59,10 @@ protected:
     // every app will have an LVGL screen as its root widget
     lv_obj_t * root;
 
-    // every app will have a default set of tools that it uses
-    int defaultToolMask;
+    // every app will have a set of tools that it uses, some of
+    // which will automatically repeat post if they are 'held down'
+    int activeToolsMask;
+    int repeatingToolsMask;
 };
 
 } // namespace navitab

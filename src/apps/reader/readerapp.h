@@ -30,10 +30,11 @@ class ReaderApp : public App
 public:
     ReaderApp(std::shared_ptr<AppServices> core);
 
+    void ToolClick(ClickableTool t) override;
+
 protected:
     void Assemble() override;
     void Demolish() override;
-    void Show() override;
 
 private:
 

@@ -18,6 +18,7 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <fmt/core.h>
 #include "airportapp.h"
 #include "navitab/core.h"
 #include "navitab/toolbar.h"
@@ -27,9 +28,18 @@ namespace navitab {
 AirportApp::AirportApp(std::shared_ptr<AppServices> core)
 :   App("aprtapp", core)
 {
-    defaultToolMask = 
+    activeToolsMask = 
         (1 << ClickableTool::AFFIRM) |
         (1 << ClickableTool::CANCEL) |
+        (1 << ClickableTool::REDUCE) |
+        (1 << ClickableTool::MAGNIFY) |
+        (1 << ClickableTool::RIGHT) |
+        (1 << ClickableTool::LEFT) |
+        (1 << ClickableTool::ROTATEC) |
+        (1 << ClickableTool::ROTATEA) |
+        (1 << ClickableTool::DOWN) |
+        (1 << ClickableTool::UP);
+    repeatingToolsMask =
         (1 << ClickableTool::REDUCE) |
         (1 << ClickableTool::MAGNIFY) |
         (1 << ClickableTool::RIGHT) |
@@ -52,10 +62,9 @@ void AirportApp::Demolish()
     UNIMPLEMENTED(__func__);
 }
 
-void AirportApp::Show()
+void AirportApp::ToolClick(ClickableTool t)
 {
-    App::Show();
-    core->EnableTools(defaultToolMask);
+    UNIMPLEMENTED(__func__ + fmt::format("({})", (int)t));
 }
 
 } // namespace navitab

@@ -123,7 +123,7 @@ struct CoreServices
 
 struct AppServices
 {
-    virtual void EnableTools(int toolMask) = 0;
+    virtual void EnableTools(int toolMask, int repeatersMask) = 0;
     
     virtual ~AppServices() = default;
 };

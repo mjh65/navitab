@@ -18,6 +18,7 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <fmt/core.h>
 #include "mapapp.h"
 #include "navitab/core.h"
 #include "navitab/toolbar.h"
@@ -27,10 +28,13 @@ namespace navitab {
 MapApp::MapApp(std::shared_ptr<AppServices> core)
 :   App("mapapp", core)
 {
-    defaultToolMask = 
+    activeToolsMask = 
         (1 << ClickableTool::MENU) |
         (1 << ClickableTool::REDUCE) |
         (1 << ClickableTool::CENTRE) |
+        (1 << ClickableTool::MAGNIFY);
+    repeatingToolsMask = 
+        (1 << ClickableTool::REDUCE) |
         (1 << ClickableTool::MAGNIFY);
 }
 
@@ -46,10 +50,9 @@ void MapApp::Demolish()
     UNIMPLEMENTED(__func__);
 }
 
-void MapApp::Show()
+void MapApp::ToolClick(ClickableTool t)
 {
-    App::Show();
-    core->EnableTools(defaultToolMask);
+    UNIMPLEMENTED(__func__ + fmt::format("({})", (int)t));
 }
 
 } // namespace navitab

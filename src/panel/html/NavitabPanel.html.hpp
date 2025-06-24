@@ -31,22 +31,24 @@
                         <code id="ToolbarStatus">13:23:52 | 17fps | 17:42:33Z | 56.197,-3.324</code>
                     </div>
                     <div id="ToolbarTools">
-                        <img class="nTool" id="15ToolCentre" src="tool_centre.svg" alt="Centre" width="24px" height="24px">
-                        <img class="nTool" id="14ToolZoomI" src="tool_zoomin.svg" alt="Zoom in" width="24px" height="24px">
-                        <img class="nTool" id="13ToolZoomO" src="tool_zoomout.svg" alt="Zoom out" width="24px" height="24px">
-                        <img class="nTool" id="12ToolRotateL" src="tool_rotateleft.svg" alt="Rotate left" width="24px" height="24px">
-                        <img class="nTool" id="11ToolRotateR" src="tool_rotateright.svg" alt="Rotate right" width="24px" height="24px">
-                        <img class="nTool" id="10ToolTop" src="tool_top.svg" alt="Go to top" width="24px" height="24px">
-                        <img class="nTool" id="09ToolUp" src="tool_up.svg" alt="Up" width="24px" height="24px">
-                        <img class="nTool" id="08ToolDown" src="tool_down.svg" alt="Down" width="24px" height="24px">
-                        <img class="nTool" id="07ToolBottom" src="tool_bottom.svg" alt="Go to bottom" width="24px" height="24px">
-                        <img class="nTool" id="06ToolFirst" src="tool_first.svg" alt="First" width="24px" height="24px">
-                        <img class="nTool" id="05ToolLeft" src="tool_left.svg" alt="Left" width="24px" height="24px">
-                        <img class="nTool" id="04ToolRight" src="tool_right.svg" alt="Right" width="24px" height="24px">
-                        <img class="nTool" id="03ToolLast" src="tool_last.svg" alt="Last" width="24px" height="24px">
-                        <img class="nTool" id="02ToolCancel" src="tool_cancel.svg" alt="Cancel" width="24px" height="24px">
-                        <img class="nTool" id="01ToolStop" src="tool_stop.svg" alt="Stop" width="24px" height="24px">
-                        <img class="nTool" id="00ToolCog" src="tool_cog.svg" alt="Settings" width="24px" height="24px">
+                        <img class="nTool" id="17ToolTop" src="tool_top.svg" alt="Go to top" width="24px" height="24px">
+                        <img class="nTool" id="16ToolUp" src="tool_up.svg" alt="Up" width="24px" height="24px">
+                        <img class="nTool" id="15ToolDown" src="tool_down.svg" alt="Down" width="24px" height="24px">
+                        <img class="nTool" id="14ToolBottom" src="tool_bottom.svg" alt="Go to bottom" width="24px" height="24px">
+                        <img class="nTool" id="13ToolRotateL" src="tool_rotateleft.svg" alt="Rotate left" width="24px" height="24px">
+                        <img class="nTool" id="12ToolRotateR" src="tool_rotateright.svg" alt="Rotate right" width="24px" height="24px">
+                        <img class="nTool" id="11ToolFirst" src="tool_first.svg" alt="First" width="24px" height="24px">
+                        <img class="nTool" id="10ToolLeft" src="tool_left.svg" alt="Left" width="24px" height="24px">
+                        <img class="nTool" id="09ToolRight" src="tool_right.svg" alt="Right" width="24px" height="24px">
+                        <img class="nTool" id="08ToolLast" src="tool_last.svg" alt="Last" width="24px" height="24px">
+                        <img class="nTool" id="07ToolZoomI" src="tool_magnify.svg" alt="Zoom in" width="24px" height="24px">
+                        <img class="nTool" id="06ToolCentre" src="tool_centre.svg" alt="Centre" width="24px" height="24px">
+                        <img class="nTool" id="05ToolZoomO" src="tool_reduce.svg" alt="Zoom out" width="24px" height="24px">
+                        <img class="nTool" id="04ToolCancel" src="tool_cancel.svg" alt="Cancel" width="24px" height="24px">
+                        <img class="nTool" id="03ToolStop" src="tool_stop.svg" alt="Stop" width="24px" height="24px">
+                        <img class="nTool" id="02ToolAffirm" src="tool_affirm.svg" alt="Settings" width="24px" height="24px">
+                        <img class="nTool" id="01ToolCog" src="tool_cog.svg" alt="Settings" width="24px" height="24px">
+                        <img class="nTool" id="00ToolMenu" src="tool_menu.svg" alt="Settings" width="24px" height="24px">
                     </div>
                 </div>
                 <div id="ModebarPart">

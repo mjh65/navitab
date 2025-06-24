@@ -182,8 +182,7 @@ void HtmlServer::serverLoop()
                 auto n = recv(i.first, reqBuffer.data(), REQ_BUFFER_SIZE, 0);
                 if (n <= 0) {
                     toBeClosed[i.first] = 1;
-                }
-                if (i.second->feedData(reqBuffer.data(), (int)n)) {
+                } else if (i.second->feedData(reqBuffer.data(), (int)n)) {
                     auto keepAlive = processRequest(i.first, i.second.get());
                     if (keepAlive) {
                         panelSockets[i.first] = std::make_unique<HttpReq>();
@@ -262,7 +261,7 @@ bool HtmlServer::processRequest(SOCKET s, HttpReq *req)
             std::string mode, tool;
             if (req->getQueryString("m",mode)) {
                 LOGD(fmt::format("Got mode select: {}", mode));
-                owner->modeSelect(std::stoi(mode));
+                owner->modebarIconSelect(std::stoi(mode));
             } else if (req->getQueryString("t",tool)) {
                 LOGD(fmt::format("Got tool click: {}", tool));
                 owner->toolClick(std::stoi(tool));

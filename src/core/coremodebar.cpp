@@ -46,7 +46,7 @@ CoreModebar::~CoreModebar()
 {
 }
 
-void CoreModebar::SetHighlighted(int selectMask)
+void CoreModebar::SetHighlightedModes(int selectMask)
 {
     if (selectMask != highlightMask) {
         if (image) {

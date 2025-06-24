@@ -64,9 +64,10 @@ public:
     // Implementation of the Toolbar interface
     void SetStausInfo(int zt, int fps, const Location& loc) override;
     void SetActiveTools(int selectMask) override;
+    void SetRepeatingTools(int selectMask) override;
 
     // Implementation of the Modebar interface
-    void SetHighlighted(int selectMask) override;
+    void SetHighlightedModes(int selectMask) override;
 
     // Implementation of the Doodler interface
     void EnableDoodler() override;
@@ -86,7 +87,7 @@ public:
     void mouseEvent(int x, int y, int b);
     void wheelEvent(int x, int y, int d);
     void panelResize(int w, int h);
-    void modeSelect(int m);
+    void modebarIconSelect(int m);
     void toolClick(int t);
 
     // Command handler has finished
@@ -126,6 +127,10 @@ private:
     std::queue<std::function<void()>>   jobs;
     std::condition_variable             qsync;
     std::mutex                          qmutex;
+
+    int activeModes, pendingModes;
+    int activeTools, pendingTools;
+    int activeRepeaters, pendingRepeaters;
 };
 
 }

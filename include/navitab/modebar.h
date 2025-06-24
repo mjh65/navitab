@@ -83,7 +83,7 @@ public:
     virtual ~Modebar() = default;
 
     // APIs called from the Navitab core
-    virtual void SetHighlighted(int selectMask) = 0;
+    virtual void SetHighlightedModes(int selectMask) = 0;
 };
 
 } // namespace navitab

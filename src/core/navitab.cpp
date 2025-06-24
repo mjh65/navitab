@@ -277,8 +277,9 @@ void Navitab::onSimFlightLoop(const SimStateData& data)
 
 void Navitab::StartApps()
 {
+    // TODO - get the launch app from the settings, and use this.
     activeApp->Activate(canvas->Display());
-    modebar->SetHighlighted(0x1); // TODO - get the launch app from the settings, and use this.
+    modebar->SetHighlightedModes(0x1); // TODO - get the launch app from the settings, and use this.
 }
 
 void Navitab::EnableTools(int toolMask, int repeatMask)
@@ -299,7 +300,7 @@ void Navitab::onAppSelect(Mode m)
     if (a != activeApp) {
         activeApp = a;
         activeApp->Activate(canvas->Display());
-        modebar->SetHighlighted(m);
+        modebar->SetHighlightedModes(m); // TODO - needs to include doodler and keypad if enabled
     }
 }
 

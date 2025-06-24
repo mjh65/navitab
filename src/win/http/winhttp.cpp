@@ -40,7 +40,13 @@ WindowHTTP::WindowHTTP()
     winWidth(WIN_STD_WIDTH),
     winHeight(WIN_STD_HEIGHT),
     brightness(1.0f),
-    running(true)
+    running(true),
+    activeModes(0),
+    pendingModes(0),
+    activeTools(0),
+    pendingTools(0),
+    activeRepeaters(0),
+    pendingRepeaters(0)
 {
     server = std::make_unique<HtmlServer>(this);
     image = std::make_unique<TextureBuffer>(WIN_MAX_WIDTH, (WIN_MAX_HEIGHT - TOOLBAR_HEIGHT));
@@ -53,6 +59,8 @@ WindowHTTP::~WindowHTTP()
 
 void WindowHTTP::Connect(std::shared_ptr<CoreServices> c)
 {
+    // this connects the WinHTTP server to the Navitab core services,
+    // it doesn't have anything to do with the HTTP panel connecting.
     core = c;
     core->SetWindowControl(shared_from_this());
     prefs = core->GetSettingsManager();
@@ -76,6 +84,8 @@ void WindowHTTP::Connect(std::shared_ptr<CoreServices> c)
 
 void WindowHTTP::Disconnect()
 {
+    // this disconnects the WinHTTP server from the Navitab core,
+    // it doesn't have anything to do with the HTTP panel disconnecting.
     server->stop();
     canvas.reset();
     keypadClient.reset();
@@ -127,12 +137,18 @@ void WindowHTTP::SetStausInfo(int zt, int f, const Location& l)
 
 void WindowHTTP::SetActiveTools(int selectMask)
 {
-    UNIMPLEMENTED(__func__);
+    UNIMPLEMENTED(__func__ + fmt::format("({})", selectMask));
+    pendingTools = selectMask;
 }
 
-void WindowHTTP::SetHighlighted(int selectMask)
+void WindowHTTP::SetRepeatingTools(int selectMask)
 {
-    UNIMPLEMENTED(__func__);
+    pendingRepeaters = selectMask;
+}
+
+void WindowHTTP::SetHighlightedModes(int selectMask)
+{
+    pendingModes = selectMask;
 }
 
 void WindowHTTP::EnableDoodler()
@@ -203,7 +219,7 @@ unsigned WindowHTTP::EncodeBMP(std::vector<unsigned char> &bmp)
     memcpy(bmp.data(), hdr, sizeof(hdr));
     *(reinterpret_cast<uint32_t *>(&bmp[2])) = bmpLength;   // file length
     *(reinterpret_cast<uint32_t *>(&bmp[18])) = w;          // width in pixels
-    *(reinterpret_cast<uint32_t *>(&bmp[22])) = h;          // height in pixels
+    *(reinterpret_cast<int32_t *>(&bmp[22])) = 0 - h;       // height in pixels (negative to draw top to bottom)
     *(reinterpret_cast<uint32_t *>(&bmp[34])) = n;          // image size in bytes
 
     // copy the pixel data
@@ -224,10 +240,11 @@ std::string WindowHTTP::EncodeStatus()
 
 std::string WindowHTTP::EncodeControls()
 {
+    std::string cs;
+#if 0
     // some temporary code to vary control settings until everything is hooked up
     static char nextModeChange = '0' + (rand() % 10);
     static char nextToolChange = '0' + (rand() % 10);
-    std::string cs;
     auto t = navitab::LocalTime("%S");
     if (t[1] == nextModeChange) {
         cs += fmt::format("M{}{}", rand() % 6, rand() % 4);
@@ -237,6 +254,20 @@ std::string WindowHTTP::EncodeControls()
         uint32_t te = ((rand() % 0x100) << 16) + (rand() % 0x10000);
         cs += fmt::format("T{:08d}", te);
         nextToolChange += (nextToolChange < '5') ? 5 : -5;
+    }
+#endif
+    if (pendingModes != activeModes) {
+        int activeApp, overlays = 0;
+        for (auto i = 0; i < 6; ++i) {
+            if (pendingModes & (1 << i)) {
+                activeApp = i;
+                break;
+            }
+        }
+        if (pendingModes & (1 << 6)) overlays += 1;
+        if (pendingModes & (1 << 7)) overlays += 2;
+        cs += fmt::format("M{}{}", activeApp, overlays);
+        activeModes = pendingModes;
     }
     return cs;
 }
@@ -259,14 +290,21 @@ void WindowHTTP::panelResize(int w, int h)
     canvas->PostResize(w, h);
 }
 
-void WindowHTTP::modeSelect(int m)
+void WindowHTTP::modebarIconSelect(int m)
 {
-    UNIMPLEMENTED(__func__);
+    Modebar2Core::Mode mode = (Modebar2Core::Mode)(1 << m);
+    if (mode == Modebar2Core::Mode::DOODLER) {
+        modebarClient->PostDoodlerToggle();
+    } else if (mode == Modebar2Core::Mode::KEYPAD) {
+        modebarClient->PostKeypadToggle();
+    } else {
+        modebarClient->PostAppSelect(mode);
+    }
 }
 
 void WindowHTTP::toolClick(int t)
 {
-    UNIMPLEMENTED(__func__);
+    UNIMPLEMENTED(__func__ + fmt::format("({})", t));
 }
 
 } // namespace navitab

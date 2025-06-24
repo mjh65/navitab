@@ -84,6 +84,7 @@ set(PANEL_SVG_INPUTS
     "${NAVITAB_RES_DIR}/svg/mode_map.svg"
     "${NAVITAB_RES_DIR}/svg/mode_route.svg"
     "${NAVITAB_RES_DIR}/svg/mode_settings.svg"
+    "${NAVITAB_RES_DIR}/svg/tool_affirm.svg"
     "${NAVITAB_RES_DIR}/svg/tool_bottom.svg"
     "${NAVITAB_RES_DIR}/svg/tool_cancel.svg"
     "${NAVITAB_RES_DIR}/svg/tool_centre.svg"
@@ -92,14 +93,16 @@ set(PANEL_SVG_INPUTS
     "${NAVITAB_RES_DIR}/svg/tool_first.svg"
     "${NAVITAB_RES_DIR}/svg/tool_last.svg"
     "${NAVITAB_RES_DIR}/svg/tool_left.svg"
+    "${NAVITAB_RES_DIR}/svg/tool_magnify.svg"
+    "${NAVITAB_RES_DIR}/svg/tool_menu.svg"
+    "${NAVITAB_RES_DIR}/svg/tool_null.svg"
+    "${NAVITAB_RES_DIR}/svg/tool_reduce.svg"
     "${NAVITAB_RES_DIR}/svg/tool_right.svg"
     "${NAVITAB_RES_DIR}/svg/tool_rotateleft.svg"
     "${NAVITAB_RES_DIR}/svg/tool_rotateright.svg"
     "${NAVITAB_RES_DIR}/svg/tool_stop.svg"
     "${NAVITAB_RES_DIR}/svg/tool_top.svg"
     "${NAVITAB_RES_DIR}/svg/tool_up.svg"
-    "${NAVITAB_RES_DIR}/svg/tool_zoomin.svg"
-    "${NAVITAB_RES_DIR}/svg/tool_zoomout.svg"
 )
 
 add_custom_target(
@@ -132,6 +135,7 @@ set(PANEL_OUTPUTS
     "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/mode_map.svg"
     "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/mode_route.svg"
     "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/mode_settings.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_affirm.svg"
     "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_bottom.svg"
     "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_cancel.svg"
     "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_centre.svg"
@@ -140,14 +144,16 @@ set(PANEL_OUTPUTS
     "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_first.svg"
     "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_last.svg"
     "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_left.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_magnify.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_menu.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_null.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_reduce.svg"
     "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_right.svg"
     "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_rotateleft.svg"
     "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_rotateright.svg"
     "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_stop.svg"
     "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_top.svg"
     "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_up.svg"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_zoomin.svg"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_zoomout.svg"
 )
 
 set(PANEL_SPB_INPUTS

@@ -37,7 +37,7 @@ public:
     ~CoreModebar();
 
     // APIs called from the Navitab core
-    void SetHighlighted(int selectMask) override;
+    void SetHighlightedModes(int selectMask) override;
 
 protected:
     // Implementation of WindowPart

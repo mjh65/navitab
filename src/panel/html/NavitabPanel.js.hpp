@@ -190,11 +190,11 @@ class NavitabElement extends TemplateElement {
         this.noServerImage.style.display = "block";
     }
     flightLoop() {
-        const cs = this.server.pollServer();
+        const cs = this.server.pollServer(); // returns a coded status string which might also include event notifications
         if (cs) {
-            const st = this.status.update(cs);
+            const st = this.status.update(cs); // extracts the status text
             if (st) this.statusElem.textContent = st;
-            let tmsel = cs.substr(20);
+            let tmsel = cs.substr(20); // discard regular status info (first 20 chars)
             while (tmsel) {
                 if (tmsel.charAt(0) == "M") {
                     this.modeSelect(tmsel.substr(1,2));

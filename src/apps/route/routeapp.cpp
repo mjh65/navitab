@@ -19,12 +19,23 @@
  */
 
 #include "routeapp.h"
+#include "navitab/core.h"
+#include "navitab/toolbar.h"
 
 namespace navitab {
 
-RouteApp::RouteApp(std::shared_ptr<CoreServices> core)
+RouteApp::RouteApp(std::shared_ptr<AppServices> core)
 :   App("routeapp", core)
 {
+    defaultToolMask = 
+        (1 << ClickableTool::MENU) |
+        (1 << ClickableTool::AFFIRM) |
+        (1 << ClickableTool::STOP) |
+        (1 << ClickableTool::CANCEL) |
+        (1 << ClickableTool::LAST) |
+        (1 << ClickableTool::RIGHT) |
+        (1 << ClickableTool::LEFT) |
+        (1 << ClickableTool::FIRST);
 }
 
 void RouteApp::Assemble()
@@ -37,6 +48,12 @@ void RouteApp::Assemble()
 void RouteApp::Demolish()
 {
     UNIMPLEMENTED(__func__);
+}
+
+void RouteApp::Show()
+{
+    App::Show();
+    core->EnableTools(defaultToolMask);
 }
 
 } // namespace navitab

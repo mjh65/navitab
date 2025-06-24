@@ -23,10 +23,11 @@
 
 namespace navitab {
 
-App::App(const char *name, std::shared_ptr<CoreServices> c)
+App::App(const char *name, std::shared_ptr<AppServices> c)
 :   LOG(std::make_unique<logging::Logger>(name)),
     core(c),
-    root(nullptr)
+    root(nullptr),
+    defaultToolMask(0)
 {
 }
 

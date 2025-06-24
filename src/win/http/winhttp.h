@@ -63,7 +63,7 @@ public:
 
     // Implementation of the Toolbar interface
     void SetStausInfo(int zt, int fps, const Location& loc) override;
-    void SetEnabledTools(int selectMask) override;
+    void SetActiveTools(int selectMask) override;
 
     // Implementation of the Modebar interface
     void SetHighlighted(int selectMask) override;

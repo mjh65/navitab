@@ -1,0 +1,6 @@
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <line x1="60" y1="100" x2="140" y2="100" style="stroke:white;stroke-width:24"/>
+  <line x1="100" y1="60" x2="100" y2="140" style="stroke:white;stroke-width:24"/>
+  <circle cx="100" cy="100" r="65" style="fill:none;stroke:white;stroke-width:24"/>
+  <line x1="15" y1="185" x2="50" y2="150" style="stroke:white;stroke-width:24"/>
+</svg>

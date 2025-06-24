@@ -19,12 +19,25 @@
  */
 
 #include "airportapp.h"
+#include "navitab/core.h"
+#include "navitab/toolbar.h"
 
 namespace navitab {
 
-AirportApp::AirportApp(std::shared_ptr<CoreServices> core)
+AirportApp::AirportApp(std::shared_ptr<AppServices> core)
 :   App("aprtapp", core)
 {
+    defaultToolMask = 
+        (1 << ClickableTool::AFFIRM) |
+        (1 << ClickableTool::CANCEL) |
+        (1 << ClickableTool::REDUCE) |
+        (1 << ClickableTool::MAGNIFY) |
+        (1 << ClickableTool::RIGHT) |
+        (1 << ClickableTool::LEFT) |
+        (1 << ClickableTool::ROTATEC) |
+        (1 << ClickableTool::ROTATEA) |
+        (1 << ClickableTool::DOWN) |
+        (1 << ClickableTool::UP);
 }
 
 void AirportApp::Assemble()
@@ -37,6 +50,12 @@ void AirportApp::Assemble()
 void AirportApp::Demolish()
 {
     UNIMPLEMENTED(__func__);
+}
+
+void AirportApp::Show()
+{
+    App::Show();
+    core->EnableTools(defaultToolMask);
 }
 
 } // namespace navitab

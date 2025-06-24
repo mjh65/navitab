@@ -30,12 +30,12 @@ class Display;
 
 namespace navitab {
 
-class CoreServices;
+class AppServices;
 
 class App
 {
 public:
-    App(const char *name, std::shared_ptr<CoreServices> core);
+    App(const char *name, std::shared_ptr<AppServices> core);
     virtual ~App();
 
     void Activate(std::shared_ptr<lvglkit::Display> display);
@@ -46,15 +46,18 @@ protected:
     virtual void Demolish() = 0;
 
     // switch the LVGL screen to make it active
-    void Show();
+    virtual void Show();
 
 protected:
     std::unique_ptr<logging::Logger> LOG;
-    std::shared_ptr<CoreServices> core;
+    std::shared_ptr<AppServices> core;
     std::shared_ptr<lvglkit::Display> display;
 
     // every app will have an LVGL screen as its root widget
     lv_obj_t * root;
+
+    // every app will have a default set of tools that it uses
+    int defaultToolMask;
 };
 
 } // namespace navitab

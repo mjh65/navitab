@@ -125,7 +125,7 @@ void WindowHTTP::SetStausInfo(int zt, int f, const Location& l)
     loc = l;
 }
 
-void WindowHTTP::SetEnabledTools(int selectMask)
+void WindowHTTP::SetActiveTools(int selectMask)
 {
     UNIMPLEMENTED(__func__);
 }

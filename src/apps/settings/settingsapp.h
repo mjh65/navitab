@@ -28,11 +28,12 @@ namespace navitab {
 class SettingsApp : public App
 {
 public:
-    SettingsApp(std::shared_ptr<CoreServices> core);
+    SettingsApp(std::shared_ptr<AppServices> core);
 
 protected:
     void Assemble() override;
     void Demolish() override;
+    void Show() override;
 
 private:
 

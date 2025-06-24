@@ -36,6 +36,7 @@ set(SVGC_SOURCES
     mode_map.svg.40.40
     mode_route.svg.40.40
     mode_settings.svg.40.40
+    tool_affirm.svg.24.24
     tool_bottom.svg.24.24
     tool_cancel.svg.24.24
     tool_centre.svg.24.24
@@ -44,14 +45,16 @@ set(SVGC_SOURCES
     tool_first.svg.24.24
     tool_last.svg.24.24
     tool_left.svg.24.24
+    tool_magnify.svg.24.24
+    tool_menu.svg.24.24
+    tool_null.svg.24.24
+    tool_reduce.svg.24.24
     tool_right.svg.24.24
     tool_rotateleft.svg.24.24
     tool_rotateright.svg.24.24
     tool_stop.svg.24.24
     tool_top.svg.24.24
     tool_up.svg.24.24
-    tool_zoomin.svg.24.24
-    tool_zoomout.svg.24.24
 )
 
 set(SVG_TARGETS)

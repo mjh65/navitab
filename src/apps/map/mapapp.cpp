@@ -19,12 +19,19 @@
  */
 
 #include "mapapp.h"
+#include "navitab/core.h"
+#include "navitab/toolbar.h"
 
 namespace navitab {
 
-MapApp::MapApp(std::shared_ptr<CoreServices> core)
+MapApp::MapApp(std::shared_ptr<AppServices> core)
 :   App("mapapp", core)
 {
+    defaultToolMask = 
+        (1 << ClickableTool::MENU) |
+        (1 << ClickableTool::REDUCE) |
+        (1 << ClickableTool::CENTRE) |
+        (1 << ClickableTool::MAGNIFY);
 }
 
 void MapApp::Assemble()
@@ -37,6 +44,12 @@ void MapApp::Assemble()
 void MapApp::Demolish()
 {
     UNIMPLEMENTED(__func__);
+}
+
+void MapApp::Show()
+{
+    App::Show();
+    core->EnableTools(defaultToolMask);
 }
 
 } // namespace navitab

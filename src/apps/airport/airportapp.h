@@ -28,11 +28,12 @@ namespace navitab {
 class AirportApp : public App
 {
 public:
-    AirportApp(std::shared_ptr<CoreServices> core);
+    AirportApp(std::shared_ptr<AppServices> core);
 
 protected:
     void Assemble() override;
     void Demolish() override;
+    void Show() override;
 
 private:
 

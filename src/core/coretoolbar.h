@@ -39,7 +39,7 @@ public:
 
     // APIs called from the Navitab core (sync call OK)
     void SetStausInfo(int zt, int fps, const Location& l) override;
-    void SetEnabledTools(int selectMask) override;
+    void SetActiveTools(int selectMask) override;
 
 protected:
     // Implementation of WindowPart
@@ -56,6 +56,7 @@ protected:
 
 private:
     void CreateWidgets();
+    void RepaintTools(int statusTextWidth);
 
 private:
     const uint32_t backgroundPixels = 0xff909090;
@@ -65,7 +66,9 @@ private:
     std::shared_ptr<lvglkit::Display> uiDisplay;
     lv_obj_t* lvhStatusInfo;
     std::string statusText;
-
+    int numActiveTools;
+    int activeToolsMask;
+    int pendingToolsMask;
 };
 
 } // namespace navitab

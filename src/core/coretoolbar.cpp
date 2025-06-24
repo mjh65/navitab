@@ -21,13 +21,35 @@
 #include <fmt/core.h>
 #include "coretoolbar.h"
 #include "navitab.h"
+#include "svg/tool_null_24x24.h"
+#include "svg/tool_menu_24x24.h"
+#include "svg/tool_cog_24x24.h"
+#include "svg/tool_affirm_24x24.h"
+#include "svg/tool_stop_24x24.h"
+#include "svg/tool_cancel_24x24.h"
+#include "svg/tool_reduce_24x24.h"
+#include "svg/tool_centre_24x24.h"
+#include "svg/tool_magnify_24x24.h"
+#include "svg/tool_last_24x24.h"
+#include "svg/tool_right_24x24.h"
+#include "svg/tool_left_24x24.h"
+#include "svg/tool_first_24x24.h"
+#include "svg/tool_rotateright_24x24.h"
+#include "svg/tool_rotateleft_24x24.h"
+#include "svg/tool_bottom_24x24.h"
+#include "svg/tool_down_24x24.h"
+#include "svg/tool_up_24x24.h"
+#include "svg/tool_top_24x24.h"
 
 namespace navitab {
 
 CoreToolbar::CoreToolbar(std::shared_ptr<Toolbar2Core> c, std::shared_ptr<lvglkit::Manager> u)
 :   LOG(std::make_unique<logging::Logger>("toolbar")),
     core(c), uiMgr(u),
-    lvhStatusInfo(0)
+    lvhStatusInfo(0),
+    numActiveTools(0),
+    activeToolsMask(0),
+    pendingToolsMask(0)
 {
     uiDisplay = uiMgr->MakeDisplay(this);
 }
@@ -53,9 +75,62 @@ void CoreToolbar::SetStausInfo(int zt, int fps, const Location& loc)
     }
 }
 
-void CoreToolbar::SetEnabledTools(int selectMask)
+void CoreToolbar::SetActiveTools(int selectMask)
 {
-    UNIMPLEMENTED(__func__);
+    // called by the apps to indicate which toolbar tools should be shown
+    pendingToolsMask = selectMask;
+    Update(FrameRegion(0, 0, width, height), nullptr);
+}
+
+void CoreToolbar::RepaintTools(int statusTextWidth)
+{
+    // no need to repaint if there's been no change in the active tools
+    // and the status text does not encroach on the tool icons
+    bool overlap = (width - 24 * numActiveTools) < statusTextWidth;
+    if ((activeToolsMask == pendingToolsMask) && !overlap) return;
+
+    const uint32_t* icons[] = {
+        tool_menu_24x24,
+        tool_cog_24x24,
+        tool_affirm_24x24,
+        tool_stop_24x24,
+        tool_cancel_24x24,
+        tool_reduce_24x24,
+        tool_centre_24x24,
+        tool_magnify_24x24,
+        tool_last_24x24,
+        tool_right_24x24,
+        tool_left_24x24,
+        tool_first_24x24,
+        tool_rotateright_24x24,
+        tool_rotateleft_24x24,
+        tool_bottom_24x24,
+        tool_down_24x24,
+        tool_up_24x24,
+        tool_top_24x24
+    };
+    int numPendingTools = numActiveTools = 0;
+    int x = width;
+    for (int i = 0; i < kNumTools; ++i) {
+        if (pendingToolsMask & (1 << i)) {
+            ++numPendingTools;
+            x -= 24;
+            if (x >= 0) image->PaintIcon(x, 0, icons[i], 24, 24, backgroundPixels);
+        }
+        if (activeToolsMask & (1 << i)) {
+            ++numActiveTools;
+        }
+    }
+    while (numActiveTools > numPendingTools) {
+        --numActiveTools;
+        x -= 24;
+        if (x >= 0) image->PaintIcon(x, 0, tool_null_24x24, 24, 24, backgroundPixels);
+    }
+    activeToolsMask = pendingToolsMask;
+    numActiveTools = numPendingTools;
+    if (x < 0) x = 0;
+
+    dirtyBits.push_back(FrameRegion(x, 0, width, height));
 }
 
 void CoreToolbar::onResize(int w, int h)
@@ -68,6 +143,7 @@ void CoreToolbar::onResize(int w, int h)
     // widgets are created (using raw LVGL API - no wrappers!)
     image = std::make_unique<FrameBuffer>(width, height);
     uiDisplay->Resize(width, height, image->Row(0));
+    activeToolsMask = 0; // force repaint of tools
     if (!lvhStatusInfo) {
         CreateWidgets();
     }
@@ -77,7 +153,7 @@ void CoreToolbar::onResize(int w, int h)
 
 void CoreToolbar::onMouseEvent(int x, int y, bool l, bool r)
 {
-    UNIMPLEMENTED(__func__);
+    UNIMPLEMENTED(__func__ + fmt::format("({},{},{},{})", x, y, l, r));
 }
 
 void CoreToolbar::Update(navitab::FrameRegion r, uint32_t* pixels)
@@ -85,6 +161,7 @@ void CoreToolbar::Update(navitab::FrameRegion r, uint32_t* pixels)
     // this is the update function called from the LVGL library
     LOGD(fmt::format("CoreToolbar::Update({},{}->{},{})", r.left, r.top, r.right, r.bottom));
     dirtyBits.push_back(r);
+    RepaintTools(r.right);
     RunLater([this]() { Redraw(); });
 }
 
@@ -100,26 +177,6 @@ void CoreToolbar::CreateWidgets()
     lv_label_set_text(lvhStatusInfo, "Hello world");
     lv_obj_set_style_text_color(lv_screen_active(), lv_color_hex(0xffffff), LV_PART_MAIN);
     lv_obj_align(lvhStatusInfo, LV_ALIGN_LEFT_MID, 6, 0);
-
-    // Create the toolbar image buttons
-    // TODO create our own images - will be reused in MSFS panel
-    // TODO use the LVGL alignment grid
-    lv_obj_t* img1 = lv_image_create(lv_screen_active());
-    lv_image_set_src(img1, LV_SYMBOL_OK);
-    lv_obj_align(img1, LV_ALIGN_RIGHT_MID, -6, 0);
-
-    lv_obj_t* img2 = lv_image_create(lv_screen_active());
-    lv_image_set_src(img2, LV_SYMBOL_CLOSE);
-    lv_obj_align(img2, LV_ALIGN_RIGHT_MID, -30, 0);
-
-    lv_obj_t* img3 = lv_image_create(lv_screen_active());
-    lv_image_set_src(img3, LV_SYMBOL_PLUS);
-    lv_obj_align(img3, LV_ALIGN_RIGHT_MID, -54, 0);
-
-    lv_obj_t* img4 = lv_image_create(lv_screen_active());
-    lv_image_set_src(img4, LV_SYMBOL_MINUS);
-    lv_obj_align(img4, LV_ALIGN_RIGHT_MID, -78, 0);
-
 }
 
 } // namespace navitab

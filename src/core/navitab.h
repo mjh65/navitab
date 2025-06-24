@@ -58,6 +58,7 @@ class SettingsApp;
 
 class Navitab : public std::enable_shared_from_this<Navitab>,
                 public CoreServices,
+                public AppServices,
                 public Simulator2Core,
                 public DeferredJobRunner<int>,
                 public Toolbar2Core, public Modebar2Core, public Doodler2Core, public Keypad2Core, public Canvas2Core
@@ -97,12 +98,16 @@ public:
     void Stop() override;    // TODO - called from XPluginStop - review this in SDK and Avitab
 
     // ======================================================================
+    // Implementation of AppServices
+    void EnableTools(int toolMask) override;
+
+    // ======================================================================
     // Implementation of Simulator2Core
     void onSimFlightLoop(const SimStateData& data) override;
 
     // ======================================================================
     // Implementation of Toolbar2Core
-    void onToolClick(Tool t) override;
+    void onToolClick(ClickableTool t) override;
 
     // ======================================================================
     // Implementation of Modebar2Core

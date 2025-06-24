@@ -19,12 +19,27 @@
  */
 
 #include "readerapp.h"
+#include "navitab/core.h"
+#include "navitab/toolbar.h"
 
 namespace navitab {
 
-ReaderApp::ReaderApp(std::shared_ptr<CoreServices> core)
+ReaderApp::ReaderApp(std::shared_ptr<AppServices> core)
 :   App("rdrapp", core)
 {
+    defaultToolMask = 
+        (1 << ClickableTool::REDUCE) |
+        (1 << ClickableTool::MAGNIFY) |
+        (1 << ClickableTool::LAST) |
+        (1 << ClickableTool::RIGHT) |
+        (1 << ClickableTool::LEFT) |
+        (1 << ClickableTool::FIRST) |
+        (1 << ClickableTool::ROTATEC) |
+        (1 << ClickableTool::ROTATEA) |
+        (1 << ClickableTool::BOTTOM) |
+        (1 << ClickableTool::DOWN) |
+        (1 << ClickableTool::UP) |
+        (1 << ClickableTool::TOP);
 }
 
 void ReaderApp::Assemble()
@@ -37,6 +52,12 @@ void ReaderApp::Assemble()
 void ReaderApp::Demolish()
 {
     UNIMPLEMENTED(__func__);
+}
+
+void ReaderApp::Show()
+{
+    App::Show();
+    core->EnableTools(defaultToolMask);
 }
 
 } // namespace navitab

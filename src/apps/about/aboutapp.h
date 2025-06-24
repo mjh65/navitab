@@ -28,11 +28,12 @@ namespace navitab {
 class AboutApp : public App
 {
 public:
-    AboutApp(std::shared_ptr<CoreServices> core);
+    AboutApp(std::shared_ptr<AppServices> core);
 
 protected:
     void Assemble() override;
     void Demolish() override;
+    void Show() override;
 
 private:
 

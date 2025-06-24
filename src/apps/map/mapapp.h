@@ -28,11 +28,12 @@ namespace navitab {
 class MapApp : public App
 {
 public:
-    MapApp(std::shared_ptr<CoreServices> core);
+    MapApp(std::shared_ptr<AppServices> core);
 
 protected:
     void Assemble() override;
     void Demolish() override;
+    void Show() override;
 
 private:
 

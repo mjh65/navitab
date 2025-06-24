@@ -28,11 +28,12 @@ namespace navitab {
 class RouteApp : public App
 {
 public:
-    RouteApp(std::shared_ptr<CoreServices> core);
+    RouteApp(std::shared_ptr<AppServices> core);
 
 protected:
     void Assemble() override;
     void Demolish() override;
+    void Show() override;
 
 private:
 

@@ -19,10 +19,12 @@
  */
 
 #include "aboutapp.h"
+#include "navitab/core.h"
+#include "navitab/toolbar.h"
 
 namespace navitab {
 
-AboutApp::AboutApp(std::shared_ptr<CoreServices> core)
+AboutApp::AboutApp(std::shared_ptr<AppServices> core)
 :   App("about", core)
 {
 }
@@ -37,6 +39,12 @@ void AboutApp::Assemble()
 void AboutApp::Demolish()
 {
     UNIMPLEMENTED(__func__);
+}
+
+void AboutApp::Show()
+{
+    App::Show();
+    core->EnableTools(0);
 }
 
 } // namespace navitab

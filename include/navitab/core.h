@@ -72,9 +72,9 @@ struct Settings
     virtual void Put(const std::string key, nlohmann::json& value) = 0;
 };
 
-// The CoreServices class is the central management and interface object for the Navitab
-// system, and provides the connectivity by sharing interfaces needed by the simulation
-// and windowing UI subsystems.
+// The CoreServices interface is the centralised componment management interface for the
+// Navitab system, and provides the connectivity by sharing interfaces needed by the
+// simulation and windowing UI subsystems.
 
 struct CoreServices
 {
@@ -101,7 +101,6 @@ struct CoreServices
 
     // Get the window part for sending UI-window-generated events. All parts (toolbar,
     // modebar, doodler, keypad, canvas) have the same interface, so one function fits all.
-    //virtual std::shared_ptr<WindowPart> GetWindowPart(int part) = 0;
     virtual std::shared_ptr<WindowPart> GetToolbar() = 0;
     virtual std::shared_ptr<WindowPart> GetModebar() = 0;
     virtual std::shared_ptr<WindowPart> GetDoodler() = 0;
@@ -118,7 +117,15 @@ struct CoreServices
     virtual void Stop() = 0;
 
     virtual ~CoreServices() = default;
+};
 
+// The AppServices interface provides the services used by the Navitab apps.
+
+struct AppServices
+{
+    virtual void EnableTools(int toolMask) = 0;
+    
+    virtual ~AppServices() = default;
 };
 
 } // namespace navitab

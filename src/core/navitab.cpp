@@ -228,7 +228,12 @@ void Navitab::Activate()
 void Navitab::Deactivate()
 {
     if (activated) {
-        activeApp->Deactivate();
+        aboutApp->Deactivate();
+        mapApp->Deactivate();
+        airportApp->Deactivate();
+        routeApp->Deactivate();
+        readerApp->Deactivate();
+        settingsApp->Deactivate();
         activated = false;
     }
 }
@@ -274,19 +279,22 @@ void Navitab::StartApps()
 {
     activeApp->Activate(canvas->Display());
     modebar->SetHighlighted(0x1); // TODO - get the launch app from the settings, and use this.
-    toolbar->SetEnabledTools(0x1); // TODO - get this from the launch app
 }
 
-void Navitab::onToolClick(Tool t)
+void Navitab::EnableTools(int toolMask)
 {
-    UNIMPLEMENTED(__func__);
+    toolbar->SetActiveTools(toolMask);
+}
+
+void Navitab::onToolClick(ClickableTool t)
+{
+    UNIMPLEMENTED(__func__ + fmt::format("({})", (int)t));
 }
 
 void Navitab::onAppSelect(Mode m)
 {
     auto a = FindApp(m);
     if (a != activeApp) {
-        activeApp->Deactivate();
         activeApp = a;
         activeApp->Activate(canvas->Display());
         modebar->SetHighlighted(m);

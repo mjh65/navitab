@@ -36,6 +36,28 @@ namespace navitab {
 struct Window;
 struct Location;
 
+enum ClickableTool {
+    MENU,
+    COG,
+    AFFIRM,
+    STOP,
+    CANCEL,
+    REDUCE,
+    CENTRE,
+    MAGNIFY,
+    LAST,
+    RIGHT,
+    LEFT,
+    FIRST,
+    ROTATEC,
+    ROTATEA,
+    BOTTOM,
+    DOWN,
+    UP,
+    TOP,
+    kNumTools
+};
+
 // The Toolbar2Core interface is used by the UI's toolbar to send user tool
 // clicks to the Navitab core for the currently active screen.
 
@@ -43,24 +65,13 @@ struct Toolbar2Core : public DeferredJobRunner<>
 {
     // UI-triggered events notified to the Navitab core for further handling
 
-    enum Tool {
-        MENU        = 0b1,
-        MAGNIFY     = 0b10,
-        REDUCE      = 0b100,
-        CENTRE      = 0b1000,
-        NEXT        = 0b10000,
-        PREVIOUS    = 0b100000,
-        DOWN        = 0b1000000,
-        UP          = 0b10000000
-    };
-
-    void PostToolClick(Tool t) {
+    void PostToolClick(ClickableTool t) {
         RunLater([this, t]() { onToolClick(t); });
     }
 
 protected:
     // Called when a tool icon is clicked
-    virtual void onToolClick(Tool) = 0;
+    virtual void onToolClick(ClickableTool) = 0;
 };
 
 // The Toolbar interface defines the services that this part of the UI window
@@ -74,7 +85,7 @@ public:
 
     // APIs called from the Navitab core
     virtual void SetStausInfo(int zt, int fps, const Location& l) = 0;
-    virtual void SetEnabledTools(int selectMask) = 0;
+    virtual void SetActiveTools(int selectMask) = 0;
 };
 
 } // namespace navitab

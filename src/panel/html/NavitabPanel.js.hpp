@@ -124,10 +124,12 @@ class NavitabElement extends TemplateElement {
         }
         let teimgs = document.getElementsByClassName("nTool");
         for (let i=0; i<teimgs.length; i++) {
+            // TODO - support hold/repeat here with mousedown, mousemove
             teimgs[i].addEventListener("click", () => {
                 this.toolClick(msimgs[i].id.substr(0,2));
             });
         }
+        // TODO - support hold/repeat here with mouseup listener (on outermost element)
     }
 #ifdef NAVITAB_MSFS_PANEL
     disconnectedCallback() {
@@ -174,6 +176,15 @@ class NavitabElement extends TemplateElement {
             teimgs[i].style.display = (k & 1) ? "" : "none";
         }
     }
+    toolsRepeat(tr) {
+        let mask = parseInt(tr);
+        let teimgs = document.getElementsByClassName("nTool");
+        for (let i=0; i<teimgs.length; i++) {
+            const j = parseInt(teimgs[i].id.substr(0,2));
+            const k = mask >> j;
+            teimgs[i].dataset.repeatable = (k & 1) ? "yes" : "no";
+        }
+    }
     lostServer() {
         console.log("Connection to panel server has been lost");
         this.connected = false;
@@ -201,6 +212,9 @@ class NavitabElement extends TemplateElement {
                     tmsel = tmsel.substr(3);
                 } else if (tmsel.charAt(0) == "T") {
                     this.toolsEnable(tmsel.substr(1,8));
+                    tmsel = tmsel.substr(9);
+                } else if (tmsel.charAt(0) == "R") {
+                    this.toolsRepeat(tmsel.substr(1,8));
                     tmsel = tmsel.substr(9);
                 } else {
                     tmsel = "";

@@ -68,6 +68,7 @@ void DisplayWrapper::Resize(int w, int h, uint32_t* buffer)
         lv_display_set_resolution(display, w, h);
     }
     lv_display_set_buffers(display, buffer, nullptr, w * h * sizeof(uint32_t), LV_DISP_RENDER_MODE_DIRECT);
+    lv_obj_invalidate(lv_scr_act());
 }
 
 } // namespace lvglkit

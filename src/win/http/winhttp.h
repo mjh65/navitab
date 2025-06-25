@@ -128,6 +128,7 @@ private:
     std::condition_variable             qsync;
     std::mutex                          qmutex;
 
+    std::chrono::time_point<std::chrono::steady_clock> watchdogTimeout;
     int activeModes, pendingModes;
     int activeTools, pendingTools;
     int activeRepeaters, pendingRepeaters;

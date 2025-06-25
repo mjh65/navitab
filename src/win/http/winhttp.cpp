@@ -137,7 +137,6 @@ void WindowHTTP::SetStausInfo(int zt, int f, const Location& l)
 
 void WindowHTTP::SetActiveTools(int selectMask)
 {
-    UNIMPLEMENTED(__func__ + fmt::format("({})", selectMask));
     pendingTools = selectMask;
 }
 
@@ -240,22 +239,17 @@ std::string WindowHTTP::EncodeStatus()
 
 std::string WindowHTTP::EncodeControls()
 {
+    // if the watchdog has timed out then send everything
+    std::chrono::time_point tn = std::chrono::steady_clock::now();
+    if (tn > watchdogTimeout) {
+        activeModes = 0;
+        activeTools = 0;
+        activeRepeaters = 0;
+    }
+    watchdogTimeout = tn + std::chrono::milliseconds(3000);
+
+    // generate the controls string for any controls that have (or may have) changed
     std::string cs;
-#if 0
-    // some temporary code to vary control settings until everything is hooked up
-    static char nextModeChange = '0' + (rand() % 10);
-    static char nextToolChange = '0' + (rand() % 10);
-    auto t = navitab::LocalTime("%S");
-    if (t[1] == nextModeChange) {
-        cs += fmt::format("M{}{}", rand() % 6, rand() % 4);
-        nextModeChange += (nextModeChange < '3') ? 7 : -3;
-    }
-    if (t[1] == nextToolChange) {
-        uint32_t te = ((rand() % 0x100) << 16) + (rand() % 0x10000);
-        cs += fmt::format("T{:08d}", te);
-        nextToolChange += (nextToolChange < '5') ? 5 : -5;
-    }
-#endif
     if (pendingModes != activeModes) {
         int activeApp, overlays = 0;
         for (auto i = 0; i < 6; ++i) {
@@ -268,6 +262,14 @@ std::string WindowHTTP::EncodeControls()
         if (pendingModes & (1 << 7)) overlays += 2;
         cs += fmt::format("M{}{}", activeApp, overlays);
         activeModes = pendingModes;
+    }
+    if (pendingTools != activeTools) {
+        cs += fmt::format("T{:08d}", pendingTools);
+        activeTools = pendingTools;
+    }
+    if (pendingRepeaters != activeRepeaters) {
+        cs += fmt::format("R{:08d}", pendingRepeaters);
+        activeRepeaters = pendingRepeaters;
     }
     return cs;
 }
@@ -304,7 +306,7 @@ void WindowHTTP::modebarIconSelect(int m)
 
 void WindowHTTP::toolClick(int t)
 {
-    UNIMPLEMENTED(__func__ + fmt::format("({})", t));
+    toolbarClient->PostToolClick((ClickableTool)t);
 }
 
 } // namespace navitab

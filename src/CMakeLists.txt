@@ -35,6 +35,7 @@ target_link_libraries(navitab_core PUBLIC
     fmt::fmt
     lvgl::lvgl
     nlohmann_json::nlohmann_json
+    Threads::Threads
 )
 
 # The mock simulator generates random or scripted events for the Navitab core.

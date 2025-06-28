@@ -24,6 +24,7 @@
 #include <cassert>
 #include <chrono>
 #include <iostream>
+#include <math.h>
 #include <fmt/core.h>
 #include "winglfw.h"
 #include "../texbuffer.h"

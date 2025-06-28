@@ -37,14 +37,15 @@ if(NOT CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     message(FATAL_ERROR "Navitab is not supported as a subsidiary CMake project")
 endif()
 
-# Optionally set things like CMAKE_CXX_STANDARD here
+# Set things like CMAKE_CXX_STANDARD here
+find_package(Threads REQUIRED)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-# Let's ensure -std=c++xx instead of -std=g++xx
+# Ensure -std=c++xx instead of -std=g++xx
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Let's nicely support folders in IDEs
+# Nicely support folders in IDEs
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Testing

@@ -78,11 +78,9 @@ public:
     void HideKeypad() override;
 
     // Encode a BMP image of the canvas for the panel
-    unsigned EncodeBMP(std::vector<unsigned char> &png);
+    void EncodeBMP(std::vector<unsigned char> &bmp);
     // Encode the status for the panel
-    std::string EncodeStatus();
-    // Encode the controls settings for the panel
-    std::string EncodeControls();
+    void EncodeStatus(std::vector<unsigned char> &status);
 
     void mouseEvent(int x, int y, int b);
     void wheelEvent(int x, int y, int d);
@@ -128,10 +126,9 @@ private:
     std::condition_variable             qsync;
     std::mutex                          qmutex;
 
-    std::chrono::time_point<std::chrono::steady_clock> watchdogTimeout;
-    int activeModes, pendingModes;
-    int activeTools, pendingTools;
-    int activeRepeaters, pendingRepeaters;
+    int activeModes;
+    int activeTools;
+    int activeRepeaters;
 };
 
 }

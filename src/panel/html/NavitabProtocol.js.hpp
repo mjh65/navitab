@@ -21,17 +21,34 @@ class NavitabProtocol {
         this.portNum = 0;
         this.reqId = 1;
         this.failedLoads = 0;
+        this.imageBuffer = null;
         this.canvas = null;
         this.imageLoading = false;
+        this.statusLoading = false;
         this.codedStatus = "17432518176676146197";
     }
-    setCanvas(c) {
+    // an image element for loading, and canvas for drawing and status extraction
+    // this technique is not the cleanest, but is supported by MSFS
+    setElements(b,c) {
+        this.imageBuffer = b;
         this.canvas = c;
+        this.imageBuffer.setAttribute("crossorigin", "anonymous");
+        this.imageBuffer.addEventListener("load", () => {
+            let ctx = this.canvas.getContext('2d');
+            ctx.drawImage(this.imageBuffer, 0, 0);
+            this.failedLoads = 0;
+            this.imageLoading = false;
+        });
+        this.imageBuffer.addEventListener("error", () => {
+            ++this.failedLoads;
+            this.imageLoading = false;
+        });
     }
     // set the server's port number
     setPort(p) {
         this.portNum = p;
         this.imageLoading = false;
+        this.statusLoading = false;
         this.failedLoads = 0;
     }
     // decide if the connection has been lost (server died or shutdown)
@@ -39,76 +56,69 @@ class NavitabProtocol {
         if (!this.portNum) return false;
         let active = (this.failedLoads < 4);
         if (!active) {
-            if (this.portNum || this.imageLoading) {
+            if (this.portNum || this.imageLoading || this.statusLoading) {
                 this.setPort(0);
             }
         }
         return active;
     }
-    // generic send request function
-    sendRequest(url) {
+    // generic function to send panel events to the server, failures are ignored
+    sendMessage(url) {
         if (!this.portNum) return false;
-        var self = this;
         let xhttp = new XMLHttpRequest();
-        xhttp.open("GET", url);
+        xhttp.open("GET", url, true);
         xhttp.timeout = 1000;
         xhttp.send();
         return this.isConnected();
     }
     // report some mouse action over the canvas
     mouseEvent(x,y,b) {
-        this.sendRequest("http://127.0.0.1:" + this.portNum + "/e?z=" + (this.reqId++) + "&x=" + x + "&y=" + y + "&b=" + b);
+        this.sendMessage("http://127.0.0.1:" + this.portNum + "/e?z=" + (this.reqId++) + "&x=" + x + "&y=" + y + "&b=" + b);
     }
     // report scroll wheel movements
     wheelEvent(x,y,d) {
-        this.sendRequest("http://127.0.0.1:" + this.portNum + "/e?z=" + (this.reqId++) + "&x=" + x + "&y=" + y + ((d<0) ? "&wu" : "&wd"));
+        this.sendMessage("http://127.0.0.1:" + this.portNum + "/e?z=" + (this.reqId++) + "&x=" + x + "&y=" + y + ((d<0) ? "&wu" : "&wd"));
     }
     // report resizing of the panel
     reportCanvasSize(w,h) {
         console.log("Sending canvas size %d x %d", w, h);
-        this.sendRequest("http://127.0.0.1:" + this.portNum + "/e?z=" + (this.reqId++) + "&w=" + w + "&h=" + h);
+        this.sendMessage("http://127.0.0.1:" + this.portNum + "/e?z=" + (this.reqId++) + "&w=" + w + "&h=" + h);
     }
     // report click on a mode icon
     reportModeClick(m) {
-        this.sendRequest("http://127.0.0.1:" + this.portNum + "/e?z=" + (this.reqId++) + "&m=" + m);
+        this.sendMessage("http://127.0.0.1:" + this.portNum + "/e?z=" + (this.reqId++) + "&m=" + m);
     }
     // report click on a tool icon
     reportToolClick(t) {
-        this.sendRequest("http://127.0.0.1:" + this.portNum + "/e?z=" + (this.reqId++) + "&t=" + t);
+        this.sendMessage("http://127.0.0.1:" + this.portNum + "/e?z=" + (this.reqId++) + "&t=" + t);
     }
-    // callback when image request gets a response
-    imageResponse(resp) {
-        if (resp.readyState == 4) {
-            if (resp.status == 200) {
-                this.failedLoads = 0;
-                const sh = resp.getResponseHeader("Navitab-Status");
-                if (sh) this.codedStatus = sh;
-                let bitmappromise = createImageBitmap(resp.response);
-                bitmappromise.then(bitmap => {
-                    this.canvas.getContext('2d').drawImage(bitmap, 0, 0);
-                    this.imageLoading = false;
-                });
-            } else {
-                ++this.failedLoads;
-                this.imageLoading = false;
+    // get the current status string
+    getStatus() {
+        const xhr = new XMLHttpRequest();
+        const url = "http://127.0.0.1:" + this.portNum + "/s" + (this.reqId++);
+        xhr.open("GET", url, true);
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                const status = xhr.status;
+                if (status === 0 || (status >= 200 && status < 400)) {
+                    this.codedStatus = xhr.responseText;
+                }
+                this.statusLoading = false;
             }
-        }
+        };
+        xhr.send();
     }
     // get the next update from the server: an image for the canvas, and a status code
     pollServer() {
         if (!this.isConnected()) return "";
         if (!this.imageLoading) {
             this.imageLoading = true;
-            let self = this;
-            let xhttp = new XMLHttpRequest();
-            xhttp.onreadystatechange = function() {
-                self.imageResponse(this);
-            };
-            let url = "http://127.0.0.1:" + this.portNum + "/i" + (this.reqId++);
-            xhttp.open("GET", url);
-            xhttp.timeout = 1000;
-            xhttp.responseType = "blob";
-            xhttp.send();
+            const url = "http://127.0.0.1:" + this.portNum + "/i" + (this.reqId++);
+            this.imageBuffer.src = url;
+        }
+        if (!this.statusLoading) {
+            this.statusLoading = true;
+            this.getStatus();
         }
         return this.codedStatus;
     }
@@ -130,20 +140,24 @@ class PortFinder {
     getPortNumber() {
         if (this.portNumber) return this.portNumber;
         if (Date.now() > this.nextPoll) {
-            var self = this;
-            let xhttp = new XMLHttpRequest();
-            let url = "http://127.0.0.1:" + this.nextPort + "/p?z=" + (this.reqId++) + "&p=" + this.nextPort;
-            xhttp.onreadystatechange = function() {
-                if (this.readyState == 2) {
-                    let u = this.responseURL;
-                    let i = u.search("&p=");
-                    let p = u.substr(i + 3);
-                    self.portNumber = parseInt(p);
+            // create and send a ping request to the next port
+            const xhr = new XMLHttpRequest();
+            const url = "http://127.0.0.1:" + this.nextPort + "/p?z=" + (this.reqId++) + "&p=" + this.nextPort;
+            xhr.open("GET", url, true);
+            xhr.onreadystatechange = () => {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    // if there is a response find out which port it was sent to and use it
+                    const u = xhr.responseURL;
+                    const i = u.search("&p=");
+                    if (i > 0) {
+                        const p = u.substr(i + 3);
+                        this.portNumber = parseInt(p);
+                    }
                 }
             };
-            xhttp.open("GET", url);
-            xhttp.timeout = 1000;
-            xhttp.send();
+            xhr.timeout = 1000;
+            xhr.send();
+            // prepare the port number for the next ping
             let port = this.nextPort + 1;
             if ((port < this.basePort) || (port > this.topPort)) {
                 port = this.basePort;

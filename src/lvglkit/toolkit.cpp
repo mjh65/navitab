@@ -18,6 +18,7 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <chrono>
 #include <lvgl.h>
 #include "toolkit.h"
 #include "display.h"

@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include <chrono>
 #include <lvgl.h>
 #include "navitab/toolbar.h"
 #include "navitab/logger.h"

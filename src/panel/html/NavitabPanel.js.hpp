@@ -46,6 +46,7 @@ class NavitabElement extends TemplateElement {
         this.panelActive = false;
         this.ingameUi = null;
         this.statusElem = null;
+        this.imageBuffer = null;
         this.canvas = null;
         this.noServerImage = null;
         this.connected = true;
@@ -62,17 +63,18 @@ class NavitabElement extends TemplateElement {
         super.connectedCallback();
 #endif
 
-        var self = this;
         this.ingameUi = this.querySelector('ingame-ui');
         this.statusElem = document.getElementById("ToolbarStatus");
         this.statusElem.textContent = "Waiting for connection to Navitab panel server";
+        this.imageBuffer = document.getElementById("ImageBuffer");
+        this.imageBuffer.style.display = "none";
         this.canvas = document.getElementById("Canvas");
-        this.server.setCanvas(this.canvas);
+        this.server.setElements(this.imageBuffer, this.canvas);
         this.noServerImage = document.getElementById("NoServer");
         if (this.ingameUi) {
             this.ingameUi.addEventListener("panelActive", (e) => {
                 //console.log('NavitabElement::panelActive');
-                self.panelActive = true;
+                this.panelActive = true;
                 let updateLoop = () => {
                     if (window["IsDestroying"] === true) {
                         return;
@@ -92,10 +94,10 @@ class NavitabElement extends TemplateElement {
                 requestAnimationFrame(updateLoop);
             });
             this.ingameUi.addEventListener("panelInactive", (e) => {
-                self.panelActive = false;
+                this.panelActive = false;
             });
             this.ingameUi.addEventListener("OnResize", () => {
-                self.resizePending = Date.now() + 1000;
+                this.resizePending = Date.now() + 1000;
             });
         }
         if (this.canvas) {

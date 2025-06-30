@@ -26,6 +26,9 @@
     <navitab-element>
         <ingame-ui id="NavitabPanel" panel-id="PANEL_NAVITAB" class="ingameUiFrame panelInvisible" title="Navitab" content-fit="true">
             <div id="AllParts">
+                <img id="ImageBuffer" class="canvasArea">
+                <canvas id="Canvas" class="canvasArea"></canvas>
+                <img id="NoServer" class="canvasArea" src="favicon.svg" alt="No server">
                 <div id="ToolbarPart">
                     <div id="ToolbarRect">
                         <code id="ToolbarStatus">13:23:52 | 17fps | 17:42:33Z | 56.197,-3.324</code>
@@ -61,8 +64,6 @@
                     <img class="nMode" id="6ModeDoodler" src="mode_doodler.svg" alt="Doodler" width="40px" height="40px">
                     <img class="nMode" id="7ModeKeypad" src="mode_keypad.svg" alt="Keypad" width="40px" height="24px">
                 </div>
-                <canvas id="Canvas" class="imageArea"></canvas>
-                <img id="NoServer" class="imageArea" src="favicon.svg" alt="No server">
             </div>
         </ingame-ui>
     </navitab-element>

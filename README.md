@@ -41,13 +41,21 @@ Navitab currently provides a configuration preset `xcode` for Apple's XCode IDE.
 
 ### Shell/command-line
 
+Run `cmake --list-presets` to show all the current presets (in case this README
+is not up to date).
+
 Run `cmake --preset release` to configure the project for a stripped and optimised
 build, or `cmake --preset debug` for development and debugging.
 
 (There is also a CMake configuration `xcode` to generate an Xcode project, see above).
 
-Run `cmake --build --preset release` (or `cmake --build --preset debug`) to build
-all the Navitab products.
+Run `cmake --build --preset install` to create an install tree containing the
+Navitab products. By default this will be a directory called `install` in the
+project's top-level. This build uses the `release` configuration.
+
+Or run `cmake --build --preset release` (or `cmake --build --preset debug`) to build
+the Navitab products, but not the install tree. These builds use the CMake configuration
+of the same name.
 
 ### Platforms
 

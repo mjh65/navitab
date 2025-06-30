@@ -53,6 +53,7 @@ inline int lastError()
     return errno;
 }
 #else
+const int MSG_NOSIGNAL = 0;
 inline int lastError()
 {
     return WSAGetLastError();
@@ -220,15 +221,18 @@ bool HtmlServer::processRequest(SOCKET s, HttpReq *req)
         content.resize(reply.size());
         std::copy(reply.begin(), reply.end(), content.begin());
     } else {
+        LOGD(fmt::format("Processing {}", req->getUrl()));
         keepAlive = req->keepAlive();
 
-        // Protocol supports the following events and query strings
+        // Protocol supports the following event reports ...
         // RESIZE:  /e  w= h=
         // MODE:    /e  m=
         // TOOL:    /e  t=
         // MOUSE:   /e  x= y= b= wu wd
         // KEY:     /e  k=
+        // ... and requests
         // PING:    /p
+        // STATUS:  /s
         // IMAGE:   /i
 
         // If an event is being reported then extract the query strings to decide which
@@ -273,9 +277,13 @@ bool HtmlServer::processRequest(SOCKET s, HttpReq *req)
             header << "200 OK\r\n";
             header << "Content-Type: image/bmp\r\n";
             header << "Access-Control-Allow-Origin: *\r\n";
-            header << "Access-Control-Expose-Headers: Navitab-Status\r\n";
-            header << "Navitab-Status: " << owner->EncodeStatus() << owner->EncodeControls() << "\r\n";
             owner->EncodeBMP(content);
+        } else if (opcode == "s") {
+            // request for latest status, response is a coded string
+            header << "200 OK\r\n";
+            header << "Content-Type: text/plain\r\n";
+            header << "Access-Control-Allow-Origin: *\r\n";
+            owner->EncodeStatus(content);
         } else if ((opcode == "e") || (opcode == "p")) {
             // event and ping opcodes send a basic response
             header << "200 OK\r\n";
@@ -296,8 +304,8 @@ bool HtmlServer::processRequest(SOCKET s, HttpReq *req)
     if (!keepAlive) { header << "Connection: close\r\n"; }
     header << "\r\n";
 
-    (void)send(s, header.str().c_str(), header.str().length(), 0);
-    (void)send(s, reinterpret_cast<char *>(content.data()), content.size(), 0);
+    (void)send(s, header.str().c_str(), header.str().length(), MSG_NOSIGNAL);
+    (void)send(s, reinterpret_cast<char *>(content.data()), content.size(), MSG_NOSIGNAL);
 
     // return false if the connection should be held open
     return keepAlive;

@@ -1,7 +1,7 @@
 @ECHO OFF
 :: This script uses the MSFS SDK's 'fspackagetool' to create the packaging metafiles for the Navitab in-game panel
 
-SET _pkgname_=mjh65-ingamepanels-navitab
+SET _pkgname_=navitab-ingamepanels-navitab
 SET "_currentdir_=%CD%"
 
 :: Remove any previous build files

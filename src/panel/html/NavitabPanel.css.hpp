@@ -53,7 +53,7 @@ navitab-element #ModebarPart {
 navitab-element .nMode:hover {
     background-color: gray;
 }
-navitab-element .imageArea {
+navitab-element .canvasArea {
     position: absolute;
     left: 0px;
     top: 24px;

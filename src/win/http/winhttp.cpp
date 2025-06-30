@@ -42,11 +42,8 @@ WindowHTTP::WindowHTTP()
     brightness(1.0f),
     running(true),
     activeModes(0),
-    pendingModes(0),
     activeTools(0),
-    pendingTools(0),
-    activeRepeaters(0),
-    pendingRepeaters(0)
+    activeRepeaters(0)
 {
     server = std::make_unique<HtmlServer>(this);
     image = std::make_unique<TextureBuffer>(WIN_MAX_WIDTH, (WIN_MAX_HEIGHT - TOOLBAR_HEIGHT));
@@ -137,17 +134,17 @@ void WindowHTTP::SetStausInfo(int zt, int f, const Location& l)
 
 void WindowHTTP::SetActiveTools(int selectMask)
 {
-    pendingTools = selectMask;
+    activeTools = selectMask;
 }
 
 void WindowHTTP::SetRepeatingTools(int selectMask)
 {
-    pendingRepeaters = selectMask;
+    activeRepeaters = selectMask;
 }
 
 void WindowHTTP::SetHighlightedModes(int selectMask)
 {
-    pendingModes = selectMask;
+    activeModes = selectMask;
 }
 
 void WindowHTTP::EnableDoodler()
@@ -185,13 +182,13 @@ void WindowHTTP::RunLater(std::function<void()> j, int*)
     RunLater(j,x);
 }
 
-unsigned WindowHTTP::EncodeBMP(std::vector<unsigned char> &bmp)
+void WindowHTTP::EncodeBMP(std::vector<unsigned char> &bmp)
 {
     std::lock_guard<std::mutex> lock(paintMutex);
     uint32_t w = image->Width();
     uint32_t h = image->Height();
-    uint32_t n = (4 * w * h);
-    uint32_t bmpLength = 14 + 40 + n;
+    uint32_t ncanvas = (4 * w * h);
+    uint32_t bmpLength = 14 + 40 + ncanvas;
     
     bmp.resize(bmpLength);
     
@@ -216,62 +213,49 @@ unsigned WindowHTTP::EncodeBMP(std::vector<unsigned char> &bmp)
     
     // copy header template and then overwrite width, height and derived fields
     memcpy(bmp.data(), hdr, sizeof(hdr));
-    *(reinterpret_cast<uint32_t *>(&bmp[2])) = bmpLength;   // file length
+    *(reinterpret_cast<uint32_t *>(&bmp[2])) = bmpLength;   // blob length
     *(reinterpret_cast<uint32_t *>(&bmp[18])) = w;          // width in pixels
-    *(reinterpret_cast<int32_t *>(&bmp[22])) = 0 - h;       // height in pixels (negative to draw top to bottom)
-    *(reinterpret_cast<uint32_t *>(&bmp[34])) = n;          // image size in bytes
+    *(reinterpret_cast<uint32_t *>(&bmp[22])) = h;          // height in pixels
+    *(reinterpret_cast<uint32_t *>(&bmp[34])) = ncanvas;    // image size in bytes
 
-    // copy the pixel data
-    memcpy(bmp.data() + 14 + 40, image->Data(), n);
-    
-    return 0;
+    // BMP's are interpreted bottom to top. Since MSFS doesn't support the convention
+    // that a negative height indicates top-to-bottom we need to copy each row into
+    // it's mirror.
+    const unsigned int rl = 4 * w;
+    const unsigned char *sr = reinterpret_cast<const unsigned char *>(image->Data());
+    unsigned char* dr = bmp.data() + 14 + 40 + ncanvas - rl;
+    for (int i = 0; i < h; ++i) {
+        memcpy(dr, sr, rl);
+        sr += rl;
+        dr -= rl;
+    }
 }
 
-std::string WindowHTTP::EncodeStatus()
+void WindowHTTP::EncodeStatus(std::vector<unsigned char> &status)
 {
     int zth = zuluTime / (60 * 60);
     int ztm = (zuluTime / 60) % 60;
     int zts = zuluTime % 60;
     int ew = (int)((loc.longitude + 180) * 1000);
     int ns = (int)((loc.latitude + 90) * 1000);
-    return fmt::format("{:02d}{:02d}{:02d}{:02d}{:06d}{:06d}", zth, ztm, zts, fps, ew, ns);
-}
+    std::string s = fmt::format("{:02d}{:02d}{:02d}{:02d}{:06d}{:06d}", zth, ztm, zts, fps, ew, ns);
 
-std::string WindowHTTP::EncodeControls()
-{
-    // if the watchdog has timed out then send everything
-    std::chrono::time_point tn = std::chrono::steady_clock::now();
-    if (tn > watchdogTimeout) {
-        activeModes = 0;
-        activeTools = 0;
-        activeRepeaters = 0;
-    }
-    watchdogTimeout = tn + std::chrono::milliseconds(3000);
-
-    // generate the controls string for any controls that have (or may have) changed
-    std::string cs;
-    if (pendingModes != activeModes) {
-        int activeApp, overlays = 0;
-        for (auto i = 0; i < 6; ++i) {
-            if (pendingModes & (1 << i)) {
-                activeApp = i;
-                break;
-            }
+    // append the status of currently active modes, tools and which are 'repeaters'
+    int activeApp, overlays = 0;
+    for (auto i = 0; i < 6; ++i) {
+        if (activeModes & (1 << i)) {
+            activeApp = i;
+            break;
         }
-        if (pendingModes & (1 << 6)) overlays += 1;
-        if (pendingModes & (1 << 7)) overlays += 2;
-        cs += fmt::format("M{}{}", activeApp, overlays);
-        activeModes = pendingModes;
     }
-    if (pendingTools != activeTools) {
-        cs += fmt::format("T{:08d}", pendingTools);
-        activeTools = pendingTools;
-    }
-    if (pendingRepeaters != activeRepeaters) {
-        cs += fmt::format("R{:08d}", pendingRepeaters);
-        activeRepeaters = pendingRepeaters;
-    }
-    return cs;
+    if (activeModes & (1 << 6)) overlays += 1;
+    if (activeModes & (1 << 7)) overlays += 2;
+    s += fmt::format("M{}{}", activeApp, overlays);
+    s += fmt::format("T{:08d}", activeTools);
+    s += fmt::format("R{:08d}", activeRepeaters);
+
+    status.resize(0);
+    status.insert(status.end(), s.begin(), s.end());
 }
 
 void WindowHTTP::mouseEvent(int x, int y, int b)

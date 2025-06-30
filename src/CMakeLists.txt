@@ -86,7 +86,9 @@ if(XPLANE_SDK)
     if(APPLE)
         target_compile_definitions(navitab_sim_xp PRIVATE GL_SILENCE_DEPRECATION)
     endif()
-    target_link_libraries(navitab_sim_xp PRIVATE navitab_core)
+    target_link_libraries(navitab_sim_xp PRIVATE
+        navitab_core
+    )
 endif()
 
 if(MSFS_SDK)

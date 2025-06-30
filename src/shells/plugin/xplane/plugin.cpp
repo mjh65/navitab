@@ -38,7 +38,7 @@ std::shared_ptr<navitab::XPlaneSimulator> sim;
 PLUGIN_API int XPluginStart(char* outName, char* outSignature, char* outDescription)
 {
     strncpy(outName, "Navitab", 255);
-    strncpy(outSignature, "github.mjh65.navitab", 255);
+    strncpy(outSignature, "com.github.navitab", 255);
 
     try {
         XPLMEnableFeature("XPLM_USE_NATIVE_PATHS", 1);

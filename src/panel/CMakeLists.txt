@@ -119,47 +119,47 @@ install(FILES ${PANEL_SVG_INPUTS} DESTINATION navitab/htdocs)
 if(WIN32 AND DEFINED ENV{MSFS_SDK})
 
 set(PANEL_OUTPUTS
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/NavitabPanel.html"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/NavitabPanel.css"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/NavitabPanel.js"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/layout.json"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/manifest.json"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/InGamePanels/mjh65-ingamepanels-navitab.spb"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/Textures/Menu/toolbar/ICON_TOOLBAR_NAVITAB_PANEL.svg"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/icons/toolbar/ICON_TOOLBAR_NAVITAB_PANEL.svg"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/mode_about.svg"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/mode_airport.svg"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/mode_docs.svg"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/mode_doodler.svg"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/mode_keypad.svg"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/mode_map.svg"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/mode_route.svg"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/mode_settings.svg"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_affirm.svg"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_bottom.svg"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_cancel.svg"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_centre.svg"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_cog.svg"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_down.svg"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_first.svg"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_last.svg"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_left.svg"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_magnify.svg"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_menu.svg"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_null.svg"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_reduce.svg"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_right.svg"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_rotateleft.svg"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_rotateright.svg"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_stop.svg"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_top.svg"
-    "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_up.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/NavitabPanel.html"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/NavitabPanel.css"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/NavitabPanel.js"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/layout.json"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/manifest.json"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/InGamePanels/navitab-ingamepanels-navitab.spb"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/html_ui/Textures/Menu/toolbar/ICON_TOOLBAR_NAVITAB_PANEL.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/html_ui/icons/toolbar/ICON_TOOLBAR_NAVITAB_PANEL.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/mode_about.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/mode_airport.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/mode_docs.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/mode_doodler.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/mode_keypad.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/mode_map.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/mode_route.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/mode_settings.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_affirm.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_bottom.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_cancel.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_centre.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_cog.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_down.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_first.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_last.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_left.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_magnify.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_menu.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_null.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_reduce.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_right.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_rotateleft.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_rotateright.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_stop.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_top.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel/tool_up.svg"
 )
 
 set(PANEL_SPB_INPUTS
-    "${CMAKE_CURRENT_LIST_DIR}/spb/mjh65-ingamepanels-navitab.xml"
-    "${CMAKE_CURRENT_LIST_DIR}/spb/PackageDefinitions/mjh65-ingamepanels-navitab.xml"
-    "${CMAKE_CURRENT_LIST_DIR}/spb/PackageSources/mjh65-ingamepanels-navitab.xml"
+    "${CMAKE_CURRENT_LIST_DIR}/spb/navitab-ingamepanels-navitab.xml"
+    "${CMAKE_CURRENT_LIST_DIR}/spb/PackageDefinitions/navitab-ingamepanels-navitab.xml"
+    "${CMAKE_CURRENT_LIST_DIR}/spb/PackageSources/navitab-ingamepanels-navitab.xml"
 )
 
 set(PANEL_ICON_INPUT
@@ -177,10 +177,10 @@ add_custom_target(
     DEPENDS ${PANEL_OUTPUTS}
 )
 
-install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/mjh65-ingamepanels-navitab" DESTINATION navitab)
-install(FILES ${PANEL_HTML_INPUTS} DESTINATION navitab/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel)
-install(FILES ${PANEL_ICON_INPUT} DESTINATION navitab/mjh65-ingamepanels-navitab/html_ui/icons/toolbar)
-install(FILES ${PANEL_ICON_INPUT} DESTINATION navitab/mjh65-ingamepanels-navitab/html_ui/Textures/Menu/toolbar)
-install(FILES ${PANEL_SVG_INPUTS} DESTINATION navitab/mjh65-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel)
+install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/navitab-ingamepanels-navitab" DESTINATION navitab/msfs)
+install(FILES ${PANEL_HTML_INPUTS} DESTINATION navitab/msfs/navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel)
+install(FILES ${PANEL_ICON_INPUT} DESTINATION navitab/msfs/navitab-ingamepanels-navitab/html_ui/icons/toolbar)
+install(FILES ${PANEL_ICON_INPUT} DESTINATION navitab/msfs/navitab-ingamepanels-navitab/html_ui/Textures/Menu/toolbar)
+install(FILES ${PANEL_SVG_INPUTS} DESTINATION navitab/msfs/navitab-ingamepanels-navitab/html_ui/InGamePanels/NavitabPanel)
 
 endif()

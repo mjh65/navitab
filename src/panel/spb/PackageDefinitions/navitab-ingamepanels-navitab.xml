@@ -1,7 +1,7 @@
-<AssetPackage Name="mjh65-ingamepanels-navitab" Version="0.1.6">
+<AssetPackage Name="navitab-ingamepanels-navitab" Version="0.1.6">
 	<ItemSettings>
 		<ContentType>SPB</nContentType>
-		<Title>mjh65-ingamepanels-navitab</Title>
+		<Title>navitab-ingamepanels-navitab</Title>
 		<Manufacturer></Manufacturer>
 		<Creator>Navitab</Creator>
 	</ItemSettings>
@@ -10,7 +10,7 @@
 		<CanBeReferenced>false</CanBeReferenced>
 	</Flags>
 	<AssetGroups>
-		<AssetGroup Name="mjh65-ingamepanels-navitab">
+		<AssetGroup Name="navitab-ingamepanels-navitab">
 			<Type>SPB</Type>
 			<Flags>
 				<FSXCompatibility>false</FSXCompatibility>

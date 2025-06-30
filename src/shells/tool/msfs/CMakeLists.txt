@@ -30,4 +30,4 @@ target_link_libraries(navitab_igps
     navitab_win_http
 )
 
-install(TARGETS navitab_igps DESTINATION navitab/mjh65-ingamepanels-navitab/PanelServer)
+install(TARGETS navitab_igps DESTINATION navitab/msfs/navitab-ingamepanels-navitab/PanelServer)

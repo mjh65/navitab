@@ -34,8 +34,7 @@ XPDesktopWindow::XPDesktopWindow()
 :   XPlaneWindow("xpdeskwin"),
     winPoppedOut(false),
     winResizePollTimer(0),
-    winLeft(10), winTop(WIN_STD_HEIGHT + 10),
-    leftButtonPressed(false), rightButtonPressed(false)
+    winLeft(10), winTop(WIN_STD_HEIGHT + 10)
 {
 }
 
@@ -86,9 +85,6 @@ void XPDesktopWindow::Create(std::shared_ptr<CoreServices> core)
     };
     cwp.handleMouseClickFunc = [](XPLMWindowID id, int x, int y, XPLMMouseStatus status, void* ref) -> int {
         return reinterpret_cast<XPDesktopWindow*>(ref)->onLeftClick(x, y, status);
-    };
-    cwp.handleRightClickFunc = [](XPLMWindowID id, int x, int y, XPLMMouseStatus status, void* ref) -> int {
-        return reinterpret_cast<XPDesktopWindow*>(ref)->onRightClick(x, y, status);
     };
     cwp.handleKeyFunc = [](XPLMWindowID id, char key, XPLMKeyFlags flags, char vKey, void* ref, int losingFocus) {
         reinterpret_cast<XPDesktopWindow*>(ref)->onKey(key, flags, vKey, losingFocus);
@@ -172,41 +168,31 @@ void XPDesktopWindow::onDraw()
 
 int XPDesktopWindow::onLeftClick(int x, int y, XPLMMouseStatus status)
 {
-    if (status == xplm_MouseDown)
-    {
-        if (!XPLMIsWindowInFront(winHandle))
-        {
+    if (status == xplm_MouseDown) {
+        if (!XPLMIsWindowInFront(winHandle)) {
             XPLMBringWindowToFront(winHandle);
         }
     }
-    leftButtonPressed = (status == xplm_MouseDown) || (status == xplm_MouseDrag);
 
     // x,y in screen, not window coordinates, we need to convert them,
     // and also into our GUI normal form: 0,0 at top-left.
     ScreenToWindow(x, y);
     LOGD(fmt::format("Mouse event at {},{} (local coordinates)", x, y));
-    // TODO - mouse handling needs to identify window part on mouse down, and then
-    // track the mouse until the button is released.
-    //core->PostMouseEvent(x, y, leftButtonPressed, rightButtonPressed);
-    return 1;
-}
 
-int XPDesktopWindow::onRightClick(int x, int y, XPLMMouseStatus status)
-{
-    if (status == xplm_MouseDown)
-    {
-        if (!XPLMIsWindowInFront(winHandle))
-        {
-            XPLMBringWindowToFront(winHandle);
-        }
+    switch (status) {
+    case xplm_MouseDown:
+        activeWinPart = LocateWinPart(x, y);
+        activeWinPart->client->PostMouseEvent(x - activeWinPart->left, y - activeWinPart->top, true, false);
+        break;
+    case xplm_MouseDrag:
+        activeWinPart->client->PostMouseEvent(x - activeWinPart->left, y - activeWinPart->top, true, false);
+        break;
+    case xplm_MouseUp:
+        activeWinPart->client->PostMouseEvent(x - activeWinPart->left, y - activeWinPart->top, false, false);
+        activeWinPart = nullptr;
+        break;
     }
-    rightButtonPressed = (status == xplm_MouseDown) || (status == xplm_MouseDrag);
 
-    // x,y in screen, not window coordinates, we need to convert them,
-    // and also into our GUI normal form: 0,0 at top-left.
-    ScreenToWindow(x, y);
-    //core->PostMouseEvent(x, y, leftButtonPressed, rightButtonPressed);
-    UNIMPLEMENTED(__func__);
     return 1;
 }
 

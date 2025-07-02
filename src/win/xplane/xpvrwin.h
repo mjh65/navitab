@@ -41,7 +41,6 @@ public:
 private:
     void onDraw();
     int onLeftClick(int x, int y, XPLMMouseStatus status);
-    int onRightClick(int x, int y, XPLMMouseStatus status);
     int onMouseWheel(int x, int y, int wheel, int clicks);
     void onKey(char key, XPLMKeyFlags flags, char vKey, int losingFocus);
     XPLMCursorStatus getCursor(int x, int y) { return xplm_CursorDefault; }

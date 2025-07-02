@@ -85,7 +85,7 @@ protected:
 
 private:
     int winDrawWatchdog;
-    int wgl, wgt, wgr, wgb; // most recently observed window geometry
+    int winGeomLeft, winGeomTop, winGeomRight, winGeomBottom; // most recently observed window geometry
     bool winVisible;
     float brightness;
 
@@ -98,9 +98,15 @@ protected:
         std::unique_ptr<TextureBuffer> textureImage;
         std::shared_ptr<WindowPart> client;
         bool active;
+        int top, left;
     };
+
     WinPart winParts[WindowPart::TOTAL_PARTS];
     std::mutex paintMutex;
+    WinPart* activeWinPart;
+
+protected:
+    WinPart* LocateWinPart(int x, int y);
 
 };
 

@@ -42,18 +42,25 @@ XPlaneWindow::XPlaneWindow(const char* logId)
     winWidth(WIN_STD_WIDTH),
     winHeight(WIN_STD_HEIGHT),
     winDrawWatchdog(0),
-    wgl(0), wgt(0), wgr(0), wgb(0),
+    winGeomLeft(0), winGeomTop(0), winGeomRight(0), winGeomBottom(0),
     winVisible(false),
-    brightness(1.0f)
+    brightness(1.0f),
+    activeWinPart(0)
 {
     for (auto i = 0; i < WindowPart::TOTAL_PARTS; ++i) {
         winParts[i].active = 0;
+        winParts[i].top = winParts[i].left = 0;
     }
     winParts[WindowPart::CANVAS].textureImage = std::make_unique<TextureBuffer>(WIN_MAX_WIDTH, (WIN_MAX_HEIGHT - TOOLBAR_HEIGHT));
+    winParts[WindowPart::CANVAS].top = TOOLBAR_HEIGHT;
     winParts[WindowPart::TOOLBAR].textureImage = std::make_unique<TextureBuffer>(WIN_MAX_WIDTH, TOOLBAR_HEIGHT);
     winParts[WindowPart::MODEBAR].textureImage = std::make_unique<TextureBuffer>(MODEBAR_WIDTH, MODEBAR_HEIGHT);
+    winParts[WindowPart::MODEBAR].top = TOOLBAR_HEIGHT;
     winParts[WindowPart::DOODLER].textureImage = std::make_unique<TextureBuffer>((WIN_MAX_WIDTH - MODEBAR_WIDTH), (WIN_MAX_HEIGHT - TOOLBAR_HEIGHT));
+    winParts[WindowPart::DOODLER].top = TOOLBAR_HEIGHT;
     winParts[WindowPart::KEYPAD].textureImage = std::make_unique<TextureBuffer>(WIN_MAX_WIDTH, KEYPAD_HEIGHT);
+    winParts[WindowPart::KEYPAD].top = winHeight - KEYPAD_HEIGHT;
+    winParts[WindowPart::KEYPAD].left = MODEBAR_WIDTH;
 }
 
 XPlaneWindow::~XPlaneWindow()
@@ -157,8 +164,8 @@ bool XPlaneWindow::UpdateWinGeometry()
 {
     int l, t, r, b;
     XPLMGetWindowGeometry(winHandle, &l, &t, &r, &b);
-    if ((wgl != l) || (wgt != t) || (wgr != r) || (wgb != b)) {
-        wgl = l; wgt = t; wgr = r; wgb = b;
+    if ((winGeomLeft != l) || (winGeomTop != t) || (winGeomRight != r) || (winGeomBottom != b)) {
+        winGeomLeft = l; winGeomTop = t; winGeomRight = r; winGeomBottom = b;
         auto popped = XPLMWindowIsPoppedOut(winHandle);
         auto vr = XPLMWindowIsInVR(winHandle);
         const char* mode = vr ? "VR" : popped ? "OS" : "IG";
@@ -185,8 +192,8 @@ void XPlaneWindow::ResizeNotifyAll(int w, int h)
 
 void XPlaneWindow::ScreenToWindow(int& x, int& y)
 {
-    x = x - wgl;
-    y = winHeight - (y - wgb);
+    x = x - winGeomLeft;
+    y = winHeight - (y - winGeomBottom);
 }
 
 bool XPlaneWindow::isActive()
@@ -258,6 +265,23 @@ void XPlaneWindow::Brightness(int percent)
     if (percent < 0) percent = 0;
     else if (percent > 100) percent = 100;
     brightness = 0.1f + (0.9f * percent / 100.0f);
+}
+
+XPlaneWindow::WinPart* XPlaneWindow::LocateWinPart(int x, int y)
+{
+    if (y < TOOLBAR_HEIGHT) {
+        return &winParts[WindowPart::TOOLBAR];
+    }
+    if ((x < MODEBAR_WIDTH) && (y < (TOOLBAR_HEIGHT + MODEBAR_HEIGHT))) {
+        return &winParts[WindowPart::MODEBAR];
+    }
+    if (winParts[WindowPart::KEYPAD].active && (y >= (winHeight - KEYPAD_HEIGHT))) {
+        return &winParts[WindowPart::KEYPAD];
+    }
+    if (winParts[WindowPart::DOODLER].active) {
+        return &winParts[WindowPart::DOODLER];
+    }
+    return &winParts[WindowPart::CANVAS];
 }
 
 

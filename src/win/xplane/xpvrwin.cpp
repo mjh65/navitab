@@ -59,9 +59,6 @@ void XPVRWindow::Create(std::shared_ptr<CoreServices> core)
     cwp.handleMouseClickFunc = [](XPLMWindowID id, int x, int y, XPLMMouseStatus status, void* ref) -> int {
         return reinterpret_cast<XPVRWindow*>(ref)->onLeftClick(x, y, status);
         };
-    cwp.handleRightClickFunc = [](XPLMWindowID id, int x, int y, XPLMMouseStatus status, void* ref) -> int {
-        return reinterpret_cast<XPVRWindow*>(ref)->onRightClick(x, y, status);
-        };
     cwp.handleKeyFunc = [](XPLMWindowID id, char key, XPLMKeyFlags flags, char vKey, void* ref, int losingFocus) {
         reinterpret_cast<XPVRWindow*>(ref)->onKey(key, flags, vKey, losingFocus);
         };
@@ -126,21 +123,25 @@ void XPVRWindow::onDraw()
 
 int XPVRWindow::onLeftClick(int x, int y, XPLMMouseStatus status)
 {
-    // x,y in screen, not window coordinates
-    int l, r, t, b;
-    XPLMGetWindowGeometry(winHandle, &l, &t, &r, &b);
-    int w, h;
-    XPLMGetWindowGeometryVR(winHandle, &w, &h);
-    LOGD(fmt::format("onLeftClick({},{},{}) in panel({},{}) lt/rb {},{} -> {},{}", x, y, status, w, h, l, t, r, b));
-    UNIMPLEMENTED(__func__);
-    return 1;
-}
+    // x,y in screen, not window coordinates, we need to convert them,
+    // and also into our GUI normal form: 0,0 at top-left.
+    ScreenToWindow(x, y);
+    LOGD(fmt::format("Mouse event at {},{} (local coordinates)", x, y));
 
-int XPVRWindow::onRightClick(int x, int y, XPLMMouseStatus status)
-{
-    // x,y in screen, not window coordinates
-    LOGD(fmt::format("onRightClick({},{},{})", x, y, status));
-    UNIMPLEMENTED(__func__);
+    switch (status) {
+    case xplm_MouseDown:
+        activeWinPart = LocateWinPart(x, y);
+        activeWinPart->client->PostMouseEvent(x - activeWinPart->left, y - activeWinPart->top, true, false);
+        break;
+    case xplm_MouseDrag:
+        activeWinPart->client->PostMouseEvent(x - activeWinPart->left, y - activeWinPart->top, true, false);
+        break;
+    case xplm_MouseUp:
+        activeWinPart->client->PostMouseEvent(x - activeWinPart->left, y - activeWinPart->top, false, false);
+        activeWinPart = nullptr;
+        break;
+    }
+
     return 1;
 }
 

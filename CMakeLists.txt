@@ -23,6 +23,7 @@ cmake_minimum_required(VERSION 3.23...3.29)
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "Minimum macOS version" FORCE)
 set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build architectures for mac OS X" FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Navitab requires static libraries")
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" CACHE INTERNAL "Link MSVC static runtime, required by X-Plane plugin")
 
 # Project name and a few useful settings. Other commands can pick up the results
 project(Navitab

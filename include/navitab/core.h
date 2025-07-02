@@ -34,13 +34,13 @@ struct PathServices;
 struct Simulator2Core;
 struct WindowPart;
 class Toolbar;
-class Toolbar2Core;
+struct Toolbar2Core;
 class Modebar;
-class Modebar2Core;
+struct Modebar2Core;
 class Doodler;
-class Doodler2Core;
+struct Doodler2Core;
 class Keypad;
-class Keypad2Core;
+struct Keypad2Core;
 struct WindowControls;
 
 enum HostPlatform { WIN, LNX, MAC };

@@ -31,7 +31,7 @@ class Display;
 
 namespace navitab {
 
-class AppServices;
+struct AppServices;
 
 class App
 {

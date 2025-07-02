@@ -54,7 +54,7 @@ WindowGLFW::WindowGLFW()
     winWidth(WIN_STD_WIDTH),
     winHeight(WIN_STD_HEIGHT),
     brightness(1.0f),
-    mouse({0,0,0}),
+    latestMouse({0,0,0}),
     activeWinPart(nullptr)
 {
     glfwSetErrorCallback(GLFWERR);
@@ -64,8 +64,8 @@ WindowGLFW::WindowGLFW()
 
     for (auto i = 0; i < WindowPart::TOTAL_PARTS; ++i) {
         winParts[i].textureId = 0;
-        winParts[i].top = winParts[i].left = 0;
         winParts[i].active = 0;
+        winParts[i].top = winParts[i].left = 0;
     }
     winParts[WindowPart::CANVAS].textureImage = std::make_unique<TextureBuffer>(WIN_MAX_WIDTH, (WIN_MAX_HEIGHT - TOOLBAR_HEIGHT));
     winParts[WindowPart::CANVAS].top = TOOLBAR_HEIGHT;
@@ -141,24 +141,28 @@ void WindowGLFW::EventLoop()
 
         glfwPollEvents();
 
-        if (!mouseEvents.empty()) {
-            MouseState m1 = mouseEvents.front();
-            mouseEvents.pop_front();
-            if (m1.b && !mouse.b) {
+        if (!pendingButtonEvents.empty()) {
+            // there are pending button events to deal with
+            MouseState m1 = pendingButtonEvents.front();
+            pendingButtonEvents.pop_front();
+            if (m1.b && !latestMouse.b) {
+                // the button went down
                 activeWinPart = LocateWinPart(m1.x, m1.y);
                 activeWinPart->client->PostMouseEvent(m1.x - activeWinPart->left, m1.y - activeWinPart->top, true, false);
-            } else if (!m1.b && mouse.b) {
+            } else if (!m1.b && latestMouse.b) {
+                // the button was released
                 activeWinPart->client->PostMouseEvent(m1.x - activeWinPart->left, m1.y - activeWinPart->top, false, false);
                 activeWinPart = nullptr;
             }
-            mouse = m1;
-        } else if (mouse.b) {
+            latestMouse = m1;
+        } else if (latestMouse.b) {
+            // the button remains down and the mouse may have moved
             double x, y;
             glfwGetCursorPos(window, &x, &y);
-            mouse.x = int(floor(x));
-            mouse.y = int(floor(y));
+            latestMouse.x = int(floor(x));
+            latestMouse.y = int(floor(y));
             assert(activeWinPart);
-            activeWinPart->client->PostMouseEvent(mouse.x - activeWinPart->left, mouse.y - activeWinPart->top, true, false);
+            activeWinPart->client->PostMouseEvent(latestMouse.x - activeWinPart->left, latestMouse.y - activeWinPart->top, true, false);
         }
 
         // TODO - scroll wheel handling
@@ -310,9 +314,8 @@ void WindowGLFW::onMouse(int button, int action, int flags)
     if (button != GLFW_MOUSE_BUTTON_LEFT) return; // only left button events are of interest
     double x, y;
     glfwGetCursorPos(window, &x, &y);
-
     MouseState m { int(floor(x)), int(floor(y)), (action == GLFW_PRESS) };
-    mouseEvents.push_back(m);
+    pendingButtonEvents.push_back(m);
 }
 
 void WindowGLFW::onScrollWheel(double x, double y)

@@ -94,8 +94,8 @@ private:
         int x, y;
         int b;
     };
-    MouseState mouse;
-    std::list<MouseState> mouseEvents;
+    MouseState latestMouse;
+    std::list<MouseState> pendingButtonEvents;
     WinPart *activeWinPart;
 
 };

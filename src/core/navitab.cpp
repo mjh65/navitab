@@ -282,6 +282,24 @@ void Navitab::StartApps()
     modebar->SetHighlightedModes(0x1); // TODO - get the launch app from the settings, and use this.
 }
 
+std::shared_ptr<DocsProvider> Navitab::GetDocsProvider()
+{
+    UNIMPLEMENTED(__func__);
+    return nullptr;
+}
+
+std::shared_ptr<MapsProvider> Navitab::GetMapsProvider()
+{
+    UNIMPLEMENTED(__func__);
+    return nullptr;
+}
+
+std::shared_ptr<NavProvider> Navitab::GetNavProvider()
+{
+    UNIMPLEMENTED(__func__);
+    return nullptr;
+}
+
 void Navitab::EnableTools(int toolMask, int repeatMask)
 {
     toolbar->SetActiveTools(toolMask);

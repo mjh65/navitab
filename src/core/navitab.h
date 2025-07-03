@@ -36,6 +36,9 @@
 #include "navitab/doodler.h"
 #include "navitab/keypad.h"
 #include "canvas.h"
+#include "../docs/docs.h"
+#include "../maps/maps.h"
+#include "../nav/nav.h"
 
 // This header file defines a class that manages the startup and use of the
 // Navitab subsystems. Each of the executable/plugin's main() function should
@@ -99,6 +102,9 @@ public:
 
     // ======================================================================
     // Implementation of AppServices
+    std::shared_ptr<DocsProvider> GetDocsProvider() override;
+    std::shared_ptr<MapsProvider> GetMapsProvider() override;
+    std::shared_ptr<NavProvider> GetNavProvider() override;
     void EnableTools(int toolMask, int repeatMask) override;
 
     // ======================================================================

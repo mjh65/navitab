@@ -32,6 +32,7 @@ class Display;
 namespace navitab {
 
 struct AppServices;
+struct SimStateData;
 
 class App
 {
@@ -42,6 +43,7 @@ public:
     void Activate(std::shared_ptr<lvglkit::Display> display);
     void Deactivate();
     
+    virtual void FlightLoop(const SimStateData& data) { }
     virtual void ToolClick(ClickableTool t) = 0;
 
 protected:

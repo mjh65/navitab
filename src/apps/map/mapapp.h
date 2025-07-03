@@ -22,6 +22,7 @@
 
 #include <memory>
 #include "../app.h"
+#include "../../maps/maps.h"
 
 namespace navitab {
 
@@ -30,6 +31,7 @@ class MapApp : public App
 public:
     MapApp(std::shared_ptr<AppServices> core);
 
+    void FlightLoop(const SimStateData& data) override;
     void ToolClick(ClickableTool t) override;
 
 protected:
@@ -37,6 +39,7 @@ protected:
     void Demolish() override;
 
 private:
+    std::shared_ptr<MapsProvider> mapServer;
 
 };
 

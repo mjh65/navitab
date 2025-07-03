@@ -18,28 +18,13 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#pragma once
-
-#include "navitab/tiles.h"
-#include "navitab/logger.h"
-
-// This header file defines the interface for the document provider which
-// manages local and downloaded documents and rendering to raster tiles.
+#include "nav.h"
 
 namespace navitab {
 
-class DocsProvider : public TileProvider
+NavProvider::NavProvider()
+:   LOG(std::make_unique<logging::Logger>("nav"))
 {
-public:
-    DocsProvider();
+}
 
-    std::shared_ptr<RasterTile> GetTile(int x, int y) override;
-    std::shared_ptr<RasterTile> GetTile(unsigned page, int x, int y) override;
-
-    virtual ~DocsProvider() = default;
-
-private:
-    std::unique_ptr<logging::Logger> LOG;
-};
-
-} // namespace navitab
+}

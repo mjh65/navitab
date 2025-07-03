@@ -20,16 +20,23 @@
 
 #pragma once
 
+#include "navitab/logger.h"
+
 // This header file defines the interface for the Nav provider which
 // manages the navigation database, including generation of the MySQL
 // database from the simulator data files.
 
 namespace navitab {
 
-struct NavProvider
+class NavProvider
 {
+public:
+    NavProvider();
 
     virtual ~NavProvider() = default;
+
+private:
+    std::unique_ptr<logging::Logger> LOG;
 };
 
 } // namespace navitab

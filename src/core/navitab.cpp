@@ -203,6 +203,10 @@ void Navitab::Start()
 
     worker = std::make_unique<std::thread>([this]() { AsyncWorker(); });
 
+    mapsProvider = std::make_shared<MapsProvider>();
+    docsProvider = std::make_shared<DocsProvider>();
+    navProvider = std::make_shared<NavProvider>();
+
     uiMgr = std::make_shared<lvglkit::Manager>(std::static_pointer_cast<DeferredJobRunner<int>>(shared_from_this()));
 
     aboutApp = std::make_shared<AboutApp>(shared_from_this());
@@ -221,7 +225,6 @@ void Navitab::Activate()
     if (!activated) {
         activated = true;
         assert(canvas);
-        //activeApp->Activate(canvas->Display());
     }
 }
 
@@ -240,9 +243,7 @@ void Navitab::Deactivate()
 
 void Navitab::Stop()
 {
-    // This is called during X-Plane plugin stop
-    // Avitab also calls curl_global_cleanup(), so we need to not forget that 
-    // Need to review SDK docs and Avitab.
+    // curl_global_cleanup(); TODO: activate this later
     canvas.reset();
     toolbar.reset();
     modebar.reset();
@@ -256,6 +257,9 @@ void Navitab::Stop()
     readerApp.reset();
     settingsApp.reset();
     uiMgr.reset();
+    navProvider.reset();
+    docsProvider.reset();
+    mapsProvider.reset();
     settings.reset();
     if (running) {
         running = false;
@@ -267,11 +271,11 @@ void Navitab::Stop()
 
 void Navitab::onSimFlightLoop(const SimStateData& data)
 {
-    if (!activated) return;
+    if (!activated || !activeApp) return;
 
     simState = data;
     toolbar->SetStausInfo(data.zuluTime, data.fps, data.myPlane.loc);
-
+    activeApp->FlightLoop(data);
     canvas->UpdateProtoDevelopment(); // TODO - remove this once we have LVGL installed
 }
 
@@ -284,20 +288,17 @@ void Navitab::StartApps()
 
 std::shared_ptr<DocsProvider> Navitab::GetDocsProvider()
 {
-    UNIMPLEMENTED(__func__);
-    return nullptr;
+    return docsProvider;
 }
 
 std::shared_ptr<MapsProvider> Navitab::GetMapsProvider()
 {
-    UNIMPLEMENTED(__func__);
-    return nullptr;
+    return mapsProvider;
 }
 
 std::shared_ptr<NavProvider> Navitab::GetNavProvider()
 {
-    UNIMPLEMENTED(__func__);
-    return nullptr;
+    return navProvider;
 }
 
 void Navitab::EnableTools(int toolMask, int repeatMask)
@@ -316,6 +317,7 @@ void Navitab::onAppSelect(Mode m)
 {
     auto a = FindApp(m);
     if (a != activeApp) {
+        // TODO - do we want to notify the previous app it is becoming inactive?
         activeApp = a;
         activeApp->Activate(canvas->Display());
         modebar->SetHighlightedModes(m); // TODO - needs to include doodler and keypad if enabled

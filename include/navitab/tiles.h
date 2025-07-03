@@ -21,6 +21,7 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 
 // This header file defines the interface for raster tiles which can be painted
 // into the LVGL canvases, and the interface for subsystems that provide these
@@ -42,8 +43,8 @@ struct RasterTile
 
 struct TileProvider
 {
-    virtual RasterTile GetTile(int x, int y) = 0;
-    virtual RasterTile GetTile(unsigned page, int x, int y) = 0;
+    virtual std::shared_ptr<RasterTile> GetTile(int x, int y) = 0;
+    virtual std::shared_ptr<RasterTile> GetTile(unsigned page, int x, int y) = 0;
 
     virtual ~TileProvider() = default;
 };

@@ -21,17 +21,26 @@
 #pragma once
 
 #include "navitab/tiles.h"
+#include "navitab/logger.h"
 
 // This header file defines the interface for the maps provider which
 // manages local images and downloaded slippy tiles.
 
 namespace navitab {
 
-struct MapProvider : public TileProvider
+class MapsProvider : public TileProvider
 {
-    virtual std::shared_ptr<TileProvider> GetTileProvider() = 0;
+public:
+    MapsProvider();
 
-    virtual ~MapProvider() = default;
+    std::shared_ptr<RasterTile> GetTile(int x, int y) override;
+    std::shared_ptr<RasterTile> GetTile(unsigned page, int x, int y) override;
+
+    virtual ~MapsProvider() = default;
+
+private:
+    std::unique_ptr<logging::Logger> LOG;
+
 };
 
 } // namespace navitab

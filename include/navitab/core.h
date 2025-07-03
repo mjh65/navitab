@@ -42,9 +42,9 @@ struct Doodler2Core;
 class Keypad;
 struct Keypad2Core;
 struct WindowControls;
-struct DocsProvider;
-struct MapsProvider;
-struct NavProvider;
+class DocsProvider;
+class MapsProvider;
+class NavProvider;
 
 enum HostPlatform { WIN, LNX, MAC };
 enum WinServer { PLUGIN, DESKTOP, HTTP };

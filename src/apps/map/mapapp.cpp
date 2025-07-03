@@ -22,6 +22,7 @@
 #include "mapapp.h"
 #include "navitab/core.h"
 #include "navitab/toolbar.h"
+#include "navitab/simulator.h"
 
 namespace navitab {
 
@@ -36,6 +37,8 @@ MapApp::MapApp(std::shared_ptr<AppServices> core)
     repeatingToolsMask = 
         (1 << ClickableTool::REDUCE) |
         (1 << ClickableTool::MAGNIFY);
+
+    mapServer = core->GetMapsProvider();
 }
 
 void MapApp::Assemble()
@@ -46,6 +49,11 @@ void MapApp::Assemble()
 }
 
 void MapApp::Demolish()
+{
+    UNIMPLEMENTED(__func__);
+}
+
+void MapApp::FlightLoop(const SimStateData& data)
 {
     UNIMPLEMENTED(__func__);
 }

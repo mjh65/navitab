@@ -158,6 +158,10 @@ private:
     std::shared_ptr<Canvas>             canvas;
     std::shared_ptr<lvglkit::Manager>   uiMgr;
 
+    std::shared_ptr<MapsProvider>       mapsProvider;
+    std::shared_ptr<DocsProvider>       docsProvider;
+    std::shared_ptr<NavProvider>        navProvider;
+
     std::shared_ptr<AboutApp>           aboutApp;
     std::shared_ptr<MapApp>             mapApp;
     std::shared_ptr<AirportApp>         airportApp;

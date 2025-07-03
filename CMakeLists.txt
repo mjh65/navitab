@@ -55,11 +55,10 @@ include(CTest)
 # Docs
 add_custom_target(navitab_docs SOURCES README.md)
 find_package(Doxygen)
-if(Doxygen_FOUND)
-    add_subdirectory(docs)
-else()
+if(NOT Doxygen_FOUND)
     message(STATUS "Doxygen not found, not building docs")
 endif()
+add_subdirectory(docs)
 
 # CMake-compatible external 3rd-party projects are handled here
 include(FetchContent)

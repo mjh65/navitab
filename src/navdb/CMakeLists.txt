@@ -18,5 +18,5 @@
 
 target_sources(navitab_core PRIVATE
     navprovider.cpp
-    nav.h
+    navdb.h
 )

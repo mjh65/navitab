@@ -38,7 +38,7 @@
 #include "appcanvas.h"
 #include "../docs/docs.h"
 #include "../maps/maps.h"
-#include "../nav/nav.h"
+#include "../navdb/navdb.h"
 
 // This header file defines a class that manages the startup and use of the
 // Navitab subsystems. Each of the executable/plugin's main() function should

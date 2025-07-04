@@ -84,6 +84,7 @@ void Manager::RunLVGL()
 
 void Manager::DoTimerHandler()
 {
+    // TODO - have seen this get called after the Manager object was destroyed, causing crash
     std::unique_lock<std::mutex> lock(nextTimerMutex);
     nextTimer = std::min(10u, lv_timer_handler()); // TODO - can we remove this 10ms minimum??
 }

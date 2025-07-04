@@ -19,11 +19,16 @@
  */
 
 #include "maps.h"
+#include <cmath>
+
+double sec(double a) { return 1.0 / cos(a); }
+double deg2rad(double d) { return d * M_PI / 180.0; }
 
 namespace navitab {
 
 MapsProvider::MapsProvider()
-:   LOG(std::make_unique<logging::Logger>("maps"))
+:   LOG(std::make_unique<logging::Logger>("maps")),
+    zoom(5)
 {
 }
 
@@ -37,6 +42,55 @@ std::shared_ptr<RasterTile> MapsProvider::GetTile(unsigned page, int x, int y)
 {
     UNIMPLEMENTED(__func__);
     return nullptr;
+}
+
+void MapsProvider::SetZoom(unsigned z)
+{
+    if (z < 12) {
+        zoom = z;
+    }
+}
+
+unsigned MapsProvider::GetZoom()
+{
+    return zoom;
+}
+
+void MapsProvider::LatLon2TileXY(Location loc, double &x, double &y)
+{
+    double n = 1 << zoom;
+    x = n * ((loc.longitude + 180.0) / 360.0);
+    double latr = deg2rad(loc.latitude);
+    y = n * (1 - (log(tan(latr) + sec(latr)) / M_PI)) / 2;
+}
+
+void MapsProvider::TileXY2LatLon(double x, double y, Location &loc)
+{
+    UNIMPLEMENTED(__func__);
+}
+
+double MapsProvider::GetTileCentreWidthDegrees()
+{
+    UNIMPLEMENTED(__func__);
+    return 0.0;
+}
+
+double MapsProvider::GetTileCentreWidthMetres()
+{
+    UNIMPLEMENTED(__func__);
+    return 0.0;
+}
+
+double MapsProvider::GetTileHeightDegrees()
+{
+    UNIMPLEMENTED(__func__);
+    return 0.0;
+}
+
+double MapsProvider::GetTileHeightMetres()
+{
+    UNIMPLEMENTED(__func__);
+    return 0.0;
 }
 
 }

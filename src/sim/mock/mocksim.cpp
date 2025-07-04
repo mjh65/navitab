@@ -75,13 +75,34 @@ void MockSimulator::Disconnect()
 void MockSimulator::AsyncRunSimulator()
 {
     auto start = std::chrono::steady_clock::now();
+    srand((unsigned int)start.time_since_epoch().count());
     auto zuluStart = rand() % (24 * 60 * 60);
     mockData[1].zuluTime = mockData[0].zuluTime = zuluStart;
+    double lat = (rand() % 150) - 75;
+    double lon = (rand() % 360);
+    double dlat = ((rand() % 1000) - 500) / 10000.0;
+    double dlon = ((rand() % 1000) - 500) / 10000.0;
 
     // TODO - move the planes around a bit, and get frame rate from window
     using namespace std::chrono_literals;
     while (running) {
         std::this_thread::sleep_for(50ms);
+        mockData[tiktok].myPlane.loc.latitude = lat;
+        mockData[tiktok].myPlane.loc.longitude = lon;
+        lat += dlat;
+        if ((lat <= -90.0) || (lat >= 90.0)) {
+            dlat = 0 - dlat;
+            lat += 2 * dlat;
+        }
+        lon += dlon;
+        if (lon < -180.0) { lon += 360.0; }
+        if (lon >= 360.0) { lon -= 360.0; }
+        if ((rand() % 200) == 0) {
+            dlat = ((rand() % 1000) - 500) / 10000.0;
+        }
+        if ((rand() % 200) == 0) {
+            dlon = ((rand() % 1000) - 500) / 10000.0;
+        }
         handler->PostSimUpdates(mockData[tiktok ? 1 : 0]);
         tiktok = !tiktok;
         auto now = std::chrono::steady_clock::now();

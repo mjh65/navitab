@@ -27,7 +27,9 @@
 namespace navitab {
 
 MapApp::MapApp(std::shared_ptr<AppServices> core)
-:   App("mapapp", core)
+:   App("mapapp", core),
+    mapServer(nullptr),
+    centredOnPlane(true)
 {
     activeToolsMask = 
         (1 << ClickableTool::MENU) |
@@ -43,9 +45,12 @@ MapApp::MapApp(std::shared_ptr<AppServices> core)
 
 void MapApp::Assemble()
 {
-    lv_obj_t * label = lv_label_create(root);
-    lv_label_set_text(label, "Map\nTBD");
-    lv_obj_center(label);
+    // The MapApp mostly does canvas style drawing, but we don't use an
+    // LVGL canvas since that just adds an extra layer of buffer and pixel copying.
+    // There is an options menu that can be popped-up. This does use LVGL, and so
+    // we probably will construct this here but make it invisible until needed.
+    // TODO - build the options dialog - see above
+    UNIMPLEMENTED(__func__);
 }
 
 void MapApp::Demolish()
@@ -55,7 +60,20 @@ void MapApp::Demolish()
 
 void MapApp::FlightLoop(const SimStateData& data)
 {
-    UNIMPLEMENTED(__func__);
+    // On each flight loop we need to redraw the displayed map and any enabled
+    // overlays.
+    if (centredOnPlane) {
+        mapCentre = data.myPlane.loc;
+    }
+    // identify which tile contains the centre point of the map
+    double ctx, cty;
+    mapServer->LatLon2TileXY(mapCentre, ctx, cty);
+    double itx = std::floor(ctx);
+    double ity = std::floor(cty);
+    LOGD(fmt::format("({},{}) -> tile ({},{})", mapCentre.latitude, mapCentre.longitude, ctx, cty));
+    // TODO - initially we only draw the centre tile. need to establish the horizontal and vertical range and iterate
+    auto tile = mapServer->GetTile((int)itx, (int)ity);
+    // TODO - figure out where the tile should be placed on the canvas and copy the pixels
 }
 
 void MapApp::ToolClick(ClickableTool t)

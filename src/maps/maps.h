@@ -21,6 +21,7 @@
 #pragma once
 
 #include "navitab/tiles.h"
+#include "navitab/navigation.h"
 #include "navitab/logger.h"
 
 // This header file defines the interface for the maps provider which
@@ -36,11 +37,23 @@ public:
     std::shared_ptr<RasterTile> GetTile(int x, int y) override;
     std::shared_ptr<RasterTile> GetTile(unsigned page, int x, int y) override;
 
+    void SetZoom(unsigned z);
+    unsigned GetZoom();
+
+    void LatLon2TileXY(Location loc, double &x, double &y);
+    void TileXY2LatLon(double x, double y, Location &loc);
+
+    double GetTileCentreWidthDegrees();
+    double GetTileCentreWidthMetres();
+    double GetTileHeightDegrees();
+    double GetTileHeightMetres();
+
     virtual ~MapsProvider() = default;
 
 private:
     std::unique_ptr<logging::Logger> LOG;
 
+    unsigned zoom;
 };
 
 } // namespace navitab

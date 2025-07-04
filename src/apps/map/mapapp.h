@@ -21,6 +21,7 @@
 #pragma once
 
 #include <memory>
+#include "navitab/navigation.h"
 #include "../app.h"
 #include "../../maps/maps.h"
 
@@ -40,6 +41,8 @@ protected:
 
 private:
     std::shared_ptr<MapsProvider> mapServer;
+    bool centredOnPlane;
+    Location mapCentre;
 
 };
 

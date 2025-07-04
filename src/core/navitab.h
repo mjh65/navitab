@@ -35,7 +35,7 @@
 #include "navitab/modebar.h"
 #include "navitab/doodler.h"
 #include "navitab/keypad.h"
-#include "canvas.h"
+#include "appcanvas.h"
 #include "../docs/docs.h"
 #include "../maps/maps.h"
 #include "../nav/nav.h"
@@ -64,7 +64,7 @@ class Navitab : public std::enable_shared_from_this<Navitab>,
                 public AppServices,
                 public Simulator2Core,
                 public DeferredJobRunner<int>,
-                public Toolbar2Core, public Modebar2Core, public Doodler2Core, public Keypad2Core, public Canvas2Core
+                public Toolbar2Core, public Modebar2Core, public Doodler2Core, public Keypad2Core, public AppCanvas2Core
 {
 public:
     // Constructing the Navitab object also does enough initialisation to
@@ -155,7 +155,7 @@ private:
     std::shared_ptr<Modebar>            modebar;
     std::shared_ptr<Doodler>            doodler;
     std::shared_ptr<Keypad>             keypad;
-    std::shared_ptr<Canvas>             canvas;
+    std::shared_ptr<AppCanvas>             canvas;
     std::shared_ptr<lvglkit::Manager>   uiMgr;
 
     std::shared_ptr<MapsProvider>       mapsProvider;

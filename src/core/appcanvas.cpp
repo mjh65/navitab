@@ -19,11 +19,11 @@
  */
 
 #include <algorithm>
-#include "canvas.h"
+#include "appcanvas.h"
 
 namespace navitab {
 
-Canvas::Canvas(std::shared_ptr<Canvas2Core> c, std::shared_ptr<lvglkit::Manager> u)
+AppCanvas::AppCanvas(std::shared_ptr<AppCanvas2Core> c, std::shared_ptr<lvglkit::Manager> u)
 :   WindowPart(CANVAS),
     LOG(std::make_unique<logging::Logger>("canvas")),
     core(c), uiMgr(u)
@@ -31,11 +31,11 @@ Canvas::Canvas(std::shared_ptr<Canvas2Core> c, std::shared_ptr<lvglkit::Manager>
     uiDisplay = uiMgr->MakeDisplay(this);
 }
 
-Canvas::~Canvas()
+AppCanvas::~AppCanvas()
 {
 }
 
-void Canvas::UpdateProtoDevelopment()
+void AppCanvas::UpdateProtoDevelopment()
 {
     // TODO - this is just here for development and testing. of course it will get
     // replaced eventually!
@@ -65,7 +65,7 @@ void Canvas::UpdateProtoDevelopment()
     core->RunLater([this]() { Redraw(); });
 }
 
-void Canvas::onResize(int w, int h)
+void AppCanvas::onResize(int w, int h)
 {
     bool firstTime = (!image);
 
@@ -85,7 +85,7 @@ void Canvas::onResize(int w, int h)
     RunLater([this]() { Redraw(); });
 }
 
-void Canvas::Update(navitab::FrameRegion r, uint32_t* pixels)
+void AppCanvas::Update(navitab::FrameRegion r, uint32_t* pixels)
 {
     // this is the update function called from the LVGL library
     // TODO - as we're using LV_DISP_RENDER_MODE_DIRECT, there is probably not much to be done
@@ -94,17 +94,17 @@ void Canvas::Update(navitab::FrameRegion r, uint32_t* pixels)
     RunLater([this]() { Redraw(); });
 }
 
-void Canvas::onMouseEvent(int x, int y, bool l, bool r)
+void AppCanvas::onMouseEvent(int x, int y, bool l, bool r)
 {
     UNIMPLEMENTED(__func__);
 }
 
-void Canvas::onWheelEvent(int x, int y, int xdir, int ydir)
+void AppCanvas::onWheelEvent(int x, int y, int xdir, int ydir)
 {
     UNIMPLEMENTED(__func__);
 }
 
-void Canvas::onKeyEvent(int code)
+void AppCanvas::onKeyEvent(int code)
 {
     UNIMPLEMENTED(__func__);
 }

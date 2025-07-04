@@ -29,7 +29,7 @@
 #include "coremodebar.h"
 #include "coredoodler.h"
 #include "corekeypad.h"
-#include "canvas.h"
+#include "appcanvas.h"
 #include "../apps/about/aboutapp.h"
 #include "../apps/map/mapapp.h"
 #include "../apps/airport/airportapp.h"
@@ -179,7 +179,7 @@ std::shared_ptr<WindowPart> Navitab::GetKeypad()
 
 std::shared_ptr<WindowPart> Navitab::GetCanvas()
 {
-    if (!canvas) canvas = std::make_shared<Canvas>(shared_from_this(), uiMgr);
+    if (!canvas) canvas = std::make_shared<AppCanvas>(shared_from_this(), uiMgr);
     assert(canvas);
     return canvas;
 }

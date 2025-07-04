@@ -30,7 +30,7 @@
 
 namespace navitab {
 
-struct Canvas2Core : public DeferredJobRunner<>
+struct AppCanvas2Core : public DeferredJobRunner<>
 {
     virtual void StartApps() = 0;
 
@@ -46,11 +46,11 @@ protected:
 // The Canvas interface defines the services that this part of the UI window
 // provides to the Navitab core.
 
-class Canvas : public WindowPart, public lvglkit::Display::Updater
+class AppCanvas : public WindowPart, public lvglkit::Display::Updater
 {
 public:
-    Canvas(std::shared_ptr<Canvas2Core> core, std::shared_ptr<lvglkit::Manager>);
-    ~Canvas();
+    AppCanvas(std::shared_ptr<AppCanvas2Core> core, std::shared_ptr<lvglkit::Manager>);
+    ~AppCanvas();
 
     // transient function during development, will be removed
     void UpdateProtoDevelopment();
@@ -72,7 +72,7 @@ public:
 private:
     const uint32_t backgroundPixels = 0xff00df00;
     std::unique_ptr<logging::Logger> LOG;
-    std::shared_ptr<Canvas2Core> core;
+    std::shared_ptr<AppCanvas2Core> core;
     std::shared_ptr<lvglkit::Manager> uiMgr;
     std::shared_ptr<lvglkit::Display> uiDisplay;
 };

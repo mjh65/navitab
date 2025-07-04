@@ -33,15 +33,25 @@ namespace lvglkit {
 
 Manager::Manager(std::shared_ptr<navitab::DeferredJobRunner<int>> c)
 :   core(c),
-    running(true)
+    running(true),
+    pendingCalls(0)
 {
     looper = std::make_unique<std::thread>([this]() { RunLVGL(); });
 }
 
 Manager::~Manager()
 {
+    using namespace std::chrono_literals;
+
     running = false;
     looper->join();
+    // don't destruct until all the RunLater() jobs have been dealt with
+    bool done = false;
+    while (!done) {
+        std::this_thread::sleep_for(20ms);
+        std::unique_lock<std::mutex> lock(nextTimerMutex);
+        done = (pendingCalls == 0);
+    }
 }
 
 void Manager::RunLVGL()
@@ -69,6 +79,7 @@ void Manager::RunLVGL()
                 // LVGL is not thread safe, so the timer handler cannot run when another
                 // thread is accessing LVGL. So we run the timer handler on the core thread
                 // (where the rest of the LVGL accessed are carried out).
+                ++pendingCalls;
                 core->RunLater([this]() { DoTimerHandler(); });
             } else {
                 nextTimer -= elapsed;
@@ -84,9 +95,9 @@ void Manager::RunLVGL()
 
 void Manager::DoTimerHandler()
 {
-    // TODO - have seen this get called after the Manager object was destroyed, causing crash
     std::unique_lock<std::mutex> lock(nextTimerMutex);
     nextTimer = std::min(10u, lv_timer_handler()); // TODO - can we remove this 10ms minimum??
+    --pendingCalls;
 }
 
 std::shared_ptr<Display> Manager::MakeDisplay(Display::Updater* u)

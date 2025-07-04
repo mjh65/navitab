@@ -76,6 +76,7 @@ protected:
 private:
     std::shared_ptr<navitab::DeferredJobRunner<int>> core;
     bool running;
+    unsigned pendingCalls;
     std::unique_ptr<std::thread> looper;
     uint32_t nextTimer;
     std::mutex nextTimerMutex;

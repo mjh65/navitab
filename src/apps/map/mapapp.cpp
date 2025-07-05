@@ -69,36 +69,48 @@ void MapApp::FlightLoop(const SimStateData& data)
     // Identify which tile contains the centre point of the map
     double ctx, cty;
     mapServer->LatLon2TileXY(mapCentre, ctx, cty);
-    double itx = std::floor(ctx);
-    double ity = std::floor(cty);
+    int itx = (int)std::floor(ctx);
+    int ity = (int)std::floor(cty);
     LOGD(fmt::format("latlon ({},{}) -> tile ({},{})", mapCentre.latitude, mapCentre.longitude, ctx, cty));
-
-    // TODO - initially we only draw the centre tile. need to establish the horizontal and vertical range and iterate
-
-    // Get the indexed tile from the map server, and then figure out where it should be drawn
-    auto tile = mapServer->GetTile((int)itx, (int)ity);
 
     auto canvas = core->GetCanvasPixels();
     auto canvasCentreX = canvas.Width() / 2;
     auto canvasCentreY = canvas.Height() / 2;
+
+    // Get the indexed tile from the map server, and then figure out where it should be drawn
+    auto tile = mapServer->GetTile(itx, ity);
     auto tileW = tile->Width();
     auto tileH = tile->Height();
-    int tilePosL = canvasCentreX - (int)std::floor((ctx - itx) * tileW);
-    int tilePosT = canvasCentreY - (int)std::floor((cty - ity) * tileH);
+
+    // Figure out the number of tiles in each direction from the centre
+    int xRange = (canvasCentreX + tileW - 1) / tileW;
+    int yRange = (canvasCentreY + tileH - 1) / tileH;
+
+    int tilesOriginX = canvasCentreX - (int)std::floor((ctx - itx) * tileW);
+    int tilesOriginY = canvasCentreY - (int)std::floor((cty - ity) * tileH);
+
     ImageRegion canvasArea(0, 0, canvas.Width(), canvas.Height());
-    // This is where the tile maps onto the canvas - it might extend beyond the edges
-    ImageRegion tileTargetArea(tilePosL, tilePosT, tilePosL + tileW, tilePosT + tileH);
-    // This is the region of the canvas that will be painted - clipped to the canvas edges
-    ImageRegion canvasPaintArea(canvasArea, tileTargetArea);
-    if (!canvasPaintArea.Empty()) {
-        auto leftD = canvasPaintArea.left - tileTargetArea.left;
-        auto topD = canvasPaintArea.top - tileTargetArea.top;
-        auto rightD = tileTargetArea.right - canvasPaintArea.right;
-        auto bottomD = tileTargetArea.bottom - canvasPaintArea.bottom;
-        ImageRegion tileSourceArea(leftD, topD, tileW - rightD, tileH - bottomD);
-        canvas.PaintArea(canvasPaintArea, *(std::static_pointer_cast<PixelBuffer>(tile)), tileSourceArea);
-        LOGD(fmt::format("tile ({},{}) painted at ({},{}->{},{})",
-            (int)itx, (int)ity, canvasPaintArea.left, canvasPaintArea.top, canvasPaintArea.right, canvasPaintArea.bottom));
+
+    for (int iy = 0 - yRange; iy <= 0 + yRange; ++iy) {
+        for (int ix = 0 - xRange; ix <= 0 + xRange; ++ix) {
+            auto tile = mapServer->GetTile(itx + ix, ity + iy);
+            int tilePosL = tilesOriginX + (ix * tileW);
+            int tilePosT = tilesOriginY + (iy * tileH);
+            // This is where the tile maps onto the canvas - it might extend beyond the edges
+            ImageRegion canvasTargetArea(tilePosL, tilePosT, tilePosL + tileW, tilePosT + tileH);
+            // This is the region of the canvas that will be painted - clipped to the canvas edges
+            ImageRegion canvasPaintArea(canvasArea, canvasTargetArea);
+            if (!canvasPaintArea.Empty()) {
+                auto leftD = canvasPaintArea.left - canvasTargetArea.left;
+                auto topD = canvasPaintArea.top - canvasTargetArea.top;
+                auto rightD = canvasTargetArea.right - canvasPaintArea.right;
+                auto bottomD = canvasTargetArea.bottom - canvasPaintArea.bottom;
+                ImageRegion tileSourceArea(leftD, topD, tileW - rightD, tileH - bottomD);
+                canvas.PaintArea(canvasPaintArea, *(std::static_pointer_cast<PixelBuffer>(tile)), tileSourceArea);
+                LOGD(fmt::format("tile ({},{}) painted at ({},{}->{},{})",
+                    (int)itx, (int)ity, canvasPaintArea.left, canvasPaintArea.top, canvasPaintArea.right, canvasPaintArea.bottom));
+            }
+        }
     }
 }
 

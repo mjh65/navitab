@@ -35,7 +35,7 @@ MapsProvider::MapsProvider()
     for (unsigned r = 0; r < missingTile->Height(); ++r) {
         uint32_t *rs = missingTile->Row(r);
         for (unsigned c = 0; c < missingTile->Width(); ++c) {
-            auto dark = ((r / 16) ^ (c / 16)) & 0x1;
+            auto dark = ((r / 32) ^ (c / 32)) & 0x1;
             *(rs + c) = dark ? 0xff404040 : 0xffc0c0c0;
         }
     }

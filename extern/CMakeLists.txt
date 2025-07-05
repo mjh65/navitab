@@ -26,5 +26,5 @@ add_subdirectory(glfw)
 add_subdirectory(lvgl)
 add_subdirectory(json)
 add_subdirectory(lunasvg)
-#add_subdirectory(slint)
-#add_subdirectory(imgui)
+#add_subdirectory(mupdf) # disabled at the moment.
+add_subdirectory(curl)

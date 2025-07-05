@@ -16,11 +16,17 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# Another graphics library - might be better for MSFS/remote drawing?
+# PDF library for rendering PDF documents.
 
-message(STATUS "Fetching imgui")
-FetchContent_Declare(
-  imgui
-  URL "https://github.com/ocornut/imgui/archive/refs/tags/v1.90.8.zip"
+message(STATUS "Fetching mupdf")
+
+# This is huuuuuge, and isn't really designed for use as a CMake
+# subproject. I think we'll need to come back to this later.
+
+FetchContent_Declare(mupdf
+    GIT_REPOSITORY "https://github.com/ArtifexSoftware/mupdf.git"
+    GIT_TAG "1.26.3"
 )
-FetchContent_MakeAvailable(imgui)
+
+FetchContent_MakeAvailable(mupdf)
+

@@ -33,6 +33,7 @@ namespace navitab {
 struct PathServices;
 struct Simulator2Core;
 struct WindowPart;
+class PixelBuffer;
 class Toolbar;
 struct Toolbar2Core;
 class Modebar;
@@ -108,7 +109,7 @@ struct CoreServices
     virtual std::shared_ptr<WindowPart> GetModebar() = 0;
     virtual std::shared_ptr<WindowPart> GetDoodler() = 0;
     virtual std::shared_ptr<WindowPart> GetKeypad() = 0;
-    virtual std::shared_ptr<WindowPart> GetCanvas() = 0;
+    virtual std::shared_ptr<WindowPart> GetAppCanvas() = 0;
 
     // Set the interface to the UI-window for window-level control
     virtual void SetWindowControl(std::shared_ptr<WindowControls> w) = 0;
@@ -132,6 +133,8 @@ struct AppServices
 
     virtual void EnableTools(int toolMask, int repeatersMask) = 0;
     
+    virtual PixelBuffer GetCanvasPixels() = 0;
+
     virtual ~AppServices() = default;
 };
 

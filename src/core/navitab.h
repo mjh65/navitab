@@ -91,7 +91,7 @@ public:
     std::shared_ptr<WindowPart> GetModebar() override;
     std::shared_ptr<WindowPart> GetDoodler() override;
     std::shared_ptr<WindowPart> GetKeypad() override;
-    std::shared_ptr<WindowPart> GetCanvas() override;
+    std::shared_ptr<WindowPart> GetAppCanvas() override;
     void SetWindowControl(std::shared_ptr<WindowControls> w) override;
 
     // Startup and shutdown control - fine-grained enough to support all app classes.
@@ -106,6 +106,7 @@ public:
     std::shared_ptr<MapsProvider> GetMapsProvider() override;
     std::shared_ptr<NavProvider> GetNavProvider() override;
     void EnableTools(int toolMask, int repeatMask) override;
+    PixelBuffer GetCanvasPixels() override;
 
     // ======================================================================
     // Implementation of Simulator2Core
@@ -155,7 +156,7 @@ private:
     std::shared_ptr<Modebar>            modebar;
     std::shared_ptr<Doodler>            doodler;
     std::shared_ptr<Keypad>             keypad;
-    std::shared_ptr<AppCanvas>             canvas;
+    std::shared_ptr<AppCanvas>          appcanvas;
     std::shared_ptr<lvglkit::Manager>   uiMgr;
 
     std::shared_ptr<MapsProvider>       mapsProvider;

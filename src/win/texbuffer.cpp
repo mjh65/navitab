@@ -23,7 +23,7 @@
 
 namespace navitab {
 
-void TextureBuffer::CopyRegionsFrom(const FrameBuffer *src, const std::vector<FrameRegion> &regions)
+void TextureBuffer::CopyRegionsFrom(const FrameBuffer *src, const std::vector<ImageRegion> &regions)
 {
     // TODO - have a stab at doing something a bit more optimal.
     // Simple implementation just copies the entire image

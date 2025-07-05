@@ -81,7 +81,7 @@ void CoreToolbar::SetActiveTools(int selectMask)
 {
     // called by the apps to indicate which toolbar tools should be shown
     pendingToolsMask = selectMask;
-    Update(FrameRegion(0, 0, width, height), nullptr);
+    Update(ImageRegion(0, 0, width, height), nullptr);
 }
 
 void CoreToolbar::SetRepeatingTools(int selectMask)
@@ -136,7 +136,7 @@ void CoreToolbar::RepaintTools(int statusTextWidth)
     activeToolsMask = pendingToolsMask;
 
     if (x < 0) x = 0;
-    dirtyBits.push_back(FrameRegion(x, 0, width, height));
+    dirtyBits.push_back(ImageRegion(x, 0, width, height));
 }
 
 void CoreToolbar::onResize(int w, int h)
@@ -194,7 +194,7 @@ void CoreToolbar::onMouseEvent(int x, int y, bool l, bool r)
     }
 }
 
-void CoreToolbar::Update(navitab::FrameRegion r, uint32_t* pixels)
+void CoreToolbar::Update(navitab::ImageRegion r, uint32_t* pixels)
 {
     // this is the update function called from the LVGL library
     LOGD(fmt::format("CoreToolbar::Update({},{}->{},{})", r.left, r.top, r.right, r.bottom));

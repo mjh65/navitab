@@ -45,7 +45,7 @@ public:
     void EventLoop() override;
 
     // Implementation of the PartPainter interface
-    void Paint(int part, const FrameBuffer* src, const std::vector<FrameRegion>& regions) override;
+    void Paint(int part, const FrameBuffer* src, const std::vector<ImageRegion>& regions) override;
 
     // Implementation of the WindowControls interface
     void Brightness(int percent) override;

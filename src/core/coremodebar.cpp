@@ -90,7 +90,7 @@ void CoreModebar::onMouseEvent(int x, int y, bool l, bool r)
     }
 }
 
-void CoreModebar::Update(navitab::FrameRegion r, uint32_t* pixels)
+void CoreModebar::Update(navitab::ImageRegion r, uint32_t* pixels)
 {
     // this is the update function called from the LVGL library
     // TODO - as we're using LV_DISP_RENDER_MODE_DIRECT, there is probably not much to be done
@@ -123,7 +123,7 @@ void CoreModebar::RedrawIcons(int drawMask, int selectMask)
         image->PaintIcon(0, kNumSquareItems * kItemHeight, mode_keypad_40x24, kItemWidth, kKeypadHeight, bgcol);
     }
 
-    dirtyBits.push_back(FrameRegion(0, 0, width, height));
+    dirtyBits.push_back(ImageRegion(0, 0, width, height));
     RunLater([this]() { Redraw(); });
 }
 

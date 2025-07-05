@@ -61,7 +61,7 @@ void AppCanvas::UpdateProtoDevelopment()
         }
     }
 #endif
-    dirtyBits.push_back(FrameRegion(0, 0, width, height));
+    dirtyBits.push_back(ImageRegion(0, 0, width, height));
     core->RunLater([this]() { Redraw(); });
 }
 
@@ -81,11 +81,11 @@ void AppCanvas::onResize(int w, int h)
         core->StartApps();
     }
 
-    dirtyBits.push_back(FrameRegion(0, 0, width, height));
+    dirtyBits.push_back(ImageRegion(0, 0, width, height));
     RunLater([this]() { Redraw(); });
 }
 
-void AppCanvas::Update(navitab::FrameRegion r, uint32_t* pixels)
+void AppCanvas::Update(navitab::ImageRegion r, uint32_t* pixels)
 {
     // this is the update function called from the LVGL library
     // TODO - as we're using LV_DISP_RENDER_MODE_DIRECT, there is probably not much to be done

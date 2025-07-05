@@ -74,7 +74,7 @@ void CoreDoodler::onResize(int w, int h)
     if (!enabled) std::swap(image, oldDoodle);
     width = w; height = h;
 
-    dirtyBits.push_back(FrameRegion(0, 0, width, height));
+    dirtyBits.push_back(ImageRegion(0, 0, width, height));
     RunLater([this]() { Redraw(); });
 }
 

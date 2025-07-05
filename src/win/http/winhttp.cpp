@@ -65,7 +65,7 @@ void WindowHTTP::Connect(std::shared_ptr<CoreServices> c)
     modebarClient = core->SetModebar(shared_from_this());
     doodlerClient = core->SetDoodler(shared_from_this());
     keypadClient = core->SetKeypad(shared_from_this());
-    canvas = core->GetCanvas();
+    canvas = core->GetAppCanvas();
     canvas->SetPainter(shared_from_this());
     canvas->PostResize(winWidth, winHeight - TOOLBAR_HEIGHT);
     int port = 26730; // base port
@@ -108,7 +108,7 @@ void WindowHTTP::EventLoop()
     }
 }
 
-void WindowHTTP::Paint(int part, const FrameBuffer* src, const std::vector<FrameRegion>& regions)
+void WindowHTTP::Paint(int part, const FrameBuffer* src, const std::vector<ImageRegion>& regions)
 {
     assert(part == WindowPart::CANVAS);
 

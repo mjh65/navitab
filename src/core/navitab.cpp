@@ -177,11 +177,11 @@ std::shared_ptr<WindowPart> Navitab::GetKeypad()
     return keypad;
 }
 
-std::shared_ptr<WindowPart> Navitab::GetCanvas()
+std::shared_ptr<WindowPart> Navitab::GetAppCanvas()
 {
-    if (!canvas) canvas = std::make_shared<AppCanvas>(shared_from_this(), uiMgr);
-    assert(canvas);
-    return canvas;
+    if (!appcanvas) appcanvas = std::make_shared<AppCanvas>(shared_from_this(), uiMgr);
+    assert(appcanvas);
+    return appcanvas;
 }
 
 void Navitab::SetWindowControl(std::shared_ptr<WindowControls> w)
@@ -224,7 +224,7 @@ void Navitab::Activate()
 {
     if (!activated) {
         activated = true;
-        assert(canvas);
+        assert(appcanvas);
     }
 }
 
@@ -244,7 +244,7 @@ void Navitab::Deactivate()
 void Navitab::Stop()
 {
     // curl_global_cleanup(); TODO: activate this later
-    canvas.reset();
+    appcanvas.reset();
     toolbar.reset();
     modebar.reset();
     doodler.reset();
@@ -276,13 +276,13 @@ void Navitab::onSimFlightLoop(const SimStateData& data)
     simState = data;
     toolbar->SetStausInfo(data.zuluTime, data.fps, data.myPlane.loc);
     activeApp->FlightLoop(data);
-    canvas->UpdateProtoDevelopment(); // TODO - remove this once we have LVGL installed
+    appcanvas->UpdateProtoDevelopment(); // TODO - remove this once we have LVGL installed
 }
 
 void Navitab::StartApps()
 {
     // TODO - get the launch app from the settings, and use this.
-    activeApp->Activate(canvas->Display());
+    activeApp->Activate(appcanvas->Display());
     modebar->SetHighlightedModes(0x1); // TODO - get the launch app from the settings, and use this.
 }
 
@@ -307,6 +307,11 @@ void Navitab::EnableTools(int toolMask, int repeatMask)
     toolbar->SetRepeatingTools(repeatMask);
 }
 
+PixelBuffer Navitab::GetCanvasPixels()
+{
+    return appcanvas->GetPixelBuffer();
+}
+
 void Navitab::onToolClick(ClickableTool t)
 {
     if (!activeApp) return;
@@ -319,7 +324,7 @@ void Navitab::onAppSelect(Mode m)
     if (a != activeApp) {
         // TODO - do we want to notify the previous app it is becoming inactive?
         activeApp = a;
-        activeApp->Activate(canvas->Display());
+        activeApp->Activate(appcanvas->Display());
         modebar->SetHighlightedModes(m); // TODO - needs to include doodler and keypad if enabled
     }
 }

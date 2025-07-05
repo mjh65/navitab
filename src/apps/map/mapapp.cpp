@@ -23,6 +23,7 @@
 #include "navitab/core.h"
 #include "navitab/toolbar.h"
 #include "navitab/simulator.h"
+#include <cmath>
 
 namespace navitab {
 

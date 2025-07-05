@@ -48,7 +48,7 @@ public:
     void Brightness(int percent) override;
 
     // Implementation of PartPainter, common to desktop and VR
-    void Paint(int part, const FrameBuffer* src, const std::vector<FrameRegion>& regions) override;
+    void Paint(int part, const FrameBuffer* src, const std::vector<ImageRegion>& regions) override;
 
     // XPlane addition requiring specific implementations for desktop and VR windows
     virtual void Create(std::shared_ptr<CoreServices> core);

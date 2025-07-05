@@ -28,7 +28,7 @@
 #include "navitab/deferred.h"
 
 namespace navitab {
-    class FrameRegion;
+    class ImageRegion;
 }
 
 namespace lvglkit {
@@ -39,7 +39,7 @@ class Display
 {
 public:
     struct Updater {
-        virtual void Update(navitab::FrameRegion r, uint32_t* pixels) = 0;
+        virtual void Update(navitab::ImageRegion r, uint32_t* pixels) = 0;
     };
     virtual void Resize(int w, int h, uint32_t* buffer) = 0;
     virtual lv_display_t* GetHandleLVGL() = 0;

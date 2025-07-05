@@ -31,8 +31,8 @@ namespace navitab {
 
 struct RasterTile
 {
-    const unsigned DefaultWidth = 256;
-    const unsigned DefaultHeight = 256;
+    static const unsigned DefaultWidth = 256;
+    static const unsigned DefaultHeight = 256;
     virtual unsigned Width() = 0;
     virtual unsigned Height() = 0;
     virtual uint32_t *PixelData(unsigned row = 0) = 0;

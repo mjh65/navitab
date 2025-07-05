@@ -52,7 +52,7 @@ void DisplayWrapper::FlushCallback(const lv_area_t* area, uint32_t* px)
 {
     assert(updater);
     // TODO - as we're using LV_DISP_RENDER_MODE_DIRECT, there is probably not much to be done, just signal the update
-    updater->Update(navitab::FrameRegion(area->x1, area->y1, area->x2, area->y2), px);
+    updater->Update(navitab::ImageRegion(area->x1, area->y1, area->x2, area->y2), px);
 }
 
 void DisplayWrapper::Resize(int w, int h, uint32_t* buffer)

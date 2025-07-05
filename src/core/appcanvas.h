@@ -65,7 +65,7 @@ public:
     void RunLater(std::function<void ()> f, void* s = nullptr) override { core->RunLater(f); }
 
     // Implementation of lvglkit::Display::Updater
-    void Update(navitab::FrameRegion r, uint32_t* pixels) override;
+    void Update(navitab::ImageRegion r, uint32_t* pixels) override;
 
     std::shared_ptr<lvglkit::Display> Display() const { return uiDisplay; }
 

@@ -128,7 +128,7 @@ void XPlaneWindow::Connect(std::shared_ptr<CoreServices> c)
     winParts[WindowPart::DOODLER].client->SetPainter(shared_from_this());
     winParts[WindowPart::KEYPAD].client = core->GetKeypad();
     winParts[WindowPart::KEYPAD].client->SetPainter(shared_from_this());
-    winParts[WindowPart::CANVAS].client = core->GetCanvas();
+    winParts[WindowPart::CANVAS].client = core->GetAppCanvas();
     winParts[WindowPart::CANVAS].client->SetPainter(shared_from_this());
 
     ResizeNotifyAll(winWidth, winHeight);
@@ -201,7 +201,7 @@ bool XPlaneWindow::isActive()
     return winVisible;
 }
 
-void XPlaneWindow::Paint(int part, const FrameBuffer* src, const std::vector<FrameRegion>& regions)
+void XPlaneWindow::Paint(int part, const FrameBuffer* src, const std::vector<ImageRegion>& regions)
 {
     // This function is called from the core thread.
     const std::lock_guard<std::mutex> lock(paintMutex);

@@ -24,6 +24,7 @@
 #include "navitab/toolbar.h"
 #include "navitab/simulator.h"
 #include <cmath>
+#include <memory>
 
 namespace navitab {
 
@@ -61,20 +62,44 @@ void MapApp::Demolish()
 
 void MapApp::FlightLoop(const SimStateData& data)
 {
-    // On each flight loop we need to redraw the displayed map and any enabled
-    // overlays.
+    // On each flight loop we need to redraw the displayed map and any enabled overlays.
     if (centredOnPlane) {
         mapCentre = data.myPlane.loc;
     }
-    // identify which tile contains the centre point of the map
+    // Identify which tile contains the centre point of the map
     double ctx, cty;
     mapServer->LatLon2TileXY(mapCentre, ctx, cty);
     double itx = std::floor(ctx);
     double ity = std::floor(cty);
-    LOGD(fmt::format("({},{}) -> tile ({},{})", mapCentre.latitude, mapCentre.longitude, ctx, cty));
+    LOGD(fmt::format("latlon ({},{}) -> tile ({},{})", mapCentre.latitude, mapCentre.longitude, ctx, cty));
+
     // TODO - initially we only draw the centre tile. need to establish the horizontal and vertical range and iterate
+
+    // Get the indexed tile from the map server, and then figure out where it should be drawn
     auto tile = mapServer->GetTile((int)itx, (int)ity);
-    // TODO - figure out where the tile should be placed on the canvas and copy the pixels
+
+    auto canvas = core->GetCanvasPixels();
+    auto canvasCentreX = canvas.Width() / 2;
+    auto canvasCentreY = canvas.Height() / 2;
+    auto tileW = tile->Width();
+    auto tileH = tile->Height();
+    int tilePosL = canvasCentreX - (int)std::floor((ctx - itx) * tileW);
+    int tilePosT = canvasCentreY - (int)std::floor((cty - ity) * tileH);
+    ImageRegion canvasArea(0, 0, canvas.Width(), canvas.Height());
+    // This is where the tile maps onto the canvas - it might extend beyond the edges
+    ImageRegion tileTargetArea(tilePosL, tilePosT, tilePosL + tileW, tilePosT + tileH);
+    // This is the region of the canvas that will be painted - clipped to the canvas edges
+    ImageRegion canvasPaintArea(canvasArea, tileTargetArea);
+    if (!canvasPaintArea.Empty()) {
+        auto leftD = canvasPaintArea.left - tileTargetArea.left;
+        auto topD = canvasPaintArea.top - tileTargetArea.top;
+        auto rightD = tileTargetArea.right - canvasPaintArea.right;
+        auto bottomD = tileTargetArea.bottom - canvasPaintArea.bottom;
+        ImageRegion tileSourceArea(leftD, topD, tileW - rightD, tileH - bottomD);
+        canvas.PaintArea(canvasPaintArea, *(std::static_pointer_cast<PixelBuffer>(tile)), tileSourceArea);
+        LOGD(fmt::format("tile ({},{}) painted at ({},{}->{},{})",
+            (int)itx, (int)ity, canvasPaintArea.left, canvasPaintArea.top, canvasPaintArea.right, canvasPaintArea.bottom));
+    }
 }
 
 void MapApp::ToolClick(ClickableTool t)

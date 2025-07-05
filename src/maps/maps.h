@@ -29,6 +29,8 @@
 
 namespace navitab {
 
+class RasterTile;
+
 class MapsProvider : public TileProvider
 {
 public:
@@ -52,7 +54,7 @@ public:
 
 private:
     std::unique_ptr<logging::Logger> LOG;
-
+    std::shared_ptr<RasterTile> missingTile;
     unsigned zoom;
 };
 

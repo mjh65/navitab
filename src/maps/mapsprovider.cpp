@@ -28,20 +28,33 @@ namespace navitab {
 
 MapsProvider::MapsProvider()
 :   LOG(std::make_unique<logging::Logger>("maps")),
+    missingTile(nullptr),
     zoom(5)
 {
+    missingTile = std::make_shared<RasterTile>();
+    for (unsigned r = 0; r < missingTile->Height(); ++r) {
+        uint32_t *rs = missingTile->Row(r);
+        for (unsigned c = 0; c < missingTile->Width(); ++c) {
+            auto dark = ((r / 16) ^ (c / 16)) & 0x1;
+            *(rs + c) = dark ? 0xff404040 : 0xffc0c0c0;
+        }
+    }
 }
 
 std::shared_ptr<RasterTile> MapsProvider::GetTile(int x, int y)
 {
-    UNIMPLEMENTED(__func__);
-    return nullptr;
+    // this function will need to check the tile cache for a matching
+    // tile, and if none available then put a request in the queue, and
+    // return a default chequered grey image tile.
+
+    // TODO - pretty much everything!
+
+    return missingTile;
 }
 
 std::shared_ptr<RasterTile> MapsProvider::GetTile(unsigned page, int x, int y)
 {
-    UNIMPLEMENTED(__func__);
-    return nullptr;
+    return GetTile(x, y);
 }
 
 void MapsProvider::SetZoom(unsigned z)
@@ -58,6 +71,8 @@ unsigned MapsProvider::GetZoom()
 
 void MapsProvider::LatLon2TileXY(Location loc, double &x, double &y)
 {
+    // TODO - around the polar regions we will change to a basic overhead
+    // projection showing only a simple latitude/longitude lattice.
     double n = 1 << zoom;
     x = n * ((loc.longitude + 180.0) / 360.0);
     double latr = deg2rad(loc.latitude);

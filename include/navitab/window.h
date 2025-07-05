@@ -23,6 +23,7 @@
 #include <cassert>
 #include <cstring>
 #include <memory>
+#include <algorithm>
 #include <functional>
 #include <vector>
 #include "navitab/deferred.h"
@@ -99,6 +100,19 @@ struct Window
     virtual ~Window() = default;
 };
 
+// The ImageRegion stucture defines a rectangular area, typically for the purposes
+// of updating when only a smaller part of the image has been modified.
+
+struct ImageRegion
+{
+    int left, top, right, bottom;
+    ImageRegion(int l, int t, int r, int b) : left(l), top(t), right(r), bottom(b) {}
+    ImageRegion(const ImageRegion& r1, const ImageRegion& r2)
+    :   left(std::max(r1.left, r2.left)), top(std::max(r1.top, r2.top)),
+        right(std::min(r1.right, r2.right)), bottom(std::min(r1.bottom, r2.bottom)) {}
+    bool Empty() const { return (left >= right) || (top >= bottom); }
+};
+
 // A PixelBuffer object is a convenience class that collates the storage, width and
 // height of a region of memory that holds an image. These objects do not necessarily
 // own the buffer, and so are normally only intended for transient use.
@@ -106,8 +120,8 @@ struct Window
 class PixelBuffer
 {
 public:
-    PixelBuffer(unsigned w, unsigned h, uint32_t *d) : width(w), height(h), span(w), data(d) { }
-    PixelBuffer(unsigned w, unsigned h, unsigned s, uint32_t *d) : width(w), height(h), span(s), data(d) { }
+    PixelBuffer(unsigned w, unsigned h, uint32_t* d) : width(w), height(h), span(w), data(d) { }
+    PixelBuffer(unsigned w, unsigned h, unsigned s, uint32_t* d) : width(w), height(h), span(s), data(d) { }
     ~PixelBuffer() = default;
 
     unsigned Width() const { return width; }
@@ -116,15 +130,17 @@ public:
     uint32_t* Row(unsigned r) { return data + (r * span); }
     uint32_t* Pixel(unsigned x, unsigned y) { return data + (y * span) + x; }
 
+    void PaintArea(const ImageRegion& dstArea, PixelBuffer& src, const ImageRegion& srcArea);
+
 protected:
-    PixelBuffer(unsigned w, unsigned h) : width(w), height(h), span(w) { }
-    void SetData(uint32_t *d) { data = d; }
+    PixelBuffer(unsigned w, unsigned h) : width(w), height(h), span(w), data(nullptr) { }
+    void SetData(uint32_t* d) { data = d; }
 
 protected:
     unsigned width;
     unsigned height;
     unsigned span;
-    uint32_t *data;
+    uint32_t* data;
 
 };
 
@@ -150,15 +166,6 @@ private:
     std::vector<uint32_t> data;
 };
 typedef class ImageBuffer FrameBuffer; // synonym
-
-// The ImageRegion stucture defines a rectangular area, typically for the purposes
-// of updating when only a smaller part of the image has been modified.
-
-struct ImageRegion
-{
-    int left, top, right, bottom;
-    ImageRegion(int l, int t, int r, int b) : left(l), top(t), right(r), bottom(b) {}
-};
 
 // Each window part (toolbar, modebar, canvas, doodler, keypad) implements
 // this interface so that the window manager can pass on UI events of interest.
@@ -234,6 +241,21 @@ protected:
 
 };
 
+inline void PixelBuffer::PaintArea(const ImageRegion& dstArea, PixelBuffer& src, const ImageRegion& srcArea)
+{
+    assert((dstArea.right - dstArea.left) == (srcArea.right - srcArea.left));
+    assert((dstArea.bottom - dstArea.top) == (srcArea.bottom - srcArea.top));
+
+    auto rowCount = srcArea.bottom - srcArea.top;
+    auto rowSize = srcArea.right - srcArea.left;
+
+    for (unsigned ri = 0; ri < rowCount; ++ri) {
+        auto dr = Row(dstArea.top + ri);
+        auto sr = src.Row(srcArea.top + ri);
+        memcpy(dr + dstArea.left, sr + srcArea.left, rowSize * sizeof(uint32_t));
+    }
+}
+
 inline void ImageBuffer::PaintIcon(unsigned x, unsigned y, const uint32_t *pix, unsigned w, unsigned h, uint32_t bg)
 {
     assert((x + w) <= width);
@@ -252,7 +274,6 @@ inline void ImageBuffer::PaintIcon(unsigned x, unsigned y, const uint32_t *pix, 
         }
     }
 }
-
 
 
 } // namespace navitab

@@ -79,7 +79,7 @@ void MockSimulator::AsyncRunSimulator()
     auto zuluStart = rand() % (24 * 60 * 60);
     mockData[1].zuluTime = mockData[0].zuluTime = zuluStart;
     double lat = (rand() % 150) - 75;
-    double lon = (rand() % 360);
+    double lon = (rand() % 360) - 180;
     double dlat = ((rand() % 1000) - 500) / 10000.0;
     double dlon = ((rand() % 1000) - 500) / 10000.0;
 

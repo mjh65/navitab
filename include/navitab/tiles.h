@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include "navitab/window.h"
 #include <cstdint>
 #include <memory>
 
@@ -29,14 +30,14 @@
 
 namespace navitab {
 
-struct RasterTile
+class RasterTile : public ImageBuffer
 {
+public:
     static const unsigned DefaultWidth = 256;
     static const unsigned DefaultHeight = 256;
-    virtual unsigned Width() = 0;
-    virtual unsigned Height() = 0;
-    virtual uint32_t *PixelData(unsigned row = 0) = 0;
-    virtual unsigned RowSpan() = 0;
+
+    RasterTile() : ImageBuffer(DefaultWidth, DefaultHeight) {}
+    RasterTile(unsigned w, unsigned h) : ImageBuffer(w, h) {}
 
     virtual ~RasterTile() = default;
 };

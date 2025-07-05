@@ -76,9 +76,9 @@ endif()
 
 # Host platform definitions applying to everything declared after here
 if(WIN32)
-    add_compile_definitions(NAVITAB_WINDOWS)
+    add_compile_definitions(NAVITAB_WINDOWS  _USE_MATH_DEFINES)
     if(MSVC)
-        add_compile_definitions(NOMINMAX _USE_MATH_DEFINES)
+        add_compile_definitions(NOMINMAX)
     endif()
 elseif(APPLE)
     add_compile_definitions(NAVITAB_MACOSX)

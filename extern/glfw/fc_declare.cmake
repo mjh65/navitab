@@ -16,10 +16,8 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# NLohmann's JSON library
+# GLFW project - provides OpenGL window manager, etc
 
-message(STATUS "Fetching json")
-FetchContent_Declare(json
-    URL "https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz"
+FetchContent_Declare(glfw
+    URL "https://github.com/glfw/glfw/releases/download/3.4/glfw-3.4.zip"
 )
-FetchContent_MakeAvailable(json)

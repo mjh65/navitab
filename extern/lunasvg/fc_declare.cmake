@@ -16,10 +16,8 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# Formatting library, adds fmt::fmt to C++ namespace
+# LunaSVG provides libraries for rendering SVG images to bitmaps.
 
-message(STATUS "Fetching fmtlib")
-FetchContent_Declare(fmtlib
-    URL "https://github.com/fmtlib/fmt/releases/download/10.2.1/fmt-10.2.1.zip"
+FetchContent_Declare(lunasvg
+    URL "https://github.com/sammycage/lunasvg/archive/refs/tags/v3.3.0.zip"
 )
-FetchContent_MakeAvailable(fmtlib)

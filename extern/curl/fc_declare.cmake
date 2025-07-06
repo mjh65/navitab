@@ -16,10 +16,17 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# LunaSVG provides libraries for rendering SVG images to bitmaps.
+# Curl library for carrying out client-side URL transfers, used to fetch
+# map tiles, charts, docs, etc.
 
-message(STATUS "Fetching lunasvg")
-FetchContent_Declare(lunasvg
-    URL "https://github.com/sammycage/lunasvg/archive/refs/tags/v3.3.0.zip"
+# Curl library has some external dependencies which are not part of the MSVC build
+# environment, so these may eventually need to be added here. Currently it means the
+# MSVC build of curl might not support all the protocols, but that may only be an
+# issue for a small subset of downloads (TBD!)
+
+FetchContent_Declare(curl
+    URL "https://github.com/curl/curl/releases/download/curl-8_14_1/curl-8.14.1.zip"
 )
-FetchContent_MakeAvailable(lunasvg)
+
+# PSL is required by default, manually disabled until a suitable CMake-usable project is found.
+set(CURL_USE_LIBPSL OFF)

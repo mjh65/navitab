@@ -16,17 +16,14 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# PDF library for rendering PDF documents.
+# FetchContent_MakeAvailable post-processing
 
-message(STATUS "Fetching mupdf")
+# Due to some issues in CMake with VC toolchain the normal process of
+# adding the top-level CMakeLists.txt file is overridden to remove the
+# ASM language (which causes the issue hinted at earlier).
 
-# This is huuuuuge, and isn't really designed for use as a CMake
-# subproject. I think we'll need to come back to this later.
-
-FetchContent_Declare(mupdf
-    GIT_REPOSITORY "https://github.com/ArtifexSoftware/mupdf.git"
-    GIT_TAG "1.26.3"
-)
-
-FetchContent_MakeAvailable(mupdf)
-
+if(MSVC)
+    set(LVGL_ROOT_DIR "${lvgl_SOURCE_DIR}")
+    project(lvgl LANGUAGES C CXX HOMEPAGE_URL https://github.com/lvgl/lvgl)
+    include(${LVGL_ROOT_DIR}/env_support/cmake/custom.cmake)
+endif()

@@ -16,21 +16,8 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# These are the external projects
-# Most of them use CMake's FetchContent feature rather than git's submodule
-# Each one is in it's own subdirectory so that CMake cache variables can be
-# localised to the external project if required.
+# NLohmann's JSON library
 
-set(EXTERN_MODS fmtlib glfw lvgl json lunasvg)
-
-foreach(mod ${EXTERN_MODS})
-    message(STATUS "Declaring external content ${mod}")
-    include("${mod}/fc_declare.cmake")
-endforeach()
-
-message(STATUS "Making external content available")
-FetchContent_MakeAvailable(${EXTERN_MODS})
-
-foreach(mod ${EXTERN_MODS})
-    include("${mod}/fc_post.cmake" OPTIONAL)
-endforeach()
+FetchContent_Declare(json
+    URL "https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz"
+)

@@ -16,8 +16,6 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-message(STATUS "Fetching and configuring lvgl")
-
 # Navitab uses the LVGL graphics library for its UI
 
 # Due to some issues in CMake with VC toolchain the normal process of
@@ -36,14 +34,6 @@ FetchContent_Declare(lvgl
 )
 
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
-set(LV_CONF_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lv_conf.h CACHE INTERNAL "")
+set(LV_CONF_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lvgl/lv_conf.h CACHE INTERNAL "")
 set(LV_CONF_BUILD_DISABLE_EXAMPLES ON CACHE BOOL "")
 set(LV_CONF_BUILD_DISABLE_DEMOS ON CACHE BOOL "")
-
-FetchContent_MakeAvailable(lvgl)
-
-if(MSVC)
-    set(LVGL_ROOT_DIR "${lvgl_SOURCE_DIR}")
-    project(lvgl LANGUAGES C CXX HOMEPAGE_URL https://github.com/lvgl/lvgl)
-    include(${LVGL_ROOT_DIR}/env_support/cmake/custom.cmake)
-endif()

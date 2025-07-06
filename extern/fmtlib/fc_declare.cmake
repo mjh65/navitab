@@ -16,10 +16,8 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# GLFW project - provides OpenGL window manager, etc
+# Formatting library, adds fmt::fmt to C++ namespace
 
-message(STATUS "Fetching glfw")
-FetchContent_Declare(glfw
-    URL "https://github.com/glfw/glfw/releases/download/3.4/glfw-3.4.zip"
+FetchContent_Declare(fmtlib
+    URL "https://github.com/fmtlib/fmt/releases/download/10.2.1/fmt-10.2.1.zip"
 )
-FetchContent_MakeAvailable(glfw)

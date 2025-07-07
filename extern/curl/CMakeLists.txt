@@ -16,21 +16,17 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# These are the external projects
-# Most of them use CMake's FetchContent feature rather than git's submodule
-# Each one is in it's own subdirectory so that CMake cache variables can be
-# localised to the external project if required.
+# Curl library for carrying out client-side URL transfers, used to fetch
+# map tiles, charts, docs, etc.
 
-set(EXTERN_MODULES fmtlib glfw lvgl json lunasvg)
+# Curl library has some external dependencies which are not part of the MSVC build
+# environment, so these may eventually need to be added here. Currently it means the
+# MSVC build of curl might not support all the protocols, but that may only be an
+# issue for a small subset of downloads (TBD!)
 
-foreach(mod ${EXTERN_MODULES})
-    message(STATUS "Declaring external content ${mod}")
-    add_subdirectory("${mod}")
-endforeach()
+FetchContent_Declare(curl
+    URL "https://github.com/curl/curl/releases/download/curl-8_14_1/curl-8.14.1.zip"
+)
 
-message(STATUS "Making external content available")
-FetchContent_MakeAvailable(${EXTERN_MODULES})
-
-foreach(mod ${EXTERN_MODULES})
-    include("${mod}/fcma_post_config.cmake" OPTIONAL)
-endforeach()
+# PSL is required by default, manually disabled until a suitable CMake-usable project is found.
+set(CURL_USE_LIBPSL OFF)

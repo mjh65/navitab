@@ -23,7 +23,8 @@
 namespace navitab {
 
 DocsProvider::DocsProvider()
-:   LOG(std::make_unique<logging::Logger>("docs"))
+:   LOG(std::make_unique<logging::Logger>("docs")),
+    r("dummy.pdf")
 {
 }
 

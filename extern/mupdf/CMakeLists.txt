@@ -19,6 +19,6 @@
 # Library for rendering PDF documents, and other image formats.
 
 FetchContent_Declare(mupdf
-    GIT_REPOSITORY "https://github.com/mjh65/mupdf.git"
-    GIT_TAG "cmakedev"
+    URL "https://casper.mupdf.com/downloads/archive/mupdf-1.26.3-source.tar.gz"
+    SOURCE_SUBDIR "bogus_dir"
 )

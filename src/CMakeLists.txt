@@ -36,6 +36,7 @@ target_link_libraries(navitab_core PUBLIC
     lvgl::lvgl
     nlohmann_json::nlohmann_json
     Threads::Threads
+    mupdf_core
 )
 
 # The mock simulator generates random or scripted events for the Navitab core.
@@ -107,7 +108,7 @@ add_subdirectory(core)
 add_subdirectory(platform)
 add_subdirectory(lvglkit)
 add_subdirectory(apps)
-add_subdirectory(charts)
+add_subdirectory(imgkit)
 add_subdirectory(maps)
 add_subdirectory(docs)
 add_subdirectory(navdb)

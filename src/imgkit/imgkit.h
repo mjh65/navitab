@@ -20,30 +20,23 @@
 
 #pragma once
 
-#include "navitab/tiles.h"
 #include "navitab/logger.h"
-#include "../imgkit/rasterizer.h"
 
-// This header file defines the interface for the document provider which
-// manages local and downloaded documents and rendering to raster tiles.
+// This header file defines the interface for the imaging kit, which provides
+// services to draw various forms of document into pixel buffers that are then
+// used as tiles for drawing into the app canvas..
 
 namespace navitab {
 
-class DocsProvider : public TileProvider
+class ImagingKit
 {
 public:
-    DocsProvider();
+    ImagingKit();
 
-    std::shared_ptr<RasterTile> GetTile(int x, int y) override;
-    std::shared_ptr<RasterTile> GetTile(unsigned page, int x, int y) override;
-
-    virtual ~DocsProvider() = default;
+    virtual ~ImagingKit() = default;
 
 private:
     std::unique_ptr<logging::Logger> LOG;
-
-    // temporary for MuPDF as cmake development
-    Rasterizer r;
 };
 
 } // namespace navitab

@@ -1,6 +1,6 @@
 # Enforce consistent line feed for all files that Git considers texty.
 * text=auto eol=lf
 
-# Windows BAT files need CRLF endings
+# Windows BAT and CMD files need CRLF endings
 *.bat eol=crlf
-
+*.cmd eol=crlf

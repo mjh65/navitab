@@ -16,24 +16,9 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# These are the external projects
-# Most of them use CMake's FetchContent feature rather than git's submodule
-# Each one is in it's own subdirectory so that CMake cache variables can be
-# localised to the external project if required.
-
-set(EXTERN_CMAKE_MODULES fmtlib glfw lvgl json lunasvg mupdf)
-
-message(STATUS "Downloading and configuring external content")
-
-foreach(mod  ${EXTERN_CMAKE_MODULES} ${EXTERN_ALIEN_MODULES})
-    add_subdirectory("${mod}")
-endforeach()
-
-FetchContent_MakeAvailable(${EXTERN_CMAKE_MODULES})
-
-foreach(mod ${EXTERN_CMAKE_MODULES})
-    message(STATUS "Customizing external content ${mod}")
-    include("${mod}/${mod}_custom_config.cmake" OPTIONAL)
-endforeach()
-
-message(STATUS "Finished making external content available")
+target_sources(navitab_core PRIVATE
+    imgkit.cpp
+    imgkit.h
+    rasterizer.cpp
+    rasterizer.h
+)

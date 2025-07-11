@@ -32,10 +32,7 @@ target_include_directories(navitab_core PRIVATE
     "${PROJECT_BINARY_DIR}"
 )
 target_link_libraries(navitab_core PUBLIC
-    fmt::fmt
-    lvgl::lvgl
-    nlohmann_json::nlohmann_json
-    Threads::Threads
+    navitab_core_3rdparty
 )
 
 # The mock simulator generates random or scripted events for the Navitab core.
@@ -107,7 +104,7 @@ add_subdirectory(core)
 add_subdirectory(platform)
 add_subdirectory(lvglkit)
 add_subdirectory(apps)
-add_subdirectory(charts)
+add_subdirectory(imgkit)
 add_subdirectory(maps)
 add_subdirectory(docs)
 add_subdirectory(navdb)

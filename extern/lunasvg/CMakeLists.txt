@@ -21,3 +21,5 @@
 FetchContent_Declare(lunasvg
     URL "https://github.com/sammycage/lunasvg/archive/refs/tags/v3.3.0.zip"
 )
+
+FetchContent_MakeAvailable(lunasvg)

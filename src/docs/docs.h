@@ -22,6 +22,7 @@
 
 #include "navitab/tiles.h"
 #include "navitab/logger.h"
+#include "../imgkit/rasterizer.h"
 
 // This header file defines the interface for the document provider which
 // manages local and downloaded documents and rendering to raster tiles.
@@ -40,6 +41,10 @@ public:
 
 private:
     std::unique_ptr<logging::Logger> LOG;
+
+    // a reference just to test 3rd-party library build and link
+    // eventually each document will have its own Rasterizer ...
+    std::unique_ptr<Rasterizer> r;
 };
 
 } // namespace navitab

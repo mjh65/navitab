@@ -20,16 +20,16 @@
 cmake_minimum_required(VERSION 3.23...3.29)
 
 # Stuff that might affect the way the project command works
-set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "Minimum macOS version" FORCE)
-set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build architectures for mac OS X" FORCE)
-set(BUILD_SHARED_LIBS OFF CACHE BOOL "Navitab requires static libraries")
+set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE INTERNAL "Minimum macOS version" FORCE)
+set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE INTERNAL "Build architectures for mac OS X" FORCE)
+set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Navitab requires static libraries")
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" CACHE INTERNAL "Link MSVC static runtime, required by X-Plane plugin")
 
 # Project name and a few useful settings. Other commands can pick up the results
 project(Navitab
     VERSION 0.1.0
     DESCRIPTION "An Avitab-like add-on for flight simulation"
-    LANGUAGES CXX
+    LANGUAGES C CXX
 )
 
 # This project is not currently designed to be imported into another project.
@@ -39,12 +39,16 @@ if(NOT CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 endif()
 
 # Set things like CMAKE_CXX_STANDARD here
-find_package(Threads REQUIRED)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Ensure -std=c++xx instead of -std=g++xx
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+if(WIN32 AND MINGW)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse4.1")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse4.1")
+endif()
 
 # Nicely support folders in IDEs
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)

@@ -16,14 +16,9 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# FetchContent_MakeAvailable post-processing
-
-# Due to some issues in CMake with VC toolchain the normal process of
-# adding the top-level CMakeLists.txt file is overridden to remove the
-# ASM language (which causes the issue hinted at earlier).
-
-if(MSVC)
-    set(LVGL_ROOT_DIR "${lvgl_SOURCE_DIR}")
-    project(lvgl LANGUAGES C CXX HOMEPAGE_URL https://github.com/lvgl/lvgl)
-    include(${LVGL_ROOT_DIR}/env_support/cmake/custom.cmake)
-endif()
+target_sources(navitab_core PRIVATE
+    imgkit.cpp
+    imgkit.h
+    rasterizer.cpp
+    rasterizer.h
+)

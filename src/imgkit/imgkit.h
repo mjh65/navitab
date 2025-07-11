@@ -18,26 +18,25 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "docs.h"
+#pragma once
+
+#include "navitab/logger.h"
+
+// This header file defines the interface for the imaging kit, which provides
+// services to draw various forms of document into pixel buffers that are then
+// used as tiles for drawing into the app canvas..
 
 namespace navitab {
 
-DocsProvider::DocsProvider()
-:   LOG(std::make_unique<logging::Logger>("docs")),
-    r(nullptr)
+class ImagingKit
 {
-}
+public:
+    ImagingKit();
 
-std::shared_ptr<RasterTile> DocsProvider::GetTile(int x, int y)
-{
-    UNIMPLEMENTED(__func__);
-    return nullptr;
-}
+    virtual ~ImagingKit() = default;
 
-std::shared_ptr<RasterTile> DocsProvider::GetTile(unsigned page, int x, int y)
-{
-    UNIMPLEMENTED(__func__);
-    return nullptr;
-}
+private:
+    std::unique_ptr<logging::Logger> LOG;
+};
 
-}
+} // namespace navitab

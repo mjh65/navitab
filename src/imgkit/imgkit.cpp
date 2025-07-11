@@ -18,26 +18,10 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "docs.h"
+#include "imgkit.h"
 
 namespace navitab {
 
-DocsProvider::DocsProvider()
-:   LOG(std::make_unique<logging::Logger>("docs")),
-    r(nullptr)
-{
-}
 
-std::shared_ptr<RasterTile> DocsProvider::GetTile(int x, int y)
-{
-    UNIMPLEMENTED(__func__);
-    return nullptr;
-}
 
-std::shared_ptr<RasterTile> DocsProvider::GetTile(unsigned page, int x, int y)
-{
-    UNIMPLEMENTED(__func__);
-    return nullptr;
-}
-
-}
+} // namespace navitab

@@ -18,9 +18,4 @@
 
 # Formatting library, adds fmt::fmt to C++ namespace
 
-FetchContent_Declare(fmtlib
-    URL "https://github.com/fmtlib/fmt/releases/download/10.2.1/fmt-10.2.1.zip"
-    OVERRIDE_FIND_PACKAGE
-)
-
-FetchContent_MakeAvailable(fmtlib)
+add_subdirectory("${fmtlib_SOURCE_DIR}" "${fmtlib_BINARY_DIR}" EXCLUDE_FROM_ALL)

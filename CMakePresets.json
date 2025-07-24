@@ -6,7 +6,8 @@
             "hidden": true,
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install"
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install",
+                "NAVITAB_DOWNLOAD_PREFIX": "${sourceDir}/build/download"
             }
         },
         {

@@ -24,6 +24,7 @@ set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE INTERNAL "Minimum macOS version" F
 set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE INTERNAL "Build architectures for mac OS X" FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Navitab requires static libraries")
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" CACHE INTERNAL "Link MSVC static runtime, required by X-Plane plugin")
+set(CMAKE_FRAMEWORK FALSE CACHE INTERNAL "")
 
 # Project name and a few useful settings. Other commands can pick up the results
 project(Navitab
@@ -37,6 +38,14 @@ project(Navitab
 if(NOT CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     message(FATAL_ERROR "Navitab is not supported as a subsidiary CMake project")
 endif()
+
+# Various CMake configuration bits and pieces
+list(PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+find_package(Threads)
+option(NAVITAB_DOWNLOAD_PREFIX
+    "Directory to be used for third-party package downloads"
+    "${CMAKE_CURRENT_SOURCE_DIR}/build/download"
+)
 
 # Set things like CMAKE_CXX_STANDARD here
 set(CMAKE_CXX_STANDARD 17)
@@ -64,7 +73,7 @@ if(NOT Doxygen_FOUND)
 endif()
 add_subdirectory(docs)
 
-# CMake-compatible external 3rd-party projects are handled here
+# External (third-party) source packages are downloaded and configured here
 include(FetchContent)
 add_subdirectory(extern EXCLUDE_FROM_ALL)
 

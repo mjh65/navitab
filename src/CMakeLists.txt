@@ -32,7 +32,7 @@ target_include_directories(navitab_core PRIVATE
     "${PROJECT_BINARY_DIR}"
 )
 target_link_libraries(navitab_core PUBLIC
-    navitab_core_3rdparty
+    navitab_3rdparty
 )
 
 # The mock simulator generates random or scripted events for the Navitab core.

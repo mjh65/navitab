@@ -18,7 +18,7 @@
 
 # This script handles all of the 3rd party libraries that are used by the
 # Navitab project. A number of these projects do not support CMake natively,
-# and in those cases a rudimentary CMake project has been created and is
+# and in those cases a rudimentary CMake wrapper has been created and is
 # patched into the source tree after downloading. The goal is to have a
 # fully cross-platform build system (specifically supporting VS/MSVC).
 
@@ -27,61 +27,98 @@
 
 # url = https://github.com/hglm/detex
 # url = https://github.com/nothings/stb
-# url = https://github.com/curl/curl
-# url = https://github.com/ARMmbed/mbedtls
-# url = https://github.com/vadz/libtiff
 # url = https://github.com/OSGeo/proj.4
 # url = https://github.com/OSGeo/libgeotiff
 # url = https://github.com/ldarren/QuickJS/
 # url = https://github.com/gulrak/filesystem.git
 
+include(Downloader)
 
-cmake_policy(SET CMP0077 NEW)
-include(GNUInstallDirs)
-include(CMakePackageConfigHelpers)
+message(STATUS "Downloading and configuring third-party sources")
 
-message(STATUS "Downloading and configuring external content")
+# These packages are ordered so that dependencies can be fully satisfied within the
+# Navitab project so we can guarantee to keep all libraries static (Xplane requirement).
+set(PKGS
+    fmtlib      "https://github.com/fmtlib/fmt/releases/download/10.2.1/fmt-10.2.1.zip"
+    # fmtlib is self-sufficient.
+    json        "https://github.com/nlohmann/json/archive/refs/tags/v3.12.0.tar.gz"
+    # json is self-sufficient.
+    sqlite      "https://www.sqlite.org/2025/sqlite-amalgamation-3500300.zip"
+    # sqlite is self-sufficient.it does not have inbuilt CMake support.
+    zlib        "https://github.com/madler/zlib/releases/download/v1.3.1/zlib-1.3.1.tar.gz"
+    # zlib is self-sufficient.
+    bzip2       "https://sourceware.org/pub/bzip2/bzip2-1.0.8.tar.gz"
+    # bzip2 is self-sufficient. it does not have inbuilt CMake support.
+    brotli      "https://github.com/google/brotli/archive/refs/tags/v1.1.0.tar.gz"
+    # brotli is self-sufficient.
+    jbig2dec    "https://github.com/ArtifexSoftware/jbig2dec/archive/refs/tags/0.20.tar.gz"
+    # jbig2dec appears to use zlib, and does not have inbuilt CMake support.
+    lerc        "https://github.com/Esri/lerc/archive/refs/tags/v4.0.0.tar.gz"
+    # lerc is self-sufficient.
+    zstd        "https://github.com/facebook/zstd/archive/refs/tags/v1.5.7.tar.gz"
+    # ztsd is self-sufficient.
+    gumbo       "https://github.com/google/gumbo-parser/archive/refs/tags/v0.10.1.tar.gz"
+    # gumbo is self-sufficient. it does not have inbuilt CMake support.
+    lcms2       "https://github.com/mm2/Little-CMS/releases/download/lcms2.17/lcms2-2.17.tar.gz"
+    # lcms2 is self-sufficient. it does not have inbuilt CMake support.
+    libjpeg     "https://www.ijg.org/files/jpegsrc.v9f.tar.gz"
+    # libjpeg is self-sufficient. it does not have inbuilt CMake support.
+    openjpeg    "https://github.com/uclouvain/openjpeg/archive/refs/tags/v2.5.3.tar.gz"
+    # openjpeg (library) is self-sufficient.
+    png         "https://github.com/pnggroup/libpng/archive/refs/tags/v1.6.50.tar.gz"
+    # png requires zlib
+    libtiff     "https://gitlab.com/libtiff/libtiff/-/archive/v4.7.0/libtiff-v4.7.0.tar.gz"
+    # libtiff uses zlib, libjpeg, lerc, zstd
+    # libtiff does not use deflate, jbig, liblzma, wbep are not currently provided or configured)
 
-find_package(Threads REQUIRED)
+    # !!! I think everything above here has been 'sanitised', anything below still needs some work !!!
 
-add_subdirectory(zlib)
-add_subdirectory(bzip2)
-add_subdirectory(brotli)
-add_subdirectory(fmtlib)
-add_subdirectory(json)
-add_subdirectory(png)
-add_subdirectory(jbig2dec)
-add_subdirectory(freetype)
-add_subdirectory(harfbuzz)
-add_subdirectory(gumbo)
-add_subdirectory(lcms2)
-add_subdirectory(libjpeg)
-add_subdirectory(libtiff)
-add_subdirectory(openjpeg)
-add_subdirectory(mupdf)
-add_subdirectory(glfw)
-add_subdirectory(lvgl)
-add_subdirectory(lunasvg)
+    freetype    "https://download.savannah.gnu.org/releases/freetype/freetype-2.13.3.tar.gz"
+    # freetype uses zlib, bzip2, brotli, png, and harfbuzz (circular). it does not have inbuilt CMake support.
+    harfbuzz    "https://github.com/harfbuzz/harfbuzz/archive/refs/tags/11.2.1.tar.gz"
+    # harfbuzz might have circular dependency on freetype
+    mupdf       "https://github.com/ArtifexSoftware/mupdf/archive/refs/tags/1.26.3.tar.gz"
+    glfw        "https://github.com/glfw/glfw/releases/download/3.4/glfw-3.4.zip"
+    lvgl        "https://github.com/lvgl/lvgl/archive/refs/tags/v9.1.0.zip"
+    lunasvg     "https://github.com/sammycage/lunasvg/archive/refs/tags/v3.3.0.zip"
+    mbedtls     "https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/mbedtls-3.6.4.tar.gz"
+    curl        "https://curl.se/download/curl-8.15.0.tar.gz"
+)
+
+# we don't want any of the 3rd party libraries to build shared libs or do any testing
+set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "")
+set(BUILD_TESTING OFF CACHE INTERNAL "")
+
+# Download and configure each of the 3rd-party pacakages in turn
+foreach(x ${PKGS})
+    if("${pkg}" STREQUAL "")
+        set(pkg "${x}")
+    else()
+        IncludeDownloadedPackage("${pkg}" "${x}")
+        unset(pkg)
+    endif()
+endforeach()
 
 message(STATUS "Finished making external content available")
 
-add_library(navitab_core_3rdparty INTERFACE)
-target_link_libraries(navitab_core_3rdparty
+# create a single interface library for Navitab which references all of the packages.
+add_library(navitab_3rdparty INTERFACE)
+target_link_libraries(navitab_3rdparty
     INTERFACE Threads::Threads
-    INTERFACE ZLIB::zlib
-    INTERFACE BZip2::bzip2
+    INTERFACE zlibstatic
+    INTERFACE bzip2
     INTERFACE png_static
-    INTERFACE brotlidec brotlienc
-    INTERFACE harfbuzz
+    INTERFACE brotlidec
     INTERFACE freetype
-    INTERFACE fmt::fmt
-    INTERFACE nlohmann_json::nlohmann_json
-    INTERFACE JBIG2::jbig2
-    INTERFACE GUMBO::gumbo
+    INTERFACE harfbuzz
+    INTERFACE fmt
+    INTERFACE nlohmann_json
+    INTERFACE jbig2dec
+    INTERFACE gumbo
     INTERFACE lcms2
     INTERFACE jpeg_static
-    INTERFACE TIFF::tiff
     INTERFACE openjp2
     INTERFACE mupdf
-    INTERFACE lvgl::lvgl
+    INTERFACE lvgl
+    INTERFACE sqlite3
 )

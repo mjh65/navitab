@@ -69,10 +69,8 @@ foreach(work ${SVGC_SOURCES})
     get_filename_component(base "${svg_source}" NAME_WLE)
     set(file_h "${PROJECT_BINARY_DIR}/svg/${base}_${width}x${height}.h")
     list(APPEND SVG_TARGETS "${file_h}")
-    #message(STATUS "CUSTOM ${file_h} from ${svg_source}")
     add_custom_command(
             OUTPUT "${file_h}"
-            #COMMENT "CUSTOM: $<TARGET_FILE:navitab_svgc> -o${file_h} -w${width} -h${height} ${CMAKE_CURRENT_LIST_DIR}/${svg_source}"
             COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJECT_BINARY_DIR}/svg"
             COMMAND $<TARGET_FILE:navitab_svgc> "-o${file_h}" -w${width} -h${height} "${CMAKE_CURRENT_LIST_DIR}/${svg_source}"
             DEPENDS "${svg_source}" navitab_svgc

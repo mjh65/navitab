@@ -1,16 +1,48 @@
 
-
-FetchContent_Declare(lcms2
-    URL "https://github.com/mm2/Little-CMS/releases/download/lcms2.17/lcms2-2.17.tar.gz"
-    PATCH_COMMAND "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_LIST_DIR}/patch.cmake"
+# Project name and a few useful settings. Other commands can pick up the results
+project(LCMS2
+    VERSION 2.2.17
+    DESCRIPTION "A library for color management"
+    LANGUAGES C
 )
 
-FetchContent_MakeAvailable(lcms2)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+find_package(Threads REQUIRED)
+include(Prefixer)
 
-if(MSVC)
-    set(LCMS2_LIBRARY "${lcms2_BINARY_DIR}/lcms2.lib" PARENT_SCOPE)
-else()
-    set(LCMS2_LIBRARY "${lcms2_BINARY_DIR}/liblcms2.a" PARENT_SCOPE)
-endif()
-set(LCMS2_INCLUDE_DIR "${lcms2_SOURCE_DIR}/include" PARENT_SCOPE)
-set(LCMS2_INCLUDE_DIRS "${lcms2_SOURCE_DIR}/include" PARENT_SCOPE)
+# The LCMS2 library
+set(LCMS2_SOURCES
+    cmsalpha.c
+    cmscam02.c
+    cmscgats.c
+    cmscnvrt.c
+    cmserr.c
+    cmsgamma.c
+    cmsgmt.c
+    cmshalf.c
+    cmsintrp.c
+    cmsio0.c
+    cmsio1.c
+    cmslut.c
+    cmsmd5.c
+    cmsmtrx.c
+    cmsnamed.c
+    cmsopt.c
+    cmspack.c
+    cmspcs.c
+    cmsplugin.c
+    cmsps2.c
+    cmssamp.c
+    cmssm.c
+    cmstypes.c
+    cmsvirt.c
+    cmswtpnt.c
+    cmsxform.c
+)
+PrefixSources(LCMS2_SOURCES "${lcms2_SOURCE_DIR}/src")
+
+add_library(lcms2 STATIC ${LCMS2_SOURCES})
+target_include_directories(lcms2
+    PUBLIC "${lcms2_SOURCE_DIR}/include"
+)

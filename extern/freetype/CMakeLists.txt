@@ -1,17 +1,29 @@
 
 
-# TODO: This is disabled until we enhance bzip2 to provide a pc (pkgconfig) file
-# And maybe we don't even need this feature?
-set(FT_DISABLE_BZIP2 ON CACHE INTERNAL "")
-
-# This is disabled due to the circular dependency with freetype
-set(FT_DISABLE_HARFBUZZ ON CACHE INTERNAL "")
-
-include_directories("${zlib_SOURCE_DIR}" "${zlib_BINARY_DIR}")
-
-FetchContent_Declare(freetype
-    URL "https://download.savannah.gnu.org/releases/freetype/freetype-2.13.3.tar.gz"
-    OVERRIDE_FIND_PACKAGE
+project(FreeType
+    VERSION 2.13.3
+    DESCRIPTION "A library for fonts"
+    LANGUAGES C
 )
 
-FetchContent_MakeAvailable(freetype)
+execute_process(COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_CURRENT_LIST_DIR}/ftconfig.h" "${freetype_BINARY_DIR}/include/config/ftconfig.h")
+execute_process(COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_CURRENT_LIST_DIR}/ftoption.h" "${freetype_BINARY_DIR}/include/config/ftoption.h")
+
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+find_package(Threads REQUIRED)
+include(Prefixer)
+
+set(FREETYPE_SOURCES pfr/pfr.c) # TODO!
+PrefixSources(FREETYPE_SOURCES "${freetype_SOURCE_DIR}/src")
+
+add_library(freetype STATIC ${FREETYPE_SOURCES})
+target_compile_definitions(freetype
+    PRIVATE FT2_BUILD_LIBRARY
+)
+target_include_directories(freetype
+    PUBLIC "${freetype_BINARY_DIR}/include"
+    PUBLIC "${freetype_SOURCE_DIR}/include"
+    PUBLIC "${freetype_BINARY_DIR}/include/freetype/config"
+)
+

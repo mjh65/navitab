@@ -37,6 +37,7 @@
 build*/
 /install/
 /scratch/
+*.log
 
 # Ignore hidden files, apart from some project specifics
 /.*

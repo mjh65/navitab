@@ -16,7 +16,7 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# Console program for building navigation database from various sources
+# Tool for rasterising SVG files to make icons for the UI.
 
 target_sources(navitab_svgc PRIVATE
     main.cpp

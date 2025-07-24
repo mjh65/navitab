@@ -1,9 +1,5 @@
 
-set(HB_HAVE_FREETYPE ON CACHE INTERNAL "")
+set(HB_HAVE_FREETYPE ON)
+set(SKIP_INSTALL_ALL ON)
 
-FetchContent_Declare(harfbuzz
-    URL "https://github.com/harfbuzz/harfbuzz/archive/refs/tags/11.2.1.tar.gz"
-    OVERRIDE_FIND_PACKAGE
-)
-
-FetchContent_MakeAvailable(HarfBuzz)
+add_subdirectory("${harfbuzz_SOURCE_DIR}" "${harfbuzz_BINARY_DIR}" EXCLUDE_FROM_ALL)

@@ -18,8 +18,4 @@
 
 # LunaSVG provides libraries for rendering SVG images to bitmaps.
 
-FetchContent_Declare(lunasvg
-    URL "https://github.com/sammycage/lunasvg/archive/refs/tags/v3.3.0.zip"
-)
-
-FetchContent_MakeAvailable(lunasvg)
+add_subdirectory("${lunasvg_SOURCE_DIR}" "${lunasvg_BINARY_DIR}" EXCLUDE_FROM_ALL)

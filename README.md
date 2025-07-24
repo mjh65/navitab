@@ -36,7 +36,7 @@ configuration presets may be requested - either `debug` or `release` are
 appropriate.
 
 If using an IDE that does not support CMake (eg Xcode) then it will first be
-necessary to use cmake to generate a build project for the IDE in question.
+necessary to use cmake to generate a native project for the IDE in question.
 Navitab currently provides a configuration preset `xcode` for Apple's XCode IDE.
 
 ### Shell/command-line
@@ -68,7 +68,11 @@ appropriate. Other toolchains may work, but are unlikely to be tested.
 
 Navitab is dependent on a number of 3rd party source code libraries which will be
 downloaded and configured as part of the CMake configuration process. The first
-configuration and build may take some time, but subsequent builds should be quicker.
+configuration and build will take some time, but subsequent iterations builds
+should be quicker. In particular a custom source package cache is created in the
+top-level build directory which is shared between the build configurations (Debug,
+Release, etc). There should be no reason to delete these packages after the first
+download, and this will make future re-configurations slightly faster.
 
 Navitab is almost entirely written in C++. Some of the 3rd-party libraries
 may require additional toolchains and packages to be available in the environment.

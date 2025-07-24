@@ -1,11 +1,34 @@
 
 
-FetchContent_Declare(BZip2
-    URL "https://sourceware.org/pub/bzip2/bzip2-1.0.8.tar.gz"
-    PATCH_COMMAND "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_LIST_DIR}/patch.cmake"
-    OVERRIDE_FIND_PACKAGE
+# BZip2 does not provide a CMake script, so this is a basic wrapper for Navitab's needs.
+
+# Project name and a few useful settings. Other commands can pick up the results
+project(BZIP2
+    VERSION 1.0.8
+    DESCRIPTION "A library for compression"
+    LANGUAGES C
 )
 
-FetchContent_MakeAvailable(BZip2)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+find_package(Threads REQUIRED)
+include(Prefixer)
 
-set(BZIP2_INCLUDE_DIRS "${bzip2_SOURCE_DIR}" PARENT_SCOPE)
+# The BZIP2 library
+set(BZIP2_SOURCES blocksort.c bzlib.c compress.c crctable.c decompress.c huffman.c randtable.c)
+PrefixSources(BZIP2_SOURCES "${bzip2_SOURCE_DIR}")
+
+add_library(bzip2 STATIC ${BZIP2_SOURCES})
+target_include_directories(bzip2
+    PUBLIC "${CMAKE_CURRENT_LIST_DIR}"
+)
+
+# This is to influence findPackage into detecting Navitab's version of BZip2
+set(BZIP2_INCLUDE_DIR "${bzip2_SOURCE_DIR}")
+if(MSVC)
+    set(BZIP2_LIBRARIES "${bzip2_BINARY_DIR}/bzip2.lib" CACHE INTERNAL "")
+else()
+    set(BZIP2_LIBRARIES "${bzip2_BINARY_DIR}/libbzip2.a" CACHE INTERNAL "")
+endif()
+
+find_package(BZip2)

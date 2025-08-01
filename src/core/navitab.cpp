@@ -25,6 +25,7 @@
 #include <filesystem>
 #include <nlohmann/json.hpp>
 #include <fmt/core.h>
+#include <curl/curl.h>
 #include "coretoolbar.h"
 #include "coremodebar.h"
 #include "coredoodler.h"
@@ -197,6 +198,8 @@ void Navitab::Start()
     if (running) return;
     running = true;
 
+    curl_global_init(CURL_GLOBAL_ALL);
+
     // Start the background worker thread. Most of the actual work done in
     // the Navitab core is triggered by jobs posted to this thread, and most
     // of those jobs are UI interactions or simulator updates.
@@ -216,8 +219,6 @@ void Navitab::Start()
     readerApp = std::make_shared<ReaderApp>(shared_from_this());
     settingsApp = std::make_shared<SettingsApp>(shared_from_this());
     activeApp = aboutApp; // TODO - add setting for startup app
-
-    // curl_global_init(CURL_GLOBAL_ALL); TODO: activate this later
 }
 
 void Navitab::Activate()
@@ -243,7 +244,6 @@ void Navitab::Deactivate()
 
 void Navitab::Stop()
 {
-    // curl_global_cleanup(); TODO: activate this later
     appcanvas.reset();
     toolbar.reset();
     modebar.reset();
@@ -267,6 +267,7 @@ void Navitab::Stop()
         RunLater([]() {}, &a); // trigger the work loop with a null job
         worker->join();
     }
+    curl_global_cleanup();
 }
 
 void Navitab::onSimFlightLoop(const SimStateData& data)

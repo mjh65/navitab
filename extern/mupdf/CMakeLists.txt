@@ -43,13 +43,13 @@ target_include_directories(mupdf
     PUBLIC "${mupdf_SOURCE_DIR}/include"
 )
 target_link_libraries(mupdf
-    PUBLIC zlibstatic
-    PUBLIC brotlidec
-    PUBLIC lcms2
-    PUBLIC jbig2dec
-    PUBLIC jpeg_static
-    PUBLIC openjp2
-    PUBLIC freetype
-    PUBLIC harfbuzz
-    PUBLIC gumbo
+    PRIVATE zlibstatic
+    PRIVATE brotlidec
+    PRIVATE lcms2
+    PRIVATE jbig2dec
+    PRIVATE jpeg_static
+    PRIVATE openjp2
+    PRIVATE freetype
+    PRIVATE harfbuzz
+    PRIVATE gumbo
 )

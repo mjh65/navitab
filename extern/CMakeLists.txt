@@ -70,6 +70,12 @@ set(PKGS
     libtiff     "https://gitlab.com/libtiff/libtiff/-/archive/v4.7.0/libtiff-v4.7.0.tar.gz"
     # libtiff uses zlib, libjpeg, lerc, zstd
     # libtiff does not use deflate, jbig, liblzma, wbep are not currently provided or configured)
+    mbedtls     "https://github.com/Mbed-TLS/mbedtls/releases/download/mbedtls-3.6.4/mbedtls-3.6.4.tar.bz2"
+    # mbedtls
+    libssh2     "https://github.com/libssh2/libssh2/releases/download/libssh2-1.11.1/libssh2-1.11.1.tar.gz"
+    # libssh2 uses mbedtls
+    curl        "https://curl.se/download/curl-8.15.0.tar.gz"
+    # curl uses zlib, zstd, brotli, libssh2, mbedtls
 
     # !!! I think everything above here has been 'sanitised', anything below still needs some work !!!
 
@@ -81,13 +87,19 @@ set(PKGS
     glfw        "https://github.com/glfw/glfw/releases/download/3.4/glfw-3.4.zip"
     lvgl        "https://github.com/lvgl/lvgl/archive/refs/tags/v9.1.0.zip"
     lunasvg     "https://github.com/sammycage/lunasvg/archive/refs/tags/v3.3.0.zip"
-    mbedtls     "https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/mbedtls-3.6.4.tar.gz"
-    curl        "https://curl.se/download/curl-8.15.0.tar.gz"
 )
 
-# we don't want any of the 3rd party libraries to build shared libs or do any testing
+# we don't want any of the 3rd party libraries to build shared libs, examples or testing
+# these variables are common to more than one library, so we set them once here
 set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "")
-set(BUILD_TESTING OFF CACHE INTERNAL "")
+set(BUILD_EXAMPLES OFF CACHE INTERNAL "")
+set(BUILD_TESTING_saved ${BUILD_TESTING})
+set(BUILD_TESTING OFF CACHE BOOL "Include tests in build" FORCE)
+
+# Xcode puts the libraries in a config subdirectory
+if(XCODE)
+    set(XCODE_LIB_PATH_PREFIX "$(CONFIGURATION)/")
+endif()
 
 # Download and configure each of the 3rd-party pacakages in turn
 foreach(x ${PKGS})
@@ -101,24 +113,17 @@ endforeach()
 
 message(STATUS "Finished making external content available")
 
-# create a single interface library for Navitab which references all of the packages.
+# create a single interface library for Navitab which references the packages it uses directly
 add_library(navitab_3rdparty INTERFACE)
 target_link_libraries(navitab_3rdparty
     INTERFACE Threads::Threads
-    INTERFACE zlibstatic
-    INTERFACE bzip2
-    INTERFACE png_static
-    INTERFACE brotlidec
-    INTERFACE freetype
-    INTERFACE harfbuzz
     INTERFACE fmt
     INTERFACE nlohmann_json
-    INTERFACE jbig2dec
-    INTERFACE gumbo
-    INTERFACE lcms2
-    INTERFACE jpeg_static
-    INTERFACE openjp2
+    INTERFACE libcurl_static
     INTERFACE mupdf
     INTERFACE lvgl
     INTERFACE sqlite3
 )
+
+set(BUILD_TESTING ${BUILD_TESTING_saved} CACHE BOOL "Include tests in build" FORCE)
+unset(BUILD_TESTING_saved)

@@ -59,5 +59,5 @@ target_include_directories(jbig2dec
     PUBLIC "${jbig2dec_SOURCE_DIR}"
 )
 target_link_libraries(jbig2dec
-    PUBLIC png_static
+    PRIVATE png_static
 )

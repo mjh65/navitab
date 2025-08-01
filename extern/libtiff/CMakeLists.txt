@@ -27,6 +27,10 @@ unset(jbig CACHE)
 unset(lzma CACHE)
 unset(webp CACHE)
 
+target_link_libraries(tiff
+    INTERFACE libzstd
+)
+
 # this aims to help find_package select this tiff library to help out 
 if(MSVC)
     set(TIFF_LIBRARY "${libtiff_BINARY_DIR}/libtiff/tiff.lib" CACHE INTERNAL "")

@@ -15,7 +15,3 @@ target_include_directories(png_static
     INTERFACE "$<BUILD_INTERFACE:${png_SOURCE_DIR}>"
     INTERFACE "$<BUILD_INTERFACE:${png_BINARY_DIR}>"
 )
-
-target_link_libraries(png_static
-    PRIVATE zlibstatic
-)

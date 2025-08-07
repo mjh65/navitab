@@ -1,5 +1,5 @@
 
-# libtiff has cmake support which is quite old and generates warnings, and quite
+# tiff has cmake support which is quite old and generates warnings, and quite
 # a lot of noise. for simplicity we've disabled support for various codecs that
 # we can't be bothered to add speculatively. potentially there might be a need for
 # these that will be discovered one day. at which point the problem can be resolved.
@@ -15,7 +15,7 @@ set(lzma OFF CACHE INTERNAL "")
 set(webp OFF CACHE INTERNAL "")
 set(ZSTD_HAVE_DECOMPRESS_STREAM ON)
 
-add_subdirectory("${libtiff_SOURCE_DIR}" "${libtiff_BINARY_DIR}" EXCLUDE_FROM_ALL)
+add_subdirectory("${tiff_SOURCE_DIR}" "${tiff_BINARY_DIR}" EXCLUDE_FROM_ALL)
 
 unset(tiff-tools CACHE)
 unset(tiff-tests CACHE)
@@ -32,9 +32,9 @@ target_link_libraries(tiff
 )
 
 # This is to influence findPackage into detecting Navitab's version of Tiff
-set(TIFF_INCLUDE_DIR "${libtiff_SOURCE_DIR}/libtiff" CACHE INTERNAL "")
+set(TIFF_INCLUDE_DIR "${tiff_SOURCE_DIR}/libtiff" CACHE INTERNAL "")
 if(MSVC)
-    set(TIFF_LIBRARY "${libtiff_BINARY_DIR}/libtiff/tiff.lib" CACHE INTERNAL "")
+    set(TIFF_LIBRARY "${tiff_BINARY_DIR}/libtiff/tiff.lib" CACHE INTERNAL "")
 else()
-    set(TIFF_LIBRARY "${libtiff_BINARY_DIR}/libtiff/${XCODE_LIB_PATH_PREFIX}libtiff.a" CACHE INTERNAL "")
+    set(TIFF_LIBRARY "${tiff_BINARY_DIR}/libtiff/${XCODE_LIB_PATH_PREFIX}libtiff.a" CACHE INTERNAL "")
 endif()

@@ -16,11 +16,9 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# This file is a patch for the JBIG2 external library, and will be copied
-# into the MuPDF downloaded thirdparty tree before it is added into the build.
-# It SHOULD NOT be included directly with add_subdirectory.
+# This file is a basic CMake wrapper for the JBIG2 external library, which does not
+# provide CMake support natively.
 
-# Project name and a few useful settings. Other commands can pick up the results
 project(JBIG2
     VERSION 0.20.0
     DESCRIPTION "A library for decoding JBIG2 compressed images"
@@ -52,11 +50,11 @@ set(JBIG2_SOURCES
     jbig2_text.c
     jbig2.c
 )
-PrefixSources(JBIG2_SOURCES "${jbig2dec_SOURCE_DIR}")
+PrefixSources(JBIG2_SOURCES "${jbig2_SOURCE_DIR}")
 
 add_library(jbig2dec STATIC ${JBIG2_SOURCES})
 target_include_directories(jbig2dec
-    PUBLIC "${jbig2dec_SOURCE_DIR}"
+    PUBLIC "${jbig2_SOURCE_DIR}"
 )
 target_link_libraries(jbig2dec
     PRIVATE png_static

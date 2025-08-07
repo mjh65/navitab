@@ -1,5 +1,5 @@
 
-# The libjpeg downloaded library has CMake support, but it is out of date and
+# The jpeg downloaded library has CMake support, but it is out of date and
 # produces multiple warnings. So Navitab uses its own configuration with some
 # chunks of the original.
 
@@ -29,22 +29,22 @@ set(LIBJPEG_SOURCES
     jfdctfst.c jfdctint.c jidctflt.c jidctfst.c jidctint.c jquant1.c
     jquant2.c jutils.c jmemmgr.c
 )
-PrefixSources(LIBJPEG_SOURCES "${libjpeg_SOURCE_DIR}")
+PrefixSources(LIBJPEG_SOURCES "${jpeg_SOURCE_DIR}")
 
-file(MAKE_DIRECTORY "${libjpeg_BINARY_DIR}")
-file(COPY_FILE "${libjpeg_SOURCE_DIR}/jconfig.txt" "${libjpeg_BINARY_DIR}/jconfig.h")
+file(MAKE_DIRECTORY "${jpeg_BINARY_DIR}")
+file(COPY_FILE "${jpeg_SOURCE_DIR}/jconfig.txt" "${jpeg_BINARY_DIR}/jconfig.h")
 
 add_library(jpeg_static STATIC ${LIBJPEG_SOURCES})
 target_include_directories(jpeg_static
-    PUBLIC "${libjpeg_BINARY_DIR}"
-    PUBLIC "${libjpeg_SOURCE_DIR}"
+    PUBLIC "${jpeg_BINARY_DIR}"
+    PUBLIC "${jpeg_SOURCE_DIR}"
 )
 
 # this aims to help find_package select this jpeg library to help out 
 add_library(JPEG::JPEG ALIAS jpeg_static)
-set(JPEG_INCLUDE_DIR "${libjpeg_SOURCE_DIR}" CACHE INTERNAL "")
+set(JPEG_INCLUDE_DIR "${jpeg_SOURCE_DIR}" CACHE INTERNAL "")
 if(MSVC)
-    set(JPEG_LIBRARY "${libjpeg_BINARY_DIR}/jpeg_static.lib" CACHE INTERNAL "")
+    set(JPEG_LIBRARY "${jpeg_BINARY_DIR}/jpeg_static.lib" CACHE INTERNAL "")
 else()
-    set(JPEG_LIBRARY "${libjpeg_BINARY_DIR}/${XCODE_LIB_PATH_PREFIX}libjpeg_static.a" CACHE INTERNAL "")
+    set(JPEG_LIBRARY "${jpeg_BINARY_DIR}/${XCODE_LIB_PATH_PREFIX}libjpeg_static.a" CACHE INTERNAL "")
 endif()

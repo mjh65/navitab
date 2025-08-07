@@ -32,63 +32,60 @@
 # url = https://github.com/ldarren/QuickJS/
 # url = https://github.com/gulrak/filesystem.git
 
-include(Downloader)
-
-message(STATUS "Downloading and configuring third-party sources")
-
 # These packages are ordered so that dependencies can be fully satisfied within the
 # Navitab project so we can guarantee to keep all libraries static (Xplane requirement).
 set(PKGS
     fmtlib      "https://github.com/fmtlib/fmt/releases/download/10.2.1/fmt-10.2.1.zip"
-    # fmtlib is self-sufficient.
+    # fmtlib has no dependencies.
     json        "https://github.com/nlohmann/json/archive/refs/tags/v3.12.0.tar.gz"
-    # json is self-sufficient.
+    # json has no dependencies.
     sqlite      "https://www.sqlite.org/2025/sqlite-amalgamation-3500300.zip"
-    # sqlite is self-sufficient.it does not have inbuilt CMake support.
+    # sqlite has no dependencies. it does not have inbuilt CMake support.
+    lunasvg     "https://github.com/sammycage/lunasvg/archive/refs/tags/v3.3.0.zip"
+    # lunasvg has no dependencies.
     zlib        "https://github.com/madler/zlib/releases/download/v1.3.1/zlib-1.3.1.tar.gz"
-    # zlib is self-sufficient.
+    # zlib has no dependencies.
     bzip2       "https://sourceware.org/pub/bzip2/bzip2-1.0.8.tar.gz"
-    # bzip2 is self-sufficient. it does not have inbuilt CMake support.
+    # bzip2 has no dependencies. it does not have inbuilt CMake support.
     brotli      "https://github.com/google/brotli/archive/refs/tags/v1.1.0.tar.gz"
-    # brotli is self-sufficient.
-    jbig2dec    "https://github.com/ArtifexSoftware/jbig2dec/archive/refs/tags/0.20.tar.gz"
-    # jbig2dec appears to use zlib, and does not have inbuilt CMake support.
+    # brotli has no dependencies.
+    jbig2       "https://github.com/ArtifexSoftware/jbig2dec/archive/refs/tags/0.20.tar.gz"
+    # jbig2 appears to use zlib, and does not have inbuilt CMake support.
     lerc        "https://github.com/Esri/lerc/archive/refs/tags/v4.0.0.tar.gz"
-    # lerc is self-sufficient.
+    # lerc has no dependencies.
     zstd        "https://github.com/facebook/zstd/archive/refs/tags/v1.5.7.tar.gz"
-    # ztsd is self-sufficient.
+    # ztsd has no dependencies.
     gumbo       "https://github.com/google/gumbo-parser/archive/refs/tags/v0.10.1.tar.gz"
-    # gumbo is self-sufficient. it does not have inbuilt CMake support.
+    # gumbo has no dependencies. it does not have inbuilt CMake support.
     lcms2       "https://github.com/mm2/Little-CMS/releases/download/lcms2.17/lcms2-2.17.tar.gz"
-    # lcms2 is self-sufficient. it does not have inbuilt CMake support.
-    libjpeg     "https://www.ijg.org/files/jpegsrc.v9f.tar.gz"
-    # libjpeg is self-sufficient. it does not have inbuilt CMake support.
+    # lcms2 has no dependencies. it does not have inbuilt CMake support.
+    jpeg        "https://www.ijg.org/files/jpegsrc.v9f.tar.gz"
+    # jpeg has no dependencies. it does not have inbuilt CMake support.
     openjpeg    "https://github.com/uclouvain/openjpeg/archive/refs/tags/v2.5.3.tar.gz"
-    # openjpeg (library) is self-sufficient.
+    # openjpeg has no dependencies.
     png         "https://github.com/pnggroup/libpng/archive/refs/tags/v1.6.50.tar.gz"
     # png requires zlib
-    libtiff     "https://gitlab.com/libtiff/libtiff/-/archive/v4.7.0/libtiff-v4.7.0.tar.gz"
-    # libtiff uses zlib, libjpeg, lerc, zstd
-    # libtiff does not use deflate, jbig, liblzma, wbep are not currently provided or configured)
+    tiff        "https://gitlab.com/libtiff/libtiff/-/archive/v4.7.0/libtiff-v4.7.0.tar.gz"
+    # tiff uses zlib, libjpeg, lerc, zstd
+    # (tiff does not use deflate, jbig, liblzma, wbep, which are not currently provided or configured)
     mbedtls     "https://github.com/Mbed-TLS/mbedtls/releases/download/mbedtls-3.6.4/mbedtls-3.6.4.tar.bz2"
     # mbedtls
-    libssh2     "https://github.com/libssh2/libssh2/releases/download/libssh2-1.11.1/libssh2-1.11.1.tar.gz"
-    # libssh2 uses mbedtls
+    ssh2        "https://github.com/libssh2/libssh2/releases/download/libssh2-1.11.1/libssh2-1.11.1.tar.gz"
+    # ssh2 is configured to use mbedtls
     curl        "https://curl.se/download/curl-8.15.0.tar.gz"
-    # curl uses zlib, zstd, brotli, libssh2, mbedtls
+    # curl uses zlib, zstd, brotli, ssh2, mbedtls
     harfbuzz_NOCONF    "https://github.com/harfbuzz/harfbuzz/archive/refs/tags/11.2.1.tar.gz"
     # download and unpack harfbuzz, but do not configure yet, allows freetype access to headers
     freetype    "https://download.savannah.gnu.org/releases/freetype/freetype-2.13.3.tar.gz"
-    # freetype uses zlib, bzip2, brotli, png, and harfbuzz (circular).
+    # freetype uses zlib, bzip2, brotli, png, and harfbuzz (circular-dependency).
     harfbuzz    "https://github.com/harfbuzz/harfbuzz/archive/refs/tags/11.2.1.tar.gz"
     # harfbuzz uses freetype, but will use Navitab's freetype if it is a build target, so is processed afterwards
-
-    # !!! I think everything above here has been 'sanitised', anything below still needs some work !!!
-
     mupdf       "https://github.com/ArtifexSoftware/mupdf/archive/refs/tags/1.26.3.tar.gz"
+    # mupdf uses zlib, brotli, lcms2, jbig2, jpeg, openjpeg, freetype, harfbuzz, gumbo
     glfw        "https://github.com/glfw/glfw/releases/download/3.4/glfw-3.4.zip"
+    # glfw has no dependencies.
     lvgl        "https://github.com/lvgl/lvgl/archive/refs/tags/v9.1.0.zip"
-    lunasvg     "https://github.com/sammycage/lunasvg/archive/refs/tags/v3.3.0.zip"
+    # lvgl has no dependencies.
 )
 
 # we don't want any of the 3rd party libraries to build shared libs, examples or testing
@@ -105,6 +102,8 @@ if(XCODE)
 endif()
 
 # Download and configure each of the 3rd-party pacakages in turn
+include(Downloader)
+message(STATUS "Downloading and configuring third-party sources")
 foreach(x ${PKGS})
     if("${pkg}" STREQUAL "")
         set(pkg "${x}")
@@ -113,8 +112,11 @@ foreach(x ${PKGS})
         unset(pkg)
     endif()
 endforeach()
-
 message(STATUS "Finished making external content available")
+
+# restore any cache variables that Navitab makes use of itself.
+set(BUILD_TESTING ${BUILD_TESTING_saved} CACHE BOOL "Include tests in build" FORCE)
+unset(BUILD_TESTING_saved)
 
 # create a single interface library for Navitab which references the packages it uses directly
 add_library(navitab_3rdparty INTERFACE)
@@ -127,6 +129,3 @@ target_link_libraries(navitab_3rdparty
     INTERFACE lvgl
     INTERFACE sqlite3
 )
-
-set(BUILD_TESTING ${BUILD_TESTING_saved} CACHE BOOL "Include tests in build" FORCE)
-unset(BUILD_TESTING_saved)

@@ -31,10 +31,10 @@ target_link_libraries(tiff
     INTERFACE libzstd
 )
 
-# this aims to help find_package select this tiff library to help out 
+# This is to influence findPackage into detecting Navitab's version of Tiff
+set(TIFF_INCLUDE_DIR "${libtiff_SOURCE_DIR}/libtiff" CACHE INTERNAL "")
 if(MSVC)
     set(TIFF_LIBRARY "${libtiff_BINARY_DIR}/libtiff/tiff.lib" CACHE INTERNAL "")
 else()
-    set(TIFF_LIBRARY "${libtiff_BINARY_DIR}/libtiff/libtiff.a" CACHE INTERNAL "")
+    set(TIFF_LIBRARY "${libtiff_BINARY_DIR}/libtiff/${XCODE_LIB_PATH_PREFIX}libtiff.a" CACHE INTERNAL "")
 endif()
-set(TIFF_INCLUDE_DIR "${libtiff_SOURCE_DIR}/libtiff" CACHE INTERNAL "")

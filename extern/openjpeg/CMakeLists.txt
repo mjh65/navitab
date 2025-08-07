@@ -18,3 +18,5 @@ target_include_directories(openjp2
 unset(BUILD_CODEC CACHE)
 unset(LIBRARY_OUTPUT_PATH CACHE)
 unset(EXECUTABLE_OUTPUT_PATH CACHE)
+
+# TODO - do we need to set some cache variables to ensure this version is found?

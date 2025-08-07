@@ -42,10 +42,9 @@ target_include_directories(jpeg_static
 
 # this aims to help find_package select this jpeg library to help out 
 add_library(JPEG::JPEG ALIAS jpeg_static)
+set(JPEG_INCLUDE_DIR "${libjpeg_SOURCE_DIR}" CACHE INTERNAL "")
 if(MSVC)
     set(JPEG_LIBRARY "${libjpeg_BINARY_DIR}/jpeg_static.lib" CACHE INTERNAL "")
 else()
-    set(JPEG_LIBRARY "${libjpeg_BINARY_DIR}/libjpeg_static.a" CACHE INTERNAL "")
+    set(JPEG_LIBRARY "${libjpeg_BINARY_DIR}/${XCODE_LIB_PATH_PREFIX}libjpeg_static.a" CACHE INTERNAL "")
 endif()
-set(JPEG_INCLUDE_DIR "${libjpeg_SOURCE_DIR}" CACHE INTERNAL "")
-

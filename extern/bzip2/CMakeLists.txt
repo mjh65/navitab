@@ -24,11 +24,9 @@ target_include_directories(bzip2
 )
 
 # This is to influence findPackage into detecting Navitab's version of BZip2
-set(BZIP2_INCLUDE_DIR "${bzip2_SOURCE_DIR}")
+set(BZIP2_INCLUDE_DIR "${bzip2_SOURCE_DIR}" CACHE INTERNAL "")
 if(MSVC)
-    set(BZIP2_LIBRARIES "${bzip2_BINARY_DIR}/bzip2.lib" CACHE INTERNAL "")
+    set(BZIP2_LIBRARIES "${CMAKE_CURRENT_BINARY_DIR}/bzip2.lib" CACHE INTERNAL "")
 else()
-    set(BZIP2_LIBRARIES "${bzip2_BINARY_DIR}/libbzip2.a" CACHE INTERNAL "")
+    set(BZIP2_LIBRARIES "${CMAKE_CURRENT_BINARY_DIR}/${XCODE_LIB_PATH_PREFIX}libbzip2.a" CACHE INTERNAL "")
 endif()
-
-find_package(BZip2)

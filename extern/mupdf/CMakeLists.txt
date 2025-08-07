@@ -45,6 +45,7 @@ target_include_directories(mupdf
 target_link_libraries(mupdf
     PRIVATE zlibstatic
     PRIVATE brotlidec
+    PRIVATE brotlienc
     PRIVATE lcms2
     PRIVATE jbig2dec
     PRIVATE jpeg_static

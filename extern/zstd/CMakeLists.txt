@@ -13,10 +13,9 @@ add_subdirectory("${zstd_SOURCE_DIR}/build/cmake" "${zstd_BINARY_DIR}" EXCLUDE_F
 
 # Ensure that find_package selects Navitab's downloaded zstd static library 
 # CMake target is called 'libzstd'
+set(ZSTD_INCLUDE_DIR "${zstd_SOURCE_DIR}/lib" CACHE INTERNAL "")
 if(MSVC)
     set(ZSTD_LIBRARY "${zstd_BINARY_DIR}/lib/zstd_static.lib" CACHE INTERNAL "")
 else()
     set(ZSTD_LIBRARY "${zstd_BINARY_DIR}/lib/${XCODE_LIB_PATH_PREFIX}libzstd.a" CACHE INTERNAL "")
 endif()
-set(ZSTD_INCLUDE_DIR "${zstd_SOURCE_DIR}/lib" CACHE INTERNAL "")
-

@@ -76,13 +76,15 @@ set(PKGS
     # libssh2 uses mbedtls
     curl        "https://curl.se/download/curl-8.15.0.tar.gz"
     # curl uses zlib, zstd, brotli, libssh2, mbedtls
+    harfbuzz_NOCONF    "https://github.com/harfbuzz/harfbuzz/archive/refs/tags/11.2.1.tar.gz"
+    # download and unpack harfbuzz, but do not configure yet, allows freetype access to headers
+    freetype    "https://download.savannah.gnu.org/releases/freetype/freetype-2.13.3.tar.gz"
+    # freetype uses zlib, bzip2, brotli, png, and harfbuzz (circular).
+    harfbuzz    "https://github.com/harfbuzz/harfbuzz/archive/refs/tags/11.2.1.tar.gz"
+    # harfbuzz uses freetype, but will use Navitab's freetype if it is a build target, so is processed afterwards
 
     # !!! I think everything above here has been 'sanitised', anything below still needs some work !!!
 
-    freetype    "https://download.savannah.gnu.org/releases/freetype/freetype-2.13.3.tar.gz"
-    # freetype uses zlib, bzip2, brotli, png, and harfbuzz (circular). it does not have inbuilt CMake support.
-    harfbuzz    "https://github.com/harfbuzz/harfbuzz/archive/refs/tags/11.2.1.tar.gz"
-    # harfbuzz might have circular dependency on freetype
     mupdf       "https://github.com/ArtifexSoftware/mupdf/archive/refs/tags/1.26.3.tar.gz"
     glfw        "https://github.com/glfw/glfw/releases/download/3.4/glfw-3.4.zip"
     lvgl        "https://github.com/lvgl/lvgl/archive/refs/tags/v9.1.0.zip"
@@ -93,6 +95,7 @@ set(PKGS
 # these variables are common to more than one library, so we set them once here
 set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "")
 set(BUILD_EXAMPLES OFF CACHE INTERNAL "")
+set(SKIP_INSTALL_ALL ON CACHE INTERNAL "")
 set(BUILD_TESTING_saved ${BUILD_TESTING})
 set(BUILD_TESTING OFF CACHE BOOL "Include tests in build" FORCE)
 

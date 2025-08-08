@@ -11,3 +11,7 @@ if(MSVC)
 else()
     set(LERC_LIBRARY "${lerc_BINARY_DIR}/${XCODE_LIB_PATH_PREFIX}liblerc.a" CACHE INTERNAL "")
 endif()
+
+# Cache settings to be used when BUILD_NAVITAB_THIRDPARTY is OFF
+set(NAVITAB_lerc_PKGLIBS lerc CACHE INTERNAL "")
+set(NAVITAB_lerc_LOCATION "${LERC_LIBRARY}" CACHE INTERNAL "")

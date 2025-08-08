@@ -19,3 +19,7 @@ if(MSVC)
 else()
     set(ZSTD_LIBRARY "${zstd_BINARY_DIR}/lib/${XCODE_LIB_PATH_PREFIX}libzstd.a" CACHE INTERNAL "")
 endif()
+
+# Cache settings to be used when BUILD_NAVITAB_THIRDPARTY is OFF
+set(NAVITAB_zstd_PKGLIBS libzstd CACHE INTERNAL "")
+set(NAVITAB_libzstd_LOCATION "${ZSTD_LIBRARY}" CACHE INTERNAL "")

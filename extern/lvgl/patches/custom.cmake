@@ -116,13 +116,13 @@ install(
   DESTINATION "${LIB_INSTALL_DIR}/pkgconfig/")
 
 # Install library
-set_target_properties(
-  lvgl
-  PROPERTIES OUTPUT_NAME lvgl
-             ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-             LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-             PUBLIC_HEADER "${LVGL_PUBLIC_HEADERS}")
+#set_target_properties(
+#  lvgl
+#  PROPERTIES OUTPUT_NAME lvgl
+#             ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+#             LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+#             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+#             PUBLIC_HEADER "${LVGL_PUBLIC_HEADERS}")
 
 install(
   TARGETS lvgl
@@ -134,13 +134,13 @@ install(
 
 # Install library thorvg
 if(NOT LV_CONF_BUILD_DISABLE_THORVG_INTERNAL)
-  set_target_properties(
-    lvgl_thorvg
-    PROPERTIES OUTPUT_NAME lvgl_thorvg
-               ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-               LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-               RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-               PUBLIC_HEADER "${LVGL_PUBLIC_HEADERS}")
+#  set_target_properties(
+#    lvgl_thorvg
+#    PROPERTIES OUTPUT_NAME lvgl_thorvg
+#               ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+#               LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+#               RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+#               PUBLIC_HEADER "${LVGL_PUBLIC_HEADERS}")
 
   install(
     TARGETS lvgl_thorvg

@@ -41,26 +41,25 @@ endif()
 
 # Various CMake configuration bits and pieces
 list(PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+set_property(GLOBAL PROPERTY USE_FOLDERS ON) # Nicely support folders in IDEs
 find_package(Threads)
 option(NAVITAB_DOWNLOAD_PREFIX
     "Directory to be used for third-party package downloads"
     "${CMAKE_CURRENT_SOURCE_DIR}/build/download"
 )
+option(BUILD_NAVITAB_THIRDPARTY
+    "If not set then the build will be configured to import pre-built third-party libraries rather than build them."
+    ON
+)
 
 # Set things like CMAKE_CXX_STANDARD here
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
-# Ensure -std=c++xx instead of -std=g++xx
-set(CMAKE_CXX_EXTENSIONS OFF)
-
+set(CMAKE_CXX_EXTENSIONS OFF) # ensure -std=c++xx instead of -std=g++xx
 if(WIN32 AND MINGW)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse4.1")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse4.1")
 endif()
-
-# Nicely support folders in IDEs
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Testing
 include(CTest)
@@ -73,9 +72,10 @@ if(NOT Doxygen_FOUND)
 endif()
 add_subdirectory(docs)
 
-# External (third-party) source packages are downloaded and configured here
-include(FetchContent)
-add_subdirectory(extern EXCLUDE_FROM_ALL)
+# External (third-party) source packages are downloaded and configured here.
+# Create a single interface library for Navitab which references the packages required.
+add_library(navitab_3rdparty INTERFACE)
+add_subdirectory(extern)
 
 # Check for simulator SDK's and set variables if defined
 if(WIN32 AND DEFINED ENV{MSFS_SDK})

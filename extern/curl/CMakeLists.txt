@@ -36,3 +36,14 @@ target_link_libraries(libcurl_static
     INTERFACE libssh2_static
     INTERFACE mbedtls
 )
+
+# Cache settings to be used when BUILD_NAVITAB_THIRDPARTY is OFF
+set(NAVITAB_curl_PKGLIBS libcurl_static CACHE INTERNAL "")
+if(MSVC)
+    set(NAVITAB_libcurl_static_LOCATION "${curl_BINARY_DIR}/lib/libcurl.lib" CACHE INTERNAL "")
+else()
+    set(NAVITAB_libcurl_static_LOCATION "${curl_BINARY_DIR}/lib/${XCODE_LIB_PATH_PREFIX}libcurl.a" CACHE INTERNAL "")
+endif()
+set(NAVITAB_libcurl_static_INCDIRS "${curl_SOURCE_DIR}/include" CACHE INTERNAL "")
+set(NAVITAB_libcurl_static_CPPDEFS CURL_STATICLIB CACHE INTERNAL "")
+set(NAVITAB_libcurl_static_LINKLIBS libzstd libssh2_static mbedtls CACHE INTERNAL "")

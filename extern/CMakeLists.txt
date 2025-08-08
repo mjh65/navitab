@@ -88,44 +88,69 @@ set(PKGS
     # lvgl has no dependencies.
 )
 
-# we don't want any of the 3rd party libraries to build shared libs, examples or testing
-# these variables are common to more than one library, so we set them once here
-set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "")
-set(BUILD_EXAMPLES OFF CACHE INTERNAL "")
-set(SKIP_INSTALL_ALL ON CACHE INTERNAL "")
-set(BUILD_TESTING_saved ${BUILD_TESTING})
-set(BUILD_TESTING OFF CACHE BOOL "Include tests in build" FORCE)
+if(${BUILD_NAVITAB_THIRDPARTY})
+    # This is the default build mode which builds the complete Navitab source tree
+    # including the external 3rd party libraries.
 
-# Xcode puts the libraries in a config subdirectory
-if(XCODE)
-    set(XCODE_LIB_PATH_PREFIX "$(CONFIGURATION)/")
+    # We don't want any of the packages to build shared libs, examples or testing.
+    # These variables are common to more than one library, so we set them once here.
+    set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "")
+    set(BUILD_EXAMPLES OFF CACHE INTERNAL "")
+    set(SKIP_INSTALL_ALL ON CACHE INTERNAL "")
+    set(BUILD_TESTING_saved ${BUILD_TESTING})
+    set(BUILD_TESTING OFF CACHE BOOL "Include tests in build" FORCE)
+    if(XCODE)
+        # Xcode puts the libraries in a config subdirectory
+        set(XCODE_LIB_PATH_PREFIX "$(CONFIGURATION)/")
+    endif()
+
+    # Download and configure each of the third-party packages in turn
+    include(Downloader)
+    message(STATUS "Downloading and configuring third-party sources")
+    foreach(x ${PKGS})
+        if("${pkg}" STREQUAL "")
+            set(pkg ${x})
+        else()
+            IncludeDownloadedPackage(${pkg} "${x}")
+            unset(pkg)
+        endif()
+    endforeach()
+    message(STATUS "Finished making external content available")
+
+    # Restore any cache variables that Navitab makes use of itself.
+    set(BUILD_TESTING ${BUILD_TESTING_saved} CACHE BOOL "Include tests in build" FORCE)
+    unset(BUILD_TESTING_saved)
+
+else() # NOT ${BUILD_NAVITAB_THIRDPARTY}
+    # This is the alternative build mode which only builds the Navitab sources
+    # and imports the external 3rd party libraries from the build directory.
+
+    include(Importer)
+    message(STATUS "Importing previously built third-party libraries")
+    foreach(x ${PKGS})
+        if("${pkg}" STREQUAL "")
+            set(pkg "${x}")
+        else()
+            ImportBuiltLibrary("${pkg}")
+            unset(pkg)
+        endif()
+    endforeach()
+
+    if(WIN32)
+        set(sys_libraries iphlpapi advapi32 crypt32 ws2_32 bcrypt)
+    elseif(APPLE)
+        set(sys_libraries
+            "-lm" "-framework SystemConfiguration" "-framework CoreFoundation"
+            "-framework CoreServices" "-framework ApplicationServices"
+            "-framework Cocoa" "-framework IOKit"
+        )
+    endif()
+
 endif()
 
-# Download and configure each of the 3rd-party pacakages in turn
-include(Downloader)
-message(STATUS "Downloading and configuring third-party sources")
-foreach(x ${PKGS})
-    if("${pkg}" STREQUAL "")
-        set(pkg "${x}")
-    else()
-        IncludeDownloadedPackage("${pkg}" "${x}")
-        unset(pkg)
-    endif()
-endforeach()
-message(STATUS "Finished making external content available")
-
-# restore any cache variables that Navitab makes use of itself.
-set(BUILD_TESTING ${BUILD_TESTING_saved} CACHE BOOL "Include tests in build" FORCE)
-unset(BUILD_TESTING_saved)
-
-# create a single interface library for Navitab which references the packages it uses directly
-add_library(navitab_3rdparty INTERFACE)
+# These are the immediate dependencies for Navitab tools
 target_link_libraries(navitab_3rdparty
     INTERFACE Threads::Threads
-    INTERFACE fmt
-    INTERFACE nlohmann_json
-    INTERFACE libcurl_static
-    INTERFACE mupdf
-    INTERFACE lvgl
-    INTERFACE sqlite3
+    fmt nlohmann_json libcurl_static mupdf lvgl sqlite3
+    ${sys_libraries}
 )

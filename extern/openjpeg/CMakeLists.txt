@@ -19,4 +19,10 @@ unset(BUILD_CODEC CACHE)
 unset(LIBRARY_OUTPUT_PATH CACHE)
 unset(EXECUTABLE_OUTPUT_PATH CACHE)
 
-# TODO - do we need to set some cache variables to ensure this version is found?
+# Cache settings to be used when BUILD_NAVITAB_THIRDPARTY is OFF
+set(NAVITAB_openjpeg_PKGLIBS openjp2 CACHE INTERNAL "")
+if(MSVC)
+    set(NAVITAB_openjp2_LOCATION "${openjpeg_BINARY_DIR}/src/lib/openjp2/openjp2.lib" CACHE INTERNAL "")
+else()
+    set(NAVITAB_openjp2_LOCATION "${openjpeg_BINARY_DIR}/src/lib/openjp2/${XCODE_LIB_PATH_PREFIX}libopenjp2.a" CACHE INTERNAL "")
+endif()

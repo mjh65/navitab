@@ -22,3 +22,7 @@ add_library(ZLIB::ZLIB ALIAS zlibstatic)
 # properties here to align with the (uniformly located) cache variables,
 set_target_properties(zlibstatic PROPERTIES OUTPUT_NAME zlibs)
 set_target_properties(zlibstatic PROPERTIES OUTPUT_DIRECTORY "${zlib_BINARY_DIR}")
+
+# Cache settings to be used when BUILD_NAVITAB_THIRDPARTY is OFF
+set(NAVITAB_zlib_PKGLIBS zlibstatic CACHE INTERNAL "")
+set(NAVITAB_zlibstatic_LOCATION "${ZLIB_LIBRARY}" CACHE INTERNAL "")

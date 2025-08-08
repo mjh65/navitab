@@ -38,11 +38,11 @@ elseif(APPLE)
     target_compile_definitions(xplane_plugin PRIVATE APL=1)
     target_link_options(xplane_plugin PRIVATE
         "-F${XPLANE_SDK}/Libraries/Mac"
-        -framework XPLM
     )
     target_link_libraries(xplane_plugin
         navitab_core
         navitab_sim_xp
+        "-framework XPLM"
         "-framework OpenGL"
     )
     install(TARGETS xplane_plugin DESTINATION navitab/xplane/Navitab/mac_x64)

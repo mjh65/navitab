@@ -66,13 +66,18 @@ appropriate. Other toolchains may work, but are unlikely to be tested.
 
 ### Dependencies
 
-Navitab is dependent on a number of 3rd party source code libraries which will be
+Navitab is dependent on a number of 3rd-party source code libraries which will be
 downloaded and configured as part of the CMake configuration process. The first
 configuration and build will take some time, but subsequent iterations builds
 should be quicker. In particular a custom source package cache is created in the
 top-level build directory which is shared between the build configurations (Debug,
 Release, etc). There should be no reason to delete these packages after the first
 download, and this will make future re-configurations slightly faster.
+
+Furthermore, after the first complete build, the CMake configuration can be redone
+with the option (cache variable) `BUILD_NAVITAB_THIRDPARTY` set to `OFF`.
+This will remove the 3rd-party sources from the build graph and treat the previously
+built libraries as immutable sources, reducing the number of build steps.
 
 Navitab is almost entirely written in C++. Some of the 3rd-party libraries
 may require additional toolchains and packages to be available in the environment.

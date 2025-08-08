@@ -53,3 +53,11 @@ target_include_directories(gumbo
 if(MSVC)
     target_include_directories(gumbo PRIVATE "${gumbo_SOURCE_DIR}/visualc/include")
 endif()
+
+# Cache settings to be used when BUILD_NAVITAB_THIRDPARTY is OFF
+set(NAVITAB_gumbo_PKGLIBS gumbo CACHE INTERNAL "")
+if(MSVC)
+    set(NAVITAB_gumbo_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/gumbo.lib" CACHE INTERNAL "")
+else()
+    set(NAVITAB_gumbo_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/${XCODE_LIB_PATH_PREFIX}libgumbo.a" CACHE INTERNAL "")
+endif()

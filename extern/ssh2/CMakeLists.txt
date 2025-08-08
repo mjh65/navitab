@@ -15,3 +15,7 @@ if(MSVC)
 else()
     set(LIBSSH2_LIBRARY "${ssh2_BINARY_DIR}/src/${XCODE_LIB_PATH_PREFIX}libssh2.a" CACHE INTERNAL "")
 endif()
+
+# Cache settings to be used when BUILD_NAVITAB_THIRDPARTY is OFF
+set(NAVITAB_ssh2_PKGLIBS libssh2_static CACHE INTERNAL "")
+set(NAVITAB_libssh2_static_LOCATION "${LIBSSH2_LIBRARY}" CACHE INTERNAL "")

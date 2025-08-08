@@ -29,3 +29,12 @@ target_compile_definitions(sqlite3 PRIVATE
 target_include_directories(sqlite3
     PUBLIC "${sqlite_SOURCE_DIR}"
 )
+
+# Cache settings to be used when BUILD_NAVITAB_THIRDPARTY is OFF
+set(NAVITAB_sqlite_PKGLIBS sqlite3 CACHE INTERNAL "")
+if(MSVC)
+    set(NAVITAB_sqlite3_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/sqlite3.lib" CACHE INTERNAL "")
+else()
+    set(NAVITAB_sqlite3_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/${XCODE_LIB_PATH_PREFIX}libsqlite3.a" CACHE INTERNAL "")
+endif()
+set(NAVITAB_sqlite3_INCDIRS "${sqlite_SOURCE_DIR}" CACHE INTERNAL "")

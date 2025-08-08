@@ -18,3 +18,12 @@ add_subdirectory("${freetype_SOURCE_DIR}" "${freetype_BINARY_DIR}" EXCLUDE_FROM_
 target_link_libraries(freetype PRIVATE png_static bzip2)
 
 unset(DISABLE_FORCE_DEBUG_POSTFIX CACHE)
+
+# Cache settings to be used when BUILD_NAVITAB_THIRDPARTY is OFF
+set(NAVITAB_freetype_PKGLIBS freetype CACHE INTERNAL "")
+if(MSVC)
+    set(NAVITAB_freetype_LOCATION "${freetype_BINARY_DIR}/freetype.lib" CACHE INTERNAL "")
+else()
+    set(NAVITAB_freetype_LOCATION "${freetype_BINARY_DIR}/${XCODE_LIB_PATH_PREFIX}libfreetype.a" CACHE INTERNAL "")
+endif()
+set(NAVITAB_freetype_LINKLIBS png_static bzip2 CACHE INTERNAL "")

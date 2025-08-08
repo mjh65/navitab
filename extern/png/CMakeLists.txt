@@ -34,3 +34,7 @@ if(MSVC)
 else()
     set(PNG_LIBRARY "${png_BINARY_DIR}/${XCODE_LIB_PATH_PREFIX}libpngs.a" CACHE INTERNAL "")
 endif()
+
+# Cache settings to be used when BUILD_NAVITAB_THIRDPARTY is OFF
+set(NAVITAB_png_PKGLIBS png_static CACHE INTERNAL "")
+set(NAVITAB_png_static_LOCATION "${PNG_LIBRARY}" CACHE INTERNAL "")

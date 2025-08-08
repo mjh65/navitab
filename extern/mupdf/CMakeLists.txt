@@ -54,3 +54,13 @@ target_link_libraries(mupdf
     PRIVATE harfbuzz
     PRIVATE gumbo
 )
+
+# Cache settings to be used when BUILD_NAVITAB_THIRDPARTY is OFF
+set(NAVITAB_mupdf_PKGLIBS mupdf CACHE INTERNAL "")
+if(MSVC)
+    set(NAVITAB_mupdf_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/mupdf.lib" CACHE INTERNAL "")
+else()
+    set(NAVITAB_mupdf_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/${XCODE_LIB_PATH_PREFIX}libmupdf.a" CACHE INTERNAL "")
+endif()
+set(NAVITAB_mupdf_INCDIRS "${mupdf_SOURCE_DIR}/include" CACHE INTERNAL "")
+set(NAVITAB_mupdf_LINKLIBS zlibstatic brotlidec brotlienc brotlicommon lcms2 jbig2dec jpeg_static openjp2 freetype harfbuzz gumbo CACHE INTERNAL "")

@@ -20,12 +20,6 @@
 
 #pragma once
 
-#include <memory>
-#include <functional>
-#include <queue>
-#include <mutex>
-#include <condition_variable>
-#include <thread>
 #include "navitab/core.h"
 #include "navitab/logger.h"
 #include "navitab/platform.h"
@@ -36,9 +30,15 @@
 #include "navitab/doodler.h"
 #include "navitab/keypad.h"
 #include "appcanvas.h"
-#include "../docs/docs.h"
-#include "../maps/maps.h"
+#include "../docs/docmanager.h"
+#include "../maps/maptileprovider.h"
 #include "../navdb/navdb.h"
+#include <memory>
+#include <functional>
+#include <queue>
+#include <mutex>
+#include <condition_variable>
+#include <thread>
 
 // This header file defines a class that manages the startup and use of the
 // Navitab subsystems. Each of the executable/plugin's main() function should
@@ -102,8 +102,8 @@ public:
 
     // ======================================================================
     // Implementation of AppServices
-    std::shared_ptr<DocsProvider> GetDocsProvider() override;
-    std::shared_ptr<MapsProvider> GetMapsProvider() override;
+    std::shared_ptr<DocumentManager> GetDocsProvider() override;
+    std::shared_ptr<MapTileProvider> GetMapsProvider() override;
     std::shared_ptr<NavProvider> GetNavProvider() override;
     void EnableTools(int toolMask, int repeatMask) override;
     PixelBuffer GetCanvasPixels() override;
@@ -159,8 +159,8 @@ private:
     std::shared_ptr<AppCanvas>          appcanvas;
     std::shared_ptr<lvglkit::Manager>   uiMgr;
 
-    std::shared_ptr<MapsProvider>       mapsProvider;
-    std::shared_ptr<DocsProvider>       docsProvider;
+    std::shared_ptr<MapTileProvider>       maptileProvider;
+    std::shared_ptr<DocumentManager>       docManager;
     std::shared_ptr<NavProvider>        navProvider;
 
     std::shared_ptr<AboutApp>           aboutApp;
@@ -175,6 +175,7 @@ private:
     bool                                activated;
     SimStateData                        simState;
 
+    // TODO - this pattern appears in a few places. turn into a base class?
     std::unique_ptr<std::thread>        worker;
     std::queue<std::function<void()>>   jobs;
     std::condition_variable             qsync;

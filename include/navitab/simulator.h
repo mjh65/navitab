@@ -44,8 +44,9 @@ struct SimStateData
     AircraftPosition    myPlane;
     size_t              nOtherPlanes;
     AircraftPosition    otherPlanes[MAX_OTHER_AIRCRAFT];
-    int                 zuluTime;
-    int                 fps;
+    unsigned            zuluTime;
+    unsigned            fps;
+    unsigned long       loopCount;
 };
 
 // The Simulator2Core interface defines services that the simulator

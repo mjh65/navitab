@@ -17,6 +17,10 @@
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 target_sources(navitab_core PRIVATE
-    docsprovider.cpp
-    docs.h
+    docmanager.cpp
+    docmanager.h
+    document.cpp
+    document.h
+    downloader.cpp
+    downloader.h
 )

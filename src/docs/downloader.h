@@ -18,26 +18,32 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "docs.h"
+#pragma once
+
+#include "navitab/logger.h"
+#include <curl/curl.h>
+
+struct fz_context;
 
 namespace navitab {
 
-DocsProvider::DocsProvider()
-:   LOG(std::make_unique<logging::Logger>("docs")),
-    r(nullptr)
-{
-}
+class Document;
 
-std::shared_ptr<RasterTile> DocsProvider::GetTile(int x, int y)
+class Downloader
 {
-    UNIMPLEMENTED(__func__);
-    return nullptr;
-}
+public:
+    Downloader(const std::string& url);
+    std::shared_ptr<Document> Download(bool& cancel, fz_context* fzc);
+    virtual ~Downloader();
 
-std::shared_ptr<RasterTile> DocsProvider::GetTile(unsigned page, int x, int y)
-{
-    UNIMPLEMENTED(__func__);
-    return nullptr;
-}
+private:
+    static size_t onData(void* buffer, size_t size, size_t nmemb, void* resPtr);
+    static int onProgress(void* client, curl_off_t dlTotal, curl_off_t dlNow, curl_off_t ulTotal, curl_off_t ulNow);
+
+private:
+    std::unique_ptr<logging::Logger> LOG;
+    CURL* curl = nullptr;
+    std::string url;
+};
 
 }

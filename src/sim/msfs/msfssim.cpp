@@ -65,10 +65,12 @@ void MsfsSimulator::Disconnect()
 
 void MsfsSimulator::AsyncPollSimulator()
 {
+    unsigned long n = 0;
     // TODO - look at the current Avitab MSFS interface (using SimDLL) for pattern
     using namespace std::chrono_literals;
     while (running) {
         std::this_thread::sleep_for(50ms);
+        mockData[tiktok].loopCount = n++;
         handler->PostSimUpdates(mockData[tiktok ? 1 : 0]);
         tiktok = !tiktok;
     }

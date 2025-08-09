@@ -43,8 +43,8 @@ struct Doodler2Core;
 class Keypad;
 struct Keypad2Core;
 struct WindowControls;
-class DocsProvider;
-class MapsProvider;
+class DocumentManager;
+class MapTileProvider;
 class NavProvider;
 
 enum HostPlatform { WIN, LNX, MAC };
@@ -127,8 +127,8 @@ struct CoreServices
 
 struct AppServices
 {
-    virtual std::shared_ptr<DocsProvider> GetDocsProvider() = 0;
-    virtual std::shared_ptr<MapsProvider> GetMapsProvider() = 0;
+    virtual std::shared_ptr<DocumentManager> GetDocsProvider() = 0;
+    virtual std::shared_ptr<MapTileProvider> GetMapsProvider() = 0;
     virtual std::shared_ptr<NavProvider> GetNavProvider() = 0;
 
     virtual void EnableTools(int toolMask, int repeatersMask) = 0;

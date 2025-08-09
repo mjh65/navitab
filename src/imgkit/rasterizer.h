@@ -20,12 +20,12 @@
 
 #pragma once
 
+#include "navitab/window.h"
+#include "navitab/logger.h"
 #include <memory>
 #include <vector>
 #include <string>
 #include <mupdf/fitz.h>
-#include "navitab/window.h"
-#include "navitab/logger.h"
 
 namespace navitab {
 
@@ -54,7 +54,6 @@ private:
     int totalPages = 0;
     int currentPageNum = 0;
     int preRotateAngle = 0;
-    fz_context *ctx {};
     fz_stream *stream{};
     fz_document *doc{};
     fz_display_list *currentPageList {};
@@ -69,3 +68,4 @@ private:
 };
 
 } // namespace navitab
+

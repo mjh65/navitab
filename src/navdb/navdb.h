@@ -33,6 +33,8 @@ class NavProvider
 public:
     NavProvider();
 
+    void MaintenanceTick();
+
     virtual ~NavProvider() = default;
 
 private:

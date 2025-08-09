@@ -18,6 +18,7 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#if 0
 #include "rasterizer.h"
 #include <fmt/core.h>
 #include <thread>
@@ -296,3 +297,6 @@ Rasterizer::~Rasterizer() {
 }
 
 } // namespace navitab
+
+
+#endif

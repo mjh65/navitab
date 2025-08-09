@@ -27,4 +27,8 @@ NavProvider::NavProvider()
 {
 }
 
+void NavProvider::MaintenanceTick()
+{
+}
+
 }

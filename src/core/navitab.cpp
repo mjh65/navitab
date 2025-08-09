@@ -206,8 +206,8 @@ void Navitab::Start()
 
     worker = std::make_unique<std::thread>([this]() { AsyncWorker(); });
 
-    mapsProvider = std::make_shared<MapsProvider>();
-    docsProvider = std::make_shared<DocsProvider>();
+    docManager = std::make_shared<DocumentManager>();
+    maptileProvider = std::make_shared<MapTileProvider>(docManager);
     navProvider = std::make_shared<NavProvider>();
 
     uiMgr = std::make_shared<lvglkit::Manager>(std::static_pointer_cast<DeferredJobRunner<int>>(shared_from_this()));
@@ -258,8 +258,8 @@ void Navitab::Stop()
     settingsApp.reset();
     uiMgr.reset();
     navProvider.reset();
-    docsProvider.reset();
-    mapsProvider.reset();
+    maptileProvider.reset();
+    docManager.reset();
     settings.reset();
     if (running) {
         running = false;
@@ -276,6 +276,18 @@ void Navitab::onSimFlightLoop(const SimStateData& data)
 
     simState = data;
     toolbar->SetStausInfo(data.zuluTime, data.fps, data.myPlane.loc);
+    auto mt = data.loopCount / 12; // TODO - somewhat arbitrary clock-divider
+    switch (mt % 3) {
+    case 0:
+        docManager->MaintenanceTick();
+        break;
+    case 1:
+        maptileProvider->MaintenanceTick();
+        break;
+    default:
+        navProvider->MaintenanceTick();
+        break;
+    }
     activeApp->FlightLoop(data);
     appcanvas->UpdateProtoDevelopment(); // TODO - remove this once we have LVGL installed
 }
@@ -284,17 +296,17 @@ void Navitab::StartApps()
 {
     // TODO - get the launch app from the settings, and use this.
     activeApp->Activate(appcanvas->Display());
-    modebar->SetHighlightedModes(0x1); // TODO - get the launch app from the settings, and use this.
+    modebar->SetHighlightedModes(0x1); // TODO - set the modes that are relevant to the launched app
 }
 
-std::shared_ptr<DocsProvider> Navitab::GetDocsProvider()
+std::shared_ptr<DocumentManager> Navitab::GetDocsProvider()
 {
-    return docsProvider;
+    return docManager;
 }
 
-std::shared_ptr<MapsProvider> Navitab::GetMapsProvider()
+std::shared_ptr<MapTileProvider> Navitab::GetMapsProvider()
 {
-    return mapsProvider;
+    return maptileProvider;
 }
 
 std::shared_ptr<NavProvider> Navitab::GetNavProvider()

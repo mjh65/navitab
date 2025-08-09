@@ -19,6 +19,4 @@
 target_sources(navitab_core PRIVATE
     imgkit.cpp
     imgkit.h
-    rasterizer.cpp
-    rasterizer.h
 )

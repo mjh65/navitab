@@ -23,6 +23,7 @@
 #include "navitab/core.h"
 #include "navitab/toolbar.h"
 #include "navitab/simulator.h"
+#include "navitab/tiles.h"
 #include <cmath>
 #include <memory>
 
@@ -116,7 +117,17 @@ void MapApp::FlightLoop(const SimStateData& data)
 
 void MapApp::ToolClick(ClickableTool t)
 {
-    UNIMPLEMENTED(__func__ + fmt::format("({})", (int)t));
+    switch (t) {
+    case ClickableTool::REDUCE:
+        mapServer->SetZoom(mapServer->GetZoom() - 1);
+        break;
+    case ClickableTool::MAGNIFY:
+        mapServer->SetZoom(mapServer->GetZoom() + 1);
+        break;
+    default:
+        UNIMPLEMENTED(__func__ + fmt::format("({})", (int)t));
+        break;
+    }
 }
 
 } // namespace navitab

@@ -23,7 +23,7 @@
 #include <memory>
 #include "navitab/navigation.h"
 #include "../app.h"
-#include "../../maps/maps.h"
+#include "../../maps/maptileprovider.h"
 
 namespace navitab {
 
@@ -40,7 +40,7 @@ protected:
     void Demolish() override;
 
 private:
-    std::shared_ptr<MapsProvider> mapServer;
+    std::shared_ptr<MapTileProvider> mapServer;
     bool centredOnPlane;
     Location mapCentre;
 

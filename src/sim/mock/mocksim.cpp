@@ -74,6 +74,7 @@ void MockSimulator::Disconnect()
 
 void MockSimulator::AsyncRunSimulator()
 {
+    unsigned long n = 0;
     auto start = std::chrono::steady_clock::now();
     srand((unsigned int)start.time_since_epoch().count());
     auto zuluStart = rand() % (24 * 60 * 60);
@@ -87,6 +88,7 @@ void MockSimulator::AsyncRunSimulator()
     using namespace std::chrono_literals;
     while (running) {
         std::this_thread::sleep_for(50ms);
+        mockData[tiktok].loopCount = n++;
         mockData[tiktok].myPlane.loc.latitude = lat;
         mockData[tiktok].myPlane.loc.longitude = lon;
         lat += dlat;

@@ -20,7 +20,8 @@
 
 #pragma once
 
-#include "navitab/tiles.h"
+#include <memory>
+#include <map>
 #include "navitab/navigation.h"
 #include "navitab/logger.h"
 
@@ -30,14 +31,16 @@
 namespace navitab {
 
 class RasterTile;
+class DocumentManager;
 
-class MapsProvider : public TileProvider
+class MapTileProvider
 {
 public:
-    MapsProvider();
+    MapTileProvider(std::shared_ptr<DocumentManager>);
 
-    std::shared_ptr<RasterTile> GetTile(int x, int y) override;
-    std::shared_ptr<RasterTile> GetTile(unsigned page, int x, int y) override;
+    std::shared_ptr<RasterTile> GetTile(int x, int y);
+
+    void MaintenanceTick();
 
     void SetZoom(unsigned z);
     unsigned GetZoom();
@@ -50,10 +53,20 @@ public:
     double GetTileHeightDegrees();
     double GetTileHeightMetres();
 
-    virtual ~MapsProvider() = default;
+    virtual ~MapTileProvider() = default;
+
+private:
+    struct CachedTile {
+        CachedTile() = default;
+        CachedTile(std::shared_ptr<RasterTile> t) : tile(t), useCount(1) { }
+        std::shared_ptr<RasterTile> tile;
+        int useCount;
+    };
 
 private:
     std::unique_ptr<logging::Logger> LOG;
+    std::shared_ptr<DocumentManager> docMgr;
+    std::map<std::pair<int, int>, CachedTile> tileCache;
     std::shared_ptr<RasterTile> missingTile;
     unsigned zoom;
 };

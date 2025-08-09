@@ -324,6 +324,7 @@ float XPlaneSimulatorEnvoy::onFlightLoop(float elapsedSinceLastCall, float elaps
 
     fld.zuluTime = (int)XPLMGetDataf(zuluTimeDataRef);
     fld.fps = (int)(1.0f / std::max(XPLMGetDataf(frameRateDataRef), 0.01f));
+    fld.loopCount = (unsigned long)count;
     coreSimCallbacks->PostSimUpdates(fld);
 
     if (panel) panel->CheckVitalSigns();

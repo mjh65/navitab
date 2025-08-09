@@ -36,18 +36,10 @@ public:
     static const unsigned DefaultWidth = 256;
     static const unsigned DefaultHeight = 256;
 
-    RasterTile() : ImageBuffer(DefaultWidth, DefaultHeight) {}
     RasterTile(unsigned w, unsigned h) : ImageBuffer(w, h) {}
+    RasterTile() : ImageBuffer(DefaultWidth, DefaultHeight) {}
 
     virtual ~RasterTile() = default;
-};
-
-struct TileProvider
-{
-    virtual std::shared_ptr<RasterTile> GetTile(int x, int y) = 0;
-    virtual std::shared_ptr<RasterTile> GetTile(unsigned page, int x, int y) = 0;
-
-    virtual ~TileProvider() = default;
 };
 
 } // namespace navitab

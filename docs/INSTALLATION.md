@@ -1,7 +1,7 @@
 # Navitab Installation
 
 Navitab is available in a number of configurations. This document describes
-the use and how to install each one.
+their use and how to install each one.
 
 ## Navitab for Microsoft Flight Simulator
 
@@ -19,11 +19,13 @@ of the MSFS `Community` folder will depend on the original MSFS installation.
 This [article](https://helpdesk.aerosoft.com/hc/en-gb/articles/5023507568925-How-to-locate-the-Community-folder-in-Microsoft-Flight-Simulator)
 may help if the `Community` folder is proving to be elusive.
 
-To uninstall Navitab from MSFS simply remove the folder `navitab-ingamepanels-navitab`
-from the MSFS `Community` folder.
-
 To update Navitab it is recommended to remove the old folder before copying the new
 one. Navitab does not store any working files in the installed folder.
+
+To uninstall Navitab from MSFS simply remove the folder `navitab-ingamepanels-navitab`
+from the MSFS `Community` folder. Navitab stores its working files separately from the
+panel and server. To remove these files too refer to the final section of this document
+to find the location and then delete this folder/directory.
 
 ### Operation
 
@@ -51,10 +53,13 @@ To install Navitab for X-Plane copy the folder `Navitab` from the `xplane` sub-f
 into the `plugins` folder of your X-Plane installation. The `plugins` folder will be found
 in the `Resources` folder which is at the top-level of the X-Plane installation folder.
 
-To uninstall Navitab from X-Plane simply remove the folder `Navitab` from the `plugins` folder.
-
 To update Navitab it is recommended to remove the old folder before copying the new
 one. Navitab does not store any working files in the installed folder.
+
+To uninstall Navitab from X-Plane simply remove the folder `Navitab` from the `plugins` folder.
+Navitab stores its working files separately from the plugin. To remove these files too
+refer to the final section of this document to find the location and then delete this
+folder/directory.
 
 ### Operation
 
@@ -72,7 +77,8 @@ to assist with development and debugging.
 This is a self-contained GLFW desktop application that simplifies GUI development
 away from the simulator environment. A mock simulation interface is used, which can
 be programmed if predictable testing is required. The executable can be found in the
-`tools` folder.
+`tools` folder. Working files are stored as described in the final section of this
+document.
 
 ### Navitab Html/JS
 
@@ -87,3 +93,28 @@ have used the Servez application.
 This environment is mainly intended for development and testing of the MSFS panel UI,
 and the communications protocol between the panel and the server.
 
+Working files are stored as described in the final section of this document.
+
+## Navitab Working Files
+
+Navitab stores all of its working files separately from the installable packages. The
+location of these files varies according to the platform. The location of the working
+files is shown in the About app on the main Navitab display. However if Navitab has
+already been uninstalled, or is not working correctly then the working files can be
+located by finding a folder/directory call Navitab in one of the following locations.
+
+On Windows working files are stored in `%LOCALAPPDATA%\Navitab`
+(failing that `%APPDATA%\Navitab`, failing that `%USERPROFILE%\Navitab`, failing that
+`%TEMP%\Navitab`, or as a last resort `C:\Navitab`).
+
+On Linux working files are stored in `~/.navitab` or `~/.config/navitab`.
+
+On Mac working files are stored in `~/Library/Application Support/Navitab` (failing that
+`${TMPDIR}/Navitab`, or `/tmp/Navitab`.
+
+The working files are generally shared between all variations of Navitab that might run
+on the platform, although in the normal case, this is likely to be only 1 version, or
+possibly 2 where both Xplane and MSFS are installed on the same Windows system.
+
+Preference, log files and databases are named to allow peaceful cohabitation. Other
+*read-only* files are shared and available to all of the avitab variants.

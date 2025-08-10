@@ -1,4 +1,4 @@
-
+# This file is part of the Navitab project. See the README and LICENSE for details.
 
 # FreeType's CMake support is quite old, so cache variables are required to override options
 

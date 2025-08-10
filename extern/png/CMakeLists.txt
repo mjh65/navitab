@@ -1,3 +1,4 @@
+# This file is part of the Navitab project. See the README and LICENSE for details.
 
 set(PNG_STATIC ON)
 set(PNG_SHARED OFF)

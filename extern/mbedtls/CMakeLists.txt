@@ -1,4 +1,4 @@
-
+# This file is part of the Navitab project. See the README and LICENSE for details.
 
 set(MBEDTLS_AS_SUBPROJECT ON CACHE INTERNAL "")
 set(ENABLE_PROGRAMS OFF CACHE INTERNAL "")

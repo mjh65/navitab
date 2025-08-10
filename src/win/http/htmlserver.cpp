@@ -1,22 +1,4 @@
-/*
- *  Navitab - Navigation Tablet for VR flight simulation
- *  Copyright (c) 2024 Michael Hasling
- *  Significantly derived from Avitab
- *  Copyright (c) 2018-2024 Folke Will
- *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public License
- *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+/* This file is part of the Navitab project. See the README and LICENSE for details. */
 
 #include "htmlserver.h"
 #if defined(_WIN32)
@@ -173,7 +155,7 @@ void HtmlServer::serverLoop()
 
         if (FD_ISSET(httpService, &readSet)) {
             auto ps = accept(httpService, (sockaddr *) &clientAddr, &clientLen);
-            panelSockets[ps] = std::make_unique<HttpReq>();
+            panelSockets[ps] = std::make_unique<HttpReq>(LOG);
             LOGD(fmt::format("Accepted winhttp client on {}", ps));
         }
 
@@ -186,7 +168,7 @@ void HtmlServer::serverLoop()
                 } else if (i.second->feedData(reqBuffer.data(), (int)n)) {
                     auto keepAlive = processRequest(i.first, i.second.get());
                     if (keepAlive) {
-                        panelSockets[i.first] = std::make_unique<HttpReq>();
+                        panelSockets[i.first] = std::make_unique<HttpReq>(LOG);
                     } else {
                         toBeClosed[i.first] = 1;
                     }

@@ -1,8 +1,6 @@
-
-
+# This file is part of the Navitab project. See the README and LICENSE for details.
 
 add_subdirectory("${lerc_SOURCE_DIR}" "${lerc_BINARY_DIR}" EXCLUDE_FROM_ALL)
-
 
 # This is to influence findPackage into detecting Navitab's version of Lerc
 set(LERC_INCLUDE_DIR "${lerc_SOURCE_DIR}/src/LercLib/include" CACHE INTERNAL "")

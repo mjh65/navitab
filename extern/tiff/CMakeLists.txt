@@ -1,3 +1,4 @@
+# This file is part of the Navitab project. See the README and LICENSE for details.
 
 # tiff has cmake support which is quite old and generates warnings, and quite
 # a lot of noise. for simplicity we've disabled support for various codecs that

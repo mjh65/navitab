@@ -1,3 +1,4 @@
+# This file is part of the Navitab project. See the README and LICENSE for details.
 
 set(HB_HAVE_FREETYPE ON)
 set(HB_BUILD_SUBSET OFF)

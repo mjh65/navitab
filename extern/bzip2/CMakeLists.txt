@@ -1,4 +1,4 @@
-
+# This file is part of the Navitab project. See the README and LICENSE for details.
 
 # BZip2 does not provide a CMake script, so this is a basic wrapper for Navitab's needs.
 

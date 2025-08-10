@@ -1,4 +1,4 @@
-# This is a Navitab project file. See the project documentation for further information.
+# This file is part of the Navitab project. See the README and LICENSE for details.
 
 # This is Navitab's simplified equivalent of FetchContent.
 # It supports a local cache of all the downloaded and extracted packages to avoid unnecessary

@@ -1,4 +1,4 @@
-# This is a Navitab project file. See the project documentation for further information.
+# This file is part of the Navitab project. See the README and LICENSE for details.
 
 # This function applies a path prefix to a list of relative sources.
 # It's mainly useful for downloaded packages which are built with a

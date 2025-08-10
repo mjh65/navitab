@@ -1,4 +1,4 @@
-
+# This file is part of the Navitab project. See the README and LICENSE for details.
 
 set(CRYPTO_BACKEND mbedTLS CACHE INTERNAL "")
 set(LIBSSH2_NO_DEPRECATED ON CACHE INTERNAL "")

@@ -1,22 +1,4 @@
-/*
- *  Navitab - Navigation tablet for VR flight simulation
- *  Copyright (C) 2024 Michael Hasling
- *  Significantly derived from Avitab
- *  Copyright (C) 2018-2024 Folke Will <folko@solhost.org>
- *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Affero General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Affero General Public License for more details.
- *
- *  You should have received a copy of the GNU Affero General Public License
- *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+/* This file is part of the Navitab project. See the README and LICENSE for details. */
 
 #pragma once
 
@@ -95,10 +77,10 @@ public:
     void SetWindowControl(std::shared_ptr<WindowControls> w) override;
 
     // Startup and shutdown control - fine-grained enough to support all app classes.
-    void Start() override;    // TODO - called from XPluginStart - review this in SDK and Avitab
-    void Activate() override;  // TODO - called from XPluginEnable - review this in SDK and Avitab
-    void Deactivate() override; // TODO - called from XPluginDisable - review this in SDK and Avitab
-    void Stop() override;    // TODO - called from XPluginStop - review this in SDK and Avitab
+    void Start() override;
+    void Activate() override;
+    void Deactivate() override;
+    void Stop() override;
 
     // ======================================================================
     // Implementation of AppServices

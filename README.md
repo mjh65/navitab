@@ -101,3 +101,10 @@ If not set then the X-Plane plugin package will not be built.
 the Navitab core libraries. Navitab users will still be required to authenticate
 with Chartfox before the integration will become active.
 
+## Licensing and copyright
+
+Navitab is licensed under the GNU Affero General Public License, see the
+file LICENSE for the full text.
+
+The concept and various portions of the source code are derived from Avitab.
+Those portions of source code are Copyright (C) Folke Will <folko@solhost.org>.

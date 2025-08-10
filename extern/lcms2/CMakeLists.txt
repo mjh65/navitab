@@ -1,3 +1,4 @@
+# This file is part of the Navitab project. See the README and LICENSE for details.
 
 # Project name and a few useful settings. Other commands can pick up the results
 project(LCMS2

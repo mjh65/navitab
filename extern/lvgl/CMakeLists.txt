@@ -1,5 +1,4 @@
-
-# 
+# This file is part of the Navitab project. See the README and LICENSE for details.
 
 set(LV_CONF_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lv_conf.h)
 set(LV_CONF_BUILD_DISABLE_EXAMPLES ON)

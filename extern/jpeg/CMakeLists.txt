@@ -1,3 +1,4 @@
+# This file is part of the Navitab project. See the README and LICENSE for details.
 
 # The jpeg downloaded library has CMake support, but it is out of date and
 # produces multiple warnings. So Navitab uses its own configuration with some

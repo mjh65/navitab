@@ -1,4 +1,4 @@
-
+# This file is part of the Navitab project. See the README and LICENSE for details.
 
 # The openjpeg downloaded library has CMake support, but the supported versions
 # don't overlap with the minimum version Navitab requires. There may be quite a

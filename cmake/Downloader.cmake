@@ -5,7 +5,7 @@
 # and duplicated downloads, particularly during development.
 # In some ways it's a shallow, simplified version of git's submodule.
 
-function(IncludeDownloadedPackage pkg url)
+function(IncludeDownloadedPackage pkg url libslistvar)
     string(REGEX REPLACE "_NOCONF$" "" name ${pkg})
     cmake_path(APPEND cachedir "${NAVITAB_DOWNLOAD_PREFIX}" "_cache")
     cmake_path(APPEND pkgsig "${cachedir}" "${name}_srcdir")
@@ -66,10 +66,11 @@ function(IncludeDownloadedPackage pkg url)
     set(${name}_SOURCE_DIR "${srcpath}")
     set(${name}_BINARY_DIR "${PROJECT_BINARY_DIR}/download/${name}")
 
-    # now include Navitab's custom CMake script for the package
+    # now include Navitab's wrapper CMake script for the package
     if(${pkg} STREQUAL ${name})
         message(STATUS "Configuring build for Navitab third-party package ${name}")
         add_subdirectory("${name}")
+        set(${libslistvar} ${${libslistvar}} ${NAVITAB_${name}_PKGLIBS} PARENT_SCOPE)
     else()
         message(STATUS "Skipping  configuration for Navitab third-party package ${name}")
     endif()

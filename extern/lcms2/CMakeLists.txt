@@ -51,7 +51,7 @@ target_include_directories(lcms2
 # Cache settings to be used when BUILD_NAVITAB_THIRDPARTY is OFF
 set(NAVITAB_lcms2_PKGLIBS lcms2 CACHE INTERNAL "")
 if(MSVC)
-    set(NAVITAB_lcms2_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/lcms2.lib" CACHE INTERNAL "")
+    set(NAVITAB_lcms2_LOCATION "${NAVITAB_IMPORT_LIBS}/lcms2.lib" CACHE INTERNAL "")
 else()
-    set(NAVITAB_lcms2_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/${XCODE_LIB_PATH_PREFIX}liblcms2.a" CACHE INTERNAL "")
+    set(NAVITAB_lcms2_LOCATION "${NAVITAB_IMPORT_LIBS}/liblcms2.a" CACHE INTERNAL "")
 endif()

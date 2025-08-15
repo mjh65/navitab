@@ -29,18 +29,18 @@ unset(lzma CACHE)
 unset(webp CACHE)
 
 target_link_libraries(tiff
-    INTERFACE libzstd
+    INTERFACE zstd
 )
 
 # This is to influence findPackage into detecting Navitab's version of Tiff
 set(TIFF_INCLUDE_DIR "${tiff_SOURCE_DIR}/libtiff" CACHE INTERNAL "")
 if(MSVC)
-    set(TIFF_LIBRARY "${tiff_BINARY_DIR}/libtiff/tiff.lib" CACHE INTERNAL "")
+    set(TIFF_LIBRARY "${NAVITAB_IMPORT_LIBS}/tiff.lib" CACHE INTERNAL "")
 else()
-    set(TIFF_LIBRARY "${tiff_BINARY_DIR}/libtiff/${XCODE_LIB_PATH_PREFIX}libtiff.a" CACHE INTERNAL "")
+    set(TIFF_LIBRARY "${NAVITAB_IMPORT_LIBS}/libtiff.a" CACHE INTERNAL "")
 endif()
 
 # Cache settings to be used when BUILD_NAVITAB_THIRDPARTY is OFF
 set(NAVITAB_tiff_PKGLIBS tiff CACHE INTERNAL "")
 set(NAVITAB_tiff_LOCATION "${TIFF_LIBRARY}" CACHE INTERNAL "")
-set(NAVITAB_tiff_LINKLIBS libzstd CACHE INTERNAL "")
+set(NAVITAB_tiff_LINKLIBS zstd CACHE INTERNAL "")

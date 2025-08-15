@@ -27,12 +27,12 @@ target_include_directories(mupdf
     PUBLIC "${mupdf_SOURCE_DIR}/include"
 )
 target_link_libraries(mupdf
-    PRIVATE zlibstatic
+    PRIVATE zlibs
     PRIVATE brotlidec
     PRIVATE brotlienc
     PRIVATE lcms2
     PRIVATE jbig2dec
-    PRIVATE jpeg_static
+    PRIVATE jpeg
     PRIVATE openjp2
     PRIVATE freetype
     PRIVATE harfbuzz
@@ -42,9 +42,9 @@ target_link_libraries(mupdf
 # Cache settings to be used when BUILD_NAVITAB_THIRDPARTY is OFF
 set(NAVITAB_mupdf_PKGLIBS mupdf CACHE INTERNAL "")
 if(MSVC)
-    set(NAVITAB_mupdf_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/mupdf.lib" CACHE INTERNAL "")
+    set(NAVITAB_mupdf_LOCATION "${NAVITAB_IMPORT_LIBS}/mupdf.lib" CACHE INTERNAL "")
 else()
-    set(NAVITAB_mupdf_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/${XCODE_LIB_PATH_PREFIX}libmupdf.a" CACHE INTERNAL "")
+    set(NAVITAB_mupdf_LOCATION "${NAVITAB_IMPORT_LIBS}/libmupdf.a" CACHE INTERNAL "")
 endif()
 set(NAVITAB_mupdf_INCDIRS "${mupdf_SOURCE_DIR}/include" CACHE INTERNAL "")
-set(NAVITAB_mupdf_LINKLIBS zlibstatic brotlidec brotlienc brotlicommon lcms2 jbig2dec jpeg_static openjp2 freetype harfbuzz gumbo CACHE INTERNAL "")
+set(NAVITAB_mupdf_LINKLIBS zlibs brotlidec brotlienc brotlicommon lcms2 jbig2dec jpeg openjp2 freetype harfbuzz gumbo CACHE INTERNAL "")

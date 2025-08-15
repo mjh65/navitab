@@ -32,24 +32,23 @@ set(LIBJPEG_SOURCES
 )
 PrefixSources(LIBJPEG_SOURCES "${jpeg_SOURCE_DIR}")
 
-#file(MAKE_DIRECTORY "${jpeg_BINARY_DIR}")
 file(COPY_FILE "${jpeg_SOURCE_DIR}/jconfig.txt" "${CMAKE_CURRENT_BINARY_DIR}/jconfig.h")
 
-add_library(jpeg_static STATIC ${LIBJPEG_SOURCES})
-target_include_directories(jpeg_static
+add_library(jpeg STATIC ${LIBJPEG_SOURCES})
+target_include_directories(jpeg
     PUBLIC "${CMAKE_CURRENT_BINARY_DIR}"
     PUBLIC "${jpeg_SOURCE_DIR}"
 )
 
 # this aims to help find_package select this jpeg library to help out 
-add_library(JPEG::JPEG ALIAS jpeg_static)
+add_library(JPEG::JPEG ALIAS jpeg)
 set(JPEG_INCLUDE_DIR "${jpeg_SOURCE_DIR}" CACHE INTERNAL "")
 if(MSVC)
-    set(JPEG_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/jpeg_static.lib" CACHE INTERNAL "")
+    set(JPEG_LIBRARY "${NAVITAB_IMPORT_LIBS}/jpeg.lib" CACHE INTERNAL "")
 else()
-    set(JPEG_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/${XCODE_LIB_PATH_PREFIX}libjpeg_static.a" CACHE INTERNAL "")
+    set(JPEG_LIBRARY "${NAVITAB_IMPORT_LIBS}/libjpeg.a" CACHE INTERNAL "")
 endif()
 
 # Cache settings to be used when BUILD_NAVITAB_THIRDPARTY is OFF
-set(NAVITAB_jpeg_PKGLIBS jpeg_static CACHE INTERNAL "")
-set(NAVITAB_jpeg_static_LOCATION "${JPEG_LIBRARY}" CACHE INTERNAL "")
+set(NAVITAB_jpeg_PKGLIBS jpeg CACHE INTERNAL "")
+set(NAVITAB_jpeg_LOCATION "${JPEG_LIBRARY}" CACHE INTERNAL "")

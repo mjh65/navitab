@@ -26,23 +26,23 @@ set(CURL_DISABLE_SMTP ON)
 set(BUILD_LIBCURL_DOCS OFF)
 set(BUILD_MISC_DOCS OFF)
 set(ENABLE_CURL_MANUAL OFF)
-set(CMAKE_DEBUG_POSTFIX "")
 
 add_subdirectory("${curl_SOURCE_DIR}" "${curl_BINARY_DIR}" EXCLUDE_FROM_ALL)
+add_library(curl ALIAS libcurl_static)
 
 target_link_libraries(libcurl_static
-    INTERFACE libzstd
-    INTERFACE libssh2_static
+    INTERFACE zstd
+    INTERFACE ssh2
     INTERFACE mbedtls
 )
 
 # Cache settings to be used when BUILD_NAVITAB_THIRDPARTY is OFF
-set(NAVITAB_curl_PKGLIBS libcurl_static CACHE INTERNAL "")
+set(NAVITAB_curl_PKGLIBS curl CACHE INTERNAL "")
 if(MSVC)
-    set(NAVITAB_libcurl_static_LOCATION "${curl_BINARY_DIR}/lib/libcurl.lib" CACHE INTERNAL "")
+    set(NAVITAB_curl_LOCATION "${NAVITAB_IMPORT_LIBS}/curl.lib" CACHE INTERNAL "")
 else()
-    set(NAVITAB_libcurl_static_LOCATION "${curl_BINARY_DIR}/lib/${XCODE_LIB_PATH_PREFIX}libcurl.a" CACHE INTERNAL "")
+    set(NAVITAB_curl_LOCATION "${NAVITAB_IMPORT_LIBS}/libcurl.a" CACHE INTERNAL "")
 endif()
-set(NAVITAB_libcurl_static_INCDIRS "${curl_SOURCE_DIR}/include" CACHE INTERNAL "")
-set(NAVITAB_libcurl_static_CPPDEFS CURL_STATICLIB CACHE INTERNAL "")
-set(NAVITAB_libcurl_static_LINKLIBS libzstd libssh2_static mbedtls CACHE INTERNAL "")
+set(NAVITAB_curl_INCDIRS "${curl_SOURCE_DIR}/include" CACHE INTERNAL "")
+set(NAVITAB_curl_CPPDEFS CURL_STATICLIB CACHE INTERNAL "")
+set(NAVITAB_curl_LINKLIBS zstd ssh2 mbedtls CACHE INTERNAL "")

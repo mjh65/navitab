@@ -46,23 +46,18 @@
     ],
     "buildPresets": [
         {
-            "name": "install",
-            "displayName": "Create install trees for Navitab products",
+            "name": "release",
+            "displayName": "Release versions of all Navitab products",
             "configurePreset": "release",
             "configuration": "Release",
             "targets": "install"
         },
         {
-            "name": "release",
-            "displayName": "Release versions of all Navitab products",
-            "configurePreset": "release",
-            "configuration": "Release"
-        },
-        {
             "name": "debug",
             "displayName": "Debuggable versions of all Navitab products",
             "configurePreset": "debug",
-            "configuration": "Debug"
+            "configuration": "Debug",
+            "targets": "install"
         }
     ]
 }

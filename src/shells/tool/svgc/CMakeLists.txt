@@ -5,14 +5,14 @@
 target_sources(navitab_svgc PRIVATE
     main.cpp
 )
-
-# this is required to workaround a bug in lunasvg v2.4.1
 target_compile_definitions(navitab_svgc PRIVATE
-    LUNASVG_BUILD_STATIC
+    ${NAVITAB_lunasvg_CPPDEFS}
 )
-
+target_include_directories(navitab_svgc PRIVATE
+    ${NAVITAB_lunasvg_INCDIRS}
+)
 target_link_libraries(navitab_svgc PRIVATE
-    lunasvg
+    lunasvg_3rd
 )
 
 set_target_properties(navitab_svgc PROPERTIES OUTPUT_NAME "svgc")

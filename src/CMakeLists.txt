@@ -37,7 +37,7 @@ if(APPLE)
 endif()
 target_link_libraries(navitab_win_glfw PRIVATE
     navitab_core
-    glfw
+    glfw3_3rd
 )
 
 # The http window library provides an HTTP web server to stream images to a browser.

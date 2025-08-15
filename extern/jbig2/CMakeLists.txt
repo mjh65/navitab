@@ -47,7 +47,7 @@ target_link_libraries(jbig2dec
 # Cache settings to be used when BUILD_NAVITAB_THIRDPARTY is OFF
 set(NAVITAB_jbig2_PKGLIBS jbig2dec CACHE INTERNAL "")
 if(MSVC)
-    set(NAVITAB_jbig2dec_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/jbig2dec.lib" CACHE INTERNAL "")
+    set(NAVITAB_jbig2dec_LOCATION "${NAVITAB_IMPORT_LIBS}/jbig2dec.lib" CACHE INTERNAL "")
 else()
-    set(NAVITAB_jbig2dec_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/${XCODE_LIB_PATH_PREFIX}libjbig2dec.a" CACHE INTERNAL "")
+    set(NAVITAB_jbig2dec_LOCATION "${NAVITAB_IMPORT_LIBS}/libjbig2dec.a" CACHE INTERNAL "")
 endif()

@@ -8,7 +8,13 @@ target_sources(navitab_http PRIVATE
     main.cpp
 )
 
-target_link_libraries(navitab_http
+if(WIN32)
+    target_link_options(navitab_http PRIVATE
+        $<$<CXX_COMPILER_ID:GNU>:-static -static-libgcc -static-libstdc++>
+    )
+endif()
+
+target_link_libraries(navitab_http PRIVATE
     navitab_core
     navitab_sim_mock
     navitab_win_http

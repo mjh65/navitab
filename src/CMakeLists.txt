@@ -77,9 +77,15 @@ if(MSFS_SDK)
     target_include_directories(navitab_sim_msfs PRIVATE
         "${NAVITAB_API_DIR}"
         "${PROJECT_BINARY_DIR}"
+        "$ENV{MSFS_SDK}/SimConnect SDK/include"
     )
+    add_library(msfs_simconnect_dll SHARED IMPORTED)
+    cmake_path(SET MSFS_SDK $ENV{MSFS_SDK})
+    set_property(TARGET msfs_simconnect_dll PROPERTY IMPORTED_LOCATION "${MSFS_SDK}/SimConnect SDK/lib/SimConnect.dll")
+    set_property(TARGET msfs_simconnect_dll PROPERTY IMPORTED_IMPLIB "${MSFS_SDK}/SimConnect SDK/lib/SimConnect.lib")
     target_link_libraries(navitab_sim_msfs PRIVATE
         navitab_core
+        msfs_simconnect_dll
     )
 endif()
 

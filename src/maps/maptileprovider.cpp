@@ -17,7 +17,7 @@ MapTileProvider::MapTileProvider(std::shared_ptr<DocumentManager> d)
 :   LOG(std::make_unique<logging::Logger>("maps")),
     docMgr(d),
     missingTile(nullptr),
-    zoom(5)
+    zoom(8)
 {
     missingTile = std::make_shared<RasterTile>();
     for (unsigned r = 0; r < missingTile->Height(); ++r) {
@@ -87,7 +87,7 @@ std::shared_ptr<RasterTile> MapTileProvider::GetTile(int x, int y)
 void MapTileProvider::SetZoom(unsigned z)
 {
     // TODO - obviously this needs to use the mapconfig stuff from Avitab
-    if (z < 12) { // since z is unsigned, this catches overflow and underflow
+    if (z < 15) { // since z is unsigned, this catches overflow and underflow
         if (zoom != z) {
             zoom = z;
             tileCache.clear();  // cache is only for one zoom level at a time

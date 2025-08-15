@@ -63,7 +63,7 @@ void Document::Prepare(fz_context* fzc)
 
     fz_try(fzctx) {
         pageCount = fz_count_pages(fzctx, doc);
-        LOGI(fmt::format("{} has {} pages", url, pageCount));
+        LOGD(fmt::format("{} has {} pages", url, pageCount));
     } fz_catch(fzctx) {
         LOGE(fmt::format("MuPDF could not get page count for {}. It reported {}", url, fz_caught_message(fzctx)));
         status = UNSUPPORTED;

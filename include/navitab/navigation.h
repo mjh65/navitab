@@ -10,6 +10,8 @@ enum {
     MAX_OTHER_AIRCRAFT = 32
 };
 
+constexpr const double M_TO_FT = 3.28084;
+
 struct Location
 {
     float latitude;         // -90 .. 90

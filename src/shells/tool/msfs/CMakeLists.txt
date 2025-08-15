@@ -18,4 +18,10 @@ target_link_libraries(navitab_igps PRIVATE
     navitab_win_http
 )
 
+add_custom_command(TARGET navitab_igps POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    $<TARGET_FILE:msfs_simconnect_dll> $<TARGET_FILE_DIR:navitab_igps>
+)
+
 install(TARGETS navitab_igps DESTINATION navitab/msfs/navitab-ingamepanels-navitab/PanelServer)
+install(FILES $<TARGET_FILE:msfs_simconnect_dll> DESTINATION navitab/msfs/navitab-ingamepanels-navitab/PanelServer)

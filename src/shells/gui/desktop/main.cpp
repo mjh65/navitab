@@ -3,7 +3,6 @@
 // This file provides the main function for the desktop variant of Navitab.
 // It does the required generic initialisation of the Navitab components,
 // and if all is successful starts a GL window manager for the UI.
-// It's used on Linux and Mac.
 
 #include <memory>
 #include <iostream>
@@ -19,6 +18,7 @@
 int main(int arg, char** argv)
 {
 #if defined(NAVITAB_MACOSX) && !defined(NDEBUG)
+    // this is a workaround for an Xcode issue where 2 or 3 instances of the app can be launched.
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
 #endif
     std::unique_ptr<logging::Logger> LOG;

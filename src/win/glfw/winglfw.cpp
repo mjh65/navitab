@@ -153,6 +153,11 @@ void WindowGLFW::EventLoop()
     }
 }
 
+void WindowGLFW::SigStop()
+{
+    if (window) glfwSetWindowShouldClose(window, GLFW_TRUE);
+}
+
 void WindowGLFW::ResizeNotifyAll(int w, int h)
 {
     winParts[WindowPart::KEYPAD].top = h - KEYPAD_HEIGHT;

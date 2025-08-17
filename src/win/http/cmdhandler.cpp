@@ -16,7 +16,6 @@ CommandHandler::CommandHandler(WindowHTTP *o)
     // gets a command to finish (exit/quit) or encounters an end-of-file.
 
     worker = std::make_unique<std::thread>([this]() { CommandRunner(); });
-
 }
 
 CommandHandler::~CommandHandler()
@@ -26,6 +25,7 @@ CommandHandler::~CommandHandler()
 
 void CommandHandler::CommandRunner()
 {
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
     std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
     std::cout << "+ NAVITAB COMMAND INTERFACE - Use 'exit' or 'quit' to close this server +" << std::endl;
     std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;

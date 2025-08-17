@@ -76,8 +76,10 @@ struct Window
     virtual void Connect(std::shared_ptr<CoreServices> core) = 0;
     virtual void Disconnect() = 0;
 
-    // Run the event loop and return when the window is closed.
+    // Run the event loop. Returns when (eg) GUI closes, script runs dry, ...
     virtual void EventLoop() = 0;
+    // Handle a stop signalled from outside (eg console close).
+    virtual void SigStop() = 0;
 
     virtual ~Window() = default;
 };

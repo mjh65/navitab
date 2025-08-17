@@ -25,6 +25,7 @@ public:
 
     // Implementation of Window, 
     void EventLoop() override { } // null implementation, not used
+    void SigStop() override { } // null implementation, not used
 
     // Implementation of WindowControls, common to desktop and VR
     void Brightness(int percent) override;

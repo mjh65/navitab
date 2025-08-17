@@ -36,6 +36,7 @@ public:
     void Connect(std::shared_ptr<CoreServices> core) override;
     void Disconnect() override;
     void EventLoop() override;
+    void SigStop() override { Finish(); }
 
     // Implementation of the PartPainter interface
     void Paint(int part, const FrameBuffer* src, const std::vector<ImageRegion>& regions) override;

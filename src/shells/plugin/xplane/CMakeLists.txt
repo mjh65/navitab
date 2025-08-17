@@ -36,7 +36,7 @@ elseif(APPLE)
 elseif(UNIX)
     target_compile_definitions(xplane_plugin PRIVATE LIN=1)
     target_link_options(xplane_plugin PRIVATE
-        -static -static-libgcc -static-libstdc++
+        -static-libgcc -static-libstdc++
     )
     target_link_libraries(xplane_plugin PRIVATE
         GL

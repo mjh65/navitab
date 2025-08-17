@@ -25,9 +25,6 @@ elseif(APPLE)
         "-framework OpenGL"
     )
 elseif(UNIX)
-    target_link_options(navitab_desktop PRIVATE
-        -static -static-libgcc -static-libstdc++
-    )
     target_link_libraries(navitab_desktop PRIVATE
         GL
     )

@@ -9,7 +9,7 @@
 #include <condition_variable>
 #include <thread>
 #include "navitab/window.h"
-#include "navitab/navigation.h"
+#include "navitab/geometrics.h"
 #include "navitab/toolbar.h"
 #include "navitab/modebar.h"
 #include "navitab/doodler.h"

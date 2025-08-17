@@ -257,7 +257,7 @@ void Navitab::onSimFlightLoop(const SimStateData& data)
     if (!activated || !activeApp) return;
 
     simState = data;
-    toolbar->SetStausInfo(data.zuluTime, data.fps, data.myPlane.loc);
+    toolbar->SetStausInfo(data.zuluTime, data.fps, data.myPlane);
     auto mt = data.loopCount / 12; // TODO - somewhat arbitrary clock-divider
     switch (mt % 3) {
     case 0:

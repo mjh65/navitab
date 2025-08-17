@@ -18,6 +18,7 @@ target_sources(navitab_core PRIVATE
     coredoodler.h
     corekeypad.cpp
     corekeypad.h
+    geometrics.cpp
 )
 
 add_dependencies(navitab_core navitab_svg_headers)

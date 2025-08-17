@@ -4,7 +4,7 @@
 
 #include <memory>
 #include <map>
-#include "navitab/navigation.h"
+#include "navitab/geometrics.h"
 #include "navitab/logger.h"
 
 // This header file defines the interface for the maps provider which

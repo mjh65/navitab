@@ -2,11 +2,14 @@
 
 #pragma once
 
-#include <thread>
 #include "navitab/simulator.h"
 #include "navitab/logger.h"
+#include <thread>
+#include <vector>
 
 namespace navitab {
+
+struct AircraftJourney;
 
 class MockSimulator : public Simulator
 {
@@ -28,6 +31,8 @@ private:
 
     bool running;
     std::unique_ptr<std::thread> worker;
+
+    std::vector<AircraftJourney> journeys;
 
     SimStateData mockData[2];
     bool tiktok;

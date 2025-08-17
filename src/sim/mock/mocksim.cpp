@@ -11,25 +11,33 @@ std::shared_ptr<navitab::Simulator> navitab::Simulator::Factory()
 
 namespace navitab {
 
+struct AircraftJourney
+{
+    Position legStart;
+    double angVelocity;
+    unsigned step;
+
+};
+
 MockSimulator::MockSimulator()
 :   LOG(std::make_unique<logging::Logger>("mocksim")),
     running(false),
     tiktok(false)
 {
-    auto& d = mockData[0];
-    d.myPlane.loc.latitude = 55.974728f;
-    d.myPlane.loc.longitude = -3.970579f;
-    d.myPlane.elevation = 100.0f;
-    d.myPlane.heading = 290.0f;
-    d.nOtherPlanes = MAX_OTHER_AIRCRAFT;
-    for (auto i = 0; i < MAX_OTHER_AIRCRAFT; ++i) {
-        d.otherPlanes[i].loc.latitude = 55.0f + ((rand() % 2000) / 1000.0f);
-        d.otherPlanes[i].loc.longitude = -3.0f - ((rand() % 2000) / 1000.0f);
-        d.otherPlanes[i].elevation = 100.0f + ((rand() % 100) * 100.0);
-        d.otherPlanes[i].heading = (rand() % 360);
+    // create some random journeys
+    srand((unsigned int)std::chrono::steady_clock::now().time_since_epoch().count());
+    Location origin((rand() % 1600) / 10.0f - 80, (rand() % 3600) / 10.0f - 180);
+    while (journeys.size() < (SimStateData::MAX_OTHER_AIRCRAFT + 1)) {
+        double lat = origin.latitude + ((rand() % 2000) / 1000.0f) - 1;
+        double lon = origin.longitude + ((rand() % 2000) / 1000.0f) - 1;
+        double head = (rand() % 360);
+        double alt = 7000 + (rand() % 5000);
+        AircraftJourney j;
+        j.legStart = Position(lat, lon, head, alt);
+        j.step = 0;
+        j.angVelocity = 0.0001f; // airliner cruise speed
+        journeys.push_back(j);
     }
-    d.fps = 15;
-    mockData[1] = mockData[0];
 }
 
 MockSimulator::~MockSimulator()
@@ -56,42 +64,35 @@ void MockSimulator::Disconnect()
 
 void MockSimulator::AsyncRunSimulator()
 {
+    using namespace std::chrono_literals;
     unsigned long n = 0;
     auto start = std::chrono::steady_clock::now();
-    srand((unsigned int)start.time_since_epoch().count());
     auto zuluStart = rand() % (24 * 60 * 60);
-    mockData[1].zuluTime = mockData[0].zuluTime = zuluStart;
-    double lat = (rand() % 150) - 75;
-    double lon = (rand() % 360) - 180;
-    double dlat = ((rand() % 1000) - 500) / 10000.0;
-    double dlon = ((rand() % 1000) - 500) / 10000.0;
+    mockData[0].fps = mockData[1].fps = 25;
+    mockData[0].nOtherPlanes = mockData[1].nOtherPlanes = SimStateData::MAX_OTHER_AIRCRAFT;
 
-    // TODO - move the planes around a bit, and get frame rate from window
-    using namespace std::chrono_literals;
     while (running) {
-        std::this_thread::sleep_for(50ms);
-        mockData[tiktok].loopCount = n++;
-        mockData[tiktok].myPlane.loc.latitude = lat;
-        mockData[tiktok].myPlane.loc.longitude = lon;
-        lat += dlat;
-        if ((lat <= -90.0) || (lat >= 90.0)) {
-            dlat = 0 - dlat;
-            lat += 2 * dlat;
-        }
-        lon += dlon;
-        if (lon < -180.0) { lon += 360.0; }
-        if (lon >= 360.0) { lon -= 360.0; }
-        if ((rand() % 200) == 0) {
-            dlat = ((rand() % 1000) - 500) / 10000.0;
-        }
-        if ((rand() % 200) == 0) {
-            dlon = ((rand() % 1000) - 500) / 10000.0;
-        }
-        handler->PostSimUpdates(mockData[tiktok ? 1 : 0]);
-        tiktok = !tiktok;
+        std::this_thread::sleep_for(40ms); // 25fps
+        auto& sd = mockData[tiktok ? 1 : 0];
+        // update sim state data
+        sd.loopCount = n++;
         auto now = std::chrono::steady_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - start);
-        mockData[tiktok].zuluTime = (zuluStart + elapsed.count()) % (24 * 60 * 60);
+        sd.zuluTime = (zuluStart + elapsed.count()) % (24 * 60 * 60);
+        // move the planes
+        for (auto& j : journeys) {
+            ++j.step;
+        }
+        auto& j = journeys[0];
+        auto loc = j.legStart.getWaypoint(j.step * j.angVelocity);
+        sd.myPlane = loc;
+        for (size_t i = 0; i < SimStateData::MAX_OTHER_AIRCRAFT; ++i) {
+            auto& j = journeys[i + 1];
+            auto loc = j.legStart.getWaypoint(j.step * j.angVelocity);
+            sd.otherPlanes[i] = loc;
+        }
+        handler->PostSimUpdates(sd);
+        tiktok = !tiktok;
     }
 }
 

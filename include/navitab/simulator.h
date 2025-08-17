@@ -6,7 +6,7 @@
 #include <functional>
 #include <vector>
 #include "navitab/deferred.h"
-#include "navitab/navigation.h"
+#include "navitab/geometrics.h"
 
 /*
  * This header file defines the interface to the simulator, which will
@@ -23,12 +23,15 @@ struct Simulator;
 
 struct SimStateData
 {
-    AircraftPosition    myPlane;
-    size_t              nOtherPlanes;
-    AircraftPosition    otherPlanes[MAX_OTHER_AIRCRAFT];
-    unsigned            zuluTime;
-    unsigned            fps;
-    unsigned long       loopCount;
+    enum {
+        MAX_OTHER_AIRCRAFT = 32
+    };
+    Position        myPlane;
+    size_t          nOtherPlanes;
+    Position        otherPlanes[MAX_OTHER_AIRCRAFT];
+    unsigned        zuluTime;
+    unsigned        fps;
+    unsigned long   loopCount;
 };
 
 // The Simulator2Core interface defines services that the simulator

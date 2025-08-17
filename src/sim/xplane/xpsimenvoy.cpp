@@ -247,7 +247,7 @@ bool XPlaneSimulatorEnvoy::GetFlightLoopDataRefs()
 
     aircraftPositionDataRefs.push_back(XPLMFindDataRef("sim/flightmodel/position/latitude"));
     aircraftPositionDataRefs.push_back(XPLMFindDataRef("sim/flightmodel/position/longitude"));
-    aircraftPositionDataRefs.push_back(XPLMFindDataRef("sim/flightmodel/position/elevation"));
+    aircraftPositionDataRefs.push_back(XPLMFindDataRef("sim/flightmodel/position/altitude"));
     aircraftPositionDataRefs.push_back(XPLMFindDataRef("sim/flightmodel/position/psi"));
     std::string b0("sim/multiplayer/position/plane");
     for (int i = 1; i < 10; ++i) {
@@ -283,23 +283,23 @@ float XPlaneSimulatorEnvoy::onFlightLoop(float elapsedSinceLastCall, float elaps
     XPLMPluginID tmp2;
     XPLMCountAircraft(&tmp1, &active, &tmp2);
     assert(active > 0);
-    fld.nOtherPlanes = std::min(active - 1, (int)MAX_OTHER_AIRCRAFT);
+    fld.nOtherPlanes = std::min(active - 1, (int)SimStateData::MAX_OTHER_AIRCRAFT);
 
     auto dri = aircraftPositionDataRefs.begin();
-    fld.myPlane.loc.latitude = XPLMGetDataf(*dri++);
-    fld.myPlane.loc.longitude = XPLMGetDataf(*dri++);
-    fld.myPlane.elevation = XPLMGetDataf(*dri++);
+    fld.myPlane.latitude = XPLMGetDataf(*dri++);
+    fld.myPlane.longitude = XPLMGetDataf(*dri++);
+    fld.myPlane.altitude = XPLMGetDataf(*dri++);
     fld.myPlane.heading = XPLMGetDataf(*dri++);
-    for (int p = 0; p < MAX_OTHER_AIRCRAFT; ++p) {
+    for (int p = 0; p < SimStateData::MAX_OTHER_AIRCRAFT; ++p) {
         if (p < fld.nOtherPlanes) {
-            fld.otherPlanes[p].loc.latitude = XPLMGetDataf(*dri++);
-            fld.otherPlanes[p].loc.longitude = XPLMGetDataf(*dri++);
-            fld.otherPlanes[p].elevation = XPLMGetDataf(*dri++);
+            fld.otherPlanes[p].latitude = XPLMGetDataf(*dri++);
+            fld.otherPlanes[p].longitude = XPLMGetDataf(*dri++);
+            fld.otherPlanes[p].altitude = XPLMGetDataf(*dri++);
             fld.otherPlanes[p].heading = XPLMGetDataf(*dri++);
         } else {
-            fld.otherPlanes[p].loc.latitude = 0.0f;
-            fld.otherPlanes[p].loc.longitude = 0.0f;
-            fld.otherPlanes[p].elevation = -1000.0f;
+            fld.otherPlanes[p].latitude = 0.0f;
+            fld.otherPlanes[p].longitude = 0.0f;
+            fld.otherPlanes[p].altitude = -1000.0f;
             fld.otherPlanes[p].heading = 0.0f;
         }
     }

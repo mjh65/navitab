@@ -3,7 +3,7 @@
 #pragma once
 
 #include <memory>
-#include "navitab/navigation.h"
+#include "navitab/geometrics.h"
 #include "../app.h"
 #include "../../maps/maptileprovider.h"
 

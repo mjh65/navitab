@@ -47,7 +47,7 @@ void MapApp::FlightLoop(const SimStateData& data)
 {
     // On each flight loop we need to redraw the displayed map and any enabled overlays.
     if (centredOnPlane) {
-        mapCentre = data.myPlane.loc;
+        mapCentre = data.myPlane;
     }
     // Identify which tile contains the centre point of the map
     double ctx, cty;

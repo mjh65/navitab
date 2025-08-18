@@ -53,7 +53,7 @@ void CoreToolbar::SetStausInfo(int zt, int fps, const Location& loc)
         int h = s / (60 * 60); s -= (h * 60 * 60);
         int m = s / 60; s -= (m * 60);
         statusText += fmt::format(" | {:02}:{:02}:{:02}Z", h, m, s);
-        statusText += fmt::format(" | {:+.3f},{:+.3f}", loc.latitude, loc.longitude);
+        statusText += fmt::format(" | {:+.3f},{:+.3f}", loc.latDegrees(), loc.lonDegrees());
         LOGD(fmt::format("CoreToolbar::SetStausInfo({})", statusText));
         lv_label_set_text(lvhStatusInfo, statusText.c_str());
     }

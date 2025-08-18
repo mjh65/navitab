@@ -218,8 +218,8 @@ void WindowHTTP::EncodeStatus(std::vector<unsigned char> &status)
     int zth = zuluTime / (60 * 60);
     int ztm = (zuluTime / 60) % 60;
     int zts = zuluTime % 60;
-    int ew = (int)((loc.longitude + 180) * 1000);
-    int ns = (int)((loc.latitude + 90) * 1000);
+    int ew = (int)((loc.lonDegrees() + 180) * 1000);
+    int ns = (int)((loc.latDegrees() + 90) * 1000);
     std::string s = fmt::format("{:02d}{:02d}{:02d}{:02d}{:06d}{:06d}", zth, ztm, zts, fps, ew, ns);
 
     // append the status of currently active modes, tools and which are 'repeaters'

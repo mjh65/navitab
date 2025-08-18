@@ -8,9 +8,6 @@
 #include <cmath>
 
 
-double sec(double a) { return 1.0 / cos(a); }
-double deg2rad(double d) { return d * M_PI / 180.0; }
-
 namespace navitab {
 
 MapTileProvider::MapTileProvider(std::shared_ptr<DocumentManager> d)
@@ -100,19 +97,17 @@ unsigned MapTileProvider::GetZoom()
     return zoom;
 }
 
-void MapTileProvider::LatLon2TileXY(Location loc, double &x, double &y)
+std::pair<double, double> MapTileProvider::Location2TileYX(const Location& loc)
 {
-    // TODO - around the polar regions we will change to a basic overhead
-    // projection showing only a simple latitude/longitude lattice.
+    auto unscaled = loc.toMercator();
     double n = 1 << zoom;
-    x = n * ((loc.longitude + 180.0) / 360.0);
-    double latr = deg2rad(loc.latitude);
-    y = n * (1 - (log(tan(latr) + sec(latr)) / M_PI)) / 2;
+    return std::make_pair(n * unscaled.first, n * unscaled.second);
 }
 
-void MapTileProvider::TileXY2LatLon(double x, double y, Location &loc)
+Location MapTileProvider::TileYX2Location(double x, double y)
 {
     UNIMPLEMENTED(__func__);
+    return Location();
 }
 
 double MapTileProvider::GetTileCentreWidthDegrees()

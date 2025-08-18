@@ -247,23 +247,23 @@ bool XPlaneSimulatorEnvoy::GetFlightLoopDataRefs()
 
     aircraftPositionDataRefs.push_back(XPLMFindDataRef("sim/flightmodel/position/latitude"));
     aircraftPositionDataRefs.push_back(XPLMFindDataRef("sim/flightmodel/position/longitude"));
-    aircraftPositionDataRefs.push_back(XPLMFindDataRef("sim/flightmodel/position/altitude"));
     aircraftPositionDataRefs.push_back(XPLMFindDataRef("sim/flightmodel/position/psi"));
+    aircraftPositionDataRefs.push_back(XPLMFindDataRef("sim/flightmodel/position/elevation"));
     std::string b0("sim/multiplayer/position/plane");
     for (int i = 1; i < 10; ++i) {
         char d = '0' + i;
         aircraftPositionDataRefs.push_back(XPLMFindDataRef((b0 + d + "_lat").c_str()));
         aircraftPositionDataRefs.push_back(XPLMFindDataRef((b0 + d + "_lon").c_str()));
-        aircraftPositionDataRefs.push_back(XPLMFindDataRef((b0 + d + "_el").c_str()));
         aircraftPositionDataRefs.push_back(XPLMFindDataRef((b0 + d + "_psi").c_str()));
+        aircraftPositionDataRefs.push_back(XPLMFindDataRef((b0 + d + "_el").c_str()));
     }
     std::string b1("sim/multiplayer/position/plane1");
     for (int i = 0; i < 10; ++i) {
         char d = '0' + i;
         aircraftPositionDataRefs.push_back(XPLMFindDataRef((b1 + d + "_lat").c_str()));
         aircraftPositionDataRefs.push_back(XPLMFindDataRef((b1 + d + "_lon").c_str()));
-        aircraftPositionDataRefs.push_back(XPLMFindDataRef((b1 + d + "_el").c_str()));
         aircraftPositionDataRefs.push_back(XPLMFindDataRef((b1 + d + "_psi").c_str()));
+        aircraftPositionDataRefs.push_back(XPLMFindDataRef((b1 + d + "_el").c_str()));
     }
     assert(aircraftPositionDataRefs.size() == 80);
 
@@ -285,22 +285,22 @@ float XPlaneSimulatorEnvoy::onFlightLoop(float elapsedSinceLastCall, float elaps
     assert(active > 0);
     fld.nOtherPlanes = std::min(active - 1, (int)SimStateData::MAX_OTHER_AIRCRAFT);
 
+    float lat, lon, alt, hdg;
     auto dri = aircraftPositionDataRefs.begin();
-    fld.myPlane.latitude = XPLMGetDataf(*dri++);
-    fld.myPlane.longitude = XPLMGetDataf(*dri++);
-    fld.myPlane.altitude = XPLMGetDataf(*dri++);
-    fld.myPlane.heading = XPLMGetDataf(*dri++);
+    lat = XPLMGetDataf(*dri++);
+    lon = XPLMGetDataf(*dri++);
+    hdg = XPLMGetDataf(*dri++);
+    alt = XPLMGetDataf(*dri++);
+    fld.myPlane = Position(Trajectory(Location(lat, lon, Location::DEGREES), hdg, Location::DEGREES), alt);
     for (int p = 0; p < SimStateData::MAX_OTHER_AIRCRAFT; ++p) {
         if (p < fld.nOtherPlanes) {
-            fld.otherPlanes[p].latitude = XPLMGetDataf(*dri++);
-            fld.otherPlanes[p].longitude = XPLMGetDataf(*dri++);
-            fld.otherPlanes[p].altitude = XPLMGetDataf(*dri++);
-            fld.otherPlanes[p].heading = XPLMGetDataf(*dri++);
+            lat = XPLMGetDataf(*dri++);
+            lon = XPLMGetDataf(*dri++);
+            hdg = XPLMGetDataf(*dri++);
+            alt = XPLMGetDataf(*dri++);
+            fld.otherPlanes[p] = Position(Trajectory(Location(lat, lon, Location::DEGREES), hdg, Location::DEGREES), alt);
         } else {
-            fld.otherPlanes[p].latitude = 0.0f;
-            fld.otherPlanes[p].longitude = 0.0f;
-            fld.otherPlanes[p].altitude = -1000.0f;
-            fld.otherPlanes[p].heading = 0.0f;
+            fld.otherPlanes[p] = Position(Trajectory(Location(0, 0, Location::DEGREES), 0, Location::DEGREES), -1000);
         }
     }
 

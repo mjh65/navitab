@@ -50,11 +50,12 @@ void MapApp::FlightLoop(const SimStateData& data)
         mapCentre = data.myPlane;
     }
     // Identify which tile contains the centre point of the map
-    double ctx, cty;
-    mapServer->LatLon2TileXY(mapCentre, ctx, cty);
-    int itx = (int)std::floor(ctx);
-    int ity = (int)std::floor(cty);
-    LOGD(fmt::format("latlon ({},{}) -> tile ({},{})", mapCentre.latitude, mapCentre.longitude, ctx, cty));
+    auto cyx = mapServer->Location2TileYX(mapCentre);
+    auto& cty = cyx.first;
+    auto& ctx = cyx.second;
+    int itx = (int)std::floor(cyx.second);
+    int ity = (int)std::floor(cyx.first);
+    LOGD(fmt::format("latlon ({},{}) -> tile ({},{})", mapCentre.latDegrees(), mapCentre.lonDegrees(), ctx, cty));
 
     auto canvas = core->GetCanvasPixels();
     auto canvasCentreX = canvas.Width() / 2;

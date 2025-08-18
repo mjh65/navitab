@@ -26,14 +26,14 @@ MockSimulator::MockSimulator()
 {
     // create some random journeys
     srand((unsigned int)std::chrono::steady_clock::now().time_since_epoch().count());
-    Location origin((rand() % 1600) / 10.0f - 80, (rand() % 3600) / 10.0f - 180);
+    Location origin((rand() % 1600) / 10.0f - 80, (rand() % 3600) / 10.0f - 180, Location::DEGREES);
     while (journeys.size() < (SimStateData::MAX_OTHER_AIRCRAFT + 1)) {
-        double lat = origin.latitude + ((rand() % 2000) / 1000.0f) - 1;
-        double lon = origin.longitude + ((rand() % 2000) / 1000.0f) - 1;
+        double lat = origin.latDegrees() + ((rand() % 2000) / 1000.0f) - 1;
+        double lon = origin.lonDegrees() + ((rand() % 2000) / 1000.0f) - 1;
         double head = (rand() % 360);
-        double alt = 7000 + (rand() % 5000);
+        double alt = 24000 + (rand() % 15000);
         AircraftJourney j;
-        j.legStart = Position(lat, lon, head, alt);
+        j.legStart = Position(Trajectory(Location(lat, lon, Location::DEGREES), head, Location::DEGREES), alt, Position::FEET);
         j.step = 0;
         j.angVelocity = 0.0001f; // airliner cruise speed
         journeys.push_back(j);
@@ -84,12 +84,14 @@ void MockSimulator::AsyncRunSimulator()
             ++j.step;
         }
         auto& j = journeys[0];
-        auto loc = j.legStart.getWaypoint(j.step * j.angVelocity);
+        auto loc = j.legStart.getWaypoint(j.step * j.angVelocity, Location::DEGREES);
         sd.myPlane = loc;
+        sd.myPlane.alt_metres = j.legStart.alt_metres;
         for (size_t i = 0; i < SimStateData::MAX_OTHER_AIRCRAFT; ++i) {
             auto& j = journeys[i + 1];
-            auto loc = j.legStart.getWaypoint(j.step * j.angVelocity);
+            auto loc = j.legStart.getWaypoint(j.step * j.angVelocity, Location::DEGREES);
             sd.otherPlanes[i] = loc;
+            sd.otherPlanes[i].alt_metres = j.legStart.alt_metres;
         }
         handler->PostSimUpdates(sd);
         tiktok = !tiktok;

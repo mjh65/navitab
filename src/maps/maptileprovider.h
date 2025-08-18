@@ -27,8 +27,8 @@ public:
     void SetZoom(unsigned z);
     unsigned GetZoom();
 
-    void LatLon2TileXY(Location loc, double &x, double &y);
-    void TileXY2LatLon(double x, double y, Location &loc);
+    std::pair<double, double> Location2TileYX(const Location &loc);
+    Location TileYX2Location(double x, double y);
 
     double GetTileCentreWidthDegrees();
     double GetTileCentreWidthMetres();

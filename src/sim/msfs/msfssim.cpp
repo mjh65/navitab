@@ -218,20 +218,14 @@ void MsfsSimulator::UpdateAircraftLocation(SIMCONNECT_RECV_SIMOBJECT_DATA* pObjD
             pLoc->title, pLoc->latitude, pLoc->longitude, pLoc->altitude, pLoc->heading));
         auto& sd = simData[tikTok];
         if (isUserAircraft) {
-            sd.myPlane.latitude = pLoc->latitude;
-            sd.myPlane.longitude = pLoc->longitude;
-            sd.myPlane.altitude = pLoc->altitude / M_TO_FT; // convert to meters
-            sd.myPlane.heading = pLoc->heading;
+            sd.myPlane = Position(Trajectory(Location(pLoc->latitude, pLoc->longitude, Location::DEGREES), pLoc->heading, Location::DEGREES), pLoc->altitude, Position::FEET);
             sd.zuluTime = (unsigned)pLoc->zulutime;
         }
         else {
             size_t id = pObjData->dwentrynumber - 1;
             sd.nOtherPlanes = std::max((unsigned)pObjData->dwoutof, (unsigned)SimStateData::MAX_OTHER_AIRCRAFT);
             if (id < SimStateData::MAX_OTHER_AIRCRAFT) {
-                sd.otherPlanes[id].latitude = pLoc->latitude;
-                sd.otherPlanes[id].longitude = pLoc->longitude;
-                sd.otherPlanes[id].altitude = pLoc->altitude / M_TO_FT; // convert to meters;
-                sd.otherPlanes[id].heading = pLoc->heading;
+                sd.otherPlanes[id] = Position(Trajectory(Location(pLoc->latitude, pLoc->longitude, Location::DEGREES), pLoc->heading, Location::DEGREES), pLoc->altitude, Position::FEET);
             }
         }
     }
@@ -241,10 +235,7 @@ void MsfsSimulator::ResetSimAircraftData()
 {
     for (size_t i = 0; i < 2; ++i) {
         simData[i].nOtherPlanes = 0;
-        simData[i].myPlane.longitude = 0.0;
-        simData[i].myPlane.latitude = 0.0;
-        simData[i].myPlane.heading = 0.0;
-        simData[i].myPlane.altitude = 100.0;
+        simData[i].myPlane = Position(Trajectory(Location(0, 0), 0), 100);
     }
 }
 

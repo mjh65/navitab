@@ -27,14 +27,22 @@ endif()
 list(PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set_property(GLOBAL PROPERTY USE_FOLDERS ON) # Nicely support folders in IDEs
 find_package(Threads)
-option(NAVITAB_DOWNLOAD_PREFIX
-    "Directory to be used for third-party package downloads"
-    "${CMAKE_CURRENT_SOURCE_DIR}/build/download"
-)
+
+# Project options
 option(BUILD_NAVITAB_THIRDPARTY
-    "If not set then the build will be configured to import pre-built third-party libraries rather than build them."
-    ON
+    "If set then the 3rd-party libraries will always be built. " OFF
 )
+
+set(download_dir "${PROJECT_BINARY_DIR}/../download")
+cmake_path(NORMAL_PATH download_dir)
+set(NAVITAB_DOWNLOAD_DIR "${download_dir}" CACHE PATH "Directory for 3rd-party package downloads. Can be shared between build configurations.")
+file(MAKE_DIRECTORY "${NAVITAB_DOWNLOAD_DIR}")
+
+string(TOLOWER ${CMAKE_BUILD_TYPE} build_type)
+set(libs_3rdparty_dir "${PROJECT_BINARY_DIR}/../libs3rd/${build_type}")
+cmake_path(NORMAL_PATH libs_3rdparty_dir)
+set(NAVITAB_LIBS3RD_DIR "${libs_3rdparty_dir}" CACHE PATH "Directory for installing 3rd-party libraries after full build.")
+file(MAKE_DIRECTORY "${NAVITAB_LIBS3RD_DIR}")
 
 # Set things like CMAKE_CXX_STANDARD here
 set(CMAKE_CXX_STANDARD 17)
@@ -73,7 +81,7 @@ endif()
 
 # Host platform definitions applying to everything declared after here
 if(WIN32)
-    add_compile_definitions(NAVITAB_WINDOWS  _USE_MATH_DEFINES)
+    add_compile_definitions(NAVITAB_WINDOWS _USE_MATH_DEFINES)
     if(MSVC)
         add_compile_definitions(NOMINMAX)
     endif()

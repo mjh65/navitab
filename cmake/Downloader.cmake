@@ -7,7 +7,7 @@
 
 function(IncludeDownloadedPackage pkg url libslistvar)
     string(REGEX REPLACE "_NOCONF$" "" name ${pkg})
-    cmake_path(APPEND cachedir "${NAVITAB_DOWNLOAD_PREFIX}" "_cache")
+    cmake_path(APPEND cachedir "${NAVITAB_DOWNLOAD_DIR}" "_cache")
     cmake_path(APPEND pkgsig "${cachedir}" "${name}_srcdir")
 
     # if the extracted package directory does not exist then create it
@@ -21,6 +21,7 @@ function(IncludeDownloadedPackage pkg url libslistvar)
         cmake_path(GET url EXTENSION ext)
         set(fname "${name}${ext}")
         cmake_path(APPEND pkgfile "${cachedir}" "${fname}")
+        file(MAKE_DIRECTORY "${cachedir}")
         execute_process(COMMAND "${CMAKE_COMMAND}" -E compare_files "${pkgfile}" "${pkgfile}" RESULT_VARIABLE res)
         if(NOT "${res}" EQUAL 0)
             message(STATUS "Downloading ${name} : ${fname} <- ${url}")
@@ -43,11 +44,11 @@ function(IncludeDownloadedPackage pkg url libslistvar)
         if("${ndirs}" EQUAL 1)
             # archive has one top-level directory, we can unpack directly
             list(POP_FRONT tops srcpath)
-            cmake_path(APPEND srcpath "${NAVITAB_DOWNLOAD_PREFIX}" "${srcpath}")
-            execute_process(COMMAND "${CMAKE_COMMAND}" -E tar xf "${pkgfile}" WORKING_DIRECTORY "${NAVITAB_DOWNLOAD_PREFIX}")
+            cmake_path(APPEND srcpath "${NAVITAB_DOWNLOAD_DIR}" "${srcpath}")
+            execute_process(COMMAND "${CMAKE_COMMAND}" -E tar xf "${pkgfile}" WORKING_DIRECTORY "${NAVITAB_DOWNLOAD_DIR}")
         else()
             # archive has multiple top-level items, unpack into a subdirectory
-            cmake_path(APPEND srcpath "${NAVITAB_DOWNLOAD_PREFIX}" "${name}")
+            cmake_path(APPEND srcpath "${NAVITAB_DOWNLOAD_DIR}" "${name}")
             execute_process(COMMAND "${CMAKE_COMMAND}" -E make_directory "${srcpath}")
             execute_process(COMMAND "${CMAKE_COMMAND}" -E tar xf "${pkgfile}" WORKING_DIRECTORY "${srcpath}")            
         endif()

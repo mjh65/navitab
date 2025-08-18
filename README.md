@@ -45,17 +45,40 @@ Run `cmake --list-presets` to show all the current presets (in case this README
 is not up to date).
 
 Run `cmake --preset release` to configure the project for a stripped and optimised
-build, or `cmake --preset debug` for development and debugging.
+build, or `cmake --preset debug` for development and debugging. Both of these builds
+will put the Navitab products into the install folder (typically `install` in the
+top-level project directory.)
 
 (There is also a CMake configuration `xcode` to generate an Xcode project, see above).
 
-Run `cmake --build --preset install` to create an install tree containing the
-Navitab products. By default this will be a directory called `install` in the
-project's top-level. This build uses the `release` configuration.
+Run `cmake --build --preset release` (or `cmake --build --preset debug`) to build
+the Navitab products and create the installation files. These builds use the CMake
+configuration of the same name. The installation files will be placed in the directory
+`${CMAKE_INSTALL_PREFIX}`, which defaults to `install` in the project's top-level.
 
-Or run `cmake --build --preset release` (or `cmake --build --preset debug`) to build
-the Navitab products, but not the install tree. These builds use the CMake configuration
-of the same name.
+### Generated build optimisation
+
+An optimised build will be generated if the CMake scripts detect that the 3rd-party
+libraries have already been built. Under most circumstances this is desirable
+since the sources of the 3rd-party libraries are not expected to be changed during
+Navitab development.
+
+The recommended recipe for Navitab development from an empty build directory is:
+
+1. Use cmake to configure the build. The 3rd-party library sources will be included in the generated build.
+2. Build the Navitab project. This will take some time.
+3. Use cmake to reconfigure the build. Since the 3rd-party library binaries are available the sources will not be included in the generated build.
+4. Develop and build the Navitab project as normal.
+
+To override the automatic optimisation behaviour and force the CMake scripts to always include the 3rd-party
+library sources set the CMake cache variable `BUILD_NAVITAB_THIRDPARTY` to `ON`.
+
+The cache variable can be changed by editing the CMakeCache.txt file, and this is
+the usual approach when using an IDE that supports CMake.
+
+Alternatively, if using the cmake commands from a shell, the cache variable can be set
+on the command line. Run `cmake --preset release -DBUILD_NAVITAB_THIRDPARTY=ON`
+(or the debug equivalent) to reconfigure the build.
 
 ### Platforms
 
@@ -66,7 +89,7 @@ appropriate. Other toolchains may work, but are unlikely to be tested.
 
 ### Dependencies
 
-Navitab is dependent on a number of 3rd-party source code libraries which will be
+Navitab is dependent on a number of 3rd-party source code libraries which are
 downloaded and configured as part of the CMake configuration process. The first
 configuration and build will take some time, but subsequent iterations builds
 should be quicker. In particular a custom source package cache is created in the
@@ -74,10 +97,9 @@ top-level build directory which is shared between the build configurations (Debu
 Release, etc). There should be no reason to delete these packages after the first
 download, and this will make future re-configurations slightly faster.
 
-Furthermore, after the first complete build, the CMake configuration can be redone
-with the option (cache variable) `BUILD_NAVITAB_THIRDPARTY` set to `OFF`.
-This will remove the 3rd-party sources from the build graph and treat the previously
-built libraries as immutable sources, reducing the number of build steps.
+Furthermore, after the first complete build, running cmake will generate an optimised
+build that treats the 3rd-party libraries as installed binary packages, reducing
+the size of the build graph. See the earlier section on build optimisation for details.
 
 Navitab is almost entirely written in C++. Some of the 3rd-party libraries
 may require additional toolchains and packages to be available in the environment.
@@ -108,3 +130,11 @@ file LICENSE for the full text.
 
 The concept and various portions of the source code are derived from Avitab.
 Those portions of source code are Copyright (C) Folke Will <folko@solhost.org>.
+
+Navitab uses the following 3rd-party libraries and acknowledges the Copyright
+and Licensing of each, details can be found in the downloaded packages, the
+sources of which are listed in the file `extern/CMakeLists.txt`:
+
+brotli, bzip2, curl, fmt, freetype, glfw, gumbo-parser, harfbuzz, jbig2dec,
+libjpeg, nlohmann-json, lcms2, lerc, lunasvg, lvgl, mbedtls, mupdf, openjpeg,
+libpng, sqlite3, libssh2, libtiff, zlib, zstd.

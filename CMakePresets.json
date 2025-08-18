@@ -7,7 +7,8 @@
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/install",
-                "NAVITAB_DOWNLOAD_PREFIX": "${sourceDir}/build/download"
+                "NAVITAB_DOWNLOAD_DIR": "${sourceDir}/build/download",
+                "NAVITAB_LIBS3RD_DIR": "${sourceDir}/build/libs3rd/${presetName}"
             }
         },
         {

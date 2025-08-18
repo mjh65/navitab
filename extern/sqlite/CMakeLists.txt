@@ -34,8 +34,8 @@ target_include_directories(sqlite3
 # Cache settings to be used when BUILD_NAVITAB_THIRDPARTY is OFF
 set(NAVITAB_sqlite_PKGLIBS sqlite3 CACHE INTERNAL "")
 if(MSVC)
-    set(NAVITAB_sqlite3_LOCATION "${NAVITAB_IMPORT_LIBS}/sqlite3.lib" CACHE INTERNAL "")
+    set(NAVITAB_sqlite3_LOCATION "${NAVITAB_LIBS3RD_DIR}/sqlite3.lib" CACHE INTERNAL "")
 else()
-    set(NAVITAB_sqlite3_LOCATION "${NAVITAB_IMPORT_LIBS}/libsqlite3.a" CACHE INTERNAL "")
+    set(NAVITAB_sqlite3_LOCATION "${NAVITAB_LIBS3RD_DIR}/libsqlite3.a" CACHE INTERNAL "")
 endif()
 set(NAVITAB_sqlite3_INCDIRS "${sqlite_SOURCE_DIR}" CACHE INTERNAL "")

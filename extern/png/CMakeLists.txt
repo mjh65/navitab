@@ -25,9 +25,9 @@ target_include_directories(png_static
 # This is to influence findPackage into detecting Navitab's version of PNG
 set(PNG_PNG_INCLUDE_DIR "${png_SOURCE_DIR}" CACHE INTERNAL "")
 if(MSVC)
-    set(PNG_LIBRARY "${NAVITAB_IMPORT_LIBS}/png.lib" CACHE INTERNAL "")
+    set(PNG_LIBRARY "${NAVITAB_LIBS3RD_DIR}/png.lib" CACHE INTERNAL "")
 else()
-    set(PNG_LIBRARY "${NAVITAB_IMPORT_LIBS}/libpng.a" CACHE INTERNAL "")
+    set(PNG_LIBRARY "${NAVITAB_LIBS3RD_DIR}/libpng.a" CACHE INTERNAL "")
 endif()
 
 # Cache settings to be used when BUILD_NAVITAB_THIRDPARTY is OFF

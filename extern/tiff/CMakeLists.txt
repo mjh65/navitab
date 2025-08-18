@@ -35,9 +35,9 @@ target_link_libraries(tiff
 # This is to influence findPackage into detecting Navitab's version of Tiff
 set(TIFF_INCLUDE_DIR "${tiff_SOURCE_DIR}/libtiff" CACHE INTERNAL "")
 if(MSVC)
-    set(TIFF_LIBRARY "${NAVITAB_IMPORT_LIBS}/tiff.lib" CACHE INTERNAL "")
+    set(TIFF_LIBRARY "${NAVITAB_LIBS3RD_DIR}/tiff.lib" CACHE INTERNAL "")
 else()
-    set(TIFF_LIBRARY "${NAVITAB_IMPORT_LIBS}/libtiff.a" CACHE INTERNAL "")
+    set(TIFF_LIBRARY "${NAVITAB_LIBS3RD_DIR}/libtiff.a" CACHE INTERNAL "")
 endif()
 
 # Cache settings to be used when BUILD_NAVITAB_THIRDPARTY is OFF

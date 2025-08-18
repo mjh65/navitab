@@ -6,16 +6,24 @@
 # patched into the source tree after downloading. The goal is to have a
 # fully cross-platform build system (specifically supporting VS/MSVC).
 
-set(NAVITAB_IMPORT_LIBS "${PROJECT_BINARY_DIR}/libs")
-file(MAKE_DIRECTORY "${NAVITAB_IMPORT_LIBS}")
 include(ImportExport)
 
-# BUILD_NAVITAB_THIRDPARTY is ON by default. It builds the complete Navitab
-# source tree, including the imported 3rd-party sources. If switched off then
-# the CMake configuration will ignore the 3rd-party sources, assume the libraries
-# are already built, and import them into the build configuration.
+# Determine whether or not we can generate an optimised build
+if(NOT NAVITAB_ALL_PKGLIBS)
+    set(full_build ON)
+else()
+    set(full_build OFF)
+    # check each 3rd-party library exists
+    foreach(lib ${NAVITAB_ALL_PKGLIBS})
+        if(NOT "${NAVITAB_${lib}_LOCATION}" STREQUAL "")
+            if(NOT EXISTS "${NAVITAB_${lib}_LOCATION}")
+                set(full_build ON)
+            endif()
+        endif()
+    endforeach()
+endif()
 
-if(${BUILD_NAVITAB_THIRDPARTY})
+if(${BUILD_NAVITAB_THIRDPARTY} OR ${full_build})
     message(STATUS "Downloading and configuring third-party sources")
 
     # These packages are ordered so that dependencies can be fully satisfied within the
@@ -118,20 +126,20 @@ if(${BUILD_NAVITAB_THIRDPARTY})
     unset(BUILD_TESTING_saved)
 
     message(STATUS "Finished making external content available")
-endif()
+endif(${BUILD_NAVITAB_THIRDPARTY} OR ${full_build})
 
 message(STATUS "Importing third-party libraries")
 foreach(lib ${NAVITAB_ALL_PKGLIBS})
-    ImportBuiltLibraries("${lib}" ${BUILD_NAVITAB_THIRDPARTY})
+    ImportBuiltLibraries("${lib}")
 endforeach()
-# declare the third party library dependencies after they have all been imported
+# declare the third party library interdependencies only after they have all been imported
 foreach(lib ${NAVITAB_ALL_PKGLIBS})
-    # required libraries
     foreach(tll ${NAVITAB_${lib}_LINKLIBS})
         target_link_libraries(${lib}_3rd INTERFACE ${tll}_3rd)
     endforeach()
 endforeach()
 
+# General configuration when linking with the 3rd-party libraries
 if(WIN32)
     set(sys_libraries iphlpapi advapi32 crypt32 ws2_32 bcrypt)
 elseif(APPLE)
@@ -141,9 +149,8 @@ elseif(APPLE)
         "-framework Cocoa" "-framework IOKit"
     )
 endif()
-
-target_link_libraries(navitab_3rdparty
-    INTERFACE Threads::Threads
+target_link_libraries(navitab_3rdparty INTERFACE
+    Threads::Threads
     fmt_3rd nlohmann_json_3rd curl_3rd mupdf_3rd lvgl_3rd sqlite3_3rd
     ${sys_libraries}
 )

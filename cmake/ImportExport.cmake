@@ -5,9 +5,9 @@
 function(ExportThirdPartyLibrary name pathvar)
     if(NOT "${NAVITAB_${name}_LOCATION}" STREQUAL "")
         if(MSVC)
-            set(outlib "${NAVITAB_IMPORT_LIBS}/${name}.lib")
+            set(outlib "${NAVITAB_LIBS3RD_DIR}/${name}.lib")
         else()
-            set(outlib "${NAVITAB_IMPORT_LIBS}/lib${name}.a")
+            set(outlib "${NAVITAB_LIBS3RD_DIR}/lib${name}.a")
         endif()
         add_custom_command(
             OUTPUT "${outlib}"
@@ -22,12 +22,15 @@ endfunction()
 
 # This function 'imports' the third-party packages' libraries assuming they were
 # previously installed.
-function(ImportBuiltLibraries name fullbuild)
+function(ImportBuiltLibraries name)
     set(impname ${name}_3rd)
     if(NOT TARGET ${impname})
         if("${NAVITAB_${name}_LOCATION}" STREQUAL "")
             add_library(${impname} INTERFACE IMPORTED GLOBAL)
         else()
+            if(NOT ${BUILD_NAVITAB_THIRDPARTY} AND NOT EXISTS "${NAVITAB_${name}_LOCATION}")
+                message(WARNING "BUILD_NAVITAB_THIRDPARTY has been disabled, but library ${NAVITAB_${name}_LOCATION} does not appear to exist. The build will fail.")
+            endif()
             add_library(${impname} STATIC IMPORTED GLOBAL)
             set_target_properties(${impname} PROPERTIES IMPORTED_LOCATION "${NAVITAB_${name}_LOCATION}")
         endif()

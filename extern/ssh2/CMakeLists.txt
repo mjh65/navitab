@@ -12,9 +12,9 @@ unset(LIBSSH2_NO_DEPRECATED CACHE)
 # This is to influence findPackage into detecting Navitab's build of LibSSH2
 set(LIBSSH2_INCLUDE_DIR "${ssh2_SOURCE_DIR}/include" CACHE INTERNAL "")
 if(MSVC)
-    set(LIBSSH2_LIBRARY "${NAVITAB_IMPORT_LIBS}/ssh2.lib" CACHE INTERNAL "")
+    set(LIBSSH2_LIBRARY "${NAVITAB_LIBS3RD_DIR}/ssh2.lib" CACHE INTERNAL "")
 else()
-    set(LIBSSH2_LIBRARY "${NAVITAB_IMPORT_LIBS}/libssh2.a" CACHE INTERNAL "")
+    set(LIBSSH2_LIBRARY "${NAVITAB_LIBS3RD_DIR}/libssh2.a" CACHE INTERNAL "")
 endif()
 
 # Cache settings to be used when BUILD_NAVITAB_THIRDPARTY is OFF

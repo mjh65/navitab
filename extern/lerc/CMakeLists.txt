@@ -6,9 +6,9 @@ add_library(lerc ALIAS Lerc)
 # This is to influence findPackage into detecting Navitab's version of Lerc
 set(LERC_INCLUDE_DIR "${lerc_SOURCE_DIR}/src/LercLib/include" CACHE INTERNAL "")
 if(MSVC)
-    set(LERC_LIBRARY "${NAVITAB_IMPORT_LIBS}/lerc.lib" CACHE INTERNAL "")
+    set(LERC_LIBRARY "${NAVITAB_LIBS3RD_DIR}/lerc.lib" CACHE INTERNAL "")
 else()
-    set(LERC_LIBRARY "${NAVITAB_IMPORT_LIBS}/liblerc.a" CACHE INTERNAL "")
+    set(LERC_LIBRARY "${NAVITAB_LIBS3RD_DIR}/liblerc.a" CACHE INTERNAL "")
 endif()
 
 # Cache settings to be used when BUILD_NAVITAB_THIRDPARTY is OFF

@@ -42,9 +42,9 @@ target_link_libraries(mupdf
 # Cache settings to be used when BUILD_NAVITAB_THIRDPARTY is OFF
 set(NAVITAB_mupdf_PKGLIBS mupdf CACHE INTERNAL "")
 if(MSVC)
-    set(NAVITAB_mupdf_LOCATION "${NAVITAB_IMPORT_LIBS}/mupdf.lib" CACHE INTERNAL "")
+    set(NAVITAB_mupdf_LOCATION "${NAVITAB_LIBS3RD_DIR}/mupdf.lib" CACHE INTERNAL "")
 else()
-    set(NAVITAB_mupdf_LOCATION "${NAVITAB_IMPORT_LIBS}/libmupdf.a" CACHE INTERNAL "")
+    set(NAVITAB_mupdf_LOCATION "${NAVITAB_LIBS3RD_DIR}/libmupdf.a" CACHE INTERNAL "")
 endif()
 set(NAVITAB_mupdf_INCDIRS "${mupdf_SOURCE_DIR}/include" CACHE INTERNAL "")
 set(NAVITAB_mupdf_LINKLIBS zlibs brotlidec brotlienc brotlicommon lcms2 jbig2dec jpeg openjp2 freetype harfbuzz gumbo CACHE INTERNAL "")

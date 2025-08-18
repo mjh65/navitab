@@ -39,9 +39,9 @@ target_link_libraries(libcurl_static
 # Cache settings to be used when BUILD_NAVITAB_THIRDPARTY is OFF
 set(NAVITAB_curl_PKGLIBS curl CACHE INTERNAL "")
 if(MSVC)
-    set(NAVITAB_curl_LOCATION "${NAVITAB_IMPORT_LIBS}/curl.lib" CACHE INTERNAL "")
+    set(NAVITAB_curl_LOCATION "${NAVITAB_LIBS3RD_DIR}/curl.lib" CACHE INTERNAL "")
 else()
-    set(NAVITAB_curl_LOCATION "${NAVITAB_IMPORT_LIBS}/libcurl.a" CACHE INTERNAL "")
+    set(NAVITAB_curl_LOCATION "${NAVITAB_LIBS3RD_DIR}/libcurl.a" CACHE INTERNAL "")
 endif()
 set(NAVITAB_curl_INCDIRS "${curl_SOURCE_DIR}/include" CACHE INTERNAL "")
 set(NAVITAB_curl_CPPDEFS CURL_STATICLIB CACHE INTERNAL "")

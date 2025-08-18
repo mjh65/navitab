@@ -44,9 +44,9 @@ target_include_directories(jpeg
 add_library(JPEG::JPEG ALIAS jpeg)
 set(JPEG_INCLUDE_DIR "${jpeg_SOURCE_DIR}" CACHE INTERNAL "")
 if(MSVC)
-    set(JPEG_LIBRARY "${NAVITAB_IMPORT_LIBS}/jpeg.lib" CACHE INTERNAL "")
+    set(JPEG_LIBRARY "${NAVITAB_LIBS3RD_DIR}/jpeg.lib" CACHE INTERNAL "")
 else()
-    set(JPEG_LIBRARY "${NAVITAB_IMPORT_LIBS}/libjpeg.a" CACHE INTERNAL "")
+    set(JPEG_LIBRARY "${NAVITAB_LIBS3RD_DIR}/libjpeg.a" CACHE INTERNAL "")
 endif()
 
 # Cache settings to be used when BUILD_NAVITAB_THIRDPARTY is OFF

@@ -24,7 +24,6 @@ target_include_directories(navitab_sim_mock PRIVATE
     "${NAVITAB_API_DIR}"
     "${PROJECT_BINARY_DIR}"
 )
-# TODO target_link_libaries for navitab_sim_mock
 
 # The glfw window library provides a desktop GUI window interface to the Navitab core.
 add_library(navitab_win_glfw)

@@ -16,9 +16,9 @@ add_library(zstd ALIAS libzstd_static)
 # CMake target is called 'libzstd'
 set(ZSTD_INCLUDE_DIR "${zstd_SOURCE_DIR}/lib" CACHE INTERNAL "")
 if(MSVC)
-    set(ZSTD_LIBRARY "${NAVITAB_IMPORT_LIBS}/zstd.lib" CACHE INTERNAL "")
+    set(ZSTD_LIBRARY "${NAVITAB_LIBS3RD_DIR}/zstd.lib" CACHE INTERNAL "")
 else()
-    set(ZSTD_LIBRARY "${NAVITAB_IMPORT_LIBS}/libzstd.a" CACHE INTERNAL "")
+    set(ZSTD_LIBRARY "${NAVITAB_LIBS3RD_DIR}/libzstd.a" CACHE INTERNAL "")
 endif()
 
 # Cache settings to be used when BUILD_NAVITAB_THIRDPARTY is OFF

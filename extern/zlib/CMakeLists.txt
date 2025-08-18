@@ -13,9 +13,9 @@ add_library(zlibs ALIAS zlibstatic)
 set(ZLIB_USE_STATIC_LIBS ON CACHE INTERNAL "")
 set(ZLIB_INCLUDE_DIR "${zlib_SOURCE_DIR}" "${zlib_BINARY_DIR}" CACHE INTERNAL "")
 if(MSVC)
-    set(ZLIB_LIBRARY "${NAVITAB_IMPORT_LIBS}/zlibs.lib" CACHE INTERNAL "")
+    set(ZLIB_LIBRARY "${NAVITAB_LIBS3RD_DIR}/zlibs.lib" CACHE INTERNAL "")
 else()
-    set(ZLIB_LIBRARY "${NAVITAB_IMPORT_LIBS}/libzlibs.a" CACHE INTERNAL "")
+    set(ZLIB_LIBRARY "${NAVITAB_LIBS3RD_DIR}/libzlibs.a" CACHE INTERNAL "")
 endif()
 
 # Cache settings to be used when BUILD_NAVITAB_THIRDPARTY is OFF

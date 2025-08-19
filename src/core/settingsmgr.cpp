@@ -6,6 +6,10 @@
 #include <fstream>
 #include <sstream>
 
+// TODO - Settings architecture: this class could manage an improved
+// abstraction which would then be queried by the settings app to
+// build the dialog. Objects with settings would register them here
+// and then receive notifications when the setting was changed.
 
 using json = nlohmann::json;
 

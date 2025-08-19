@@ -26,7 +26,8 @@ MockSimulator::MockSimulator()
 {
     // create some random journeys
     srand((unsigned int)std::chrono::steady_clock::now().time_since_epoch().count());
-    Location origin((rand() % 1600) / 10.0f - 80, (rand() % 3600) / 10.0f - 180, Location::DEGREES);
+    // somewhere over europe!
+    Location origin((rand() % 100) / 10.0f + 45.0f, (rand() % 100) / 10.0f + 5.0f, Location::DEGREES);
     while (journeys.size() < (SimStateData::MAX_OTHER_AIRCRAFT + 1)) {
         double lat = origin.latDegrees() + ((rand() % 2000) / 1000.0f) - 1;
         double lon = origin.lonDegrees() + ((rand() % 2000) / 1000.0f) - 1;

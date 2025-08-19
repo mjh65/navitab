@@ -36,7 +36,7 @@ public:
     unsigned PageCount();
     std::pair<unsigned, unsigned> PageSize(unsigned page = 0);
 
-    std::shared_ptr<RasterTile> GetTile(unsigned page, float scaleX, float scaleY, int x, int y, int w = 0, int h = 0);
+    std::shared_ptr<RasterTile> GetTile(unsigned page, float scaleX, float scaleY, int x, int y, unsigned w = 0, unsigned h = 0);
 
 private:
     void selectPage(int p);

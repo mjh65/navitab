@@ -115,7 +115,7 @@ std::pair<unsigned, unsigned> Document::PageSize(unsigned page)
     return std::pair<unsigned, unsigned>(rect.x1 - rect.x0, rect.y1 - rect.y0);
 }
 
-std::shared_ptr<RasterTile> Document::GetTile(unsigned page, float scaleX, float scaleY, int x, int y, int w, int h)
+std::shared_ptr<RasterTile> Document::GetTile(unsigned page, float scaleX, float scaleY, int x, int y, unsigned w, unsigned h)
 {
     selectPage(page);
 

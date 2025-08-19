@@ -3,4 +3,6 @@
 target_sources(navitab_core PRIVATE
     maptileprovider.cpp
     maptileprovider.h
+    tileprovidercfg.cpp
+    tileprovidercfg.h
 )

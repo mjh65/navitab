@@ -13,12 +13,17 @@
 namespace navitab {
 
 class RasterTile;
+struct CoreServices;
 class DocumentManager;
+class TileProviderConfigLoader;
+struct OnlineSlippyMapConfig;
+struct Settings;
 
 class MapTileProvider
 {
 public:
-    MapTileProvider(std::shared_ptr<DocumentManager>);
+    MapTileProvider(std::shared_ptr<CoreServices>, std::shared_ptr<DocumentManager>);
+    ~MapTileProvider();
 
     std::shared_ptr<RasterTile> GetTile(int x, int y);
 
@@ -35,8 +40,6 @@ public:
     double GetTileHeightDegrees();
     double GetTileHeightMetres();
 
-    virtual ~MapTileProvider() = default;
-
 private:
     struct CachedTile {
         CachedTile() = default;
@@ -47,6 +50,9 @@ private:
 
 private:
     std::unique_ptr<logging::Logger> LOG;
+    std::shared_ptr<TileProviderConfigLoader> providerCfg;
+    std::shared_ptr<OnlineSlippyMapConfig> smapConfig;
+    std::shared_ptr<Settings> prefs;
     std::shared_ptr<DocumentManager> docMgr;
     std::map<std::pair<int, int>, CachedTile> tileCache;
     std::shared_ptr<RasterTile> missingTile;

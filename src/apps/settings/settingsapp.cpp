@@ -7,6 +7,9 @@
 
 namespace navitab {
 
+// TODO - the screen/dialog will be built dynamically by querying
+// the settings manager (which knows which settings exist and can be modified by the UI)
+
 SettingsApp::SettingsApp(std::shared_ptr<AppServices> core)
 :   App("stgsapp", core)
 {

@@ -189,7 +189,7 @@ void Navitab::Start()
     worker = std::make_unique<std::thread>([this]() { AsyncWorker(); });
 
     docManager = std::make_shared<DocumentManager>();
-    maptileProvider = std::make_shared<MapTileProvider>(docManager);
+    maptileProvider = std::make_shared<MapTileProvider>(shared_from_this(), docManager);
     navProvider = std::make_shared<NavProvider>();
 
     uiMgr = std::make_shared<lvglkit::Manager>(std::static_pointer_cast<DeferredJobRunner<int>>(shared_from_this()));

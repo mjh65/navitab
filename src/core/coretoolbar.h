@@ -28,7 +28,7 @@ public:
 protected:
     // Implementation of WindowPart
     void onResize(int w, int h) override;
-    void onMouseEvent(int x, int y, bool l, bool r) override;
+    void onMouseEvent(int x, int y, bool l) override;
     void onWheelEvent(int x, int y, int xdir, int ydir) override {}
     void onKeyEvent(int code) override {}
 

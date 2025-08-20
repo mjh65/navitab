@@ -114,11 +114,13 @@ public:
     uint32_t* Row(unsigned r) { return data + (r * span); }
     uint32_t* Pixel(unsigned x, unsigned y) { return data + (y * span) + x; }
 
-    void PaintArea(const ImageRegion& dstArea, PixelBuffer& src, const ImageRegion& srcArea);
+    void PaintRegion(int x, int y, PixelBuffer& src);
+    void BlendRegion(int x, int y, PixelBuffer& src);
 
 protected:
     PixelBuffer(unsigned w, unsigned h) : width(w), height(h), span(w), data(nullptr) { }
     void SetData(uint32_t* d) { data = d; }
+    void BlendRow(unsigned row, unsigned offset, uint32_t *s, int n);
 
 protected:
     unsigned width;
@@ -175,8 +177,8 @@ public:
     void PostResize(int w, int h) {
         RunLater([this, w, h]() { onResize(w, h); });
     }
-    void PostMouseEvent(int x, int y, bool l, bool r) {
-        RunLater([this, x, y, l, r]() { onMouseEvent(x, y, l, r); });
+    void PostMouseEvent(int x, int y, bool l) {
+        RunLater([this, x, y, l]() { onMouseEvent(x, y, l); });
     }
     void PostWheelEvent(int x, int y, int xdir, int ydir) {
         RunLater([this, x, y, xdir, ydir]() { onWheelEvent(x, y, xdir, ydir); });
@@ -194,7 +196,7 @@ protected:
 
     // Called when a mouse event occurs. Includes movement while a button is down.
     // Position coordinates are relative to canvas top-left.
-    virtual void onMouseEvent(int x, int y, bool l, bool r) { assert(0); }
+    virtual void onMouseEvent(int x, int y, bool l) { assert(0); }
 
     // Called when scroll wheel events occur.
     virtual void onWheelEvent(int x, int y, int xdir, int ydir) { assert(0); }
@@ -224,21 +226,6 @@ protected:
     std::vector<ImageRegion> dirtyBits;
 
 };
-
-inline void PixelBuffer::PaintArea(const ImageRegion& dstArea, PixelBuffer& src, const ImageRegion& srcArea)
-{
-    assert((dstArea.right - dstArea.left) == (srcArea.right - srcArea.left));
-    assert((dstArea.bottom - dstArea.top) == (srcArea.bottom - srcArea.top));
-
-    auto rowCount = srcArea.bottom - srcArea.top;
-    auto rowSize = srcArea.right - srcArea.left;
-
-    for (unsigned ri = 0; ri < rowCount; ++ri) {
-        auto dr = Row(dstArea.top + ri);
-        auto sr = src.Row(srcArea.top + ri);
-        memcpy(dr + dstArea.left, sr + srcArea.left, rowSize * sizeof(uint32_t));
-    }
-}
 
 inline void ImageBuffer::PaintIcon(unsigned x, unsigned y, const uint32_t *pix, unsigned w, unsigned h, uint32_t bg)
 {

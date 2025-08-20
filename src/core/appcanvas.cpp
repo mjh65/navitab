@@ -1,7 +1,8 @@
 /* This file is part of the Navitab project. See the README and LICENSE for details. */
 
-#include <algorithm>
 #include "appcanvas.h"
+#include <fmt/core.h>
+#include <algorithm>
 
 namespace navitab {
 
@@ -76,9 +77,9 @@ void AppCanvas::Update(navitab::ImageRegion r, uint32_t* pixels)
     RunLater([this]() { Redraw(); });
 }
 
-void AppCanvas::onMouseEvent(int x, int y, bool l, bool r)
+void AppCanvas::onMouseEvent(int x, int y, bool l)
 {
-    UNIMPLEMENTED(__func__);
+    core->PostMouseEvent(x, y, l);
 }
 
 void AppCanvas::onWheelEvent(int x, int y, int xdir, int ydir)

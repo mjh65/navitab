@@ -13,6 +13,10 @@
 #include "coredoodler.h"
 #include "corekeypad.h"
 #include "appcanvas.h"
+#include "../store/backingstore.h"
+#include "../docs/docmanager.h"
+#include "../maps/maptileprovider.h"
+#include "../navdb/navdb.h"
 #include "../apps/about/aboutapp.h"
 #include "../apps/map/mapapp.h"
 #include "../apps/airport/airportapp.h"
@@ -182,15 +186,16 @@ void Navitab::Start()
 
     curl_global_init(CURL_GLOBAL_ALL);
 
+    storeManager = std::make_shared<BackingStore>(paths);
+    docManager = std::make_shared<DocumentManager>(paths);
+    maptileProvider = std::make_shared<MapTileProvider>(paths, settings, docManager);
+    navProvider = std::make_shared<NavProvider>();
+
     // Start the background worker thread. Most of the actual work done in
     // the Navitab core is triggered by jobs posted to this thread, and most
     // of those jobs are UI interactions or simulator updates.
 
     worker = std::make_unique<std::thread>([this]() { AsyncWorker(); });
-
-    docManager = std::make_shared<DocumentManager>();
-    maptileProvider = std::make_shared<MapTileProvider>(shared_from_this(), docManager);
-    navProvider = std::make_shared<NavProvider>();
 
     uiMgr = std::make_shared<lvglkit::Manager>(std::static_pointer_cast<DeferredJobRunner<int>>(shared_from_this()));
 
@@ -281,6 +286,11 @@ void Navitab::StartApps()
     modebar->SetHighlightedModes(0x1); // TODO - set the modes that are relevant to the launched app
 }
 
+std::shared_ptr<BackingStore> Navitab::GetStoreManager()
+{
+    return storeManager;
+}
+
 std::shared_ptr<DocumentManager> Navitab::GetDocsProvider()
 {
     return docManager;
@@ -337,6 +347,12 @@ void Navitab::onKeypadToggle()
 void Navitab::onKeypadEvent(int code)
 {
     UNIMPLEMENTED(__func__);
+}
+
+void Navitab::onCanvasMouseEvent(int x, int y, bool l)
+{
+    if (!activeApp) return;
+    activeApp->MouseEvent(x, y, l);
 }
 
 void Navitab::RunLater(std::function<void()> j, void*)

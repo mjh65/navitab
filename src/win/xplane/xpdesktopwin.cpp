@@ -164,13 +164,13 @@ int XPDesktopWindow::onLeftClick(int x, int y, XPLMMouseStatus status)
     switch (status) {
     case xplm_MouseDown:
         activeWinPart = LocateWinPart(x, y);
-        activeWinPart->client->PostMouseEvent(x - activeWinPart->left, y - activeWinPart->top, true, false);
+        activeWinPart->client->PostMouseEvent(x - activeWinPart->left, y - activeWinPart->top, true);
         break;
     case xplm_MouseDrag:
-        activeWinPart->client->PostMouseEvent(x - activeWinPart->left, y - activeWinPart->top, true, false);
+        activeWinPart->client->PostMouseEvent(x - activeWinPart->left, y - activeWinPart->top, true);
         break;
     case xplm_MouseUp:
-        activeWinPart->client->PostMouseEvent(x - activeWinPart->left, y - activeWinPart->top, false, false);
+        activeWinPart->client->PostMouseEvent(x - activeWinPart->left, y - activeWinPart->top, false);
         activeWinPart = nullptr;
         break;
     }

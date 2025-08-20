@@ -40,7 +40,7 @@ void CoreKeypad::onResize(int w, int h)
     RunLater([this]() { Redraw(); });
 }
 
-void CoreKeypad::onMouseEvent(int x, int y, bool l, bool r)
+void CoreKeypad::onMouseEvent(int x, int y, bool l)
 {
     UNIMPLEMENTED(__func__);
 }

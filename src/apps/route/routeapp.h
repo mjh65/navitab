@@ -13,6 +13,7 @@ public:
     RouteApp(std::shared_ptr<AppServices> core);
 
     void ToolClick(ClickableTool t) override;
+    void MouseEvent(int x, int y, bool l) override;
 
 protected:
     void Assemble() override;

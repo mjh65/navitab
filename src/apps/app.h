@@ -27,6 +27,7 @@ public:
     
     virtual void FlightLoop(const SimStateData& data) { }
     virtual void ToolClick(ClickableTool t) = 0;
+    virtual void MouseEvent(int x, int y, bool l) = 0;
 
 protected:
     virtual void Assemble() = 0;

@@ -14,6 +14,7 @@ add_library(sqlite3 STATIC "${sqlite_SOURCE_DIR}/sqlite3.c")
 
 target_compile_definitions(sqlite3 PRIVATE
     SQLITE_DQS=0
+    SQLITE_THREADSAFE=0
     SQLITE_DEFAULT_MEMSTATUS=0
     SQLITE_DEFAULT_SYNCHRONOUS=0
     SQLITE_DEFAULT_WAL_SYNCHRONOUS=0

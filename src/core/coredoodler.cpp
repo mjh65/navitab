@@ -60,7 +60,7 @@ void CoreDoodler::onResize(int w, int h)
     RunLater([this]() { Redraw(); });
 }
 
-void CoreDoodler::onMouseEvent(int x, int y, bool l, bool r)
+void CoreDoodler::onMouseEvent(int x, int y, bool l)
 {
     UNIMPLEMENTED(__func__);
 }

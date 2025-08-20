@@ -16,13 +16,13 @@ struct AppCanvas2Core : public DeferredJobRunner<>
 {
     virtual void StartApps() = 0;
 
-    void PostFoo() {
-        RunLater([this]() { onFoo(); });
+    void PostMouseEvent(int x, int y, bool l) {
+        RunLater([this, x, y, l]() { onCanvasMouseEvent(x, y, l); });
     }
 
 protected:
-    // Called when a tool icon is clicked
-    virtual void onFoo() = 0;
+    // Called when a mouse event occurs in the app canvas
+    virtual void onCanvasMouseEvent(int x, int y, bool l) = 0;
 };
 
 // The Canvas interface defines the services that this part of the UI window
@@ -39,7 +39,7 @@ public:
 
     // Implementation of WindowPart
     void onResize(int width, int height) override;
-    void onMouseEvent(int x, int y, bool l, bool r) override;
+    void onMouseEvent(int x, int y, bool l) override;
     void onWheelEvent(int x, int y, int xdir, int ydir) override;
     void onKeyEvent(int code) override;
 

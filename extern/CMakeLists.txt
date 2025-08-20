@@ -35,7 +35,7 @@ if(${BUILD_NAVITAB_THIRDPARTY} OR ${full_build})
         # json has no dependencies.
         sqlite      "https://www.sqlite.org/2025/sqlite-amalgamation-3500300.zip"
         # sqlite has no dependencies. it does not have inbuilt CMake support.
-        lunasvg     "https://github.com/sammycage/lunasvg/archive/refs/tags/v3.3.0.zip"
+        lunasvg     "https://github.com/sammycage/lunasvg/archive/refs/tags/v3.4.0.zip"
         # lunasvg has no dependencies.
         zlib        "https://github.com/madler/zlib/releases/download/v1.3.1/zlib-1.3.1.tar.gz"
         # zlib has no dependencies.
@@ -151,6 +151,6 @@ elseif(APPLE)
 endif()
 target_link_libraries(navitab_3rdparty INTERFACE
     Threads::Threads
-    fmt_3rd nlohmann_json_3rd curl_3rd mupdf_3rd lvgl_3rd sqlite3_3rd
+    fmt_3rd nlohmann_json_3rd curl_3rd mupdf_3rd lvgl_3rd sqlite3_3rd lunasvg_3rd
     ${sys_libraries}
 )

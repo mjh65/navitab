@@ -48,7 +48,7 @@ void CoreModebar::onResize(int, int)
     RedrawIcons(~0, highlightMask);
 }
 
-void CoreModebar::onMouseEvent(int x, int y, bool l, bool r)
+void CoreModebar::onMouseEvent(int x, int y, bool l)
 {
     Modebar2Core::Mode m = GetModeUnderMouse(x, y);
     if (l) {

@@ -34,6 +34,7 @@
                         <code id="ToolbarStatus">13:23:52 | 17fps | 17:42:33Z | 56.197,-3.324</code>
                     </div>
                     <div id="ToolbarTools">
+                        // These IDs must correspond to the enum ClickableTool
                         <img class="nTool" id="17ToolTop" src="tool_top.svg" alt="Go to top" width="24px" height="24px">
                         <img class="nTool" id="16ToolUp" src="tool_up.svg" alt="Up" width="24px" height="24px">
                         <img class="nTool" id="15ToolDown" src="tool_down.svg" alt="Down" width="24px" height="24px">

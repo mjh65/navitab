@@ -130,10 +130,10 @@ void WindowGLFW::EventLoop()
             if (m1.b && !latestMouse.b) {
                 // the button went down
                 activeWinPart = LocateWinPart(m1.x, m1.y);
-                activeWinPart->client->PostMouseEvent(m1.x - activeWinPart->left, m1.y - activeWinPart->top, true, false);
+                activeWinPart->client->PostMouseEvent(m1.x - activeWinPart->left, m1.y - activeWinPart->top, true);
             } else if (!m1.b && latestMouse.b) {
                 // the button was released
-                activeWinPart->client->PostMouseEvent(m1.x - activeWinPart->left, m1.y - activeWinPart->top, false, false);
+                activeWinPart->client->PostMouseEvent(m1.x - activeWinPart->left, m1.y - activeWinPart->top, false);
                 activeWinPart = nullptr;
             }
             latestMouse = m1;
@@ -144,7 +144,7 @@ void WindowGLFW::EventLoop()
             latestMouse.x = int(floor(x));
             latestMouse.y = int(floor(y));
             assert(activeWinPart);
-            activeWinPart->client->PostMouseEvent(latestMouse.x - activeWinPart->left, latestMouse.y - activeWinPart->top, true, false);
+            activeWinPart->client->PostMouseEvent(latestMouse.x - activeWinPart->left, latestMouse.y - activeWinPart->top, true);
         }
 
         // TODO - scroll wheel handling

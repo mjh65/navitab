@@ -41,4 +41,9 @@ void RouteApp::ToolClick(ClickableTool t)
     UNIMPLEMENTED(__func__ + fmt::format("({})", (int)t));
 }
 
+void RouteApp::MouseEvent(int x, int y, bool l)
+{
+    UNIMPLEMENTED(__func__ + fmt::format("({},{},{})", x, y, l));
+}
+
 } // namespace navitab

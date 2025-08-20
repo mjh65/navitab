@@ -12,9 +12,6 @@
 #include "navitab/doodler.h"
 #include "navitab/keypad.h"
 #include "appcanvas.h"
-#include "../docs/docmanager.h"
-#include "../maps/maptileprovider.h"
-#include "../navdb/navdb.h"
 #include <memory>
 #include <functional>
 #include <queue>
@@ -56,19 +53,21 @@ public:
     virtual ~Navitab();
 
     // ======================================================================
-    // Implementation of CoreServices
+    // Implementation of BasicServices
     
     // access to platform and settings
     std::shared_ptr<PathServices> GetPathService() override { return paths; }
     std::shared_ptr<Settings> GetSettingsManager() override { return settings; }
 
+    // ======================================================================
+    // Implementation of CoreServices
+    
     // Interfaces used by simulator and UI window
     std::shared_ptr<Simulator2Core> GetSimulatorCallbacks() override;
     std::shared_ptr<Toolbar2Core> SetToolbar(std::shared_ptr<Toolbar> t) override;
     std::shared_ptr<Modebar2Core> SetModebar(std::shared_ptr<Modebar> m) override;
     std::shared_ptr<Doodler2Core> SetDoodler(std::shared_ptr<Doodler> d) override;
     std::shared_ptr<Keypad2Core> SetKeypad(std::shared_ptr<Keypad> k) override;
-    //std::shared_ptr<WindowPart> GetWindowPart(int part) override;
     std::shared_ptr<WindowPart> GetToolbar() override;
     std::shared_ptr<WindowPart> GetModebar() override;
     std::shared_ptr<WindowPart> GetDoodler() override;
@@ -84,6 +83,7 @@ public:
 
     // ======================================================================
     // Implementation of AppServices
+    std::shared_ptr<BackingStore> GetStoreManager() override;
     std::shared_ptr<DocumentManager> GetDocsProvider() override;
     std::shared_ptr<MapTileProvider> GetMapsProvider() override;
     std::shared_ptr<NavProvider> GetNavProvider() override;
@@ -111,7 +111,7 @@ public:
     // ======================================================================
     // Implementation of Canvas2Core
     void StartApps() override;
-    void onFoo() override {}
+    void onCanvasMouseEvent(int x, int y, bool l) override;
 
     // ======================================================================
     // Implementation of DeferredJobRunner (via several other intermediate base classes)
@@ -141,8 +141,9 @@ private:
     std::shared_ptr<AppCanvas>          appcanvas;
     std::shared_ptr<lvglkit::Manager>   uiMgr;
 
-    std::shared_ptr<MapTileProvider>       maptileProvider;
-    std::shared_ptr<DocumentManager>       docManager;
+    std::shared_ptr<BackingStore>       storeManager;
+    std::shared_ptr<DocumentManager>    docManager;
+    std::shared_ptr<MapTileProvider>    maptileProvider;
     std::shared_ptr<NavProvider>        navProvider;
 
     std::shared_ptr<AboutApp>           aboutApp;

@@ -25,6 +25,7 @@ struct Doodler2Core;
 class Keypad;
 struct Keypad2Core;
 struct WindowControls;
+class BackingStore;
 class DocumentManager;
 class MapTileProvider;
 class NavProvider;
@@ -58,21 +59,28 @@ struct Settings
     virtual void Put(const std::string key, nlohmann::json& value) = 0;
 };
 
-// The CoreServices interface is the centralised componment management interface for the
-// Navitab system, and provides the connectivity by sharing interfaces needed by the
-// simulation and windowing UI subsystems.
+// The BasicService interface consists of APIs that are available for use by
+// both the simulator/UI-specific wrappers and the internal apps.
 
-struct CoreServices
+struct BasicServices
 {
-    // The executable / plugin's main() function should call the factory to create
-    // exactly one instance of the Navitab core, and then destroy it on closure.
-    static std::shared_ptr<CoreServices> MakeNavitab(SimEngine s, WinServer w);
-
-    // Get the interface to the preferences manager
+    // Get the interface to the settings/preferences manager
     virtual std::shared_ptr<Settings> GetSettingsManager() = 0;
 
     // Get the interface to the paths service
     virtual std::shared_ptr<PathServices> GetPathService() = 0;
+
+};
+
+// The CoreServices interface is the centralised componment management interface for the
+// Navitab system, and provides the connectivity by sharing interfaces needed by the
+// simulation and windowing UI subsystems.
+
+struct CoreServices : public BasicServices
+{
+    // The executable / plugin's main() function should call the factory to create
+    // exactly one instance of the Navitab core, and then destroy it on closure.
+    static std::shared_ptr<CoreServices> MakeNavitab(SimEngine s, WinServer w);
 
     // Get the interface for simulation-generated events that Navitab will handle
     virtual std::shared_ptr<Simulator2Core> GetSimulatorCallbacks() = 0;
@@ -107,8 +115,9 @@ struct CoreServices
 
 // The AppServices interface provides the services used by the Navitab apps.
 
-struct AppServices
+struct AppServices : public BasicServices
 {
+    virtual std::shared_ptr<BackingStore> GetStoreManager() = 0;
     virtual std::shared_ptr<DocumentManager> GetDocsProvider() = 0;
     virtual std::shared_ptr<MapTileProvider> GetMapsProvider() = 0;
     virtual std::shared_ptr<NavProvider> GetNavProvider() = 0;

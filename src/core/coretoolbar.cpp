@@ -139,7 +139,7 @@ void CoreToolbar::onResize(int w, int h)
     lv_obj_invalidate(lv_screen_active());
 }
 
-void CoreToolbar::onMouseEvent(int x, int y, bool l, bool r)
+void CoreToolbar::onMouseEvent(int x, int y, bool l)
 {
     // ignore mouse events that are not over the tool icons
     if ((y < 0) || (y >= Window::TOOLBAR_HEIGHT)) return;

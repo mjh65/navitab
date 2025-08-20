@@ -167,10 +167,10 @@ void WindowHTTP::RunLater(std::function<void()> j, int*)
 void WindowHTTP::EncodeBMP(std::vector<unsigned char> &bmp)
 {
     std::lock_guard<std::mutex> lock(paintMutex);
-    uint32_t w = image->Width();
-    uint32_t h = image->Height();
-    uint32_t ncanvas = (4 * w * h);
-    uint32_t bmpLength = 14 + 40 + ncanvas;
+    unsigned w = image->Width();
+    unsigned h = image->Height();
+    unsigned ncanvas = (4 * w * h);
+    unsigned bmpLength = 14 + 40 + ncanvas;
     
     bmp.resize(bmpLength);
     
@@ -202,12 +202,19 @@ void WindowHTTP::EncodeBMP(std::vector<unsigned char> &bmp)
 
     // BMP's are interpreted bottom to top. Since MSFS doesn't support the convention
     // that a negative height indicates top-to-bottom we need to copy each row into
-    // it's mirror.
+    // it's mirror. And we also need to swap the red/green bytes in each pixel :-(
+    // TODO - use SSE3/Neon intrinsics to optimise this image copy
     const unsigned int rl = 4 * w;
     const unsigned char *sr = reinterpret_cast<const unsigned char *>(image->Data());
     unsigned char* dr = bmp.data() + 14 + 40 + ncanvas - rl;
     for (int i = 0; i < h; ++i) {
-        memcpy(dr, sr, rl);
+        const uint32_t *sp = reinterpret_cast<const uint32_t *>(sr);
+        uint32_t *dp = reinterpret_cast<uint32_t *>(dr);
+        unsigned np = w;
+        while (np--) {
+            auto pix = *sp++;
+            *dp++ = (pix & 0xff00ff00) | ((pix << 16) & 0xff0000) | ((pix >> 16) & 0xff);
+        }
         sr += rl;
         dr -= rl;
     }
@@ -242,7 +249,7 @@ void WindowHTTP::EncodeStatus(std::vector<unsigned char> &status)
 
 void WindowHTTP::mouseEvent(int x, int y, int b)
 {
-    canvas->PostMouseEvent(x, y, b, false);
+    canvas->PostMouseEvent(x, y, b);
 }
 
 void WindowHTTP::wheelEvent(int x, int y, int d)

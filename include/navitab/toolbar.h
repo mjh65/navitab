@@ -19,6 +19,7 @@ struct Window;
 struct Location;
 
 enum ClickableTool {
+    // These IDs must correspond to the HTML toolbar tool IDs
     MENU,
     COG,
     AFFIRM,

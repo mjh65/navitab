@@ -1,5 +1,11 @@
 /* This file is part of the Navitab project. See the README and LICENSE for details. */
 
+// This header file defines the interface for the document provider which
+// manages local and downloaded documents and rendering to raster tiles.
+// The document provider implements a cache of downloaded documents and these
+// are periodically refreshed. The document provider is used by the maps provider
+// to obtain tile documents from the selected slippy tile server.
+
 #pragma once
 
 #include "navitab/logger.h"
@@ -12,24 +18,19 @@
 #include <condition_variable>
 #include <thread>
 #include <map>
-#include <mupdf/fitz.h>
 
-
-// This header file defines the interface for the document provider which
-// manages local and downloaded documents and rendering to raster tiles.
-// The document provider implements a cache of downloaded documents and these
-// are periodically refreshed. The document provider is used by the maps provider
-// to obtain tile documents from the selected slippy tile server.
+struct fz_context;
 
 namespace navitab {
 
+struct PathServices;
 class RasterTile;
 class Document;
 
 class DocumentManager
 {
 public:
-    DocumentManager();
+    DocumentManager(std::shared_ptr<PathServices>);
 
     std::shared_ptr<Document> GetDocument(std::string url);
 

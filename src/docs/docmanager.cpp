@@ -3,11 +3,13 @@
 #include "docmanager.h"
 #include "downloader.h"
 #include "document.h"
+#include "navitab/platform.h"
 #include <fmt/core.h>
+#include <mupdf/fitz.h>
 
 namespace navitab {
 
-DocumentManager::DocumentManager()
+DocumentManager::DocumentManager(std::shared_ptr<PathServices> ps)
 :   LOG(std::make_unique<logging::Logger>("docmgr")),
     running(true),
     cancelDownload(false),

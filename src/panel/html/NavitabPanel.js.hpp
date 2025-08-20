@@ -128,7 +128,7 @@ class NavitabElement extends TemplateElement {
         for (let i=0; i<teimgs.length; i++) {
             // TODO - support hold/repeat here with mousedown, mousemove
             teimgs[i].addEventListener("click", () => {
-                this.toolClick(msimgs[i].id.substr(0,2));
+                this.toolClick(teimgs[i].id.substr(0,2));
             });
         }
         // TODO - support hold/repeat here with mouseup listener (on outermost element)

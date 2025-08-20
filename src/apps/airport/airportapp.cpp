@@ -49,4 +49,9 @@ void AirportApp::ToolClick(ClickableTool t)
     UNIMPLEMENTED(__func__ + fmt::format("({})", (int)t));
 }
 
+void AirportApp::MouseEvent(int x, int y, bool l)
+{
+    UNIMPLEMENTED(__func__ + fmt::format("({},{},{})", x, y, l));
+}
+
 } // namespace navitab

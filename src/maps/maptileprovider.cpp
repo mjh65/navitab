@@ -68,8 +68,11 @@ void MapTileProvider::MaintenanceTick()
     }
 }
 
-std::shared_ptr<RasterTile> MapTileProvider::GetTile(int x, int y)
+std::shared_ptr<RasterTile> MapTileProvider::GetTile(double ty, double tx)
 {
+    int y = (int)std::floor(ty);
+    int x = (int)std::floor(tx);
+
     // the x and y indices have not been constrained to the tiling limits.
     // adjust the x index in case of overflow around the date line
     // (we let the y value overflow, it doesn't wrap)
@@ -78,7 +81,7 @@ std::shared_ptr<RasterTile> MapTileProvider::GetTile(int x, int y)
     while (x >= xn) x -= xn;
 
     // do we have the requested tile in the cache?
-    auto tci = tileCache.find(std::make_pair(x, y));
+    auto tci = tileCache.find(std::make_pair(y, x));
     if (tci != tileCache.end()) {
         ++(tci->second.useCount);
         return tci->second.tile;
@@ -89,7 +92,7 @@ std::shared_ptr<RasterTile> MapTileProvider::GetTile(int x, int y)
     // enhance the cache indexing from a simple x,y to x,y,z where z ranges from 0 (natural zoom) to (eg) 4.
 
     // tile is not in the cache. request it from the Document Manager.
-    std::string url = smapConfig->FormatUrl(zoom, x, y);
+    std::string url = smapConfig->FormatUrl(zoom, y, x);
     auto doc = docMgr->GetDocument(url);
     if (doc && (doc->Status() == Document::DocStatus::OK)) {
         unsigned &twpx = smapConfig->tileWidthPx;
@@ -100,12 +103,22 @@ std::shared_ptr<RasterTile> MapTileProvider::GetTile(int x, int y)
         float sy = (float)thpx / ps.second;
         auto tile = doc->GetTile(0, sx, sy, 0, 0, twpx, thpx);
         CachedTile ct(tile);
-        tileCache[std::make_pair(x, y)] = ct;
+        tileCache[std::make_pair(y, x)] = ct;
         return tile;
     }
 
     // finally if no tile was available then return the chessboard
     return missingTile;
+}
+
+std::pair<unsigned, unsigned> MapTileProvider::GetTileDimensions() const
+{
+    return std::make_pair(smapConfig->tileHeightPx, smapConfig->tileWidthPx);
+}
+
+std::pair<double, double> MapTileProvider::GetTileMaxYX() const
+{
+    return std::make_pair(1 << zoom, 1 << zoom);
 }
 
 void MapTileProvider::SetZoom(unsigned z)
@@ -130,34 +143,36 @@ std::pair<double, double> MapTileProvider::Location2TileYX(const Location& loc)
     return std::make_pair(n * unscaled.first, n * unscaled.second);
 }
 
-Location MapTileProvider::TileYX2Location(double x, double y)
+Location MapTileProvider::TileYX2Location(double y, double x)
 {
-    UNIMPLEMENTED(__func__);
-    return Location();
+    double n = 1 << zoom;
+    double lat = std::atan(std::sinh(M_PI * (1 - 2 * y / n)));
+    double lon = ((x / n) - 0.5f) * 2 * M_PI;
+    return Location(lat, lon);
 }
 
-double MapTileProvider::GetTileCentreWidthDegrees()
+std::pair<double, double> MapTileProvider::GetTileSpanRadians(double y)
 {
-    UNIMPLEMENTED(__func__);
-    return 0.0;
+    auto topEdge = TileYX2Location(std::floor(y), 0);
+    auto bottomEdge = TileYX2Location(std::floor(y) - 1.0, 0);
+    auto spanY = topEdge.ypos_rad - bottomEdge.ypos_rad;
+    auto spanX = 2 * M_PI / (1 << zoom);
+    return std::make_pair(spanY, spanX);
 }
 
-double MapTileProvider::GetTileCentreWidthMetres()
+#if 0
+double MapTileProvider::GetTileHeightRadians(double y)
 {
-    UNIMPLEMENTED(__func__);
-    return 0.0;
+    auto topEdge = TileYX2Location(std::floor(y), 0);
+    auto bottomEdge = TileYX2Location(std::floor(y) - 1.0, 0);
+    return topEdge.ypos_rad - bottomEdge.ypos_rad;
 }
 
-double MapTileProvider::GetTileHeightDegrees()
+double MapTileProvider::GetTileWidthRadians()
 {
-    UNIMPLEMENTED(__func__);
-    return 0.0;
+    auto n = 1 << zoom;
+    return 2 * M_PI / n;
 }
-
-double MapTileProvider::GetTileHeightMetres()
-{
-    UNIMPLEMENTED(__func__);
-    return 0.0;
-}
+#endif
 
 }

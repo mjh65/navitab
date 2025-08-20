@@ -225,7 +225,7 @@ void OnlineSlippyMapConfig::Validate()
     if ((minZoomLevel < 0) || (minZoomLevel > maxZoomLevel) || (maxZoomLevel > 18)) {
         throw std::runtime_error("zoom level ranges are not sensible");
     }
-    if ((tileWidthPx != 256) || (tileHeightPx != 256)) {
+    if ((tileHeightPx != 256) || (tileWidthPx != 256)) {
         throw std::runtime_error("Navitab does not currently support non-standard tile dimensions");
     }
 }
@@ -240,7 +240,7 @@ void OnlineSlippyMapConfig::splitUrl(size_t p1, size_t p2, size_t p3)
     u3 = url.substr(p3+3);
 }
 
-std::string OnlineSlippyMapConfig::FormatUrl(unsigned zoom, int x, int y) const
+std::string OnlineSlippyMapConfig::FormatUrl(unsigned zoom, int y, int x) const
 {
     size_t si = 0;
     if (servers.size() > 1) si = rand() % servers.size();

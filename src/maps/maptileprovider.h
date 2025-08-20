@@ -25,20 +25,21 @@ public:
     MapTileProvider(std::shared_ptr<CoreServices>, std::shared_ptr<DocumentManager>);
     ~MapTileProvider();
 
-    std::shared_ptr<RasterTile> GetTile(int x, int y);
-
-    void MaintenanceTick();
-
     void SetZoom(unsigned z);
     unsigned GetZoom();
 
-    std::pair<double, double> Location2TileYX(const Location &loc);
-    Location TileYX2Location(double x, double y);
+    std::shared_ptr<RasterTile> GetTile(double y, double x);
+    std::pair<unsigned, unsigned> GetTileDimensions() const; // height,width
 
-    double GetTileCentreWidthDegrees();
-    double GetTileCentreWidthMetres();
-    double GetTileHeightDegrees();
-    double GetTileHeightMetres();
+    std::pair<double, double> GetTileMaxYX() const; // vertical,horizontal
+    std::pair<double, double> Location2TileYX(const Location &loc);
+    Location TileYX2Location(double y, double x);
+
+    std::pair<double, double> GetTileSpanRadians(double y); // angular span is independent of x
+    //double GetTileHeightRadians(double y);
+    //double GetTileWidthRadians(); // tile width is only dependent on zoom level
+
+    void MaintenanceTick();
 
 private:
     struct CachedTile {

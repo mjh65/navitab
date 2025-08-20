@@ -18,10 +18,10 @@ struct OnlineSlippyMapConfig {
     std::string url;
     unsigned minZoomLevel;
     unsigned maxZoomLevel;
-    unsigned tileWidthPx;
     unsigned tileHeightPx;
+    unsigned tileWidthPx;
     void Validate();
-    std::string FormatUrl(unsigned zoom, int x, int y) const;
+    std::string FormatUrl(unsigned zoom, int y, int x) const;
     // internal working state
     enum { XYZ, XZY, YXZ, YZX, ZXY, ZYX } fmtOrder;
     std::string u0, u1, u2, u3;

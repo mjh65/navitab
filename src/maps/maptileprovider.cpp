@@ -152,6 +152,16 @@ Location MapTileProvider::TileYX2Location(double y, double x)
     return Location(lat, lon);
 }
 
+void MapTileProvider::NormaliseTileYX(std::pair<double, double>& tyx)
+{
+    // Y coordinate gets clamped between 0 and (1<<zoom)
+    if (tyx.first < 0.0) tyx.first = 0.0;
+    else if (tyx.first > (1 << zoom)) tyx.first = 1 << zoom;
+    // X coordinate is allowed to wrap
+    while (tyx.second < 0.0) tyx.second += (1 << zoom);
+    while (tyx.second >= (1 << zoom)) tyx.second -= (1 << zoom);
+}
+
 std::pair<double, double> MapTileProvider::GetTileSpanRadians(double y)
 {
     auto topEdge = TileYX2Location(std::floor(y), 0);

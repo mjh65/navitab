@@ -36,6 +36,7 @@ public:
     std::pair<double, double> Location2TileYX(const Location &loc);
     Location TileYX2Location(double ty, double tx);
     Location TileYX2Location(std::pair<double, double> tyx) { return TileYX2Location(tyx.first, tyx.second); }
+    void NormaliseTileYX(std::pair<double, double>& tyx);
 
     std::pair<double, double> GetTileSpanRadians(double y); // angular span is independent of x
     //double GetTileHeightRadians(double y);

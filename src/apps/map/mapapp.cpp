@@ -113,6 +113,7 @@ void MapApp::FlightLoop(const SimStateData& data)
 
     // Identify which tile contains the centre point of the map
     // TODO - cty will exceed the tile server ranges near the poles, including infinity at the pole. needs handling.
+    mapServer->NormaliseTileYX(centreTYX);
     auto& cty = centreTYX.first;
     auto& ctx = centreTYX.second;
 

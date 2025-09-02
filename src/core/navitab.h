@@ -80,6 +80,7 @@ public:
     void Activate() override;
     void Deactivate() override;
     void Stop() override;
+    bool ShouldClose() override;
 
     // ======================================================================
     // Implementation of AppServices
@@ -89,6 +90,8 @@ public:
     std::shared_ptr<NavProvider> GetNavProvider() override;
     void EnableTools(int toolMask, int repeatMask) override;
     PixelBuffer GetCanvasPixels() override;
+    bool IsDesktopVersion() override;
+    void RequestShutdown() override;
 
     // ======================================================================
     // Implementation of Simulator2Core
@@ -156,6 +159,7 @@ private:
 
     bool                                running;
     bool                                activated;
+    bool                                shouldClose;
     SimStateData                        simState;
 
     // TODO - this pattern appears in a few places. turn into a base class?

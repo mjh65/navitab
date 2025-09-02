@@ -109,6 +109,7 @@ struct CoreServices : public BasicServices
     virtual void Activate() = 0;
     virtual void Deactivate() = 0;
     virtual void Stop() = 0;
+    virtual bool ShouldClose() = 0; // allows About app to request shutdown of desktop variant.
 
     virtual ~CoreServices() = default;
 };
@@ -125,6 +126,9 @@ struct AppServices : public BasicServices
     virtual void EnableTools(int toolMask, int repeatersMask) = 0;
     
     virtual PixelBuffer GetCanvasPixels() = 0;
+
+    virtual bool IsDesktopVersion() = 0;
+    virtual void RequestShutdown() = 0;
 
     virtual ~AppServices() = default;
 };

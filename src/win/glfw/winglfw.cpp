@@ -107,6 +107,9 @@ void WindowGLFW::EventLoop()
         if (glfwWindowShouldClose(window)) {
             return;
         }
+        if (core->ShouldClose()) {
+            return;
+        }
 
         // check the window position and size. don't need to do this every frame, to keep the overheads down
         if (++winResizePollTimer > 30) {

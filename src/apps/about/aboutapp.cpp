@@ -10,9 +10,12 @@ namespace navitab {
 AboutApp::AboutApp(std::shared_ptr<AppServices> core)
 :   App("about", core)
 {
-    activeToolsMask = 
+    activeToolsMask =
         (1 << ClickableTool::DOWN) |
         (1 << ClickableTool::UP);
+    if (core->IsDesktopVersion()) {
+        activeToolsMask |= (1 << ClickableTool::STOP); // an extra way to shutdown cleanly
+    }
     repeatingToolsMask = 
         (1 << ClickableTool::DOWN) |
         (1 << ClickableTool::UP);
@@ -32,7 +35,11 @@ void AboutApp::Demolish()
 
 void AboutApp::ToolClick(ClickableTool t)
 {
-    UNIMPLEMENTED(__func__ + fmt::format("({})", (int)t));
+    if (t == ClickableTool::STOP) {
+        core->RequestShutdown();
+    } else {
+        UNIMPLEMENTED(__func__ + fmt::format("({})", (int)t));
+    }
 }
 
 void AboutApp::MouseEvent(int x, int y, bool l)

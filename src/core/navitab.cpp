@@ -52,7 +52,8 @@ Navitab::Navitab(SimEngine s, WinServer w)
     winServer(w),
     LOG(std::make_unique<logging::Logger>("navitab")),
     running(false),
-    activated(false)
+    activated(false),
+    shouldClose(false)
 {
     // Early initialisation needs to do enough to get the preferences loaded
     // and the log file created. Everything else can wait! Any failures are
@@ -63,15 +64,20 @@ Navitab::Navitab(SimEngine s, WinServer w)
     // create the log and preferences file names - they have the same format
     auto lfp = paths->DataFilesPath();
     lfp /= "navitab";
-    switch (winServer) {
-    case PLUGIN: lfp += "_p"; break;
-    case DESKTOP: lfp += "_d"; break;
-    case HTTP: lfp += "_w"; break;
+    if ((winServer == PLUGIN) && (simProduct == XPLANE)) {
+        lfp += "_xplane_plugin";
     }
-    switch (simProduct) {
-    case MSFS: lfp += "_m"; break;
-    case XPLANE: lfp += "_x"; break;
-    case MOCK: lfp += "_k"; break;
+    else if ((winServer == DESKTOP) && (simProduct == MOCK)) {
+        lfp += "_desktop";
+    }
+    else if ((winServer == HTTP) && (simProduct == MSFS)) {
+        lfp += "_msfs_igps";
+    }
+    else if ((winServer == HTTP) && (simProduct == MOCK)) {
+        lfp += "_http_server";
+    }
+    else {
+        lfp += "_unknown";
     }
     auto pfp = lfp;
     lfp += "_log.txt";
@@ -257,6 +263,11 @@ void Navitab::Stop()
     curl_global_cleanup();
 }
 
+bool Navitab::ShouldClose()
+{
+    return shouldClose;
+}
+
 void Navitab::onSimFlightLoop(const SimStateData& data)
 {
     if (!activated || !activeApp) return;
@@ -315,6 +326,16 @@ void Navitab::EnableTools(int toolMask, int repeatMask)
 PixelBuffer Navitab::GetCanvasPixels()
 {
     return appcanvas->GetPixelBuffer();
+}
+
+bool Navitab::IsDesktopVersion()
+{
+    return (winServer == DESKTOP);
+}
+
+void Navitab::RequestShutdown()
+{
+    shouldClose = true;
 }
 
 void Navitab::onToolClick(ClickableTool t)

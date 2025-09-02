@@ -7,6 +7,8 @@
 
 namespace navitab {
 
+class AppServices;
+
 class AboutApp : public App
 {
 public:
@@ -20,7 +22,6 @@ protected:
     void Demolish() override;
 
 private:
-
 };
 
 

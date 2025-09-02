@@ -15,7 +15,7 @@ void PixelBuffer::PaintRegion(int destX, int destY, PixelBuffer &src)
         srcCols += destX;
         destX = 0;
     }
-    if ((destX + srcCols) >= width) {
+    if ((destX + srcCols) >= (int)width) {
         srcCols = width - destX;
     }
     if (srcCols <= 0) return;
@@ -24,7 +24,7 @@ void PixelBuffer::PaintRegion(int destX, int destY, PixelBuffer &src)
         srcRows += destY;
         destY = 0;
     }
-    if ((destY + srcRows) >= height) {
+    if ((destY + srcRows) >= (int)height) {
         srcRows = height - destY;
     }
     if (srcRows <= 0) return;
@@ -47,7 +47,7 @@ void PixelBuffer::BlendRegion(int destX, int destY, PixelBuffer &src)
         srcCols += destX;
         destX = 0;
     }
-    if ((destX + srcCols) >= width) {
+    if ((destX + srcCols) >= (int)width) {
         srcCols = width - destX;
     }
     if (srcCols <= 0) return;
@@ -56,7 +56,7 @@ void PixelBuffer::BlendRegion(int destX, int destY, PixelBuffer &src)
         srcRows += destY;
         destY = 0;
     }
-    if ((destY + srcRows) >= height) {
+    if ((destY + srcRows) >= (int)height) {
         srcRows = height - destY;
     }
     if (srcRows <= 0) return;

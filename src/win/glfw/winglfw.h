@@ -13,6 +13,7 @@
 namespace navitab {
 
 class TextureBuffer;
+class OtdPenInput;
 
 class WindowGLFW : public std::enable_shared_from_this<WindowGLFW>,
                    public Window, public PartPainter, public WindowControls
@@ -37,7 +38,6 @@ protected:
     void CreateWindow();
     void DestroyWindow();
     void RenderFrame();
-    void RenderPart(int part, int left, int top, int right, int bottom);
 
 protected:
     void ResizeNotifyAll(int w, int h);
@@ -63,23 +63,46 @@ private:
         std::unique_ptr<TextureBuffer> textureImage;
         std::shared_ptr<WindowPart> client;
         bool active;
-        int top, left;
+        int top, left; // these don't really seem to be used!
     };
 
-    WinPart winParts[WindowPart::TOTAL_PARTS];
+    enum {
+        PEN_CURSOR = WindowPart::TOTAL_PARTS,
+        kTotalWindowParts = WindowPart::TOTAL_PARTS,
+        kTotalPaintLayers = PEN_CURSOR + 1
+    };
+    
+    WinPart winParts[kTotalPaintLayers];
     std::mutex paintMutex;
 
 private:
+    void RenderPart(const WinPart &part, int left, int top, int right, int bottom);
     WinPart *LocateWinPart(int x, int y);
 
 private:
-    struct MouseState {
+    struct UiPointerState {
         int x, y;
         int b;
+        bool wasPen;
     };
-    MouseState latestMouse;
-    std::list<MouseState> pendingButtonEvents;
+    UiPointerState latestPointer;
+    std::list<UiPointerState> pendingButtonEvents;
     WinPart *activeWinPart;
+
+private:
+    void PollPenEvents();
+    void SelectPenCursor(bool writing);
+
+    ImageBuffer penHover;
+    ImageBuffer penActive;
+    std::shared_ptr<OtdPenInput> pen;
+    struct PenState {
+        bool isInProximity;
+        int x, y;
+        float pressure;
+    };
+    PenState latestPen;
+    float clickPressure;
 
 };
 

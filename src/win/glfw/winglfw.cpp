@@ -9,6 +9,7 @@
 #include <math.h>
 #include <fmt/core.h>
 #include "winglfw.h"
+#include "../otdpeninput.h"
 #include "../texbuffer.h"
 #include "navitab/config.h"
 #include "navitab/core.h"
@@ -16,6 +17,8 @@
 #include "navitab/modebar.h"
 #include "navitab/doodler.h"
 #include "navitab/keypad.h"
+#include "svg/pen_active_16x16.h"
+#include "svg/pen_hover_16x16.h"
 
 std::shared_ptr<navitab::Window> navitab::Window::Factory()
 {
@@ -28,6 +31,7 @@ static void GLFWERR(int code, const char *msg)
 }
 
 namespace navitab {
+const size_t PEN_ICON_SIZE = 16;
 
 WindowGLFW::WindowGLFW()
 :   LOG(std::make_unique<logging::Logger>("winglfw")),
@@ -36,15 +40,23 @@ WindowGLFW::WindowGLFW()
     winWidth(WIN_STD_WIDTH),
     winHeight(WIN_STD_HEIGHT),
     brightness(1.0f),
-    latestMouse({0,0,0}),
-    activeWinPart(nullptr)
+    latestPointer({0,0,0,false}),
+    activeWinPart(nullptr),
+    penActive(PEN_ICON_SIZE, PEN_ICON_SIZE),
+    penHover(PEN_ICON_SIZE, PEN_ICON_SIZE),
+    clickPressure(0.1f) // TODO - add to preferences
 {
+    assert(pen_active_16x16_WIDTH == PEN_ICON_SIZE);
+    assert(pen_active_16x16_HEIGHT == PEN_ICON_SIZE);
+    assert(pen_hover_16x16_WIDTH == PEN_ICON_SIZE);
+    assert(pen_hover_16x16_HEIGHT == PEN_ICON_SIZE);
+
     glfwSetErrorCallback(GLFWERR);
     if (!glfwInit()) {
         throw StartupError("Couldn't initialize GLFW");
     }
 
-    for (auto i = 0; i < WindowPart::TOTAL_PARTS; ++i) {
+    for (auto i = 0; i < kTotalPaintLayers; ++i) {
         winParts[i].textureId = 0;
         winParts[i].active = 0;
         winParts[i].top = winParts[i].left = 0;
@@ -59,6 +71,14 @@ WindowGLFW::WindowGLFW()
     winParts[WindowPart::KEYPAD].textureImage = std::make_unique<TextureBuffer>(WIN_MAX_WIDTH, KEYPAD_HEIGHT);
     winParts[WindowPart::KEYPAD].top = winHeight - KEYPAD_HEIGHT;
     winParts[WindowPart::KEYPAD].left = MODEBAR_WIDTH;
+    winParts[PEN_CURSOR].textureImage = std::make_unique<TextureBuffer>(PEN_ICON_SIZE, PEN_ICON_SIZE);
+    winParts[PEN_CURSOR].textureImage->Resize(PEN_ICON_SIZE, PEN_ICON_SIZE);
+
+    penActive.PaintIcon(0, 0, pen_active_16x16, PEN_ICON_SIZE, PEN_ICON_SIZE);
+    penHover.PaintIcon(0, 0, pen_hover_16x16, PEN_ICON_SIZE, PEN_ICON_SIZE);
+
+    SelectPenCursor(false);
+    pen = OtdPenInput::Factory();
 }
 
 WindowGLFW::~WindowGLFW()
@@ -85,6 +105,9 @@ void WindowGLFW::Connect(std::shared_ptr<CoreServices> c)
     winParts[WindowPart::CANVAS].client = core->GetAppCanvas();
     winParts[WindowPart::CANVAS].client->SetPainter(shared_from_this());
 
+    winParts[PEN_CURSOR].client = nullptr;
+    winParts[PEN_CURSOR].active = false;
+    
     CreateWindow();
 
     ResizeNotifyAll(winWidth, winHeight);
@@ -94,7 +117,7 @@ void WindowGLFW::Disconnect()
 {
     // TODO - write window size preferences
     DestroyWindow();
-    for (auto i = 0; i < WindowPart::TOTAL_PARTS; ++i) {
+    for (auto i = 0; i < kTotalWindowParts; ++i) {
         winParts[i].client.reset();
     }
     prefs.reset();
@@ -125,29 +148,35 @@ void WindowGLFW::EventLoop()
         RenderFrame();
 
         glfwPollEvents();
+        if (pen) PollPenEvents();
 
         if (!pendingButtonEvents.empty()) {
             // there are pending button events to deal with
-            MouseState m1 = pendingButtonEvents.front();
+            UiPointerState m1 = pendingButtonEvents.front();
             pendingButtonEvents.pop_front();
-            if (m1.b && !latestMouse.b) {
+            if (m1.b && !latestPointer.b) {
                 // the button went down
                 activeWinPart = LocateWinPart(m1.x, m1.y);
                 activeWinPart->client->PostMouseEvent(m1.x - activeWinPart->left, m1.y - activeWinPart->top, true);
-            } else if (!m1.b && latestMouse.b) {
+            } else if (!m1.b && latestPointer.b) {
                 // the button was released
                 activeWinPart->client->PostMouseEvent(m1.x - activeWinPart->left, m1.y - activeWinPart->top, false);
                 activeWinPart = nullptr;
             }
-            latestMouse = m1;
-        } else if (latestMouse.b) {
-            // the button remains down and the mouse may have moved
-            double x, y;
-            glfwGetCursorPos(window, &x, &y);
-            latestMouse.x = int(floor(x));
-            latestMouse.y = int(floor(y));
+            latestPointer = m1;
+        } else if (latestPointer.b) {
+            // the button remains down and the pointer may have moved
+            if (latestPointer.wasPen) {
+                latestPointer.x = latestPen.x;
+                latestPointer.y = latestPen.y;
+            } else {
+                double x, y;
+                glfwGetCursorPos(window, &x, &y);
+                latestPointer.x = int(floor(x));
+                latestPointer.y = int(floor(y));
+            }
             assert(activeWinPart);
-            activeWinPart->client->PostMouseEvent(latestMouse.x - activeWinPart->left, latestMouse.y - activeWinPart->top, true);
+            activeWinPart->client->PostMouseEvent(latestPointer.x - activeWinPart->left, latestPointer.y - activeWinPart->top, true);
         }
 
         // TODO - scroll wheel handling
@@ -209,9 +238,9 @@ void WindowGLFW::CreateWindow()
         reinterpret_cast<WindowGLFW*>(glfwGetWindowUserPointer(wnd))->onChar(c);
     });
 
-    GLuint texIds[WindowPart::TOTAL_PARTS];
-    glGenTextures(WindowPart::TOTAL_PARTS, texIds);
-    for (auto i = 0; i < WindowPart::TOTAL_PARTS; ++i) {
+    GLuint texIds[kTotalPaintLayers];
+    glGenTextures(kTotalPaintLayers, texIds);
+    for (auto i = 0; i < kTotalPaintLayers; ++i) {
         winParts[i].textureId = texIds[i];
         glBindTexture(GL_TEXTURE_2D, winParts[i].textureId);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -258,26 +287,29 @@ void WindowGLFW::RenderFrame()
     glEnable(GL_BLEND);
 
     // !rendering order is important!
-    RenderPart(WindowPart::CANVAS, 0, TOOLBAR_HEIGHT, winWidth, winHeight);
-    RenderPart(WindowPart::TOOLBAR, 0, 0, winWidth, TOOLBAR_HEIGHT);
-    RenderPart(WindowPart::MODEBAR, 0, TOOLBAR_HEIGHT, MODEBAR_WIDTH, TOOLBAR_HEIGHT + MODEBAR_HEIGHT);
-    RenderPart(WindowPart::DOODLER, MODEBAR_WIDTH, TOOLBAR_HEIGHT, winWidth, winHeight);
-    RenderPart(WindowPart::KEYPAD, MODEBAR_WIDTH, winHeight - KEYPAD_HEIGHT, winWidth, winHeight);
+    RenderPart(winParts[WindowPart::CANVAS], 0, TOOLBAR_HEIGHT, winWidth, winHeight);
+    RenderPart(winParts[WindowPart::TOOLBAR], 0, 0, winWidth, TOOLBAR_HEIGHT);
+    RenderPart(winParts[WindowPart::MODEBAR], 0, TOOLBAR_HEIGHT, MODEBAR_WIDTH, TOOLBAR_HEIGHT + MODEBAR_HEIGHT);
+    RenderPart(winParts[WindowPart::DOODLER], MODEBAR_WIDTH, TOOLBAR_HEIGHT, winWidth, winHeight);
+    RenderPart(winParts[WindowPart::KEYPAD], MODEBAR_WIDTH, winHeight - KEYPAD_HEIGHT, winWidth, winHeight);
+    RenderPart(winParts[PEN_CURSOR], latestPen.x - (PEN_ICON_SIZE / 2), latestPen.y - (PEN_ICON_SIZE / 2), latestPen.x + (PEN_ICON_SIZE / 2), latestPen.y + (PEN_ICON_SIZE / 2));
 
     glBindTexture(GL_TEXTURE_2D, 0);
+
+    // TODO - this is where the pen cursor should be drawn
 
     glfwSwapBuffers(window);
 }
 
-void WindowGLFW::RenderPart(int part, int left, int top, int right, int bottom)
+void WindowGLFW::RenderPart(const WinPart &part, int left, int top, int right, int bottom)
 {
     const std::lock_guard<std::mutex> lock(paintMutex);
-    if (!winParts[part].active) return;
-    assert(winParts[part].textureImage);
+    if (!part.active) return;
+    assert(part.textureImage);
 
-    auto& buffer = *(winParts[part].textureImage);
+    auto& buffer = *(part.textureImage);
 
-    glBindTexture(GL_TEXTURE_2D, winParts[part].textureId);
+    glBindTexture(GL_TEXTURE_2D, part.textureId);
     if (buffer.NeedsRegistration()) {
         glTexImage2D(GL_TEXTURE_2D, 0,
             GL_RGBA, buffer.Width(), buffer.Height(), 0,
@@ -296,7 +328,6 @@ void WindowGLFW::RenderPart(int part, int left, int top, int right, int bottom)
     glTexCoord2i(1, 0);  glVertex2i(right, top);
     glEnd();
     glDisable(GL_TEXTURE_2D);
-
 }
 
 void WindowGLFW::onMouse(int button, int action, int flags)
@@ -304,7 +335,7 @@ void WindowGLFW::onMouse(int button, int action, int flags)
     if (button != GLFW_MOUSE_BUTTON_LEFT) return; // only left button events are of interest
     double x, y;
     glfwGetCursorPos(window, &x, &y);
-    MouseState m { int(floor(x)), int(floor(y)), (action == GLFW_PRESS) };
+    UiPointerState m { int(floor(x)), int(floor(y)), (action == GLFW_PRESS), false };
     pendingButtonEvents.push_back(m);
 }
 
@@ -338,6 +369,43 @@ WindowGLFW::WinPart *WindowGLFW::LocateWinPart(int x, int y)
         return &winParts[WindowPart::DOODLER];
     }
     return &winParts[WindowPart::CANVAS];
+}
+
+void WindowGLFW::PollPenEvents()
+{
+    assert(pen);
+    float prevPressure = latestPen.pressure;
+    float xf, yf;
+    latestPen.isInProximity = pen->GetPenState(xf, yf, latestPen.pressure);
+    winParts[PEN_CURSOR].active = latestPen.isInProximity;
+    if (latestPen.isInProximity) {
+        latestPen.x = std::floor(xf * winWidth);
+        latestPen.y = std::floor(yf * winHeight);
+        // deal with pressure transitions that can be treated as mouse down or mouse up
+        // these are put into the pendingButtonEvents queue
+        if ((prevPressure < clickPressure) && (latestPen.pressure >= clickPressure)) {
+            // equivalent to mouse down - pen is now active
+            SelectPenCursor(true);
+            UiPointerState p{ latestPen.x, latestPen.y, true, true };
+            pendingButtonEvents.push_back(p);
+        } else if ((prevPressure >= clickPressure) && (latestPen.pressure < clickPressure)) {
+            // equivalent to mouse up - pen is now hovering
+            SelectPenCursor(false);
+            UiPointerState p{ latestPen.x, latestPen.y, false, true };
+            pendingButtonEvents.push_back(p);
+        }
+    }
+}
+
+void WindowGLFW::SelectPenCursor(bool writing)
+{
+    ImageRegion r(0, 0, PEN_ICON_SIZE, PEN_ICON_SIZE);
+    if (writing) {
+        winParts[PEN_CURSOR].textureImage->CopyRegionFrom(&penActive, r);
+    } else {
+        winParts[PEN_CURSOR].textureImage->CopyRegionFrom(&penHover, r);
+    }
+
 }
 
 } // namespace navitab

@@ -22,7 +22,7 @@ struct Modebar;
 struct Doodler;
 struct Keypad;
 class ImageBuffer;
-class ImageRegion;
+struct ImageRegion;
 
 // The PartPainter interface defines the services the UI window provides to the
 // window parts. This is currently only a request to paint the window part!

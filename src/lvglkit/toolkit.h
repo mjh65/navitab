@@ -10,7 +10,7 @@
 #include "navitab/deferred.h"
 
 namespace navitab {
-    class ImageRegion;
+    struct ImageRegion;
 }
 
 namespace lvglkit {

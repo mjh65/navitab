@@ -20,6 +20,7 @@ set(SVGC_SOURCES
     mode_map.svg.40.40
     mode_route.svg.40.40
     mode_settings.svg.40.40
+    pen_hover.svg.16.16
     tool_affirm.svg.24.24
     tool_bottom.svg.24.24
     tool_cancel.svg.24.24

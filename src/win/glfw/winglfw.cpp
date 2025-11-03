@@ -16,6 +16,7 @@
 #include "navitab/modebar.h"
 #include "navitab/doodler.h"
 #include "navitab/keypad.h"
+#include "svg/pen_hover_16x16.h"
 
 std::shared_ptr<navitab::Window> navitab::Window::Factory()
 {
@@ -44,7 +45,7 @@ WindowGLFW::WindowGLFW()
         throw StartupError("Couldn't initialize GLFW");
     }
 
-    for (auto i = 0; i < WindowPart::TOTAL_PARTS; ++i) {
+    for (auto i = 0; i < kTotalPaintLayers; ++i) {
         winParts[i].textureId = 0;
         winParts[i].active = 0;
         winParts[i].top = winParts[i].left = 0;
@@ -59,6 +60,12 @@ WindowGLFW::WindowGLFW()
     winParts[WindowPart::KEYPAD].textureImage = std::make_unique<TextureBuffer>(WIN_MAX_WIDTH, KEYPAD_HEIGHT);
     winParts[WindowPart::KEYPAD].top = winHeight - KEYPAD_HEIGHT;
     winParts[WindowPart::KEYPAD].left = MODEBAR_WIDTH;
+    winParts[PEN_CURSOR].textureImage = std::make_unique<TextureBuffer>(16, 16);
+    winParts[PEN_CURSOR].textureImage->Resize(16, 16);
+    ImageBuffer penCursor(16, 16);
+    penCursor.PaintIcon(0, 0, pen_hover_16x16, 16, 16);
+    ImageRegion r(0, 0, 16, 16);
+    winParts[PEN_CURSOR].textureImage->CopyRegionFrom(&penCursor, r);
 }
 
 WindowGLFW::~WindowGLFW()
@@ -85,6 +92,9 @@ void WindowGLFW::Connect(std::shared_ptr<CoreServices> c)
     winParts[WindowPart::CANVAS].client = core->GetAppCanvas();
     winParts[WindowPart::CANVAS].client->SetPainter(shared_from_this());
 
+    winParts[PEN_CURSOR].client = nullptr;
+    winParts[PEN_CURSOR].active = true;
+    
     CreateWindow();
 
     ResizeNotifyAll(winWidth, winHeight);
@@ -94,7 +104,7 @@ void WindowGLFW::Disconnect()
 {
     // TODO - write window size preferences
     DestroyWindow();
-    for (auto i = 0; i < WindowPart::TOTAL_PARTS; ++i) {
+    for (auto i = 0; i < kTotalWindowParts; ++i) {
         winParts[i].client.reset();
     }
     prefs.reset();
@@ -209,9 +219,9 @@ void WindowGLFW::CreateWindow()
         reinterpret_cast<WindowGLFW*>(glfwGetWindowUserPointer(wnd))->onChar(c);
     });
 
-    GLuint texIds[WindowPart::TOTAL_PARTS];
-    glGenTextures(WindowPart::TOTAL_PARTS, texIds);
-    for (auto i = 0; i < WindowPart::TOTAL_PARTS; ++i) {
+    GLuint texIds[kTotalPaintLayers];
+    glGenTextures(kTotalPaintLayers, texIds);
+    for (auto i = 0; i < kTotalPaintLayers; ++i) {
         winParts[i].textureId = texIds[i];
         glBindTexture(GL_TEXTURE_2D, winParts[i].textureId);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -258,26 +268,27 @@ void WindowGLFW::RenderFrame()
     glEnable(GL_BLEND);
 
     // !rendering order is important!
-    RenderPart(WindowPart::CANVAS, 0, TOOLBAR_HEIGHT, winWidth, winHeight);
-    RenderPart(WindowPart::TOOLBAR, 0, 0, winWidth, TOOLBAR_HEIGHT);
-    RenderPart(WindowPart::MODEBAR, 0, TOOLBAR_HEIGHT, MODEBAR_WIDTH, TOOLBAR_HEIGHT + MODEBAR_HEIGHT);
-    RenderPart(WindowPart::DOODLER, MODEBAR_WIDTH, TOOLBAR_HEIGHT, winWidth, winHeight);
-    RenderPart(WindowPart::KEYPAD, MODEBAR_WIDTH, winHeight - KEYPAD_HEIGHT, winWidth, winHeight);
+    RenderPart(winParts[WindowPart::CANVAS], 0, TOOLBAR_HEIGHT, winWidth, winHeight);
+    RenderPart(winParts[WindowPart::TOOLBAR], 0, 0, winWidth, TOOLBAR_HEIGHT);
+    RenderPart(winParts[WindowPart::MODEBAR], 0, TOOLBAR_HEIGHT, MODEBAR_WIDTH, TOOLBAR_HEIGHT + MODEBAR_HEIGHT);
+    RenderPart(winParts[WindowPart::DOODLER], MODEBAR_WIDTH, TOOLBAR_HEIGHT, winWidth, winHeight);
+    RenderPart(winParts[WindowPart::KEYPAD], MODEBAR_WIDTH, winHeight - KEYPAD_HEIGHT, winWidth, winHeight);
+    RenderPart(winParts[PEN_CURSOR], 60, 60, 76, 76);
 
     glBindTexture(GL_TEXTURE_2D, 0);
 
     glfwSwapBuffers(window);
 }
 
-void WindowGLFW::RenderPart(int part, int left, int top, int right, int bottom)
+void WindowGLFW::RenderPart(const WinPart &part, int left, int top, int right, int bottom)
 {
     const std::lock_guard<std::mutex> lock(paintMutex);
-    if (!winParts[part].active) return;
-    assert(winParts[part].textureImage);
+    if (!part.active) return;
+    assert(part.textureImage);
 
-    auto& buffer = *(winParts[part].textureImage);
+    auto& buffer = *(part.textureImage);
 
-    glBindTexture(GL_TEXTURE_2D, winParts[part].textureId);
+    glBindTexture(GL_TEXTURE_2D, part.textureId);
     if (buffer.NeedsRegistration()) {
         glTexImage2D(GL_TEXTURE_2D, 0,
             GL_RGBA, buffer.Width(), buffer.Height(), 0,
@@ -296,7 +307,6 @@ void WindowGLFW::RenderPart(int part, int left, int top, int right, int bottom)
     glTexCoord2i(1, 0);  glVertex2i(right, top);
     glEnd();
     glDisable(GL_TEXTURE_2D);
-
 }
 
 void WindowGLFW::onMouse(int button, int action, int flags)

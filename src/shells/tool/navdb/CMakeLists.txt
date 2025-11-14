@@ -6,6 +6,10 @@ add_executable(navitab_builddb)
 
 target_sources(navitab_builddb PRIVATE
     main.cpp
+    sceneryreader.cpp
+    sceneryreader.h
+    bglfilereader.cpp
+    bglfilereader.h
 )
 
 if(WIN32)
@@ -15,5 +19,5 @@ if(WIN32)
 endif()
 
 target_link_libraries(navitab_builddb PRIVATE
+    navitab_core
 )
-

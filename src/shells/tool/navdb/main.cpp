@@ -1,6 +1,7 @@
 /* This file is part of the Navitab project. See the README and LICENSE for details. */
 
 #include <memory>
+#include <iostream>
 #include "sceneryreader.h"
 
 using namespace navitab;
@@ -11,6 +12,7 @@ public:
     Builder();
     ~Builder();
 
+    bool Unsupported(std::string u) override;
     bool Error(std::string e) override;
     bool Warning(std::string w) override;
 
@@ -44,6 +46,12 @@ Builder::Builder()
 Builder::~Builder()
 {
 
+}
+
+bool Builder::Unsupported(std::string u)
+{
+    std::cout << "Unsupported: " << u << std::endl;
+    return false;
 }
 
 bool Builder::Error(std::string e)

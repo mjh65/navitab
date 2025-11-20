@@ -2,18 +2,14 @@
 // The protocol uses http GET requests with various URL tags to represent
 // different reported events. These are:
 // RESIZE:  /e  w= h=
-// MODE:    /e  m=
-// TOOL:    /e  t=
 // MOUSE:   /e  x= y= b= wu wd
 // KEY:     /e  k=
 // PING:    /p
 // IMAGE:   /i
 // All of these also have a ?z= parameter to avoid caching.
 // Resize, mode, tool, mouse, key are all sent when triggered.
-// Resize, mode, tool, mouse, key, status all return the current status in the response(or see image idea below)
 // Ping is used to detect the server
 // Image is requested continuously when connected.
-// Status is requested after 1s of no previous request (could code it in an extra fake line of image?)
 // Other TODOs:
 // When starting: issue resize to check connection and try other port options if no response.
 class NavitabProtocol {
@@ -24,11 +20,8 @@ class NavitabProtocol {
         this.imageBuffer = null;
         this.canvas = null;
         this.imageLoading = false;
-        this.statusLoading = false;
-        this.codedStatus = "17432518176676146197";
     }
-    // an image element for loading, and canvas for drawing and status extraction
-    // this technique is not the cleanest, but is supported by MSFS
+    // an image element for loading, and canvas for drawing
     setElements(b,c) {
         this.imageBuffer = b;
         this.canvas = c;
@@ -48,7 +41,6 @@ class NavitabProtocol {
     setPort(p) {
         this.portNum = p;
         this.imageLoading = false;
-        this.statusLoading = false;
         this.failedLoads = 0;
     }
     // decide if the connection has been lost (server died or shutdown)
@@ -56,7 +48,7 @@ class NavitabProtocol {
         if (!this.portNum) return false;
         let active = (this.failedLoads < 4);
         if (!active) {
-            if (this.portNum || this.imageLoading || this.statusLoading) {
+            if (this.portNum || this.imageLoading) {
                 this.setPort(0);
             }
         }
@@ -69,7 +61,6 @@ class NavitabProtocol {
         xhttp.open("GET", url, true);
         xhttp.timeout = 1000;
         xhttp.send();
-        return this.isConnected();
     }
     // report some mouse action over the canvas
     mouseEvent(x,y,b) {
@@ -84,43 +75,15 @@ class NavitabProtocol {
         console.log("Sending canvas size %d x %d", w, h);
         this.sendMessage("http://127.0.0.1:" + this.portNum + "/e?z=" + (this.reqId++) + "&w=" + w + "&h=" + h);
     }
-    // report click on a mode icon
-    reportModeClick(m) {
-        this.sendMessage("http://127.0.0.1:" + this.portNum + "/e?z=" + (this.reqId++) + "&m=" + m);
-    }
-    // report click on a tool icon
-    reportToolClick(t) {
-        this.sendMessage("http://127.0.0.1:" + this.portNum + "/e?z=" + (this.reqId++) + "&t=" + t);
-    }
-    // get the current status string
-    getStatus() {
-        const xhr = new XMLHttpRequest();
-        const url = "http://127.0.0.1:" + this.portNum + "/s" + (this.reqId++);
-        xhr.open("GET", url, true);
-        xhr.onreadystatechange = () => {
-            if (xhr.readyState === XMLHttpRequest.DONE) {
-                const status = xhr.status;
-                if (status === 0 || (status >= 200 && status < 400)) {
-                    this.codedStatus = xhr.responseText;
-                }
-                this.statusLoading = false;
-            }
-        };
-        xhr.send();
-    }
-    // get the next update from the server: an image for the canvas, and a status code
+    // get the next image from the server
     pollServer() {
-        if (!this.isConnected()) return "";
+        if (!this.isConnected()) return 1;
         if (!this.imageLoading) {
             this.imageLoading = true;
             const url = "http://127.0.0.1:" + this.portNum + "/i" + (this.reqId++);
             this.imageBuffer.src = url;
         }
-        if (!this.statusLoading) {
-            this.statusLoading = true;
-            this.getStatus();
-        }
-        return this.codedStatus;
+        return 0;
     }
 }
 

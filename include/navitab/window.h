@@ -89,44 +89,64 @@ struct Window
 
 struct ImageRegion
 {
+    // right and bottom refer to the first pixel NOT in the region, such that
+    // right - left = region width and bottom - top = region height.
     int left, top, right, bottom;
     ImageRegion(int l, int t, int r, int b) : left(l), top(t), right(r), bottom(b) {}
     ImageRegion(const ImageRegion& r1, const ImageRegion& r2)
     :   left(std::max(r1.left, r2.left)), top(std::max(r1.top, r2.top)),
         right(std::min(r1.right, r2.right)), bottom(std::min(r1.bottom, r2.bottom)) {}
     bool Empty() const { return (left >= right) || (top >= bottom); }
+    int Width() const { return right - left; }
+    int Height() const { return bottom - top; }
 };
 
-// A PixelBuffer object is a convenience class that collates the storage, width and
-// height of a region of memory that holds an image. These objects do not necessarily
-// own the buffer, and so are normally only intended for transient use.
+// A PixelBuffer object is a convenience class for carrying out basic operations
+// on a region of memory that holds image data. PixelBuffer objects do not usually
+// own the image buffer, and so are normally only intended for transient use. The
+// derived class ImageBuffer should be used where image buffer ownership is also
+// required.
 
 class PixelBuffer
 {
 public:
-    PixelBuffer(unsigned w, unsigned h, uint32_t* d) : width(w), height(h), span(w), data(d) { }
-    PixelBuffer(unsigned w, unsigned h, unsigned s, uint32_t* d) : width(w), height(h), span(s), data(d) { }
+    PixelBuffer(unsigned w, unsigned h, uint32_t* b) : width(w), height(h), span(w), pBuffer(b) { }
+    PixelBuffer(unsigned w, unsigned h, unsigned s, uint32_t* b) : width(w), height(h), span(s), pBuffer(b) { }
     ~PixelBuffer() = default;
 
     unsigned Width() const { return width; }
     unsigned Height() const { return height; }
+    ImageRegion Region() const { return ImageRegion(0, 0, width, height); }
 
-    uint32_t* Row(unsigned r) { return data + (r * span); }
-    uint32_t* Pixel(unsigned x, unsigned y) { return data + (y * span) + x; }
+    // direct access to the underlying pixels
+    uint32_t* GetBufferPtr() { return pBuffer; }
+    uint32_t* GetRowPtr(unsigned r) { return pBuffer + (r * span); }
+    const uint32_t* GetRowPtrRO(unsigned r) const { return pBuffer + (r * span); }
+    uint32_t* GetPixelPtr(unsigned x, unsigned y) { return GetRowPtr(y) + x; }
+    const uint32_t* GetPixelPtrRO(unsigned x, unsigned y) const { return GetRowPtrRO(y) + x; }
 
-    void PaintRegion(int x, int y, PixelBuffer& src);
-    void BlendRegion(int x, int y, PixelBuffer& src);
+    // paint or blend pixels from another PixelBuffer offsetting at x, y
+    void PaintRectangle(const PixelBuffer& src, int x, int y);
+    void BlendRectangle(const PixelBuffer& src, int x, int y);
+
+    // copy the source PixelBuffer into this one aligning top-left, with variants for regions only
+    void Copy(const PixelBuffer& src);
+    void Copy(const PixelBuffer& src, const ImageRegion& region);
+    void Copy(const PixelBuffer& src, const std::vector<ImageRegion>& regions);
+
+    // paint the icon at x, y applying an optional background to transparent pixels
+    void PaintIcon(int x, int y, const uint32_t* pix, unsigned w, unsigned h, uint32_t bg = 0);
 
 protected:
-    PixelBuffer(unsigned w, unsigned h) : width(w), height(h), span(w), data(nullptr) { }
-    void SetData(uint32_t* d) { data = d; }
-    void BlendRow(unsigned row, unsigned offset, uint32_t *s, int n);
+    PixelBuffer(unsigned w, unsigned h) : width(w), height(h), span(w), pBuffer(nullptr) { }
+    void SetData(uint32_t* d) { pBuffer = d; }
+    void BlendRow(unsigned row, unsigned offset, const uint32_t *s, int n);
 
 protected:
     unsigned width;
     unsigned height;
     unsigned span;
-    uint32_t* data;
+    uint32_t* pBuffer;
 
 };
 
@@ -137,21 +157,36 @@ protected:
 class ImageBuffer : public PixelBuffer
 {
 public:
-    ImageBuffer(unsigned w, unsigned h) : PixelBuffer(w, h) { data.resize(width * height); SetData(&data[0]); }
+    ImageBuffer(unsigned w, unsigned h) : PixelBuffer(w, h) { pixels.resize(width * height); SetData(&pixels[0]); }
     ~ImageBuffer() = default;
 
-    void Clear(uint32_t px) { std::fill(data.begin(), data.end(), px); }
+    void Clear(uint32_t px) { std::fill(pixels.begin(), pixels.end(), px); }
 
-    void PaintIcon(unsigned x, unsigned y, const uint32_t *pix, unsigned w, unsigned h, uint32_t bg = 0);
+    //const std::vector<uint32_t>& Data() const { return pixels; }
 
-    std::vector<uint32_t>::iterator PixAt(unsigned y, unsigned x) { return data.begin() + (y * width + x); }
-    std::vector<uint32_t>::const_iterator PixAt(unsigned y, unsigned x) const { return data.begin() + (y * width + x); }
-    const std::vector<uint32_t>& Data() const { return data; }
-
-private:
-    std::vector<uint32_t> data;
+protected:
+    std::vector<uint32_t> pixels;
 };
 typedef class ImageBuffer FrameBuffer; // synonym
+
+// MaxSizeImageBuffer objects are ImageBuffers which allocate enough storage for
+// a maximum specified size, and can subsequently be resized without destroying
+// and reallocation. These are mainly used for Texture Buffers in the OpenGL window
+// interfaces.
+
+class MaxSizeImageBuffer : public ImageBuffer
+{
+public:
+    MaxSizeImageBuffer(unsigned w, unsigned h) : ImageBuffer(w, h), maxWidth(w), maxHeight(h) { }
+    ~MaxSizeImageBuffer() = default;
+
+    virtual void Resize(int w, int h) { assert(w <= maxWidth); width = w; assert(h <= maxHeight); height = h; }
+
+protected:
+    const unsigned maxWidth;
+    const unsigned maxHeight;
+};
+
 
 // Each window part (toolbar, modebar, canvas, doodler, keypad) implements
 // this interface so that the window manager can pass on UI events of interest.
@@ -187,7 +222,7 @@ public:
         RunLater([this, code]() { onKeyEvent(code); });
     }
     PixelBuffer GetPixelBuffer() {
-        return PixelBuffer(image->Width(), image->Height(), image->Row(0));
+        return PixelBuffer(image->Width(), image->Height(), image->GetBufferPtr());
     }
 
 protected:
@@ -205,7 +240,7 @@ protected:
     virtual void onKeyEvent(int code) { assert(0); }
 
 protected:
-    WindowPart(int id) : partId(id) { }
+    WindowPart(int id) : partId(id), width(0), height(0) { }
     ~WindowPart() = default;
 
     void onSetPainter(std::shared_ptr<PartPainter> p) {
@@ -220,20 +255,23 @@ protected:
 
 protected:
     int const partId;
+    int width, height;
     std::shared_ptr<PartPainter> painter;
     std::unique_ptr<ImageBuffer> image;
-    int width, height;
     std::vector<ImageRegion> dirtyBits;
 
 };
 
-inline void ImageBuffer::PaintIcon(unsigned x, unsigned y, const uint32_t *pix, unsigned w, unsigned h, uint32_t bg)
+inline void PixelBuffer::PaintIcon(int x, int y, const uint32_t *pix, unsigned w, unsigned h, uint32_t bg)
 {
+    // overlapping icons are not (yet) supported
+    assert(x >= 0);
+    assert(y >= 0);
     assert((x + w) <= width);
     assert((y + h) <= height);
 
     for (int iy = 0; iy < h; ++iy) {
-        uint32_t *d = &data[((y + iy) * width) + x];
+        uint32_t *d = pBuffer + ((y + iy) * span) + x;
         const uint32_t *s = pix + iy * w;
         if (bg == 0) {
             memcpy(d, s, w * sizeof(uint32_t));

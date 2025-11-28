@@ -61,7 +61,7 @@ std::shared_ptr<ImageBuffer> BackingStore::GetPixmap(const std::string &name)
         auto bsize = sqlite3_column_bytes(stmtRetrieve, 2);
         assert(bsize <= (height * width * sizeof(uint32_t)));
         auto bptr = sqlite3_column_blob(stmtRetrieve, 2);
-        memcpy(pixmap->Row(0), bptr, bsize);
+        memcpy(pixmap->GetBufferPtr(), bptr, bsize);
     }
     sqlite3_finalize(stmtRetrieve);
     return pixmap;
@@ -76,7 +76,7 @@ void BackingStore::StorePixmap(const std::string &name, std::shared_ptr<ImageBuf
     sqlite3_bind_int(stmtInsert, 2, h);
     int w = pixmap->Width();
     sqlite3_bind_int(stmtInsert, 3, w);
-    sqlite3_bind_blob(stmtInsert, 4, pixmap->Row(0), h * w * sizeof(uint32_t), SQLITE_STATIC);
+    sqlite3_bind_blob(stmtInsert, 4, pixmap->GetBufferPtr(), h * w * sizeof(uint32_t), SQLITE_STATIC);
     if (sqlite3_step(stmtInsert) != SQLITE_DONE) {
         // LOGE();
     }

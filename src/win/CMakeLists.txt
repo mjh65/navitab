@@ -3,7 +3,6 @@
 target_sources(navitab_core PRIVATE
     otdpeninput.cpp
     otdpeninput.h
-    texbuffer.cpp
     texbuffer.h
 )
 

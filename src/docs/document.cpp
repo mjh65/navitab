@@ -138,7 +138,7 @@ std::shared_ptr<RasterTile> Document::GetTile(unsigned page, float scaleX, float
 
     fz_pixmap* pix = nullptr;
     fz_try(fzctx) {
-        uint8_t* outBuf = (uint8_t*)tile->Row(0);
+        uint8_t* outBuf = (uint8_t*)tile->GetBufferPtr();
         pix = fz_new_pixmap_with_data(fzctx, fz_device_rgb(fzctx), outWidth, outHeight, nullptr, 1, outWidth * 4, outBuf);
         pix->x = clipBox.x0;
         pix->y = clipBox.y0;

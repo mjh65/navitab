@@ -99,7 +99,7 @@ void WindowHTTP::Paint(int part, const FrameBuffer* src, const std::vector<Image
     if ((image->Width() != src->Width()) || (image->Height() != src->Height())) {
         image->Resize(src->Width(), src->Height());
     }
-    image->CopyRegionsFrom(src, regions);
+    image->Copy(*src, regions);
 }
 
 void WindowHTTP::Brightness(int percent)
@@ -205,7 +205,7 @@ void WindowHTTP::EncodeBMP(std::vector<unsigned char> &bmp)
     // it's mirror. And we also need to swap the red/green bytes in each pixel :-(
     // TODO - use SSE3/Neon intrinsics to optimise this image copy
     const unsigned int rl = 4 * w;
-    const unsigned char *sr = reinterpret_cast<const unsigned char *>(image->Data());
+    const unsigned char *sr = reinterpret_cast<const unsigned char *>(image->GetBufferPtr());
     unsigned char* dr = bmp.data() + 14 + 40 + ncanvas - rl;
     for (int i = 0; i < h; ++i) {
         const uint32_t *sp = reinterpret_cast<const uint32_t *>(sr);

@@ -28,7 +28,7 @@ void AppCanvas::UpdateProtoDevelopment()
         auto y = rand() % height;
         auto x = rand() % width;
         // red in 7:0, green in 15:8, blue in 23:16, alpha in 31:24
-        *(image->PixAt(y, x)) = (rand() % 0xff) + ((rand() % 0xff) << 8) + ((rand() % 0xff) << 16) + (0xff << 24);
+        *(image->GetPixelPtr(x, y)) = (rand() % 0xff) + ((rand() % 0xff) << 8) + ((rand() % 0xff) << 16) + (0xff << 24);
     }
 #if 0
     else {
@@ -57,7 +57,7 @@ void AppCanvas::onResize(int w, int h)
     width = w; height = h;
 
     // The canvas is drawn by the LVGL UI. Resize the display associated with the canvas.
-    uiDisplay->Resize(w, h, image->Row(0));
+    uiDisplay->Resize(w, h, image->GetBufferPtr());
 
     // On first resize the navitab apps need to be started
     if (firstTime) {

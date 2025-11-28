@@ -134,7 +134,7 @@ void MapApp::FlightLoop(const SimStateData& data)
             auto tile = mapServer->GetTile(cty + iy, ctx + ix);
             int tilePosT = mainTileOriginY + (iy * tileH);
             int tilePosL = mainTileOriginX + (ix * tileW);
-            canvas.PaintRegion(tilePosL, tilePosT, *(std::static_pointer_cast<PixelBuffer>(tile)));
+            canvas.PaintRectangle(*(std::static_pointer_cast<PixelBuffer>(tile)), tilePosL, tilePosT);
 
             // TODO - blend the NavAid overlay 'tiles'
             // Design Note: the NavAid overlay will show the currently selected NavAids, AND
@@ -169,7 +169,7 @@ void MapApp::FlightLoop(const SimStateData& data)
     int dpx = (int)(tileW * (planeTYX.second - ctx));
     int py = canvasCentreY + dpy - (icon->Height() / 2);
     int px = canvasCentreX + dpx - (icon->Width() / 2);
-    canvas.BlendRegion(px, py, *icon);
+    canvas.BlendRectangle(*icon, px, py);
 }
 
 unsigned MapApp::HeadingToSteppedDegrees(double hrad)
@@ -203,7 +203,7 @@ std::shared_ptr<ImageBuffer> MapApp::GeneratePlaneIcon(unsigned rotation, bool m
     auto p = bitmap.data();
 
     auto icon = std::make_shared<ImageBuffer>(wh, wh);
-    memcpy(icon->Row(0), p, wh * wh * sizeof(uint32_t));
+    memcpy(icon->GetBufferPtr(), p, wh * wh * sizeof(uint32_t));
 
     return icon;
 }

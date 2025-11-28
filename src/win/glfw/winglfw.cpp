@@ -267,7 +267,7 @@ void WindowGLFW::Paint(int part, const FrameBuffer* src, const std::vector<Image
     if ((ti->Width() != src->Width()) || (ti->Height() != src->Height())) {
         ti->Resize(src->Width(), src->Height());
     }
-    ti->CopyRegionsFrom(src, regions);
+    ti->Copy(*src, regions);
 }
 
 void WindowGLFW::RenderFrame()
@@ -313,13 +313,13 @@ void WindowGLFW::RenderPart(const WinPart &part, int left, int top, int right, i
     if (buffer.NeedsRegistration()) {
         glTexImage2D(GL_TEXTURE_2D, 0,
             GL_RGBA, buffer.Width(), buffer.Height(), 0,
-            GL_RGBA, GL_UNSIGNED_BYTE, buffer.Data());
+            GL_RGBA, GL_UNSIGNED_BYTE, buffer.GetBufferPtr());
     }
 
     glEnable(GL_TEXTURE_2D);
     glTexSubImage2D(GL_TEXTURE_2D, 0,
         0, 0, buffer.Width(), buffer.Height(),
-        GL_RGBA, GL_UNSIGNED_BYTE, buffer.Data());
+        GL_RGBA, GL_UNSIGNED_BYTE, buffer.GetBufferPtr());
 
     glBegin(GL_QUADS);
     glTexCoord2i(0, 0);  glVertex2i(left, top);
@@ -401,9 +401,9 @@ void WindowGLFW::SelectPenCursor(bool writing)
 {
     ImageRegion r(0, 0, PEN_ICON_SIZE, PEN_ICON_SIZE);
     if (writing) {
-        winParts[PEN_CURSOR].textureImage->CopyRegionFrom(&penActive, r);
+        winParts[PEN_CURSOR].textureImage->Copy(penActive, r);
     } else {
-        winParts[PEN_CURSOR].textureImage->CopyRegionFrom(&penHover, r);
+        winParts[PEN_CURSOR].textureImage->Copy(penHover, r);
     }
 
 }

@@ -38,7 +38,7 @@ MapTileProvider::MapTileProvider(std::shared_ptr<PathServices> ps, std::shared_p
     
     missingTile = std::make_shared<RasterTile>();
     for (unsigned r = 0; r < missingTile->Height(); ++r) {
-        uint32_t *rs = missingTile->Row(r);
+        uint32_t *rs = missingTile->GetRowPtr(r);
         for (unsigned c = 0; c < missingTile->Width(); ++c) {
             auto dark = ((r / 16) ^ (c / 16)) & 0x1;
             *(rs + c) = dark ? 0xff606060 : 0xffd0d0d0;

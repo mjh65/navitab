@@ -194,7 +194,7 @@ void XPlaneWindow::Paint(int part, const FrameBuffer* src, const std::vector<Ima
     if ((ti->Width() != src->Width()) || (ti->Height() != src->Height())) {
         ti->Resize(src->Width(), src->Height());
 }
-    ti->CopyRegionsFrom(src, regions);
+    ti->Copy(*src, regions);
 }
 
 void XPlaneWindow::RenderContent()
@@ -220,7 +220,7 @@ void XPlaneWindow::RenderPart(int part, int left, int top, int right, int bottom
     if (buffer.NeedsRegistration()) {
         glTexImage2D(GL_TEXTURE_2D, 0,
             GL_RGBA, buffer.Width(), buffer.Height(), 0,
-            GL_RGBA, GL_UNSIGNED_BYTE, buffer.Data());
+            GL_RGBA, GL_UNSIGNED_BYTE, buffer.GetBufferPtr());
     }
 
     XPLMSetGraphicsState(0, 1, 0, 0, 1, 0, 0);
@@ -228,7 +228,7 @@ void XPlaneWindow::RenderPart(int part, int left, int top, int right, int bottom
 
     glTexSubImage2D(GL_TEXTURE_2D, 0,
         0, 0, buffer.Width(), buffer.Height(),
-        GL_RGBA, GL_UNSIGNED_BYTE, buffer.Data());
+        GL_RGBA, GL_UNSIGNED_BYTE, buffer.GetBufferPtr());
 
     glBegin(GL_QUADS);
     // map top left texture to bottom left vertex

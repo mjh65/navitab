@@ -44,12 +44,7 @@ void CoreDoodler::onResize(int w, int h)
     // temporarily swap the old doodle into image if doodler is currently disabled
     if (!enabled) std::swap(image, oldDoodle);
     if (image) {
-        for (auto y = 0; y < std::min(h, height); ++y) {
-            auto sr = image->PixAt(y, 0);
-            auto dr = ni->PixAt(y, 0);
-            auto nx = std::min(w, width);
-            std::copy(sr, sr + nx, dr);
-        }
+        image->Copy(*oldDoodle);
     }
     std::swap(image, ni);
     // and swap back after updating

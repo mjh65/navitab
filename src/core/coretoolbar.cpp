@@ -130,7 +130,7 @@ void CoreToolbar::onResize(int w, int h)
     // and a new one is created. On the first resize notification the UI
     // widgets are created (using raw LVGL API - no wrappers!)
     image = std::make_unique<FrameBuffer>(width, height);
-    uiDisplay->Resize(width, height, image->Row(0));
+    uiDisplay->Resize(width, height, image->GetBufferPtr());
     activeToolsMask = 0; // force repaint of tools
     if (!lvhStatusInfo) {
         CreateWidgets();

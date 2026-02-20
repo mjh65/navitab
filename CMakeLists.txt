@@ -44,13 +44,17 @@ cmake_path(NORMAL_PATH libs_3rdparty_dir)
 set(NAVITAB_LIBS3RD_DIR "${libs_3rdparty_dir}" CACHE PATH "Directory for installing 3rd-party libraries after full build.")
 file(MAKE_DIRECTORY "${NAVITAB_LIBS3RD_DIR}")
 
-# Set things like CMAKE_CXX_STANDARD here
+# CXX global build options
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_EXTENSIONS OFF) # ensure -std=c++xx instead of -std=g++xx
 if(WIN32 AND MINGW)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse4.1")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse4.1")
+endif()
+if(WIN32 AND MSVC AND FALSE) # enable these lines to generate a PDB for MSVC release builds
+    add_compile_options("$<$<CONFIG:RELEASE>:/Zi>")
+    add_link_options("$<$<CONFIG:RELEASE>:/DEBUG>")
 endif()
 
 # Testing

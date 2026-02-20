@@ -34,7 +34,6 @@ private:
     const uint32_t backgroundPixels = 0x10000000;
     std::unique_ptr<logging::Logger> LOG;
     std::shared_ptr<Doodler2Core> core;
-    std::unique_ptr<FrameBuffer> oldDoodle;
     bool enabled;
 
 };

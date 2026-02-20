@@ -31,9 +31,7 @@ CoreModebar::~CoreModebar()
 void CoreModebar::SetHighlightedModes(int selectMask)
 {
     if (selectMask != highlightMask) {
-        if (image) {
-            RedrawIcons(selectMask | highlightMask, selectMask);
-        }
+        if (Image()) RedrawIcons(selectMask | highlightMask, selectMask);
         highlightMask = selectMask;
     }
 }
@@ -42,9 +40,7 @@ void CoreModebar::onResize(int, int)
 {
     // if the modebar is resized then the previous image is just abandoned
     // and a new one is created and scheduled for redrawing
-    width = Window::MODEBAR_WIDTH; height = Window::MODEBAR_HEIGHT;
-    image = std::make_unique<FrameBuffer>(width, height);
-
+    SetImage(Window::MODEBAR_WIDTH, Window::MODEBAR_HEIGHT);
     RedrawIcons(~0, highlightMask);
 }
 
@@ -77,7 +73,7 @@ void CoreModebar::Update(navitab::ImageRegion r, uint32_t* pixels)
     // this is the update function called from the LVGL library
     // TODO - as we're using LV_DISP_RENDER_MODE_DIRECT, there is probably not much to be done
     // maybe just post the region to the dirtyBits and redraw?
-    dirtyBits.push_back(r);
+    Invalidate(r);
     RunLater([this]() { Redraw(); });
 }
 
@@ -97,15 +93,15 @@ void CoreModebar::RedrawIcons(int drawMask, int selectMask)
         if (drawMask & (1 << i)) {
             int y = i * kItemHeight;
             uint32_t bgcol = (selectMask & (1 << i)) ? 0x4000cc00 : 0;
-            image->PaintIcon(0, i * kItemHeight, icons[i], kItemWidth, kItemHeight, bgcol);
+            Image()->PaintIcon(0, i * kItemHeight, icons[i], kItemWidth, kItemHeight, bgcol);
         }
     }
     if (drawMask & (1 << kNumSquareItems)) {
         uint32_t bgcol = (selectMask & (1 << kNumSquareItems)) ? 0x4000cc00 : 0;
-        image->PaintIcon(0, kNumSquareItems * kItemHeight, mode_keypad_40x24, kItemWidth, kKeypadHeight, bgcol);
+        Image()->PaintIcon(0, kNumSquareItems * kItemHeight, mode_keypad_40x24, kItemWidth, kKeypadHeight, bgcol);
     }
 
-    dirtyBits.push_back(ImageRegion(0, 0, width, height));
+    Invalidate(ImageRegion(0, 0, Width(), Height()));
     RunLater([this]() { Redraw(); });
 }
 

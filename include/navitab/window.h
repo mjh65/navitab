@@ -208,8 +208,27 @@ protected:
     WindowPart(int id) : partId(id) { }
     ~WindowPart() = default;
 
+    int Width() const { return image ? image->Width() : 0; }
+    int Height() const { return image ? image->Height() : 0; }
+
     void onSetPainter(std::shared_ptr<PartPainter> p) {
         painter = p;
+    }
+
+    ImageBuffer* Image() { return image.get(); }
+
+    void Swap(std::unique_ptr<ImageBuffer> &ib) {
+        std::swap(ib, image);
+    }
+
+    void SetImage(int w, int h) {
+        assert(w);
+        assert(h);
+        image = std::make_unique<ImageBuffer>(w, h);
+    }
+
+    void Invalidate(const ImageRegion &r) {
+        dirtyBits.push_back(r);
     }
 
     void Redraw() {
@@ -218,11 +237,10 @@ protected:
         dirtyBits.clear();
     }
 
-protected:
+private:
     int const partId;
     std::shared_ptr<PartPainter> painter;
     std::unique_ptr<ImageBuffer> image;
-    int width, height;
     std::vector<ImageRegion> dirtyBits;
 
 };

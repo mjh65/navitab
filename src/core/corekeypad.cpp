@@ -19,23 +19,21 @@ CoreKeypad::~CoreKeypad()
 void CoreKeypad::ShowKeypad()
 {
     visible = true;
-    RunLater([this]() { onResize(width, height); });
+    RunLater([this]() { onResize(Width(), Height()); });
 }
 
 void CoreKeypad::HideKeypad()
 {
     visible = false;
-    image.reset();
     RunLater([this]() { Redraw(); });
 }
 
 void CoreKeypad::onResize(int w, int h)
 {
-    width = w; height = h;
-    if (!visible) return;
-
-    image = std::make_unique<FrameBuffer>(width, height);
+    SetImage(w, h);
     // TODO - generate the basic keypad image, depending on dimensions
+
+    if (!visible) return;
 
     RunLater([this]() { Redraw(); });
 }

@@ -22,13 +22,13 @@ void AppCanvas::UpdateProtoDevelopment()
 {
     // TODO - this is just here for development and testing. of course it will get
     // replaced eventually!
-    if (!image) return;
+    if (!Image()) return;
     // write random pixels
     for (int i = 0; i < 16; ++i) {
-        auto y = rand() % height;
-        auto x = rand() % width;
+        auto y = rand() % Height();
+        auto x = rand() % Width();
         // red in 7:0, green in 15:8, blue in 23:16, alpha in 31:24
-        *(image->PixAt(y, x)) = (rand() % 0xff) + ((rand() % 0xff) << 8) + ((rand() % 0xff) << 16) + (0xff << 24);
+        *(Image()->PixAt(y, x)) = (rand() % 0xff) + ((rand() % 0xff) << 8) + ((rand() % 0xff) << 16) + (0xff << 24);
     }
 #if 0
     else {
@@ -44,27 +44,26 @@ void AppCanvas::UpdateProtoDevelopment()
         }
     }
 #endif
-    dirtyBits.push_back(ImageRegion(0, 0, width, height));
+    Invalidate(ImageRegion(0, 0, Width(), Height()));
     core->RunLater([this]() { Redraw(); });
 }
 
 void AppCanvas::onResize(int w, int h)
 {
-    bool firstTime = (!image);
+    bool firstTime = (!Image());
 
     // On resizing we just create a new image buffer
-    image = std::make_unique<FrameBuffer>(w, h);
-    width = w; height = h;
+    (void)SetImage(w, h);
 
     // The canvas is drawn by the LVGL UI. Resize the display associated with the canvas.
-    uiDisplay->Resize(w, h, image->Row(0));
+    uiDisplay->Resize(w, h, Image()->Row(0));
 
     // On first resize the navitab apps need to be started
     if (firstTime) {
         core->StartApps();
     }
 
-    dirtyBits.push_back(ImageRegion(0, 0, width, height));
+    Invalidate(ImageRegion(0, 0, Width(), Height()));
     RunLater([this]() { Redraw(); });
 }
 
@@ -73,7 +72,7 @@ void AppCanvas::Update(navitab::ImageRegion r, uint32_t* pixels)
     // this is the update function called from the LVGL library
     // TODO - as we're using LV_DISP_RENDER_MODE_DIRECT, there is probably not much to be done
     // maybe just post the region to the dirtyBits and redraw?
-    dirtyBits.push_back(r);
+    Invalidate(r);
     RunLater([this]() { Redraw(); });
 }
 

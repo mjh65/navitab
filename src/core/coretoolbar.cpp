@@ -26,7 +26,8 @@
 namespace navitab {
 
 CoreToolbar::CoreToolbar(std::shared_ptr<Toolbar2Core> c, std::shared_ptr<lvglkit::Manager> u)
-:   LOG(std::make_unique<logging::Logger>("toolbar")),
+:   Toolbar(), lvglkit::Display::Updater(),
+    LOG(std::make_unique<logging::Logger>("toolbar")),
     core(c), uiMgr(u),
     lvhStatusInfo(0),
     activeToolsMask(0),
@@ -63,7 +64,7 @@ void CoreToolbar::SetActiveTools(int selectMask)
 {
     // called by the apps to indicate which toolbar tools should be shown
     pendingToolsMask = selectMask;
-    Update(ImageRegion(0, 0, width, height), nullptr);
+    Update(ImageRegion(0, 0, Width(), Height()), nullptr);
 }
 
 void CoreToolbar::SetRepeatingTools(int selectMask)
@@ -75,7 +76,7 @@ void CoreToolbar::RepaintTools(int statusTextWidth)
 {
     // no need to repaint if there's been no change in the active tools
     // and the status text does not encroach on the tool icons
-    bool overlap = (width - Window::TOOL_ICON_WIDTH * activeToolIds.size()) < statusTextWidth;
+    bool overlap = (Width() - Window::TOOL_ICON_WIDTH * activeToolIds.size()) < statusTextWidth;
     if ((activeToolsMask == pendingToolsMask) && !overlap) return;
 
     const uint32_t* icons[] = {
@@ -101,36 +102,36 @@ void CoreToolbar::RepaintTools(int statusTextWidth)
     unsigned numPendingTools = 0;
     unsigned numActiveTools = (int)activeToolIds.size();
     activeToolIds.clear();
-    int x = width;
+    int x = Width();
     for (int i = 0; i < kNumTools; ++i) {
         if (pendingToolsMask & (1 << i)) {
             ++numPendingTools;
             activeToolIds.push_back(i);
             x -= Window::TOOL_ICON_WIDTH;
-            if (x >= 0) image->PaintIcon(x, 0, icons[i], Window::TOOL_ICON_WIDTH, Window::TOOLBAR_HEIGHT, backgroundPixels);
+            if (x >= 0) Image()->PaintIcon(x, 0, icons[i], Window::TOOL_ICON_WIDTH, Window::TOOLBAR_HEIGHT, backgroundPixels);
         }
     }
     while (numActiveTools > numPendingTools) {
         --numActiveTools;
         x -= Window::TOOL_ICON_WIDTH;
-        if (x >= 0) image->PaintIcon(x, 0, tool_null_24x24, Window::TOOL_ICON_WIDTH, Window::TOOLBAR_HEIGHT, backgroundPixels);
+        if (x >= 0) Image()->PaintIcon(x, 0, tool_null_24x24, Window::TOOL_ICON_WIDTH, Window::TOOLBAR_HEIGHT, backgroundPixels);
     }
     activeToolsMask = pendingToolsMask;
 
     if (x < 0) x = 0;
-    dirtyBits.push_back(ImageRegion(x, 0, width, height));
+    Invalidate(ImageRegion(x, 0, Width(), Height()));
 }
 
 void CoreToolbar::onResize(int w, int h)
 {
     LOGD(fmt::format("CoreToolbar::onResize({},{})", w, h));
-    width = w; height = Window::TOOLBAR_HEIGHT;
 
     // If the toolbar is resized then the previous image is just abandoned
     // and a new one is created. On the first resize notification the UI
     // widgets are created (using raw LVGL API - no wrappers!)
-    image = std::make_unique<FrameBuffer>(width, height);
-    uiDisplay->Resize(width, height, image->Row(0));
+
+    SetImage(w, Window::TOOLBAR_HEIGHT);
+    uiDisplay->Resize(Width(), Height(), Image()->Row(0));
     activeToolsMask = 0; // force repaint of tools
     if (!lvhStatusInfo) {
         CreateWidgets();
@@ -143,9 +144,9 @@ void CoreToolbar::onMouseEvent(int x, int y, bool l)
 {
     // ignore mouse events that are not over the tool icons
     if ((y < 0) || (y >= Window::TOOLBAR_HEIGHT)) return;
-    if ((x < (width - Window::TOOL_ICON_WIDTH * activeToolIds.size())) || (x >= width)) return;
+    if ((x < (Width() - Window::TOOL_ICON_WIDTH * activeToolIds.size())) || (x >= Width())) return;
     
-    int toolIdx = (width - x) / Window::TOOL_ICON_WIDTH;
+    int toolIdx = (Width() - x) / Window::TOOL_ICON_WIDTH;
     assert(toolIdx < activeToolIds.size());
     int tool = activeToolIds[toolIdx];
     if (l) {
@@ -180,7 +181,7 @@ void CoreToolbar::Update(navitab::ImageRegion r, uint32_t* pixels)
 {
     // this is the update function called from the LVGL library
     LOGD(fmt::format("CoreToolbar::Update({},{}->{},{})", r.left, r.top, r.right, r.bottom));
-    dirtyBits.push_back(r);
+    Invalidate(r);
     RepaintTools(r.right);
     RunLater([this]() { Redraw(); });
 }

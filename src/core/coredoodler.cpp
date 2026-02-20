@@ -18,45 +18,38 @@ CoreDoodler::~CoreDoodler()
 
 void CoreDoodler::EnableDoodler()
 {
-    if (!enabled) {
-        if (oldDoodle) std::swap(image, oldDoodle);
-        enabled = true;
-        RunLater([this]() { onResize(width, height); });
-    }
+    if (enabled) return;
+
+    enabled = true;
+    RunLater([this]() { onResize(Width(), Height()); });
 }
 
 void CoreDoodler::DisableDoodler()
 {
-    if (enabled) {
-        std::swap(image, oldDoodle);
-        enabled = false;
-        RunLater([this]() { Redraw(); });
-    }
+    if (!enabled) return;
+
+    enabled = false;
+    RunLater([this]() { Redraw(); });
 }
 
 void CoreDoodler::onResize(int w, int h)
 {
-    // if the doodler is resized then a new image is created, and if the doodler is enabled
-    // the old image is copied into the new image
+    // if the doodler is resized then a new image is created,
+    // and the old image is copied into the new image.
 
-    auto ni = std::make_unique<FrameBuffer>(w, h);
-    ni->Clear(backgroundPixels);
-    // temporarily swap the old doodle into image if doodler is currently disabled
-    if (!enabled) std::swap(image, oldDoodle);
-    if (image) {
-        for (auto y = 0; y < std::min(h, height); ++y) {
-            auto sr = image->PixAt(y, 0);
-            auto dr = ni->PixAt(y, 0);
-            auto nx = std::min(w, width);
+    std::unique_ptr<ImageBuffer> prev;
+    Swap(prev); // prev now contains the doodle before resizing
+    SetImage(w, h);
+    Image()->Clear(backgroundPixels);
+    if (prev) {
+        for (auto y = 0; y < std::min(h, (int)prev->Height()); ++y) {
+            auto sr = Image()->PixAt(y, 0);
+            auto dr = prev->PixAt(y, 0);
+            auto nx = std::min(w, (int)prev->Width());
             std::copy(sr, sr + nx, dr);
         }
     }
-    std::swap(image, ni);
-    // and swap back after updating
-    if (!enabled) std::swap(image, oldDoodle);
-    width = w; height = h;
-
-    dirtyBits.push_back(ImageRegion(0, 0, width, height));
+    Invalidate(ImageRegion(0, 0, Width(), Height()));
     RunLater([this]() { Redraw(); });
 }
 

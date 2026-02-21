@@ -10,6 +10,14 @@ target_sources(navitab_builddb PRIVATE
     sceneryreader.h
     bglfilereader.cpp
     bglfilereader.h
+    bglairport.cpp
+	bglairport.h
+	bglnamelist.cpp
+	bglnamelist.h
+	bglnavaid.cpp
+	bglnavaid.h
+	bglwaypoint.cpp
+	bglwaypoint.h
 )
 
 if(WIN32)

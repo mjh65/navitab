@@ -71,6 +71,18 @@ bool BglFileReader::DoScan()
             return cb.Unsupported(fmt::format("Unknown header size {}", hdr.headerSize));
         }
         break;
+
+    case 0x00000001:
+    case 0x9d560001:
+        // these BGL files have non-standard magic in their headers
+        // 
+        // fs-base/scenery/Base/scenery/magdec.bgl 01 00 00 00
+        // fs-base-ai-traffic/scenery/world/traffic/trafficAircraft.bgl 01 00 56 9d
+        // fs-base-ai-traffic/scenery/world/traffic/trafficBoats.bgl 01 00 56 9d
+        // LNM does some special parsing of the magdec.bgl file
+        // not sure about the other 2 traffic files
+
+        return cb.Info(fmt::format("Ignoring BGL file {} with non-standard header", fname.string()));
     default:
         return cb.Unsupported(fmt::format("Unknown header magic {}", hdr.magic));
     }
@@ -123,6 +135,11 @@ bool BglFileReader::DoSection(uint32_t stype, uint32_t nss, uint32_t sshs, uint3
             nr = ss20h->recordCount;
         }
         cb.Info(fmt::format("Sub-section has {} records {} bytes at offset {}", nr, sr, fo));
+        if ((stype >= 0x0065) && (stype <= 0x0098)) {
+            // these are all terrain-related sections, not of interest for NAV data
+            keepGoing = cb.Info(fmt::format("Ignored section type {}", stype));
+            continue;
+        }
         switch (stype) {
             case 0x0003: // airport data
                 assert(sshs == sizeof(SubSection16Header));
@@ -149,14 +166,16 @@ bool BglFileReader::DoSection(uint32_t stype, uint32_t nss, uint32_t sshs, uint3
                 keepGoing = DoWaypointRecords(fo, sr, nr);
                 break;
                 // we don't need anything from these (at the moment!)
-            case 0x0020: // airspace boundary
             case 0x0018: // markers (inner,middle,outer)
+            case 0x0020: // airspace boundary
             case 0x0025: // scenery object
-            case 0x002e: // exclusion rectangle
-            case 0x0065: // terrain vectors
             case 0x0028: // P3D indices
             case 0x0029: // P3D indices
             case 0x002a: // P3D indices
+            case 0x002b: // model data
+            case 0x002e: // exclusion rectangle
+            case 0x002f: // timezone
+            case 0x0030: // unknown
             case 0x0031: // P3D indices
                 keepGoing = cb.Info(fmt::format("Ignored section type {}", stype));
                 break;

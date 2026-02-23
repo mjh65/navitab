@@ -54,7 +54,7 @@ Builder::~Builder()
 bool Builder::Unsupported(std::string u)
 {
     std::cout << "Unsupported: " << u << std::endl;
-    return true;
+    return false;
 }
 
 bool Builder::Error(std::string e)

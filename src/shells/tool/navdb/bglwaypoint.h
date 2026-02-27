@@ -5,7 +5,7 @@
 #include "sceneryreader.h"
 #include <fstream>
 
-namespace navitab {
+namespace navbuilder {
 
 
     

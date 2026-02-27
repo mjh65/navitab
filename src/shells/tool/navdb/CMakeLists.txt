@@ -6,6 +6,8 @@ add_executable(navitab_builddb)
 
 target_sources(navitab_builddb PRIVATE
     main.cpp
+    bglnavdata.cpp
+    bglnavdata.h
     sceneryreader.cpp
     sceneryreader.h
     bglfilereader.cpp

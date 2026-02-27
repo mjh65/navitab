@@ -6,7 +6,9 @@
 #include "bglfilereader.h"
 #include <fstream>
 
-namespace navitab {
+namespace navbuilder {
+
+
 
 class BglAirportReader {
 
@@ -17,8 +19,16 @@ public:
     bool Read(BglRecordHeader &h);
 
 private:
+    bool ReadName(size_t rs);
+    bool ReadHelipad(size_t rs);
+    bool ReadStart(size_t rs);
+    bool ReadDeletions(size_t rs);
+    bool ReadRunway(size_t rs);
+
+private:
     SceneryReader::Callbacks &cb;
     std::ifstream &fp;
+    std::shared_ptr<Airport> arec;
 
 };
 

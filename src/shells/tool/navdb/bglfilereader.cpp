@@ -8,7 +8,7 @@
 #include <fmt/core.h>
 #include <cassert>
 
-namespace navitab {
+namespace navbuilder {
 
 BglFileReader::BglFileReader(std::filesystem::path f, SceneryReader::Callbacks &handler)
 :   fname(f),

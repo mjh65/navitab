@@ -5,7 +5,7 @@
 
 namespace fs = std::filesystem;
 
-namespace navitab {
+namespace navbuilder {
 
 SceneryReader::SceneryReader(Provider p, Callbacks &handler)
 :   sim(p),

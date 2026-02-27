@@ -2,10 +2,11 @@
 
 #pragma once
 
+#include "bglnavdata.h"
 #include <filesystem>
 #include <list>
 
-namespace navitab {
+namespace navbuilder {
 
 class SceneryReader {
 
@@ -15,8 +16,16 @@ public:
         virtual bool Error(std::string e) = 0;
         virtual bool Warning(std::string w) = 0;
         virtual bool Info(std::string i) = 0;
+        virtual bool CheckContinue() = 0;
+
         virtual bool StartingFile(std::filesystem::path f) = 0;
+        virtual bool AddNavItem(std::shared_ptr<navitab::navdata::NavItem> ni) = 0;
         virtual bool DoneFile() = 0;
+
+        virtual unsigned NextUid() = 0;
+
+        virtual std::shared_ptr<Airport> GetAirport(unsigned uid) = 0;
+        virtual std::shared_ptr<Airport> FindAirport(std::string icao) = 0;
     };
 
 public:

@@ -3,6 +3,7 @@
 #pragma once
 
 #include <memory>
+#include <string>
 #include <vector>
 #include "geometrics.h"
 
@@ -37,7 +38,14 @@ public:
 class Com : public NavItem
 {
 public:
-    virtual std::string type() const = 0;
+    enum Type {
+        Unknown,
+        ATIS, Multicom, Unicom,
+        Clearance, Delivery, Ground, Tower,
+        Approach, Departure, Centre,
+        CTAF, FSS, AWOS, ASOS
+    };
+    virtual Type type() const = 0;
     virtual std::string name() const = 0;
     virtual float freq() const = 0;
 };

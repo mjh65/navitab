@@ -3,6 +3,7 @@
 #pragma once
 
 #include "sceneryreader.h"
+#include "bglfilestream.h"
 #include <fstream>
 #include <cassert>
 
@@ -17,62 +18,21 @@ public:
     bool DoScan();
 
 private:
-    bool DoSection(uint32_t stype, uint32_t nss, uint32_t sshs, uint32_t foffset);
-    bool DoAirportRecords(uint32_t foffset, uint32_t rsize, uint32_t nrecords);
-    bool DoAirportSummaryRecords(uint32_t foffset, uint32_t rsize, uint32_t nrecords);
-    bool DoNamelistsRecords(uint32_t foffset, uint32_t rsize, uint32_t nrecords);
-    bool DoVorIlsRecords(uint32_t foffset, uint32_t rsize, uint32_t nrecords);
-    bool DoNdbRecords(uint32_t foffset, uint32_t rsize, uint32_t nrecords);
-    bool DoWaypointRecords(uint32_t foffset, uint32_t rsize, uint32_t nrecords);
+    bool DoSection(uint32_t stype, unsigned nss, size_t sshs);
+
+    template<class T>
+    bool DoRecords(unsigned nrecords, size_t rsize);
 
 private:
     std::filesystem::path fname;
-    std::ifstream fp;
     SceneryReader::Callbacks &cb;
+    BglFileStream fs;
 
 };
 
-struct BglRecordHeader {
-    BglRecordHeader() = delete;
-    BglRecordHeader(std::ifstream &fp);
-    uint16_t id;
-    uint32_t size;
-};
-
-inline double decodeBglLongitude(int32_t x)
+inline navitab::navdata::Surface::Type decodeBglSurface(uint16_t s)
 {
-    return ((double)x * (360.0f / (3 * 0x10000000))) - 180.0f;
-}
-
-inline double decodeBglLatitude(int32_t y)
-{
-    return 90.0f - (((double) y) * (180.0f / (2 * 0x10000000)));
-}
-
-inline std::string decodeBglIcao(uint32_t v)
-{
-    std::string s;
-    
-    while (v) {
-        int c = v % 38;
-        v = (v - c) / 38;
-        if (c >= 12) {
-            s.push_back('A' + c - 12);
-        } else if (c > 1) {
-            s.push_back('0' + c - 2);
-        } else if (c == 0) {
-            s.push_back(' ');
-        } else {
-            assert(0);
-        }
-    }
-    std::reverse(s.begin(), s.end());
-    return s;
-}
-
-inline navitab::navdata::Surface::Type decodeBglSurface(uint8_t s)
-{
-    switch (s) {
+    switch (s & 0x7f) {
     case 0: return navitab::navdata::Surface::Type::Concrete;
     case 1: return navitab::navdata::Surface::Type::Grass;
     case 2: return navitab::navdata::Surface::Type::Water;
@@ -90,7 +50,7 @@ inline navitab::navdata::Surface::Type decodeBglSurface(uint8_t s)
     case 21: return navitab::navdata::Surface::Type::Sand;
     case 22: return navitab::navdata::Surface::Type::Shale;
     case 23: return navitab::navdata::Surface::Type::Tarmac;
-    default : return navitab::navdata::Surface::Type::Unknown;
+    default: return navitab::navdata::Surface::Type::Unknown;
     }
 }
 
@@ -119,6 +79,28 @@ inline navitab::navdata::Start::Type decodeBglStartType(uint8_t rd)
     case 2: return navitab::navdata::Start::Type::Water;
     case 3: return navitab::navdata::Start::Type::Helipad;
     default : return navitab::navdata::Start::Type::Unknown;
+    }
+}
+
+inline navitab::navdata::Com::Type decodeBglComType(uint16_t ct)
+{
+    switch (ct) {
+    case 1: return navitab::navdata::Com::Type::ATIS;
+    case 2: return navitab::navdata::Com::Type::Multicom;
+    case 3: return navitab::navdata::Com::Type::Unicom;
+    case 4: return navitab::navdata::Com::Type::CTAF;
+    case 5: return navitab::navdata::Com::Type::Ground;
+    case 6: return navitab::navdata::Com::Type::Tower;
+    case 7: return navitab::navdata::Com::Type::Clearance;
+    case 8: return navitab::navdata::Com::Type::Approach;
+    case 9: return navitab::navdata::Com::Type::Departure;
+    case 10: return navitab::navdata::Com::Type::Centre;
+    case 11: return navitab::navdata::Com::Type::FSS;
+    case 12: return navitab::navdata::Com::Type::AWOS;
+    case 13: return navitab::navdata::Com::Type::ASOS;
+    case 14: return navitab::navdata::Com::Type::Clearance;
+    case 15: return navitab::navdata::Com::Type::Delivery;
+    default: return navitab::navdata::Com::Type::Unknown;
     }
 }
 

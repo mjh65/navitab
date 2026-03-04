@@ -12,6 +12,8 @@ target_sources(navitab_builddb PRIVATE
     sceneryreader.h
     bglfilereader.cpp
     bglfilereader.h
+    bglfilestream.cpp
+    bglfilestream.h
     bglairport.cpp
 	bglairport.h
 	bglnamelist.cpp

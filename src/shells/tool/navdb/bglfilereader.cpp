@@ -12,7 +12,8 @@ namespace navbuilder {
 
 BglFileReader::BglFileReader(std::filesystem::path f, SceneryReader::Callbacks &handler)
 :   fname(f),
-    cb(handler)
+    cb(handler),
+    fs(fname)
 {
 }
 
@@ -27,6 +28,7 @@ struct BglHeader {
     uint32_t dateTimeHi;
     uint32_t magic2;
     uint32_t sectionCount;
+    uint32_t qmids[8];
 };
 
 struct SectionHeader {
@@ -56,19 +58,19 @@ bool BglFileReader::DoScan()
 {
     bool keepGoing = true;
 
-    fp.open(fname, std::ios::binary);
-    if (fp.fail()) {
-        return cb.Warning(fmt::format("Cannot open for reading"));
+    if (!fs.good()) {
+        return cb.Warning(fmt::format("Failed to open {} for reading", fname.string()));
     }
 
-    BglHeader hdr;
-    fp.seekg(0, std::ios::beg);
-    fp.read(reinterpret_cast<char*>(&hdr), sizeof(BglHeader));
+    BglHeader hdr = {};
+    if (!fs.read(&hdr, sizeof(hdr))) {
+        return cb.Warning(fmt::format("Failed to read header from {}", fname.string()));
+    }
 
     switch (hdr.magic) {
     case 0x19920201:
         if (hdr.headerSize != 56) {
-            return cb.Unsupported(fmt::format("Unknown header size {}", hdr.headerSize));
+            return cb.Warning(fmt::format("Unknown header size {}", hdr.headerSize));
         }
         break;
 
@@ -84,18 +86,20 @@ bool BglFileReader::DoScan()
 
         return cb.Info(fmt::format("Ignoring BGL file {} with non-standard header", fname.string()));
     default:
-        return cb.Unsupported(fmt::format("Unknown header magic {}", hdr.magic));
+        return cb.Warning(fmt::format("Unknown header magic {}", hdr.magic));
     }
 
     if (hdr.sectionCount > 32) {
         return cb.Warning(fmt::format("Too many sections in this file {}", hdr.sectionCount));
     }
+
     auto numSections = hdr.sectionCount;
     cb.Info(fmt::format("{} sections", numSections));
     std::vector<SectionHeader> sections;
     sections.resize(numSections);
-    fp.seekg(hdr.headerSize, std::ios::beg);
-    fp.read(reinterpret_cast<char*>(sections.data()), numSections * sizeof(SectionHeader));
+    if (!fs.read(sections.data(), numSections * sizeof(SectionHeader))) {
+        return cb.Warning(fmt::format("Failed to read section headers from {}", fname.string()));
+    }
 
     for (int s = 0; keepGoing && (s < numSections); ++s) {
         auto& sptr = sections[s];
@@ -105,21 +109,21 @@ bool BglFileReader::DoScan()
                                           sptr.subSectionCount, sptr.subSectionHeaderSize));
         }
         cb.Info(fmt::format("Section {} type {} contains {} sub-sections", s, sptr.sectionType, sptr.subSectionCount));
-        keepGoing = DoSection(sptr.sectionType, sptr.subSectionCount, sshs, sptr.fileOffset);
+        fs.seek(sptr.fileOffset);
+        keepGoing = DoSection(sptr.sectionType, sptr.subSectionCount, sshs);
     }
     
     return keepGoing;
 }
 
-bool BglFileReader::DoSection(uint32_t stype, uint32_t nss, uint32_t sshs, uint32_t foffset)
+bool BglFileReader::DoSection(uint32_t stype, unsigned nss, size_t sshs)
 {
     bool keepGoing = true;
 
     std::vector<unsigned char> subSections;
     subSections.resize(nss * sshs);
     unsigned char *ssp = subSections.data();
-    fp.seekg(foffset, std::ios::beg);
-    fp.read(reinterpret_cast<char*>(ssp), nss * sshs);
+    fs.read(subSections.data(), nss * sshs);
     
     for (int ssi = 0; ssi < nss; ++ssi, ssp += sshs) {
         uint32_t fo, nr, sr;
@@ -137,33 +141,35 @@ bool BglFileReader::DoSection(uint32_t stype, uint32_t nss, uint32_t sshs, uint3
         cb.Info(fmt::format("Sub-section has {} records {} bytes at offset {}", nr, sr, fo));
         if ((stype >= 0x0065) && (stype <= 0x0098)) {
             // these are all terrain-related sections, not of interest for NAV data
-            keepGoing = cb.Info(fmt::format("Ignored section type {}", stype));
+            keepGoing = cb.Info(fmt::format("Ignored terrain section type {}", stype));
             continue;
         }
+
+        fs.seek(fo);
         switch (stype) {
             case 0x0003: // airport data
                 assert(sshs == sizeof(SubSection16Header));
-                keepGoing = DoAirportRecords(fo, sr, nr);
-                break;
-            case 0x002c: // additional airport data
-                assert(sshs == sizeof(SubSection16Header));
-                keepGoing = DoAirportSummaryRecords(fo, sr, nr);
-                break;
-            case 0x0027: // namelist
-                assert(sshs == sizeof(SubSection16Header));
-                keepGoing = DoNamelistsRecords(fo, sr, nr);
+                keepGoing = DoRecords<BglAirportReader>(nr, sr);
                 break;
             case 0x0013: // VOR / ILS
                 assert(sshs == sizeof(SubSection16Header));
-                keepGoing = DoVorIlsRecords(fo, sr, nr);
+                keepGoing = DoRecords<BglVorIlsReader>(nr, sr);
                 break;
             case 0x0017: // NDB
                 assert(sshs == sizeof(SubSection16Header));
-                keepGoing = DoNdbRecords(fo, sr, nr);
+                keepGoing = DoRecords<BglNdbReader>(nr, sr);
                 break;
             case 0x0022: // waypoint
                 assert(sshs == sizeof(SubSection16Header));
-                keepGoing = DoWaypointRecords(fo, sr, nr);
+                keepGoing = DoRecords<BglWaypointReader>(nr, sr);
+                break;
+            case 0x0027: // namelist
+                assert(sshs == sizeof(SubSection16Header));
+                keepGoing = DoRecords<BglNamelistsReader>(nr, sr);
+                break;
+            case 0x002c: // additional airport data
+                assert(sshs == sizeof(SubSection16Header));
+                keepGoing = DoRecords<BglAirportSummaryReader>(nr, sr); (nr, sr);
                 break;
                 // we don't need anything from these (at the moment!)
             case 0x0018: // markers (inner,middle,outer)
@@ -180,7 +186,7 @@ bool BglFileReader::DoSection(uint32_t stype, uint32_t nss, uint32_t sshs, uint3
                 keepGoing = cb.Info(fmt::format("Ignored section type {}", stype));
                 break;
             default:
-                keepGoing = cb.Unsupported(fmt::format("Unknown section type {}", stype));
+                keepGoing = cb.Warning(fmt::format("Unknown section type {}", stype));
                 break;
         }
     }
@@ -188,140 +194,16 @@ bool BglFileReader::DoSection(uint32_t stype, uint32_t nss, uint32_t sshs, uint3
     return keepGoing;
 }
 
-bool BglFileReader::DoAirportRecords(uint32_t foffset, uint32_t rsize, uint32_t nrecords)
+template<class T>
+bool BglFileReader::DoRecords(unsigned nrecords, size_t rsize)
 {
     bool keepGoing = true;
-    while (keepGoing && nrecords) {
-        fp.seekg(foffset, std::ios::beg);
-
-        BglRecordHeader h(fp);
-        keepGoing = cb.Info(fmt::format("Airport record type {} size {}", h.id, h.size));
-        assert(h.size <= rsize);
-        
-        BglAirportReader a(cb, fp);
-        keepGoing = a.Read(h);
-        
-        foffset += h.size;
-        rsize -= h.size;
+    while (keepGoing && nrecords && (rsize >= 6)) {
+        T a(cb, fs);
+        keepGoing = a.ReadNextRecord(rsize);
         --nrecords;
     }
     return keepGoing;
-}
-
-bool BglFileReader::DoAirportSummaryRecords(uint32_t foffset, uint32_t rsize, uint32_t nrecords)
-{
-    while (nrecords) {
-        fp.seekg(foffset, std::ios::beg);
-
-        uint16_t recordId = 0;
-        fp.read(reinterpret_cast<char*>(&recordId), sizeof(uint16_t));
-        uint32_t recordSize;
-        fp.read(reinterpret_cast<char*>(&recordSize), sizeof(uint32_t));
-        cb.Info(fmt::format("Airport summary record type {} size {}", recordId, recordSize));
-        assert(recordSize <= rsize);
-        
-        
-        
-        foffset += recordSize;
-        rsize -= recordSize;
-        --nrecords;
-    }
-    
-    return true;
-}
-
-bool BglFileReader::DoNamelistsRecords(uint32_t foffset, uint32_t rsize, uint32_t nrecords)
-{
-    while (nrecords) {
-        fp.seekg(foffset, std::ios::beg);
-
-        uint16_t recordId = 0;
-        fp.read(reinterpret_cast<char*>(&recordId), sizeof(uint16_t));
-        uint32_t recordSize;
-        fp.read(reinterpret_cast<char*>(&recordSize), sizeof(uint32_t));
-        cb.Info(fmt::format("Namelists record type {} size {}", recordId, recordSize));
-        assert(recordSize <= rsize);
-        
-        
-        
-        foffset += recordSize;
-        rsize -= recordSize;
-        --nrecords;
-    }
-    
-    return true;
-}
-
-bool BglFileReader::DoVorIlsRecords(uint32_t foffset, uint32_t rsize, uint32_t nrecords)
-{
-    while (nrecords) {
-        fp.seekg(foffset, std::ios::beg);
-
-        uint16_t recordId = 0;
-        fp.read(reinterpret_cast<char*>(&recordId), sizeof(uint16_t));
-        uint32_t recordSize;
-        fp.read(reinterpret_cast<char*>(&recordSize), sizeof(uint32_t));
-        cb.Info(fmt::format("VOR/ILS record type {} size {}", recordId, recordSize));
-        assert(recordSize <= rsize);
-        
-        
-        
-        foffset += recordSize;
-        rsize -= recordSize;
-        --nrecords;
-    }
-    
-    return true;
-}
-
-bool BglFileReader::DoNdbRecords(uint32_t foffset, uint32_t rsize, uint32_t nrecords)
-{
-    while (nrecords) {
-        fp.seekg(foffset, std::ios::beg);
-
-        uint16_t recordId = 0;
-        fp.read(reinterpret_cast<char*>(&recordId), sizeof(uint16_t));
-        uint32_t recordSize;
-        fp.read(reinterpret_cast<char*>(&recordSize), sizeof(uint32_t));
-        cb.Info(fmt::format("NDB record type {} size {}", recordId, recordSize));
-        assert(recordSize <= rsize);
-        
-        
-        
-        foffset += recordSize;
-        rsize -= recordSize;
-        --nrecords;
-    }
-    
-    return true;
-}
-
-bool BglFileReader::DoWaypointRecords(uint32_t foffset, uint32_t rsize, uint32_t nrecords)
-{
-    while (nrecords) {
-        fp.seekg(foffset, std::ios::beg);
-
-        uint16_t recordId = 0;
-        fp.read(reinterpret_cast<char*>(&recordId), sizeof(uint16_t));
-        uint32_t recordSize;
-        fp.read(reinterpret_cast<char*>(&recordSize), sizeof(uint32_t));
-        cb.Info(fmt::format("Waypoint record type {} size {}", recordId, recordSize));
-        assert(recordSize <= rsize);
-        
-        
-        
-        foffset += recordSize;
-        rsize -= recordSize;
-        --nrecords;
-    }
-    
-    return true;
-}
-
-BglRecordHeader::BglRecordHeader(std::ifstream &fp)
-{
-    fp.read(reinterpret_cast<char*>(&id), sizeof(uint16_t));
-    fp.read(reinterpret_cast<char*>(&size), sizeof(uint32_t));
 }
 
 }

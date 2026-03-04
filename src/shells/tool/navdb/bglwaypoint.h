@@ -3,10 +3,21 @@
 #pragma once
 
 #include "sceneryreader.h"
-#include <fstream>
+#include "bglfilestream.h"
 
 namespace navbuilder {
 
+class BglWaypointReader {
 
-    
+public:
+    BglWaypointReader(SceneryReader::Callbacks& handler, BglFileStream& fs);
+    ~BglWaypointReader() = default;
+
+    bool ReadNextRecord(size_t& maxbytes);
+
+private:
+    SceneryReader::Callbacks& cb;
+    BglFileStream& fs;
+};
+
 }

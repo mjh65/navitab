@@ -12,10 +12,10 @@ class SceneryReader {
 
 public:
     struct Callbacks {
-        virtual bool Unsupported(std::string e) = 0;
         virtual bool Error(std::string e) = 0;
         virtual bool Warning(std::string w) = 0;
         virtual bool Info(std::string i) = 0;
+        virtual bool Unimplemented(std::string e) = 0;
         virtual bool CheckContinue() = 0;
 
         virtual bool StartingFile(std::filesystem::path f) = 0;

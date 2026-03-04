@@ -16,10 +16,10 @@ public:
     Builder();
     ~Builder();
 
-    bool Unsupported(std::string u) override;
     bool Error(std::string e) override;
     bool Warning(std::string w) override;
     bool Info(std::string i) override;
+    bool Unimplemented(std::string u) override;
     bool CheckContinue() override;
 
     bool StartingFile(std::filesystem::path f) override;
@@ -67,9 +67,9 @@ Builder::~Builder()
 
 }
 
-bool Builder::Unsupported(std::string u)
+bool Builder::Unimplemented(std::string u)
 {
-    std::cout << "Unsupported: " << u << std::endl;
+    std::cout << "U: " << u << std::endl;
     return false;
 }
 

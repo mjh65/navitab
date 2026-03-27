@@ -9,6 +9,7 @@ set(GLFW_INSTALL OFF)
 
 add_subdirectory("${glfw_SOURCE_DIR}" "${glfw_BINARY_DIR}" EXCLUDE_FROM_ALL)
 add_library(glfw3 ALIAS glfw)
+target_link_libraries(glfw INTERFACE ${CMAKE_DL_LIBS})
 
 # Cache settings to be used when BUILD_NAVITAB_THIRDPARTY is OFF
 set(NAVITAB_glfw_PKGLIBS glfw3 CACHE INTERNAL "")
@@ -18,3 +19,4 @@ else()
     set(NAVITAB_glfw3_LOCATION "${NAVITAB_LIBS3RD_DIR}/libglfw3.a" CACHE INTERNAL "")
 endif()
 set(NAVITAB_glfw3_INCDIRS "${glfw_SOURCE_DIR}/include" CACHE INTERNAL "")
+set(NAVITAB_glfw3_LINKLIBS ${CMAKE_DL_LIBS} CACHE INTERNAL "")

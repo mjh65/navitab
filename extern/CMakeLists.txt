@@ -135,7 +135,11 @@ endforeach()
 # declare the third party library interdependencies only after they have all been imported
 foreach(lib ${NAVITAB_ALL_PKGLIBS})
     foreach(tll ${NAVITAB_${lib}_LINKLIBS})
-        target_link_libraries(${lib}_3rd INTERFACE ${tll}_3rd)
+        if(${tll} IN_LIST AVITAB_ALL_PKGLIBS)
+            target_link_libraries(${lib}_3rd INTERFACE ${tll}_3rd)
+        else()
+            target_link_libraries(${lib}_3rd INTERFACE ${tll})
+        endif()
     endforeach()
 endforeach()
 

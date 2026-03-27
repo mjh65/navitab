@@ -12,7 +12,7 @@ target_include_directories(navitab_svgc PRIVATE
     ${NAVITAB_lunasvg_INCDIRS}
 )
 target_link_libraries(navitab_svgc PRIVATE
-    lunasvg_3rd
+    lunasvg_3rd Threads::Threads
 )
 
 set_target_properties(navitab_svgc PROPERTIES OUTPUT_NAME "svgc")

@@ -24,7 +24,7 @@ elseif(APPLE)
     target_link_libraries(navitab_desktop PRIVATE
         "-framework OpenGL"
     )
-elseif(UNIX)
+elseif(LINUX OR UNIX)
     target_link_libraries(navitab_desktop PRIVATE
         GL
     )

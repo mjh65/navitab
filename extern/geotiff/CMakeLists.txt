@@ -12,7 +12,7 @@ set(HAVE_TIFFOPEN TRUE)
 set(HAVE_TIFFMERGEFIELDINFO TRUE)
 
 add_subdirectory("${NAVITAB_geotiff_SOURCE_DIR}/libgeotiff" "${NAVITAB_geotiff_BINARY_DIR}" EXCLUDE_FROM_ALL)
-target_include_directories(geotiff_library PRIVATE "${NAVITAB_proj_INCDIRS}")
+target_include_directories(geotiff_library PRIVATE ${NAVITAB_proj_INCDIRS} ${NAVITAB_tiff_INCDIRS})
 add_library(geotiff ALIAS geotiff_library)
 
 unset(TIFF_FOUND CACHE)

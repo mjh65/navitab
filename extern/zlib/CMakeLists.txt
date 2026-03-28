@@ -4,14 +4,14 @@
 
 set(ZLIB_BUILD_EXAMPLES OFF)
 
-add_subdirectory("${zlib_SOURCE_DIR}" "${zlib_BINARY_DIR}" EXCLUDE_FROM_ALL)
+add_subdirectory("${NAVITAB_zlib_SOURCE_DIR}" "${NAVITAB_zlib_BINARY_DIR}" EXCLUDE_FROM_ALL)
 add_library(ZLIB::ZLIB ALIAS zlibstatic)
 add_library(zlibs ALIAS zlibstatic)
 
 # These settings influence findPackage into detecting Navitab's version of ZLib.
 # The name zlibs also avoids a clash in VS's generator.
 set(ZLIB_USE_STATIC_LIBS ON CACHE INTERNAL "")
-set(ZLIB_INCLUDE_DIR "${zlib_SOURCE_DIR}" "${zlib_BINARY_DIR}" CACHE INTERNAL "")
+set(ZLIB_INCLUDE_DIR "${NAVITAB_zlib_SOURCE_DIR}" "${NAVITAB_zlib_BINARY_DIR}" CACHE INTERNAL "")
 if(MSVC)
     set(ZLIB_LIBRARY "${NAVITAB_LIBS3RD_DIR}/zlibs.lib" CACHE INTERNAL "")
 else()

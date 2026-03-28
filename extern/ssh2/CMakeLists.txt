@@ -3,14 +3,14 @@
 set(CRYPTO_BACKEND mbedTLS CACHE INTERNAL "")
 set(LIBSSH2_NO_DEPRECATED ON CACHE INTERNAL "")
 
-add_subdirectory("${ssh2_SOURCE_DIR}" "${ssh2_BINARY_DIR}" EXCLUDE_FROM_ALL)
+add_subdirectory("${NAVITAB_ssh2_SOURCE_DIR}" "${NAVITAB_ssh2_BINARY_DIR}" EXCLUDE_FROM_ALL)
 add_library(ssh2 ALIAS libssh2_static)
 
 unset(CRYPTO_BACKEND CACHE)
 unset(LIBSSH2_NO_DEPRECATED CACHE)
 
 # This is to influence findPackage into detecting Navitab's build of LibSSH2
-set(LIBSSH2_INCLUDE_DIR "${ssh2_SOURCE_DIR}/include" CACHE INTERNAL "")
+set(LIBSSH2_INCLUDE_DIR "${NAVITAB_ssh2_SOURCE_DIR}/include" CACHE INTERNAL "")
 if(MSVC)
     set(LIBSSH2_LIBRARY "${NAVITAB_LIBS3RD_DIR}/ssh2.lib" CACHE INTERNAL "")
 else()

@@ -28,14 +28,14 @@ set(GUMBO_SOURCES
     tokenizer.c
     string_piece.c
 )
-PrefixSources(GUMBO_SOURCES "${gumbo_SOURCE_DIR}/src")
+PrefixSources(GUMBO_SOURCES "${NAVITAB_gumbo_SOURCE_DIR}/src")
 
 add_library(gumbo STATIC ${GUMBO_SOURCES})
 target_include_directories(gumbo
-    PUBLIC "${gumbo_SOURCE_DIR}/src"
+    PUBLIC "${NAVITAB_gumbo_SOURCE_DIR}/src"
 )
 if(MSVC)
-    target_include_directories(gumbo PRIVATE "${gumbo_SOURCE_DIR}/visualc/include")
+    target_include_directories(gumbo PRIVATE "${NAVITAB_gumbo_SOURCE_DIR}/visualc/include")
 endif()
 
 # Cache settings to be used when BUILD_NAVITAB_THIRDPARTY is OFF

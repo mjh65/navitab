@@ -30,19 +30,19 @@ set(LIBJPEG_SOURCES
     jfdctfst.c jfdctint.c jidctflt.c jidctfst.c jidctint.c jquant1.c
     jquant2.c jutils.c jmemmgr.c
 )
-PrefixSources(LIBJPEG_SOURCES "${jpeg_SOURCE_DIR}")
+PrefixSources(LIBJPEG_SOURCES "${NAVITAB_jpeg_SOURCE_DIR}")
 
-file(COPY_FILE "${jpeg_SOURCE_DIR}/jconfig.txt" "${CMAKE_CURRENT_BINARY_DIR}/jconfig.h")
+file(COPY_FILE "${NAVITAB_jpeg_SOURCE_DIR}/jconfig.txt" "${CMAKE_CURRENT_BINARY_DIR}/jconfig.h")
 
 add_library(jpeg STATIC ${LIBJPEG_SOURCES})
 target_include_directories(jpeg
     PUBLIC "${CMAKE_CURRENT_BINARY_DIR}"
-    PUBLIC "${jpeg_SOURCE_DIR}"
+    PUBLIC "${NAVITAB_jpeg_SOURCE_DIR}"
 )
 
 # this aims to help find_package select this jpeg library to help out 
 add_library(JPEG::JPEG ALIAS jpeg)
-set(JPEG_INCLUDE_DIR "${jpeg_SOURCE_DIR}" CACHE INTERNAL "")
+set(JPEG_INCLUDE_DIR "${NAVITAB_jpeg_SOURCE_DIR}" CACHE INTERNAL "")
 if(MSVC)
     set(JPEG_LIBRARY "${NAVITAB_LIBS3RD_DIR}/jpeg.lib" CACHE INTERNAL "")
 else()

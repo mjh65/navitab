@@ -27,7 +27,7 @@ set(BUILD_LIBCURL_DOCS OFF)
 set(BUILD_MISC_DOCS OFF)
 set(ENABLE_CURL_MANUAL OFF)
 
-add_subdirectory("${curl_SOURCE_DIR}" "${curl_BINARY_DIR}" EXCLUDE_FROM_ALL)
+add_subdirectory("${NAVITAB_curl_SOURCE_DIR}" "${NAVITAB_curl_BINARY_DIR}" EXCLUDE_FROM_ALL)
 add_library(curl ALIAS libcurl_static)
 
 target_link_libraries(libcurl_static
@@ -43,6 +43,6 @@ if(MSVC)
 else()
     set(NAVITAB_curl_LOCATION "${NAVITAB_LIBS3RD_DIR}/libcurl.a" CACHE INTERNAL "")
 endif()
-set(NAVITAB_curl_INCDIRS "${curl_SOURCE_DIR}/include" CACHE INTERNAL "")
+set(NAVITAB_curl_INCDIRS "${NAVITAB_curl_SOURCE_DIR}/include" CACHE INTERNAL "")
 set(NAVITAB_curl_CPPDEFS CURL_STATICLIB CACHE INTERNAL "")
 set(NAVITAB_curl_LINKLIBS zstd ssh2 mbedtls CACHE INTERNAL "")

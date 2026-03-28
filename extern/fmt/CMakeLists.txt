@@ -4,7 +4,7 @@
 
 set(FMT_INSTALL OFF)
 
-add_subdirectory("${fmt_SOURCE_DIR}" "${fmt_BINARY_DIR}" EXCLUDE_FROM_ALL)
+add_subdirectory("${NAVITAB_fmt_SOURCE_DIR}" "${NAVITAB_fmt_BINARY_DIR}" EXCLUDE_FROM_ALL)
 
 # Cache settings to be used when BUILD_NAVITAB_THIRDPARTY is OFF
 set(NAVITAB_fmt_PKGLIBS fmt CACHE INTERNAL "")
@@ -13,4 +13,4 @@ if(MSVC)
 else()
     set(NAVITAB_fmt_LOCATION "${NAVITAB_LIBS3RD_DIR}/libfmt.a" CACHE INTERNAL "")
 endif()
-set(NAVITAB_fmt_INCDIRS "${fmt_SOURCE_DIR}/include" CACHE INTERNAL "")
+set(NAVITAB_fmt_INCDIRS "${NAVITAB_fmt_SOURCE_DIR}/include" CACHE INTERNAL "")

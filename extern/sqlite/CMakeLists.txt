@@ -10,7 +10,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 find_package(Threads REQUIRED)
 
-add_library(sqlite3 STATIC "${sqlite_SOURCE_DIR}/sqlite3.c")
+add_library(sqlite3 STATIC "${NAVITAB_sqlite_SOURCE_DIR}/sqlite3.c")
 
 target_compile_definitions(sqlite3 PRIVATE
     SQLITE_DQS=0
@@ -29,7 +29,7 @@ target_compile_definitions(sqlite3 PRIVATE
 )
 
 target_include_directories(sqlite3
-    PUBLIC "${sqlite_SOURCE_DIR}"
+    PUBLIC "${NAVITAB_sqlite_SOURCE_DIR}"
 )
 
 # Cache settings to be used when BUILD_NAVITAB_THIRDPARTY is OFF
@@ -39,4 +39,4 @@ if(MSVC)
 else()
     set(NAVITAB_sqlite3_LOCATION "${NAVITAB_LIBS3RD_DIR}/libsqlite3.a" CACHE INTERNAL "")
 endif()
-set(NAVITAB_sqlite3_INCDIRS "${sqlite_SOURCE_DIR}" CACHE INTERNAL "")
+set(NAVITAB_sqlite3_INCDIRS "${NAVITAB_sqlite_SOURCE_DIR}" CACHE INTERNAL "")

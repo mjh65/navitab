@@ -18,8 +18,8 @@ function(IncludeDownloadedPackage pkg url libslistvar)
     endif()
     if(NOT "${res}" EQUAL 0)
         # first download the source archive if we don't already have it
-        cmake_path(GET url EXTENSION ext)
-        set(fname "${name}${ext}")
+        cmake_path(GET url FILENAME fn)
+        set(fname "${name}-${fn}")
         cmake_path(APPEND pkgfile "${cachedir}" "${fname}")
         file(MAKE_DIRECTORY "${cachedir}")
         execute_process(COMMAND "${CMAKE_COMMAND}" -E compare_files "${pkgfile}" "${pkgfile}" RESULT_VARIABLE res)
@@ -54,7 +54,7 @@ function(IncludeDownloadedPackage pkg url libslistvar)
         endif()
 
         # run the patch script, if there is one
-        set(${name}_SOURCE_DIR "${srcpath}")
+        set(NAVITAB_${name}_SOURCE_DIR "${srcpath}")
         include("${name}/patch.cmake" OPTIONAL)
 
         # write the files that will bypass these steps next time.
@@ -64,8 +64,8 @@ function(IncludeDownloadedPackage pkg url libslistvar)
 
     # the package has been downloaded and extracted and the source is in ${srcpath}
     # set some (parent) variables to provide source/build directores for the package
-    set(${name}_SOURCE_DIR "${srcpath}")
-    set(${name}_BINARY_DIR "${PROJECT_BINARY_DIR}/download/${name}")
+    set(NAVITAB_${name}_SOURCE_DIR "${srcpath}")
+    set(NAVITAB_${name}_BINARY_DIR "${PROJECT_BINARY_DIR}/download/${name}")
 
     # now include Navitab's wrapper CMake script for the package
     if(${pkg} STREQUAL ${name})

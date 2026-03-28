@@ -7,11 +7,11 @@
 # Need to use cache variables due to policy CMP0077
 set(BUILD_CODEC OFF CACHE INTERNAL "")
 
-add_subdirectory("${openjpeg_SOURCE_DIR}" "${openjpeg_BINARY_DIR}" EXCLUDE_FROM_ALL)
+add_subdirectory("${NAVITAB_openjpeg_SOURCE_DIR}" "${NAVITAB_openjpeg_BINARY_DIR}" EXCLUDE_FROM_ALL)
 
 target_include_directories(openjp2
-    INTERFACE "$<BUILD_INTERFACE:${openjpeg_SOURCE_DIR}/src/lib/openjp2>"
-    INTERFACE "$<BUILD_INTERFACE:${openjpeg_BINARY_DIR}/src/lib/openjp2>"
+    INTERFACE "$<BUILD_INTERFACE:${NAVITAB_openjpeg_SOURCE_DIR}/src/lib/openjp2>"
+    INTERFACE "$<BUILD_INTERFACE:${NAVITAB_openjpeg_BINARY_DIR}/src/lib/openjp2>"
 )
 
 # Unset these after configuring openjpeg to avoid polluting other modules

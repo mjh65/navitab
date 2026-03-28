@@ -34,11 +34,11 @@ set(JBIG2_SOURCES
     jbig2_text.c
     jbig2.c
 )
-PrefixSources(JBIG2_SOURCES "${jbig2_SOURCE_DIR}")
+PrefixSources(JBIG2_SOURCES "${NAVITAB_jbig2_SOURCE_DIR}")
 
 add_library(jbig2dec STATIC ${JBIG2_SOURCES})
 target_include_directories(jbig2dec
-    PUBLIC "${jbig2_SOURCE_DIR}"
+    PUBLIC "${NAVITAB_jbig2_SOURCE_DIR}"
 )
 target_link_libraries(jbig2dec
     PRIVATE png_static

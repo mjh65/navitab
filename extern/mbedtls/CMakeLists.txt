@@ -6,7 +6,7 @@ set(ENABLE_TESTING OFF CACHE INTERNAL "")
 set(MBEDTLS_FATAL_WARNINGS OFF CACHE INTERNAL "")
 set(TEST_CPP OFF CACHE INTERNAL "")
 
-add_subdirectory("${mbedtls_SOURCE_DIR}" "${mbedtls_BINARY_DIR}" EXCLUDE_FROM_ALL)
+add_subdirectory("${NAVITAB_mbedtls_SOURCE_DIR}" "${NAVITAB_mbedtls_BINARY_DIR}" EXCLUDE_FROM_ALL)
 
 unset(MBEDTLS_AS_SUBPROJECT CACHE)
 unset(ENABLE_PROGRAMS CACHE)
@@ -15,7 +15,7 @@ unset(MBEDTLS_FATAL_WARNINGS CACHE)
 unset(TEST_CPP CACHE)
 
 # This is to influence findPackage into detecting Navitab's version of MbedTLS
-set(MBEDTLS_INCLUDE_DIR "${mbedtls_SOURCE_DIR}/include" CACHE INTERNAL "")
+set(MBEDTLS_INCLUDE_DIR "${NAVITAB_mbedtls_SOURCE_DIR}/include" CACHE INTERNAL "")
 if(MSVC)
     set(MBEDTLS_LIBRARY "${NAVITAB_LIBS3RD_DIR}/mbedtls.lib" CACHE INTERNAL "")
     set(MBEDX509_LIBRARY "${NAVITAB_LIBS3RD_DIR}/mbedx509.lib" CACHE INTERNAL "")

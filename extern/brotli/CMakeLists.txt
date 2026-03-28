@@ -2,11 +2,11 @@
 
 set(BROTLI_DISABLE_TESTS ON)
 
-add_subdirectory("${brotli_SOURCE_DIR}" "${brotli_BINARY_DIR}" EXCLUDE_FROM_ALL)
+add_subdirectory("${NAVITAB_brotli_SOURCE_DIR}" "${NAVITAB_brotli_BINARY_DIR}" EXCLUDE_FROM_ALL)
 
 # This is to influence various uses of findPackage into detecting Navitab's version of BrotliDec
-set(BROTLI_INCLUDE_DIR "${brotli_SOURCE_DIR}/c/include" CACHE INTERNAL "")
-set(BROTLIDEC_INCLUDE_DIRS "${brotli_SOURCE_DIR}/c/include" CACHE INTERNAL "")
+set(BROTLI_INCLUDE_DIR "${NAVITAB_brotli_SOURCE_DIR}/c/include" CACHE INTERNAL "")
+set(BROTLIDEC_INCLUDE_DIRS "${NAVITAB_brotli_SOURCE_DIR}/c/include" CACHE INTERNAL "")
 if(MSVC)
     set(BROTLICOMMON_LIBRARY "${NAVITAB_LIBS3RD_DIR}/brotlicommon.lib" CACHE INTERNAL "")
     set(BROTLIDEC_LIBRARY "${NAVITAB_LIBS3RD_DIR}/brotlidec.lib" CACHE INTERNAL "")

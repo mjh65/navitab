@@ -9,12 +9,12 @@ set(ZSTD_BUILD_COMPRESSION OFF)
 set(ZSTD_BUILD_DICTBUILDER OFF)
 set(ZSTD_USE_STATIC_RUNTIME ON)
 
-add_subdirectory("${zstd_SOURCE_DIR}/build/cmake" "${zstd_BINARY_DIR}" EXCLUDE_FROM_ALL)
+add_subdirectory("${NAVITAB_zstd_SOURCE_DIR}/build/cmake" "${NAVITAB_zstd_BINARY_DIR}" EXCLUDE_FROM_ALL)
 add_library(zstd ALIAS libzstd_static)
 
 # Ensure that find_package selects Navitab's downloaded zstd static library 
 # CMake target is called 'libzstd'
-set(ZSTD_INCLUDE_DIR "${zstd_SOURCE_DIR}/lib" CACHE INTERNAL "")
+set(ZSTD_INCLUDE_DIR "${NAVITAB_zstd_SOURCE_DIR}/lib" CACHE INTERNAL "")
 if(MSVC)
     set(ZSTD_LIBRARY "${NAVITAB_LIBS3RD_DIR}/zstd.lib" CACHE INTERNAL "")
 else()

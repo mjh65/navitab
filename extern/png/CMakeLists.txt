@@ -14,16 +14,16 @@ set(PNG_TESTS OFF)
 set(SKIP_INSTALL_EXPORT ON)
 set(SKIP_INSTALL_CONFIG_FILE ON)
 
-add_subdirectory("${png_SOURCE_DIR}" "${png_BINARY_DIR}" EXCLUDE_FROM_ALL)
+add_subdirectory("${NAVITAB_png_SOURCE_DIR}" "${NAVITAB_png_BINARY_DIR}" EXCLUDE_FROM_ALL)
 add_library(png ALIAS png_static)
 
 target_include_directories(png_static
-    INTERFACE "$<BUILD_INTERFACE:${png_SOURCE_DIR}>"
-    INTERFACE "$<BUILD_INTERFACE:${png_BINARY_DIR}>"
+    INTERFACE "$<BUILD_INTERFACE:${NAVITAB_png_SOURCE_DIR}>"
+    INTERFACE "$<BUILD_INTERFACE:${NAVITAB_png_BINARY_DIR}>"
 )
 
 # This is to influence findPackage into detecting Navitab's version of PNG
-set(PNG_PNG_INCLUDE_DIR "${png_SOURCE_DIR}" CACHE INTERNAL "")
+set(PNG_PNG_INCLUDE_DIR "${NAVITAB_png_SOURCE_DIR}" CACHE INTERNAL "")
 if(MSVC)
     set(PNG_LIBRARY "${NAVITAB_LIBS3RD_DIR}/png.lib" CACHE INTERNAL "")
 else()

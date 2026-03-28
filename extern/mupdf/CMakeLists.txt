@@ -14,17 +14,17 @@ find_package(Threads REQUIRED)
 include(Prefixer)
 
 file(GLOB MUPDF_SOURCES
-    "${mupdf_SOURCE_DIR}/source/fitz/*.c"
-    "${mupdf_SOURCE_DIR}/source/html/*.c"
-    "${mupdf_SOURCE_DIR}/source/pdf/*.c"
-    "${mupdf_SOURCE_DIR}/source/svg/*.c"
-    "${mupdf_SOURCE_DIR}/generated/resources/fonts/urw/*.cff.c"
-    "${mupdf_SOURCE_DIR}/source/cbz/muimg.c"
+    "${NAVITAB_mupdf_SOURCE_DIR}/source/fitz/*.c"
+    "${NAVITAB_mupdf_SOURCE_DIR}/source/html/*.c"
+    "${NAVITAB_mupdf_SOURCE_DIR}/source/pdf/*.c"
+    "${NAVITAB_mupdf_SOURCE_DIR}/source/svg/*.c"
+    "${NAVITAB_mupdf_SOURCE_DIR}/generated/resources/fonts/urw/*.cff.c"
+    "${NAVITAB_mupdf_SOURCE_DIR}/source/cbz/muimg.c"
 )
 
 add_library(mupdf STATIC ${MUPDF_SOURCES})
 target_include_directories(mupdf
-    PUBLIC "${mupdf_SOURCE_DIR}/include"
+    PUBLIC "${NAVITAB_mupdf_SOURCE_DIR}/include"
 )
 target_link_libraries(mupdf
     PRIVATE zlibs
@@ -46,5 +46,5 @@ if(MSVC)
 else()
     set(NAVITAB_mupdf_LOCATION "${NAVITAB_LIBS3RD_DIR}/libmupdf.a" CACHE INTERNAL "")
 endif()
-set(NAVITAB_mupdf_INCDIRS "${mupdf_SOURCE_DIR}/include" CACHE INTERNAL "")
+set(NAVITAB_mupdf_INCDIRS "${NAVITAB_mupdf_SOURCE_DIR}/include" CACHE INTERNAL "")
 set(NAVITAB_mupdf_LINKLIBS zlibs brotlidec brotlienc brotlicommon lcms2 jbig2dec jpeg openjp2 freetype harfbuzz gumbo CACHE INTERNAL "")

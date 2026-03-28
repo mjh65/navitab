@@ -11,7 +11,7 @@ else()
     set(HarfBuzz_LIBRARY "${NAVITAB_LIBS3RD_DIR}/libharfbuzz.a" CACHE INTERNAL "")
 endif()
 
-add_subdirectory("${freetype_SOURCE_DIR}" "${freetype_BINARY_DIR}" EXCLUDE_FROM_ALL)
+add_subdirectory("${NAVITAB_freetype_SOURCE_DIR}" "${NAVITAB_freetype_BINARY_DIR}" EXCLUDE_FROM_ALL)
 
 target_link_libraries(freetype PRIVATE png bzip2)
 

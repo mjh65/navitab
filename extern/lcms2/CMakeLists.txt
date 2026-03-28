@@ -41,11 +41,11 @@ set(LCMS2_SOURCES
     cmswtpnt.c
     cmsxform.c
 )
-PrefixSources(LCMS2_SOURCES "${lcms2_SOURCE_DIR}/src")
+PrefixSources(LCMS2_SOURCES "${NAVITAB_lcms2_SOURCE_DIR}/src")
 
 add_library(lcms2 STATIC ${LCMS2_SOURCES})
 target_include_directories(lcms2
-    PUBLIC "${lcms2_SOURCE_DIR}/include"
+    PUBLIC "${NAVITAB_lcms2_SOURCE_DIR}/include"
 )
 
 # Cache settings to be used when BUILD_NAVITAB_THIRDPARTY is OFF

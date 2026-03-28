@@ -16,7 +16,7 @@ set(lzma OFF CACHE INTERNAL "")
 set(webp OFF CACHE INTERNAL "")
 set(ZSTD_HAVE_DECOMPRESS_STREAM ON)
 
-add_subdirectory("${tiff_SOURCE_DIR}" "${tiff_BINARY_DIR}" EXCLUDE_FROM_ALL)
+add_subdirectory("${NAVITAB_tiff_SOURCE_DIR}" "${NAVITAB_tiff_BINARY_DIR}" EXCLUDE_FROM_ALL)
 
 unset(tiff-tools CACHE)
 unset(tiff-tests CACHE)
@@ -33,7 +33,7 @@ target_link_libraries(tiff
 )
 
 # This is to influence findPackage into detecting Navitab's version of Tiff
-set(TIFF_INCLUDE_DIR "${tiff_SOURCE_DIR}/libtiff" CACHE INTERNAL "")
+set(TIFF_INCLUDE_DIR "${NAVITAB_tiff_SOURCE_DIR}/libtiff" CACHE INTERNAL "")
 if(MSVC)
     set(TIFF_LIBRARY "${NAVITAB_LIBS3RD_DIR}/tiff.lib" CACHE INTERNAL "")
 else()

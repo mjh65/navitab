@@ -1,10 +1,10 @@
 # This file is part of the Navitab project. See the README and LICENSE for details.
 
-add_subdirectory("${lerc_SOURCE_DIR}" "${lerc_BINARY_DIR}" EXCLUDE_FROM_ALL)
+add_subdirectory("${NAVITAB_lerc_SOURCE_DIR}" "${NAVITAB_lerc_BINARY_DIR}" EXCLUDE_FROM_ALL)
 add_library(lerc ALIAS Lerc)
 
 # This is to influence findPackage into detecting Navitab's version of Lerc
-set(LERC_INCLUDE_DIR "${lerc_SOURCE_DIR}/src/LercLib/include" CACHE INTERNAL "")
+set(LERC_INCLUDE_DIR "${NAVITAB_lerc_SOURCE_DIR}/src/LercLib/include" CACHE INTERNAL "")
 if(MSVC)
     set(LERC_LIBRARY "${NAVITAB_LIBS3RD_DIR}/lerc.lib" CACHE INTERNAL "")
 else()

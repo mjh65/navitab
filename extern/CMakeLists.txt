@@ -29,10 +29,16 @@ if(${BUILD_NAVITAB_THIRDPARTY} OR ${full_build})
     # These packages are ordered so that dependencies can be fully satisfied within the
     # Navitab project so we can guarantee to keep all libraries static (Xplane requirement).
     set(PKGS
+        xsdk        "https://github.com/TeamAvitab/XSDK/archive/refs/tags/v4.3.0.tar.gz"
+        # xsdk has no dependencies.
         fmt         "https://github.com/fmtlib/fmt/releases/download/10.2.1/fmt-10.2.1.zip"
         # fmt has no dependencies.
         json        "https://github.com/nlohmann/json/archive/refs/tags/v3.12.0.tar.gz"
         # json has no dependencies.
+        detex       "https://github.com/hglm/detex/archive/refs/tags/v0.1.2alpha2.tar.gz"
+        # detex has no dependencies.
+        stb         "https://github.com/nothings/stb/archive/449758b.tar.gz"
+        # stb has no dependencies.
         sqlite      "https://www.sqlite.org/2025/sqlite-amalgamation-3500300.zip"
         # sqlite has no dependencies. it does not have inbuilt CMake support.
         lunasvg     "https://github.com/sammycage/lunasvg/archive/refs/tags/v3.4.0.zip"
@@ -76,20 +82,14 @@ if(${BUILD_NAVITAB_THIRDPARTY} OR ${full_build})
         # harfbuzz uses freetype, but will use Navitab's freetype if it is a build target, so is processed afterwards
         mupdf       "https://github.com/ArtifexSoftware/mupdf/archive/refs/tags/1.26.3.tar.gz"
         # mupdf uses zlib, brotli, lcms2, jbig2, jpeg, openjpeg, freetype, harfbuzz, gumbo
-        glfw        "https://github.com/glfw/glfw/releases/download/3.4/glfw-3.4.zip"
+        glfw        "https://github.com/glfw/glfw/archive/refs/tags/3.4.tar.gz"
         # glfw has no dependencies.
         lvgl        "https://github.com/lvgl/lvgl/archive/refs/tags/v9.1.0.zip"
         # lvgl has no dependencies.
-
-        # TODO - the following 3rd party libraries are used by Avitab, but have not
-        # yet been brought into Navitab. It's possible they aren't even required.
-
-        # url = https://github.com/hglm/detex
-        # url = https://github.com/nothings/stb
-        # url = https://github.com/OSGeo/proj.4
-        # url = https://github.com/OSGeo/libgeotiff
-        # url = https://github.com/ldarren/QuickJS/
-        # url = https://github.com/gulrak/filesystem.git
+        proj        "https://github.com/OSGeo/proj.4/archive/refs/tags/5.2.0.tar.gz"
+        # proj uses sqlite3 (apparently?).
+        geotiff     "https://github.com/OSGeo/libgeotiff/archive/refs/tags/1.4.3.tar.gz"
+        # geotiff uses tiff, proj.
     )
 
     # We don't want any of the packages to build shared libs, examples or testing.

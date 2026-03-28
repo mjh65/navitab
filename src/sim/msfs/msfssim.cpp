@@ -122,7 +122,7 @@ void MsfsSimulator::AsyncPollSimulator()
 
 bool MsfsSimulator::TryConnectToMsfsSim()
 {
-    if (SUCCEEDED(SimConnect_Open(&hSimConnect, "Avitab", NULL, 0, 0, 0)))
+    if (SUCCEEDED(SimConnect_Open(&hSimConnect, "Navitab", NULL, 0, 0, 0)))
     {
         LOGS("SimConnect connected to MS Flight Simulator!");
 
